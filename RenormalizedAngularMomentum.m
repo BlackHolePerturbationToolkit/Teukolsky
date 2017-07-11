@@ -54,7 +54,7 @@ Cos2\[Pi]\[Nu]Series[M_, a_, \[Omega]_, s_, l_, m_] :=
   \[Nu]RootFind[M, a, \[Omega], s, l, m, SpinWeightedSpheroidalEigenvalue[s, l, m, a \[Omega]], Cos2\[Pi]\[Nu]];
 
 \[Nu]RootFind[M_, a_, \[Omega]_, s_, l_, m_, \[Lambda]_, Cos2\[Pi]\[Nu]_] :=
- Module[{q, \[Epsilon], \[Kappa], \[Tau], \[Alpha], \[Beta], \[Gamma], R, L, \[Nu], \[Nu]0, \[Nu]1, \[Nu]2, \[Nu]3, \[Nu]i, i, precision, Mp, ap, \[Omega]p, \[Lambda]p, Cos2\[Pi]\[Nu]p, nmax=25(*FIXME*), res},
+ Module[{q, \[Epsilon], \[Kappa], \[Tau], \[Alpha]\[Gamma], \[Beta], R, L, \[Nu], \[Nu]0, \[Nu]1, \[Nu]2, \[Nu]3, \[Nu]i, i, precision, Mp, ap, \[Omega]p, \[Lambda]p, Cos2\[Pi]\[Nu]p, nmax=25(*FIXME*), res},
   precision = Precision[{M, a, \[Omega], \[Lambda]}];
   {Mp, ap, \[Omega]p, \[Lambda]p, Cos2\[Pi]\[Nu]p} = SetPrecision[{M, a, \[Omega], \[Lambda], Cos2\[Pi]\[Nu]}, precision];
 
@@ -63,28 +63,27 @@ Cos2\[Pi]\[Nu]Series[M_, a_, \[Omega]_, s_, l_, m_] :=
   \[Kappa]=Sqrt[1-q^2];
   \[Tau]=(\[Epsilon]-m q)/\[Kappa];
 
-  \[Alpha][n_, \[Nu]_?InexactNumberQ] := (I \[Epsilon] \[Kappa](n+\[Nu]+1+s+I \[Epsilon])(n+\[Nu]+1+s-I \[Epsilon])(n+\[Nu]+1+I \[Tau]))/((n+\[Nu]+1)(2n+2\[Nu]+3));
-  \[Beta][n_, \[Nu]_?InexactNumberQ] := -\[Lambda]p-s(s+1)+(n+\[Nu])(n+\[Nu]+1)+\[Epsilon]^2+\[Epsilon](\[Epsilon]-m q)+(\[Epsilon](\[Epsilon]-m q)(s^2+\[Epsilon]^2))/((n+\[Nu])(n+\[Nu]+1));
-  \[Gamma][n_, \[Nu]_?InexactNumberQ] := -((I \[Epsilon] \[Kappa](n+\[Nu]-s+I \[Epsilon])(n+\[Nu]-s-I \[Epsilon])(n+\[Nu]-I \[Tau]))/((n+\[Nu])(2n+2\[Nu]-1)));
+  \[Alpha]\[Gamma][n_, \[Nu]_?InexactNumberQ] := \[Epsilon]^2 \[Kappa]^2 (n + \[Nu]) (2 + n + \[Nu]) ((1 + n + \[Nu] - s)^2 + \[Epsilon]^2) ((1 + n + \[Nu] + s)^2 + \[Epsilon]^2) (-1 + 2 n + 2 \[Nu]) (5 + 2 n + 2 \[Nu]) ((1 + n + \[Nu])^2 + \[Tau]^2);
+  \[Beta][n_, \[Nu]_?InexactNumberQ] := (2 n + 2 \[Nu] + 3) (2 n + 2 \[Nu] - 1) ((-\[Lambda] - s (s + 1) + (n + \[Nu]) (n + \[Nu] + 1) + \[Epsilon]^2 + \[Epsilon] (\[Epsilon] - m q)) ((n + \[Nu]) (n + \[Nu] + 1)) + (\[Epsilon] (\[Epsilon] - m q) (s^2 + \[Epsilon]^2)));
 
-  R[n_, \[Nu]_] := ContinuedFractionK[-\[Alpha][i-1, \[Nu]] \[Gamma][i, \[Nu]],\[Beta][i, \[Nu]], {i, n, n+nmax}]/\[Alpha][n-1, \[Nu]];
-  L[n_, \[Nu]_] := ContinuedFractionK[-\[Alpha][2n-i, \[Nu]] \[Gamma][2n-i+1, \[Nu]], \[Beta][2n-i, \[Nu]], {i, n, n+nmax}]/\[Gamma][n+1, \[Nu]];
+  R[n_, \[Nu]_] := ContinuedFractionK[-\[Alpha]\[Gamma][i-1, \[Nu]], \[Beta][i, \[Nu]], {i, n, n+nmax}];
+  L[n_, \[Nu]_] := ContinuedFractionK[-\[Alpha]\[Gamma][2n-i, \[Nu]], \[Beta][2n-i, \[Nu]], {i, n, n+nmax}];
 
   \[Nu]0 = l - ArcCos[Cos2\[Pi]\[Nu]p] / (2*\[Pi]);
 
   (* There are three possible cases: *)
   Check[Which[
     -1 <= Cos2\[Pi]\[Nu] <= 1, (* \[Nu] Real *)
-      \[Nu] /. FindRoot[Re[\[Beta][0, \[Nu]]+\[Alpha][0, \[Nu]] R[1, \[Nu]]+\[Gamma][0, \[Nu]] L[-1, \[Nu]]] == 0, {\[Nu], \[Nu]0, 9/10 \[Nu]0, 11/10 \[Nu]0}, WorkingPrecision -> precision]
+      \[Nu] /. FindRoot[Re[\[Beta][0, \[Nu]] + R[1, \[Nu]] + L[-1, \[Nu]]] == 0, {\[Nu], \[Nu]0, 9/10 \[Nu]0, 11/10 \[Nu]0}, WorkingPrecision -> precision]
     ,
     Cos2\[Pi]\[Nu] < 1, (* \[Nu] = 1/2 + I \[Nu]i] *)
       Check[
-        1/2 + I \[Nu]i /. FindRoot[Re[(\[Beta][0, \[Nu]]+\[Alpha][0, \[Nu]] R[1, \[Nu]]+\[Gamma][0, \[Nu]] L[-1, \[Nu]] /. \[Nu] -> 1/2 + I \[Nu]i)] == 0, {\[Nu]i, 9/10 Im[\[Nu]0], 11/10 Im[\[Nu]0]}, Method->"Brent", WorkingPrecision -> precision],
-        1/2 + I \[Nu]i /. FindRoot[Re[(\[Beta][0, \[Nu]]+\[Alpha][0, \[Nu]] R[1, \[Nu]]+\[Gamma][0, \[Nu]] L[-1, \[Nu]] /. \[Nu] -> 1/2 + I \[Nu]i)] == 0, {\[Nu]i, Im[\[Nu]0], 9/10 Im[\[Nu]0], 11/10 Im[\[Nu]0]}, WorkingPrecision -> precision],
+        1/2 + I \[Nu]i /. FindRoot[Re[(\[Beta][0, \[Nu]] + R[1, \[Nu]]+ L[-1, \[Nu]] /. \[Nu] -> 1/2 + I \[Nu]i)] == 0, {\[Nu]i, 9/10 Im[\[Nu]0], 11/10 Im[\[Nu]0]}, Method->"Brent", WorkingPrecision -> precision],
+        1/2 + I \[Nu]i /. FindRoot[Re[(\[Beta][0, \[Nu]] + R[1, \[Nu]]+ L[-1, \[Nu]] /. \[Nu] -> 1/2 + I \[Nu]i)] == 0, {\[Nu]i, Im[\[Nu]0], 9/10 Im[\[Nu]0], 11/10 Im[\[Nu]0]}, WorkingPrecision -> precision],
         FindRoot::bbrac]
     ,
     Cos2\[Pi]\[Nu] > 1, (* \[Nu] = 1/2 + I \[Nu]i] *)
-      I \[Nu]i /. FindRoot[Re[\[Beta][0, \[Nu]]+\[Alpha][0, \[Nu]] R[1, \[Nu]]+\[Gamma][0, \[Nu]] L[-1, \[Nu]] /. \[Nu] -> I \[Nu]i] == 0, {\[Nu]i, Im[\[Nu]0], 11/10 Im[\[Nu]0], 9/10 Im[\[Nu]0]}, WorkingPrecision -> precision]
+      I \[Nu]i /. FindRoot[Re[\[Beta][0, \[Nu]] + R[1, \[Nu]] + L[-1, \[Nu]] /. \[Nu] -> I \[Nu]i] == 0, {\[Nu]i, Im[\[Nu]0], 11/10 Im[\[Nu]0], 9/10 Im[\[Nu]0]}, WorkingPrecision -> precision]
     ,
     True,
       $Failed
