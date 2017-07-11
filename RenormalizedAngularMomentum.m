@@ -23,7 +23,7 @@ ReadHDF5[file_String, opts_:"Datasets"] :=
 
 coeffsFile = FileNameJoin[{FileNameDrop[FindFile["Teukolsky`"], -2], "nu_coeffs.h5"}];
 
-modesAvailable :=
+modesAvailable := modesAvailable =
   Sort[Flatten[StringCases[ReadHDF5[coeffsFile, "Datasets"],
     "s" ~~ s : NumberString ~~ "l" ~~ l : NumberString ~~ "m" ~~ m : NumberString :> {ToExpression[s], ToExpression[l], ToExpression[m]}], 1]];
 
