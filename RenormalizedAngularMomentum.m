@@ -70,7 +70,7 @@ Cos2\[Pi]\[Nu]Series[M_, a_, \[Omega]_, s_, l_, m_] :=
   R[n_, \[Nu]_] := ContinuedFractionK[-\[Alpha][i-1, \[Nu]] \[Gamma][i, \[Nu]],\[Beta][i, \[Nu]], {i, n, n+nmax}]/\[Alpha][n-1, \[Nu]];
   L[n_, \[Nu]_] := ContinuedFractionK[-\[Alpha][2n-i, \[Nu]] \[Gamma][2n-i+1, \[Nu]], \[Beta][2n-i, \[Nu]], {i, n, n+nmax}]/\[Gamma][n+1, \[Nu]];
 
-  \[Nu]0 = ArcCos[Cos2\[Pi]\[Nu]p] / (2*\[Pi]);
+  \[Nu]0 = l - ArcCos[Cos2\[Pi]\[Nu]p] / (2*\[Pi]);
 
   (* There are three possible cases: *)
   Check[Which[
