@@ -74,11 +74,10 @@ Cos2\[Pi]\[Nu]Series[M_, a_, \[Omega]_, s_, l_, m_] :=
 
   (* There are three possible cases: *)
   Check[Which[
-    -1 <= Cos2\[Pi]\[Nu] <= 1,
+    -1 <= Cos2\[Pi]\[Nu] <= 1, (* \[Nu] Real *)
       \[Nu] /. FindRoot[Re[\[Beta][0, \[Nu]]+\[Alpha][0, \[Nu]] R[1, \[Nu]]+\[Gamma][0, \[Nu]] L[-1, \[Nu]]] == 0, {\[Nu], \[Nu]0, 9/10 \[Nu]0, 11/10 \[Nu]0}, WorkingPrecision -> precision]
     ,
-    Cos2\[Pi]\[Nu] < 1,
-      \[Nu]0 = Im[\[Nu]0];
+    Cos2\[Pi]\[Nu] < 1, (* \[Nu] = 1/2 + I \[Nu]i] *)
       Check[
         1/2 + I \[Nu]i /. FindRoot[Re[(\[Beta][0, \[Nu]]+\[Alpha][0, \[Nu]] R[1, \[Nu]]+\[Gamma][0, \[Nu]] L[-1, \[Nu]] /. \[Nu] -> 1/2 + I \[Nu]i)] == 0, {\[Nu]i, 11/10 Im[\[Nu]0], 9/10 Im[\[Nu]0]}, Method->"Brent", WorkingPrecision -> precision],
         1/2 + I \[Nu]i /. FindRoot[Re[(\[Beta][0, \[Nu]]+\[Alpha][0, \[Nu]] R[1, \[Nu]]+\[Gamma][0, \[Nu]] L[-1, \[Nu]] /. \[Nu] -> 1/2 + I \[Nu]i)] == 0, {\[Nu]i, \[Nu]0, 11/10 Im[\[Nu]0], 9/10 Im[\[Nu]0]}, WorkingPrecision -> precision],
