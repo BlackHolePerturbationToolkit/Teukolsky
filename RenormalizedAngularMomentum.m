@@ -4,7 +4,7 @@ BeginPackage["Teukolsky`RenormalizedAngularMomentum`",
   {"SpinWeightedSpheroidalHarmonics`"}
 ];
 
-RenormalizedAngularMomentum::usage = "RenormalizedAngularMomentum[M, a, \[Omega], s, l, m] gives the renormalized angular momentum \[Nu].";
+RenormalizedAngularMomentum::usage = "RenormalizedAngularMomentum[a, \[Omega], s, l, m] gives the renormalized angular momentum \[Nu].";
 
 Begin["`Private`"];
 
@@ -34,7 +34,7 @@ coeffs[s_Integer, l_Integer, m_Integer] := coeffs[s, l, m] =
 ]
 
 (* Compute an approximation for nu from its series expansion *)
-Cos2\[Pi]\[Nu]Series[M_, a_, \[Omega]_, s_, l_, m_] :=
+Cos2\[Pi]\[Nu]Series[a_, \[Omega]_, s_, l_, m_] :=
  Module[{data, \[Omega]Exp, qExp, q, Cos2\[Pi]\[Nu]},
   data = coeffs[s, l, m];
   If[data == $Failed, Return[$Failed]];
@@ -43,23 +43,23 @@ Cos2\[Pi]\[Nu]Series[M_, a_, \[Omega]_, s_, l_, m_] :=
   \[Omega]Exp = Range[0, Length[data] - 1];
   qExp = Range[0, Length[First[data]] - 1];
   
-  q = a / M;
+  q = a;
   
   Cos2\[Pi]\[Nu] = 1 + \[Omega]^\[Omega]Exp.(data.q^qExp);
   Cos2\[Pi]\[Nu]
 ]
 
 (* Find \[Nu] using root finding with an initial guess *)
-\[Nu]RootFind[M_, a_, \[Omega]_, s_, l_, m_, Cos2\[Pi]\[Nu]_] :=
-  \[Nu]RootFind[M, a, \[Omega], s, l, m, SpinWeightedSpheroidalEigenvalue[s, l, m, a \[Omega]], Cos2\[Pi]\[Nu]];
+\[Nu]RootFind[a_, \[Omega]_, s_, l_, m_, Cos2\[Pi]\[Nu]_] :=
+  \[Nu]RootFind[a, \[Omega], s, l, m, SpinWeightedSpheroidalEigenvalue[s, l, m, a \[Omega]], Cos2\[Pi]\[Nu]];
 
-\[Nu]RootFind[M_, a_, \[Omega]_, s_, l_, m_, \[Lambda]_, Cos2\[Pi]\[Nu]_] :=
- Module[{q, \[Epsilon], \[Kappa], \[Tau], \[Alpha]\[Gamma], \[Beta], R, L, \[Nu], \[Nu]0, \[Nu]1, \[Nu]2, \[Nu]3, \[Nu]i, i, precision, Mp, ap, \[Omega]p, \[Lambda]p, Cos2\[Pi]\[Nu]p, nmax=25(*FIXME*), res},
-  precision = Precision[{M, a, \[Omega], \[Lambda]}];
-  {Mp, ap, \[Omega]p, \[Lambda]p, Cos2\[Pi]\[Nu]p} = SetPrecision[{M, a, \[Omega], \[Lambda], Cos2\[Pi]\[Nu]}, precision];
+\[Nu]RootFind[a_, \[Omega]_, s_, l_, m_, \[Lambda]_, Cos2\[Pi]\[Nu]_] :=
+ Module[{q, \[Epsilon], \[Kappa], \[Tau], \[Alpha]\[Gamma], \[Beta], R, L, \[Nu], \[Nu]0, \[Nu]1, \[Nu]2, \[Nu]3, \[Nu]i, i, precision, ap, \[Omega]p, \[Lambda]p, Cos2\[Pi]\[Nu]p, nmax=25(*FIXME*), res},
+  precision = Precision[{a, \[Omega], \[Lambda]}];
+  {ap, \[Omega]p, \[Lambda]p, Cos2\[Pi]\[Nu]p} = SetPrecision[{a, \[Omega], \[Lambda], Cos2\[Pi]\[Nu]}, precision];
 
-  q = ap/Mp;
-  \[Epsilon] = 2 Mp \[Omega]p;
+  q = ap;
+  \[Epsilon] = 2 \[Omega]p;
   \[Kappa]=Sqrt[1-q^2];
   \[Tau]=(\[Epsilon]-m q)/\[Kappa];
 
@@ -94,24 +94,24 @@ Cos2\[Pi]\[Nu]Series[M_, a_, \[Omega]_, s_, l_, m_] :=
 (**********************************************************)
 
 SyntaxInformation[RenormalizedAngularMomentum] =
- {"ArgumentsPattern" -> {_, _, _, _, _, _, ___}};
+ {"ArgumentsPattern" -> {_, _, _, _, _, ___}};
 Options[RenormalizedAngularMomentum] = {Method -> Automatic};
 SetAttributes[RenormalizedAngularMomentum, {NumericFunction}];
 
-RenormalizedAngularMomentum[M_, a_, \[Omega]_, s_, l_, m_] /; l < Abs[s] := 0; (* FIXME: unphysical cases *)
+RenormalizedAngularMomentum[a_, \[Omega]_, s_, l_, m_] /; l < Abs[s] := 0; (* FIXME: unphysical cases *)
 
-RenormalizedAngularMomentum[M_, (0|0.), (0|0.), 0, 0, 0] := 0; (* FIXME: special cases *)
+RenormalizedAngularMomentum[(0|0.), (0|0.), 0, 0, 0] := 0; (* FIXME: special cases *)
 
-RenormalizedAngularMomentum[M_?NumericQ, a_?NumericQ, \[Omega]_?NumericQ, s_Integer, l_Integer, m_Integer] /; InexactNumberQ[a] || InexactNumberQ[\[Omega]] :=
+RenormalizedAngularMomentum[a_?NumericQ, \[Omega]_?NumericQ, s_Integer, l_Integer, m_Integer] /; InexactNumberQ[a] || InexactNumberQ[\[Omega]] :=
  Module[{\[Nu], Cos2\[Pi]\[Nu]},
-  Cos2\[Pi]\[Nu] = Cos2\[Pi]\[Nu]Series[N[M], N[a], N[\[Omega]], s, l, m]; (* FIXME: catch failure *)
-  \[Nu] = \[Nu]RootFind[M, a, \[Omega], s, l, m, Cos2\[Pi]\[Nu]];
+  Cos2\[Pi]\[Nu] = Cos2\[Pi]\[Nu]Series[N[a], N[\[Omega]], s, l, m]; (* FIXME: catch failure *)
+  \[Nu] = \[Nu]RootFind[a, \[Omega], s, l, m, Cos2\[Pi]\[Nu]];
 
   \[Nu]
 ];
 
-RenormalizedAngularMomentum /: N[RenormalizedAngularMomentum[M_?NumericQ, a_?NumericQ, \[Omega]_?NumericQ, s_Integer, l_Integer, m_Integer], Nopts___] :=
-  RenormalizedAngularMomentum[M, N[a, Nopts], N[\[Omega], Nopts], s, l, m];
+RenormalizedAngularMomentum /: N[RenormalizedAngularMomentum[a_?NumericQ, \[Omega]_?NumericQ, s_Integer, l_Integer, m_Integer], Nopts___] :=
+  RenormalizedAngularMomentum[N[a, Nopts], N[\[Omega], Nopts], s, l, m];
 
 End[];
 EndPackage[];
