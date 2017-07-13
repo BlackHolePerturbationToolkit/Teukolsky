@@ -170,7 +170,7 @@ RenormalizedAngularMomentum[a_?NumericQ, \[Omega]_?NumericQ, s_Integer, l_Intege
   \[Nu]RootFind[a, \[Omega], s, l, m, Cos2\[Pi]\[Nu]];
 
 RenormalizedAngularMomentum[a_?NumericQ, \[Omega]_?NumericQ, s_Integer, l_Integer, m_Integer,
- Method -> {"Monodromy"}] /; InexactNumberQ[a] || InexactNumberQ[\[Omega]] :=
+ Method -> ("Monodromy"|{"Monodromy"})] /; InexactNumberQ[a] || InexactNumberQ[\[Omega]] :=
   RenormalizedAngularMomentum[a, \[Omega], s, l, m, {"Monodromy", "nmax" -> Automatic}];
 
 RenormalizedAngularMomentum[a_?NumericQ, \[Omega]_?NumericQ, s_Integer, l_Integer, m_Integer,
@@ -178,7 +178,7 @@ RenormalizedAngularMomentum[a_?NumericQ, \[Omega]_?NumericQ, s_Integer, l_Intege
   \[Nu]RCHMonodromy[a, \[Omega], s, l, m, \[Lambda], nmax];
 
 RenormalizedAngularMomentum[a_?NumericQ, \[Omega]_?NumericQ, s_Integer, l_Integer, m_Integer,
- Method -> {"Series"}] /; InexactNumberQ[a] || InexactNumberQ[\[Omega]] :=
+ Method -> ("Series"|{"Series"})] /; InexactNumberQ[a] || InexactNumberQ[\[Omega]] :=
   Cos2\[Pi]\[Nu]Series[a, \[Omega], s, l, m];
 
 RenormalizedAngularMomentum[a_?NumericQ, \[Omega]_?NumericQ, s_Integer, l_Integer, m_Integer] /; InexactNumberQ[a] || InexactNumberQ[\[Omega]] :=
