@@ -121,7 +121,7 @@ Cos2\[Pi]\[Nu]Series[a_, \[Omega]_, s_, l_, m_] :=
   a2sum[n_] := Gamma[\[Mu]2C-\[Mu]1C] Sum[(-1)^j a2[j]Pochhammerm1p2[n-j], {j, 0, Ceiling[n/2]}];
 
   (* Compute \[Nu], with error estimate (precision of output) based on the assumption that Cos[2\[Pi]\[Nu]] should be real. *)
-  Cos2\[Pi]\[Nu][nmax_] := Cos2\[Pi]\[Nu][nmax] = Cos[\[Pi](\[Mu]1C-\[Mu]2C)]+(2\[Pi]^2)/(a1sum[nmax] a2sum[nmax]) (-1)^(Npmax-1) a1[nmax]a2[nmax];
+  Cos2\[Pi]\[Nu][nmax_] := Cos2\[Pi]\[Nu][nmax] = Cos[\[Pi](\[Mu]1C-\[Mu]2C)]+(2\[Pi]^2)/(a1sum[nmax] a2sum[nmax]) (-1)^(nmax-1) a1[nmax]a2[nmax];
   If[IntegerQ[Npmax],
     nmax = Npmax;
     If[Precision[Cos2\[Pi]\[Nu][nmax]] == 0, Return[$Failed]];
