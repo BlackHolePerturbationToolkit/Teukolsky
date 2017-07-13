@@ -76,10 +76,10 @@ Cos2\[Pi]\[Nu]Series[a_, \[Omega]_, s_, l_, m_] :=
     -1 <= Cos2\[Pi]\[Nu] <= 1, (* \[Nu] Real *)
       \[Nu] /. FindRoot[Re[\[Beta][0, \[Nu]] + R[1, \[Nu]] + L[-1, \[Nu]]] == 0, {\[Nu], \[Nu]0, 9/10 \[Nu]0, 11/10 \[Nu]0}, WorkingPrecision -> precision]
     ,
-    Cos2\[Pi]\[Nu] < 1, (* \[Nu] = 1/2 + I \[Nu]i] *)
+    Cos2\[Pi]\[Nu] < -1, (* \[Nu] = 1/2 + I \[Nu]i] *)
       1/2 + I \[Nu]i /. FindRoot[Re[(\[Beta][0, \[Nu]] + R[1, \[Nu]]+ L[-1, \[Nu]] /. \[Nu] -> 1/2 + I \[Nu]i)] == 0, {\[Nu]i, Im[\[Nu]0], 9/10 Im[\[Nu]0], 11/10 Im[\[Nu]0]}, WorkingPrecision -> precision]
     ,
-    Cos2\[Pi]\[Nu] > 1, (* \[Nu] = 1/2 + I \[Nu]i] *)
+    Cos2\[Pi]\[Nu] > 1, (* \[Nu] = I \[Nu]i] *)
       I \[Nu]i /. FindRoot[Re[\[Beta][0, \[Nu]] + R[1, \[Nu]] + L[-1, \[Nu]] /. \[Nu] -> I \[Nu]i] == 0, {\[Nu]i, Im[\[Nu]0], 11/10 Im[\[Nu]0], 9/10 Im[\[Nu]0]}, WorkingPrecision -> precision]
     ,
     True,
