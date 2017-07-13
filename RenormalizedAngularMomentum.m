@@ -50,10 +50,7 @@ Cos2\[Pi]\[Nu]Series[a_, \[Omega]_, s_, l_, m_] :=
 ]
 
 (* Find \[Nu] using root finding with an initial guess *)
-\[Nu]RootFind[a_, \[Omega]_, s_, l_, m_, Cos2\[Pi]\[Nu]_] :=
-  \[Nu]RootFind[a, \[Omega], s, l, m, SpinWeightedSpheroidalEigenvalue[s, l, m, a \[Omega]], Cos2\[Pi]\[Nu]];
-
-\[Nu]RootFind[a_, \[Omega]_, s_, l_, m_, \[Lambda]_, Cos2\[Pi]\[Nu]_] :=
+\[Nu]RootFind[a_, \[Omega]_, \[Lambda]_, s_, l_, m_, Cos2\[Pi]\[Nu]_] :=
  Module[{q, \[Epsilon], \[Kappa], \[Tau], \[Alpha]\[Gamma], \[Beta], R, L, \[Nu], \[Nu]0, \[Nu]1, \[Nu]2, \[Nu]3, \[Nu]i, i, precision, ap, \[Omega]p, \[Lambda]p, Cos2\[Pi]\[Nu]p, nmax=25(*FIXME*), res},
   precision = Precision[{a, \[Omega], \[Lambda]}];
   {ap, \[Omega]p, \[Lambda]p, Cos2\[Pi]\[Nu]p} = SetPrecision[{a, \[Omega], \[Lambda], Cos2\[Pi]\[Nu]}, precision];
@@ -89,7 +86,7 @@ Cos2\[Pi]\[Nu]Series[a_, \[Omega]_, s_, l_, m_] :=
   ]
 ];
 
-\[Nu]RCHMonodromy[a_, \[Omega]_, s_, l_, m_, \[Lambda]_, Npmax_] :=
+\[Nu]RCHMonodromy[a_, \[Omega]_, \[Lambda]_, s_, l_, m_, Npmax_] :=
  Module[{q, \[Epsilon], \[Kappa], \[Tau], \[Gamma]CH, \[Delta]CH, \[Epsilon]CH, \[Alpha]CH, qCH, \[Mu]1C, \[Mu]2C, a1, a2, a1sum, a2sum, Pochhammerp1m2, Pochhammerm1p2, Cos2\[Pi]\[Nu], nmax, Cos2\[Pi]\[Nu]precision, \[Nu]},
   q = a;
   \[Epsilon] = 2 \[Omega];
@@ -171,32 +168,44 @@ RenormalizedAngularMomentum[a_, \[Omega]_, s_, l_, m_] /; l < Abs[s] := 0; (* FI
 
 RenormalizedAngularMomentum[(0|0.), (0|0.), 0, 0, 0] := 0; (* FIXME: special cases *)
 
-RenormalizedAngularMomentum[a_?NumericQ, \[Omega]_?NumericQ, s_Integer, l_Integer, m_Integer,
- Method -> {"FindRoot", "InitialGuess" -> Cos2\[Pi]\[Nu]_}] /; InexactNumberQ[a] || InexactNumberQ[\[Omega]] :=
-  \[Nu]RootFind[a, \[Omega], s, l, m, Cos2\[Pi]\[Nu]];
+RenormalizedAngularMomentum[a_?NumericQ, \[Omega]_?NumericQ, \[Lambda]_?NumericQ, s_Integer, l_Integer, m_Integer,
+ Method -> {"FindRoot", "InitialGuess" -> Cos2\[Pi]\[Nu]_}] /; InexactNumberQ[a] || InexactNumberQ[\[Omega]] || InexactNumberQ[\[Lambda]] :=
+  \[Nu]RootFind[a, \[Omega], \[Lambda], s, l, m, Cos2\[Pi]\[Nu]];
 
-RenormalizedAngularMomentum[a_?NumericQ, \[Omega]_?NumericQ, s_Integer, l_Integer, m_Integer,
- Method -> ("Monodromy"|{"Monodromy"})] /; InexactNumberQ[a] || InexactNumberQ[\[Omega]] :=
-  RenormalizedAngularMomentum[a, \[Omega], s, l, m, Method -> {"Monodromy", "nmax" -> Automatic}];
+RenormalizedAngularMomentum[a_?NumericQ, \[Omega]_?NumericQ, \[Lambda]_?NumericQ, s_Integer, l_Integer, m_Integer,
+ Method -> ("Monodromy"|{"Monodromy"})] /; InexactNumberQ[a] || InexactNumberQ[\[Omega]] || InexactNumberQ[\[Lambda]] :=
+  RenormalizedAngularMomentum[a, \[Omega], \[Lambda], s, l, m, Method -> {"Monodromy", "nmax" -> Automatic}];
 
-RenormalizedAngularMomentum[a_?NumericQ, \[Omega]_?NumericQ, s_Integer, l_Integer, m_Integer,
- Method -> {"Monodromy", "nmax" -> nmax_}] /; InexactNumberQ[a] || InexactNumberQ[\[Omega]] :=
-  \[Nu]RCHMonodromy[a, \[Omega], s, l, m, SpinWeightedSpheroidalEigenvalue[s, l, m, a \[Omega]], nmax];
+RenormalizedAngularMomentum[a_?NumericQ, \[Omega]_?NumericQ, \[Lambda]_?NumericQ, s_Integer, l_Integer, m_Integer,
+ Method -> {"Monodromy", "nmax" -> nmax_}] /; InexactNumberQ[a] || InexactNumberQ[\[Omega]] || InexactNumberQ[\[Lambda]] :=
+  \[Nu]RCHMonodromy[a, \[Omega], \[Lambda], s, l, m, nmax];
 
-RenormalizedAngularMomentum[a_?NumericQ, \[Omega]_?NumericQ, s_Integer, l_Integer, m_Integer,
- Method -> ("Series"|{"Series"})] /; InexactNumberQ[a] || InexactNumberQ[\[Omega]] :=
+RenormalizedAngularMomentum[a_?NumericQ, \[Omega]_?NumericQ, \[Lambda]_?NumericQ, s_Integer, l_Integer, m_Integer,
+ Method -> ("Series"|{"Series"})] /; InexactNumberQ[a] || InexactNumberQ[\[Omega]] || InexactNumberQ[\[Lambda]] :=
   Cos2\[Pi]\[Nu]Series[a, \[Omega], s, l, m];
 
-RenormalizedAngularMomentum[a_?NumericQ, \[Omega]_?NumericQ, s_Integer, l_Integer, m_Integer] /; InexactNumberQ[a] || InexactNumberQ[\[Omega]] :=
+RenormalizedAngularMomentum[a_?NumericQ, \[Omega]_?NumericQ, \[Lambda]_?NumericQ, s_Integer, l_Integer, m_Integer,
+ Method -> ("Series"|{"Series"})] /; InexactNumberQ[a] || InexactNumberQ[\[Omega]] || InexactNumberQ[\[Lambda]] :=
+  Cos2\[Pi]\[Nu]Series[a, \[Omega], s, l, m];
+
+RenormalizedAngularMomentum[a_?NumericQ, \[Omega]_?NumericQ, s_Integer, l_Integer, m_Integer,
+ Method -> ("Series"|{"Series"})] /; InexactNumberQ[a] || InexactNumberQ[\[Omega]] || InexactNumberQ[\[Lambda]] :=
+  Cos2\[Pi]\[Nu]Series[a, \[Omega], s, l, m];
+
+RenormalizedAngularMomentum[a_?NumericQ, \[Omega]_?NumericQ, \[Lambda]_?NumericQ, s_Integer, l_Integer, m_Integer] /;
+ InexactNumberQ[a] || InexactNumberQ[\[Omega]] || InexactNumberQ[\[Lambda]] :=
  Module[{\[Nu], Cos2\[Pi]\[Nu]},
   Cos2\[Pi]\[Nu] = Cos2\[Pi]\[Nu]Series[N[a], N[\[Omega]], s, l, m]; (* FIXME: catch failure *)
-  \[Nu] = \[Nu]RootFind[a, \[Omega], s, l, m, Cos2\[Pi]\[Nu]];
+  \[Nu] = \[Nu]RootFind[a, \[Omega], \[Lambda], s, l, m, Cos2\[Pi]\[Nu]];
 
   \[Nu]
 ];
 
-RenormalizedAngularMomentum /: N[RenormalizedAngularMomentum[a_?NumericQ, \[Omega]_?NumericQ, s_Integer, l_Integer, m_Integer], Nopts___] :=
-  RenormalizedAngularMomentum[N[a, Nopts], N[\[Omega], Nopts], s, l, m];
+RenormalizedAngularMomentum[a_?NumericQ, \[Omega]_?NumericQ, s_Integer, l_Integer, m_Integer, opts___] :=
+  RenormalizedAngularMomentum[a, \[Omega], SpinWeightedSpheroidalEigenvalue[s, l, m, a \[Omega]], s, l, m, opts];
+
+RenormalizedAngularMomentum /: N[RenormalizedAngularMomentum[a_?NumericQ, \[Omega]_?NumericQ, \[Lambda]_?NumericQ, s_Integer, l_Integer, m_Integer], Nopts___] :=
+  RenormalizedAngularMomentum[N[a, Nopts], N[\[Omega], Nopts], N[\[Lambda], Nopts], s, l, m];
 
 End[];
 EndPackage[];
