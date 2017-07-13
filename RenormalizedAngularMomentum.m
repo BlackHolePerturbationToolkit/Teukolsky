@@ -127,17 +127,22 @@ Cos2\[Pi]\[Nu]Series[a_, \[Omega]_, s_, l_, m_] :=
   Cos2\[Pi]\[Nu][nmax_] := Cos2\[Pi]\[Nu][nmax] = Cos[\[Pi](\[Mu]1C-\[Mu]2C)]+(2\[Pi]^2)/(a1sum[nmax] a2sum[nmax]) (-1)^(Npmax-1) a1[nmax]a2[nmax];
   If[IntegerQ[Npmax],
     nmax = Npmax;
+    If[Precision[Cos2\[Pi]\[Nu][nmax]] == 0, Return[$Failed]];
     Cos2\[Pi]\[Nu]precision = -RealExponent[Im[Cos2\[Pi]\[Nu][nmax]/Re[Cos2\[Pi]\[Nu][nmax]]]];
   ,
     nmax = 2 Ceiling[E^ProductLog[Precision[{a, \[Omega], \[Lambda]}] Log[100]]];
+    If[Precision[Cos2\[Pi]\[Nu][nmax]] == 0, Return[$Failed]];
     Cos2\[Pi]\[Nu]precision = 0;
     (* Increase nmax by 10% until the precision of the result decreases *)
-    While[Cos2\[Pi]\[Nu]precision < (Cos2\[Pi]\[Nu]precision = -RealExponent[Im[Cos2\[Pi]\[Nu][nmax]/Re[Cos2\[Pi]\[Nu][nmax]]]]), nmax = Round[11/10 nmax]];
+    While[Cos2\[Pi]\[Nu]precision < (Cos2\[Pi]\[Nu]precision = -RealExponent[Im[Cos2\[Pi]\[Nu][nmax]/Re[Cos2\[Pi]\[Nu][nmax]]]]),
+      nmax = Round[11/10 nmax];
+      If[Precision[Cos2\[Pi]\[Nu][nmax]] == 0, Return[$Failed]];
+    ];
     nmax = Round[10/11 nmax];
   ];
     
   If[Precision[Cos2\[Pi]\[Nu][nmax]]=!=MachinePrecision,
-    Cos2\[Pi]\[Nu][nmax] = N[Cos2\[Pi]\[Nu][nmax], -RealExponent[Im[Cos2\[Pi]\[Nu][nmax]]/Re[Cos2\[Pi]\[Nu][nmax]]]];
+    Cos2\[Pi]\[Nu][nmax] = N[Cos2\[Pi]\[Nu][nmax], Max[-RealExponent[Im[Cos2\[Pi]\[Nu][nmax]]/Re[Cos2\[Pi]\[Nu][nmax]]],0]];
   ];
 
   \[Nu] = Which[
