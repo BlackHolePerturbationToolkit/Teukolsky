@@ -182,15 +182,11 @@ RenormalizedAngularMomentum[a_?NumericQ, \[Omega]_?NumericQ, \[Lambda]_?NumericQ
 
 RenormalizedAngularMomentum[a_?NumericQ, \[Omega]_?NumericQ, \[Lambda]_?NumericQ, s_Integer, l_Integer, m_Integer,
  Method -> ("Series"|{"Series"})] /; InexactNumberQ[a] || InexactNumberQ[\[Omega]] || InexactNumberQ[\[Lambda]] :=
-  Cos2\[Pi]\[Nu]Series[a, \[Omega], s, l, m];
-
-RenormalizedAngularMomentum[a_?NumericQ, \[Omega]_?NumericQ, \[Lambda]_?NumericQ, s_Integer, l_Integer, m_Integer,
- Method -> ("Series"|{"Series"})] /; InexactNumberQ[a] || InexactNumberQ[\[Omega]] || InexactNumberQ[\[Lambda]] :=
-  Cos2\[Pi]\[Nu]Series[a, \[Omega], s, l, m];
+  l - ArcCos[Cos2\[Pi]\[Nu]Series[a, \[Omega], s, l, m]] / (2*\[Pi]);
 
 RenormalizedAngularMomentum[a_?NumericQ, \[Omega]_?NumericQ, s_Integer, l_Integer, m_Integer,
  Method -> ("Series"|{"Series"})] /; InexactNumberQ[a] || InexactNumberQ[\[Omega]] || InexactNumberQ[\[Lambda]] :=
-  Cos2\[Pi]\[Nu]Series[a, \[Omega], s, l, m];
+  l - ArcCos[Cos2\[Pi]\[Nu]Series[a, \[Omega], s, l, m]] / (2*\[Pi]);
 
 RenormalizedAngularMomentum[a_?NumericQ, \[Omega]_?NumericQ, \[Lambda]_?NumericQ, s_Integer, l_Integer, m_Integer] /;
  InexactNumberQ[a] || InexactNumberQ[\[Omega]] || InexactNumberQ[\[Lambda]] :=
