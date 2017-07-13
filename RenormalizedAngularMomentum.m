@@ -89,6 +89,75 @@ Cos2\[Pi]\[Nu]Series[a_, \[Omega]_, s_, l_, m_] :=
   ]
 ];
 
+\[Nu]RCHMonodromy[a_, \[Omega]_, s_, l_, m_, \[Lambda]_, Automatic] :=
+ Module[{precision, nmax, \[Nu]precision, \[Nu]},
+  precision = Precision[{a, \[Omega], \[Lambda]}];
+  nmax = 2 Ceiling[E^ProductLog[precision Log[100]]];
+  
+  \[Nu] = \[Nu]RCHMonodromy[a, \[Omega], s, l, m, \[Lambda], nmax];
+  \[Nu]precision = Precision[\[Nu]];
+
+  (* Increase nmax by a factor of 10% until the precision of the result decreases *)
+  While[\[Nu]precision < (\[Nu]precision = Precision[\[Nu] = \[Nu]RCHMonodromy[a, \[Omega], s, l, m, \[Lambda], nmax = Round[11/10 nmax]]])];
+  
+  (* We've gone one step too far, so the second last value for nmax is closest to the optimal nmax *)
+  \[Nu] = \[Nu]RCHMonodromy[a, \[Omega], s, l, m, \[Lambda], nmax = Round[10/11 nmax]];
+  
+  \[Nu]
+];
+
+\[Nu]RCHMonodromy[a_, \[Omega]_, s_, l_, m_, \[Lambda]_,Npmax_Integer] :=
+ Module[{q, \[Epsilon], \[Kappa], \[Tau], \[Gamma]CH, \[Delta]CH, \[Epsilon]CH, \[Alpha]CH, qCH, \[Mu]1C, \[Mu]2C, a1, a2, a1sum, a2sum, Pochhammerp1m2, Pochhammerm1p2, Cos2\[Pi]\[Nu], \[Nu]},
+  q = a;
+  \[Epsilon] = 2 \[Omega];
+  \[Kappa] = Sqrt[1-q^2];
+  \[Tau] = (\[Epsilon]-m q)/\[Kappa];
+
+  (* Compute parameters in confluent Heun equation *)
+  \[Gamma]CH = 1-s-I \[Epsilon]-I \[Tau];
+  \[Delta]CH = 1+s+I \[Epsilon]-I \[Tau];
+  \[Epsilon]CH = 2I \[Epsilon] \[Kappa];
+  \[Alpha]CH = 2 \[Epsilon] \[Kappa] (I-I s-\[Epsilon]+\[Tau]);
+  qCH = -(-s (1+s)+\[Epsilon]^2+I (-1+2 s) \[Epsilon] \[Kappa]-\[Lambda]-\[Tau] (I+\[Tau]));
+
+  \[Mu]1C = \[Alpha]CH/\[Epsilon]CH-(\[Gamma]CH+\[Delta]CH);
+  \[Mu]2C=-(\[Alpha]CH/\[Epsilon]CH);
+
+  (* Recurrence relations *)
+  a1[-1] = 0;
+  a1[0] = 1;
+  a1[n_] := a1[n] = ((\[Alpha]CH-(-1+n+\[Delta]CH) \[Epsilon]CH) (\[Alpha]CH-(-2+n+\[Gamma]CH+\[Delta]CH) \[Epsilon]CH) )/(n \[Epsilon]CH) a1[n-2]-1/(n \[Epsilon]CH^2) (\[Alpha]CH^2+\[Alpha]CH \[Epsilon]CH (1-2 n-\[Gamma]CH-\[Delta]CH+\[Epsilon]CH)+\[Epsilon]CH^2 (n^2-qCH+n (-1+\[Gamma]CH+\[Delta]CH-\[Epsilon]CH)+\[Epsilon]CH-\[Delta]CH \[Epsilon]CH)) a1[n-1];
+
+  a2[-1] = 0;
+  a2[0] = 1;
+  a2[n_] := a2[n] = -(((\[Alpha]CH+(-2+n) \[Epsilon]CH) (\[Alpha]CH+(-1+n-\[Gamma]CH) \[Epsilon]CH) )/(n \[Epsilon]CH))a2[n-2]+1/(n \[Epsilon]CH^2) (\[Alpha]CH^2+(n^2-qCH+\[Gamma]CH+\[Delta]CH-n (1+\[Gamma]CH+\[Delta]CH-\[Epsilon]CH)-\[Epsilon]CH) \[Epsilon]CH^2+\[Alpha]CH \[Epsilon]CH (-1+2 n-\[Gamma]CH-\[Delta]CH+\[Epsilon]CH)) a2[n-1];
+
+  Pochhammerp1m2[0] = 1;
+  Pochhammerp1m2[i_] := Pochhammerp1m2[i] = (-\[Mu]2C+\[Mu]1C+i-1)Pochhammerp1m2[i-1];
+  Pochhammerm1p2[0] = 1;
+  Pochhammerm1p2[i_] := Pochhammerm1p2[i] = (\[Mu]2C-\[Mu]1C+i-1)Pochhammerm1p2[i-1];
+
+  a1sum[n_] := Gamma[-\[Mu]2C+\[Mu]1C] Sum[a1[j]Pochhammerp1m2[n-j], {j, 0, Ceiling[n/2]}]; 
+  a2sum[n_] := Gamma[\[Mu]2C-\[Mu]1C] Sum[(-1)^j a2[j]Pochhammerm1p2[n-j], {j, 0, Ceiling[n/2]}];
+
+  (* Compute \[Nu], with error estimate (precision of output) based on the assumption that Cos[2\[Pi]\[Nu]] should be real. *)
+  Cos2\[Pi]\[Nu]=Cos[\[Pi](\[Mu]1C-\[Mu]2C)]+(2\[Pi]^2)/(a1sum[Npmax] a2sum[Npmax]) (-1)^(Npmax-1) a1[Npmax]a2[Npmax];
+  If[Precision[Cos2\[Pi]\[Nu]]=!=MachinePrecision,
+    Cos2\[Pi]\[Nu] = N[Cos2\[Pi]\[Nu], -RealExponent[Im[Cos2\[Pi]\[Nu]]/Re[Cos2\[Pi]\[Nu]]]];
+  ];
+
+  \[Nu] = Which[
+    Re[Cos2\[Pi]\[Nu]]<-1, 
+      1/2-Im[ArcCos[Re[Cos2\[Pi]\[Nu]]]/(2\[Pi])]I,
+    -1<=Re[Cos2\[Pi]\[Nu]]<1,
+      l-ArcCos[Re[Cos2\[Pi]\[Nu]]]/(2\[Pi]),
+    Re[Cos2\[Pi]\[Nu]]>1,
+      -I Im[ArcCos[Re[Cos2\[Pi]\[Nu]]]/(2\[Pi])]
+  ];
+  
+  \[Nu]
+];
+
 (**********************************************************)
 (* RenormalizedAngularMomentum                            *)
 (**********************************************************)
@@ -101,6 +170,22 @@ SetAttributes[RenormalizedAngularMomentum, {NumericFunction}];
 RenormalizedAngularMomentum[a_, \[Omega]_, s_, l_, m_] /; l < Abs[s] := 0; (* FIXME: unphysical cases *)
 
 RenormalizedAngularMomentum[(0|0.), (0|0.), 0, 0, 0] := 0; (* FIXME: special cases *)
+
+RenormalizedAngularMomentum[a_?NumericQ, \[Omega]_?NumericQ, s_Integer, l_Integer, m_Integer,
+ Method -> {"FindRoot", "InitialGuess" -> Cos2\[Pi]\[Nu]_}] /; InexactNumberQ[a] || InexactNumberQ[\[Omega]] :=
+  \[Nu]RootFind[a, \[Omega], s, l, m, Cos2\[Pi]\[Nu]];
+
+RenormalizedAngularMomentum[a_?NumericQ, \[Omega]_?NumericQ, s_Integer, l_Integer, m_Integer,
+ Method -> {"Monodromy"}] /; InexactNumberQ[a] || InexactNumberQ[\[Omega]] :=
+  RenormalizedAngularMomentum[a, \[Omega], s, l, m, {"Monodromy", "nmax" -> Automatic}];
+
+RenormalizedAngularMomentum[a_?NumericQ, \[Omega]_?NumericQ, s_Integer, l_Integer, m_Integer,
+ Method -> {"Monodromy", "nmax" -> nmax_}] /; InexactNumberQ[a] || InexactNumberQ[\[Omega]] :=
+  \[Nu]RCHMonodromy[a, \[Omega], s, l, m, \[Lambda], nmax];
+
+RenormalizedAngularMomentum[a_?NumericQ, \[Omega]_?NumericQ, s_Integer, l_Integer, m_Integer,
+ Method -> {"Series"}] /; InexactNumberQ[a] || InexactNumberQ[\[Omega]] :=
+  Cos2\[Pi]\[Nu]Series[a, \[Omega], s, l, m];
 
 RenormalizedAngularMomentum[a_?NumericQ, \[Omega]_?NumericQ, s_Integer, l_Integer, m_Integer] /; InexactNumberQ[a] || InexactNumberQ[\[Omega]] :=
  Module[{\[Nu], Cos2\[Pi]\[Nu]},
