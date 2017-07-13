@@ -89,7 +89,7 @@ Cos2\[Pi]\[Nu]Series[a_, \[Omega]_, s_, l_, m_] :=
   ]
 ];
 
-\[Nu]RCHMonodromy[a_, \[Omega]_, s_, l_, m_, \[Lambda]_,Npmax_Integer] :=
+\[Nu]RCHMonodromy[a_, \[Omega]_, s_, l_, m_, \[Lambda]_, Npmax_] :=
  Module[{q, \[Epsilon], \[Kappa], \[Tau], \[Gamma]CH, \[Delta]CH, \[Epsilon]CH, \[Alpha]CH, qCH, \[Mu]1C, \[Mu]2C, a1, a2, a1sum, a2sum, Pochhammerp1m2, Pochhammerm1p2, Cos2\[Pi]\[Nu], nmax, Cos2\[Pi]\[Nu]precision, \[Nu]},
   q = a;
   \[Epsilon] = 2 \[Omega];
