@@ -171,11 +171,11 @@ RenormalizedAngularMomentum[a_?NumericQ, \[Omega]_?NumericQ, s_Integer, l_Intege
 
 RenormalizedAngularMomentum[a_?NumericQ, \[Omega]_?NumericQ, s_Integer, l_Integer, m_Integer,
  Method -> ("Monodromy"|{"Monodromy"})] /; InexactNumberQ[a] || InexactNumberQ[\[Omega]] :=
-  RenormalizedAngularMomentum[a, \[Omega], s, l, m, {"Monodromy", "nmax" -> Automatic}];
+  RenormalizedAngularMomentum[a, \[Omega], s, l, m, Method -> {"Monodromy", "nmax" -> Automatic}];
 
 RenormalizedAngularMomentum[a_?NumericQ, \[Omega]_?NumericQ, s_Integer, l_Integer, m_Integer,
  Method -> {"Monodromy", "nmax" -> nmax_}] /; InexactNumberQ[a] || InexactNumberQ[\[Omega]] :=
-  \[Nu]RCHMonodromy[a, \[Omega], s, l, m, \[Lambda], nmax];
+  \[Nu]RCHMonodromy[a, \[Omega], s, l, m, SpinWeightedSpheroidalEigenvalue[s, l, m, a \[Omega]], nmax];
 
 RenormalizedAngularMomentum[a_?NumericQ, \[Omega]_?NumericQ, s_Integer, l_Integer, m_Integer,
  Method -> ("Series"|{"Series"})] /; InexactNumberQ[a] || InexactNumberQ[\[Omega]] :=
