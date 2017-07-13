@@ -169,8 +169,8 @@ RenormalizedAngularMomentum[a_, \[Omega]_, s_, l_, m_] /; l < Abs[s] := 0; (* FI
 RenormalizedAngularMomentum[(0|0.), (0|0.), 0, 0, 0] := 0; (* FIXME: special cases *)
 
 RenormalizedAngularMomentum[a_?NumericQ, \[Omega]_?NumericQ, \[Lambda]_?NumericQ, s_Integer, l_Integer, m_Integer,
- Method -> {"FindRoot", "InitialGuess" -> Cos2\[Pi]\[Nu]_}] /; InexactNumberQ[a] || InexactNumberQ[\[Omega]] || InexactNumberQ[\[Lambda]] :=
-  \[Nu]RootFind[a, \[Omega], \[Lambda], s, l, m, Cos2\[Pi]\[Nu]];
+ Method -> {"FindRoot", "InitialGuess" -> \[Nu]_}] /; InexactNumberQ[a] || InexactNumberQ[\[Omega]] || InexactNumberQ[\[Lambda]] :=
+  \[Nu]RootFind[a, \[Omega], \[Lambda], s, l, m, Cos[2 \[Pi] \[Nu]]];
 
 RenormalizedAngularMomentum[a_?NumericQ, \[Omega]_?NumericQ, \[Lambda]_?NumericQ, s_Integer, l_Integer, m_Integer,
  Method -> ("Monodromy"|{"Monodromy"})] /; InexactNumberQ[a] || InexactNumberQ[\[Omega]] || InexactNumberQ[\[Lambda]] :=
