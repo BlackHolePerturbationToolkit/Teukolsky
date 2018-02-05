@@ -4,7 +4,9 @@ BeginPackage["Teukolsky`RenormalizedAngularMomentum`",
   {"SpinWeightedSpheroidalHarmonics`"}
 ];
 
-RenormalizedAngularMomentum::usage = "RenormalizedAngularMomentum[a, \[Omega], s, l, m] gives the renormalized angular momentum \[Nu].";
+RenormalizedAngularMomentum::usage =
+ "RenormalizedAngularMomentum[a, \[Omega], \[Lambda], s, l, m] gives the renormalized angular momentum \[Nu].\n" <>
+ "RenormalizedAngularMomentum[a, \[Omega], s, l, m] gives the renormalized angular momentum \[Nu].";
 
 Begin["`Private`"];
 
