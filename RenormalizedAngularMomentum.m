@@ -52,7 +52,7 @@ Cos2\[Pi]\[Nu]Series[a_, \[Omega]_, s_, l_, m_] :=
 ]
 
 (* Find \[Nu] using root finding with an initial guess *)
-\[Nu]RootFind[a_, \[Omega]_, \[Lambda]_, s_, l_, m_, Cos2\[Pi]\[Nu]_] :=
+\[Nu]RootFind[a_, \[Omega]_, \[Lambda]_, s_, l_, m_, Cos2\[Pi]\[Nu]_?NumericQ] :=
  Module[{q, \[Epsilon], \[Kappa], \[Tau], \[Alpha]\[Gamma], \[Beta], R, L, \[Nu], \[Nu]0, \[Nu]1, \[Nu]2, \[Nu]3, \[Nu]i, i, precision, ap, \[Omega]p, \[Lambda]p, Cos2\[Pi]\[Nu]p, nmax=25(*FIXME*), res},
   precision = Precision[{a, \[Omega], \[Lambda]}];
   {ap, \[Omega]p, \[Lambda]p, Cos2\[Pi]\[Nu]p} = SetPrecision[{a, \[Omega], \[Lambda], Cos2\[Pi]\[Nu]}, precision];
