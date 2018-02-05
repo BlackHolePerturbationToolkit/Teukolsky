@@ -180,6 +180,7 @@ RenormalizedAngularMomentum[a_?NumericQ, \[Omega]_?NumericQ, \[Lambda]_?NumericQ
  Method -> ("FindRoot"|{"FindRoot"})] /; InexactNumberQ[a] || InexactNumberQ[\[Omega]] || InexactNumberQ[\[Lambda]] :=
  Module[{\[Nu], Cos2\[Pi]\[Nu]},
   Cos2\[Pi]\[Nu] = Cos2\[Pi]\[Nu]Series[N[a], N[\[Omega]], s, l, m];
+  If[Cos2\[Pi]\[Nu] == $Failed, Return[$Failed]];
   \[Nu] = \[Nu]RootFind[a, \[Omega], \[Lambda], s, l, m, Cos2\[Pi]\[Nu]];
 
   \[Nu]
