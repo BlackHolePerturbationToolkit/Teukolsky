@@ -149,7 +149,9 @@ Cos2\[Pi]\[Nu]Series[a_, \[Omega]_, s_, l_, m_] :=
     -1<=Re[Cos2\[Pi]\[Nu][nmax]]<1,
       l-ArcCos[Re[Cos2\[Pi]\[Nu][nmax]]]/(2\[Pi]),
     Re[Cos2\[Pi]\[Nu][nmax]]>1,
-      -I Im[ArcCos[Re[Cos2\[Pi]\[Nu][nmax]]]/(2\[Pi])]
+      -I Im[ArcCos[Re[Cos2\[Pi]\[Nu][nmax]]]/(2\[Pi])],
+    True,
+      $Failed
   ];
   
   \[Nu]
