@@ -1,3 +1,5 @@
+(* ::Package:: *)
+
 Paclet[
   Name -> "Teukolsky",
   Version -> "0.1.0",
@@ -9,7 +11,8 @@ Paclet[
     { "Kernel",
 	    "Context" -> {
         "Teukolsky`",
-        "Teukolsky`RenormalizedAngularMomentum`"
+        "Teukolsky`RenormalizedAngularMomentum`",
+        "Teukolsky`TeukolskyRadialUp`"
       }
 	  },
 
