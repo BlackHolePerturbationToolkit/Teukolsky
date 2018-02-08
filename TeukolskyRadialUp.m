@@ -11,6 +11,9 @@ SasakiNakamuraRadialUp::usage =
 
 SasakiNakamuraEquation::usage =
 "SasakiNakamuraEquation[\[Lambda], m, a, \[Omega], r, {X[r], X'[r], X''[r]}]";
+
+TeuksolskyRadialEquation::usage =
+"TeukolskyRadialEquation[s, \[Lambda], m, a, \[Omega], r, {R[r], R'[r], R''[r]}]";
  
 Begin["`Private`"];
 
@@ -40,6 +43,16 @@ OuterBCs[\[Lambda]_, m_, a_, \[Omega]_, rout_]:=Module[{M=1,recur,k,j,rp,rm,rs,X
   {X[r], X'[r], X''[r]}/.r->rout
  
  ]
+ 
+(* Teukolsky equation*)
+TeukolskyRadialEquation[s_, \[Lambda]_, m_, a_, \[Omega]_, r1_, {R_, dR_, d2R_}]:=Module[{M=1,\[CapitalDelta],r,K},
+
+   \[CapitalDelta]=r^2-2M r+a^2;
+   K=(r^2+a^2)\[Omega]-m a;
+   
+ ((K^2-2 I K (-M+r) s)/\[CapitalDelta]-\[Lambda]+4 I r s \[Omega]) R+\[CapitalDelta]^-s ((-2 M+2 r) \[CapitalDelta]^s (1+s) dR + \[CapitalDelta]^(1+s) d2R)
+
+]
  
 (* Sasaki-Nakamura equation for s=-2 perturbations *)
 SasakiNakamuraEquation[\[Lambda]_, m_, a_,  \[Omega]_, r1_, {X_, dX_, d2X_}] := Module[{M=1,\[CapitalDelta],f,c0,c1,c2,c3,c4,\[Eta],K,V,\[Beta],\[Alpha],U1,G,F,U,r},
