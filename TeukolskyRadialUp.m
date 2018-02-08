@@ -47,10 +47,10 @@ OuterBCs[\[Lambda]_, m_, a_, \[Omega]_, rout_]:=Module[{M=1,recur,k,j,rp,rm,rs,X
 (* Teukolsky equation*)
 TeukolskyRadialEquation[s_, \[Lambda]_, m_, a_, \[Omega]_, r1_, {R_, dR_, d2R_}]:=Module[{M=1,\[CapitalDelta],r,K},
 
-   \[CapitalDelta]=r^2-2M r+a^2;
-   K=(r^2+a^2)\[Omega]-m a;
+   \[CapitalDelta]=r^2 - 2M r + a^2;
+   K=(r^2+a^2)\[Omega] - m a;
    
- ((K^2-2 I K (-M+r) s)/\[CapitalDelta]-\[Lambda]+4 I r s \[Omega]) R+\[CapitalDelta]^-s ((-2 M+2 r) \[CapitalDelta]^s (1+s) dR + \[CapitalDelta]^(1+s) d2R)
+ ((K^2-2 I K (-M+r) s)/\[CapitalDelta]-\[Lambda]+4 I r s \[Omega]) R + \[CapitalDelta]^-s ((-2 M+2 r) \[CapitalDelta]^s (1+s) dR + \[CapitalDelta]^(1+s) d2R)/.r->r1
 
 ]
  
