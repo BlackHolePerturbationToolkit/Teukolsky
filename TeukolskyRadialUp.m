@@ -91,7 +91,7 @@ SasakiNakamuraRadialUp[a_?NumericQ, \[Lambda]_?NumericQ, m_?NumericQ, \[Omega]_?
 
  rout = 1000;
  outBC = OuterBCs[\[Lambda], m, a, \[Omega], rout];
- XUp = X/.NDSolve[{SasakiNakamuraEquation[\[Lambda], m, a, \[Omega], r, {X[r],X'[r],X''[r]}]==0, X[rout]==outBC[[1]], X'[rout]==outBC[[2]]}, X, {r, rout, 10}][[1,1]];
+ XUp = X/.NDSolve[{SasakiNakamuraEquation[\[Lambda], m, a, \[Omega], r, {X[r],X'[r],X''[r]}]==0, X[rout]==outBC[[1]], X'[rout]==outBC[[2]]}, X, {r, rout, r1}][[1,1]];
   
  XUp 
 ]
