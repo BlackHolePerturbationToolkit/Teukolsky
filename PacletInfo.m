@@ -13,7 +13,8 @@ Paclet[
         "Teukolsky`",
         "Teukolsky`RenormalizedAngularMomentum`",
         "Teukolsky`TeukolskyRadialUp`",
-        "Teukolsky`MST`"
+        "Teukolsky`MST`",
+        "Teukolsky`TeukolskyStarobinksy`"
       }
 	  },
 
