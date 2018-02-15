@@ -232,6 +232,17 @@ Derivative[0, 0, 0, 0, 0, 0, 0, 0, 1][MSTRadialIn][M_, a_, \[Omega]_, s_Integer,
   1/2 E^(I x \[Epsilon] \[Kappa]) (1 - x)^(1/2 I (2 I + \[Epsilon] - \[Tau])) (-x)^(-1 - s - 1/2 I (\[Epsilon] + \[Tau])) (resUp + resDown) dxdr
 ]]];
 
+Derivative[0, 0, 0, 0, 0, 0, 0, 0, n_Integer?Positive][MSTRadialIn][M_, a_, \[Omega]_, s_Integer, l_Integer, m_Integer, \[Nu]_, \[Lambda]_, r0_?InexactNumberQ] :=
+ Module[{d2R, Rderivs, R, r, i},
+  d2R = (-(-\[Lambda] + 4 I r s \[Omega] + (-2 I (-1 + r) s (-a m + (a^2 + r^2) \[Omega]) + (-a m + (a^2 + r^2) \[Omega])^2)/(a^2 - 2 r + r^2)) R[r] - (-2 + 2 r) (1 + s) Derivative[1][R][r])/(a^2 - 2 r + r^2);
+
+  pderivs = D[R[r_], {r_, i_}] :> D[d2R, {r, i - 2}] /; i >= 2;
+  Do[Derivative[i][R][r] = Simplify[D[Derivative[i - 1][R][r], r] /. pderivs];, {i, 2, n}];
+  Derivative[n][R][r] /. {
+    R'[r] -> Derivative[0, 0, 0, 0, 0, 0, 0, 0, 1][MSTRadialIn][M, a, \[Omega], s, l, m, \[Nu], \[Lambda], r0],
+    R[r] -> MSTRadialIn[M, a, \[Omega], s, l, m, \[Nu], \[Lambda], r0], r -> r0}
+];
+
 (* Throwe B.5, Sasaki & Tagoshi (153) and (159) *)
 SetAttributes[MSTRadialUp, {NumericFunction}];
 
@@ -333,6 +344,17 @@ Derivative[0, 0, 0, 0, 0, 0, 0, 0, 1][MSTRadialUp][M_, a_, \[Omega]_, s_Integer,
 
   E^(-\[Pi] (\[Epsilon] + I (1 + s + \[Nu]))) (zhat - \[Epsilon] \[Kappa])^(-1 - s - I \[Epsilon]p) (resUp + resDown) dzhatdr
 ]]];
+
+Derivative[0, 0, 0, 0, 0, 0, 0, 0, n_Integer?Positive][MSTRadialUp][M_, a_, \[Omega]_, s_Integer, l_Integer, m_Integer, \[Nu]_, \[Lambda]_, r0_?InexactNumberQ] :=
+ Module[{d2R, Rderivs, R, r, i},
+  d2R = (-(-\[Lambda] + 4 I r s \[Omega] + (-2 I (-1 + r) s (-a m + (a^2 + r^2) \[Omega]) + (-a m + (a^2 + r^2) \[Omega])^2)/(a^2 - 2 r + r^2)) R[r] - (-2 + 2 r) (1 + s) Derivative[1][R][r])/(a^2 - 2 r + r^2);
+
+  pderivs = D[R[r_], {r_, i_}] :> D[d2R, {r, i - 2}] /; i >= 2;
+  Do[Derivative[i][R][r] = Simplify[D[Derivative[i - 1][R][r], r] /. pderivs];, {i, 2, n}];
+  Derivative[n][R][r] /. {
+    R'[r] -> Derivative[0, 0, 0, 0, 0, 0, 0, 0, 1][MSTRadialUp][M, a, \[Omega], s, l, m, \[Nu], \[Lambda], r0],
+    R[r] -> MSTRadialUp[M, a, \[Omega], s, l, m, \[Nu], \[Lambda], r0], r -> r0}
+];
 
 End[];
 EndPackage[];
