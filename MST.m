@@ -133,6 +133,8 @@ f[q_, \[Epsilon]_, \[Kappa]_, \[Tau]_, \[Nu]_, \[Lambda]_, s_, m_, nf_] :=
 (******************************************************************************)
 
 (* Throwe B.1, Sasaki & Tagoshi Eqs. (116) and (120) *)
+SetAttributes[MSTRadialIn, {NumericFunction}];
+
 MSTRadialIn[M_, a_, \[Omega]_, s_Integer, l_Integer, m_Integer, \[Nu]_, \[Lambda]_, r_?InexactNumberQ] := 
  Module[{q, \[Epsilon], \[Kappa], \[Tau], rp, z, zp, x, resUp, nUp, resDown, nDown},
  Block[{H2F1},
@@ -231,6 +233,8 @@ Derivative[0, 0, 0, 0, 0, 0, 0, 0, 1][MSTRadialIn][M_, a_, \[Omega]_, s_Integer,
 ]]];
 
 (* Throwe B.5, Sasaki & Tagoshi (153) and (159) *)
+SetAttributes[MSTRadialUp, {NumericFunction}];
+
 MSTRadialUp[M_, a_, \[Omega]_, s_Integer, l_Integer, m_Integer, \[Nu]_, \[Lambda]_, r_?InexactNumberQ] := 
  Module[{q, \[Epsilon], \[Kappa], \[Tau], \[Epsilon]p, rm, z, zm, zhat, resUp, nUp, resDown, nDown},
  Block[{HU},
