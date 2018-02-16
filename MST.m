@@ -2,8 +2,8 @@
 
 BeginPackage["Teukolsky`MST`"];
 
-MSTRadialIn::usage = "MSTRadialIn[M, a, \[Omega], s, l, m, \[Nu], \[Lambda], r]";
-MSTRadialUp::usage = "MSTRadialUp[M, a, \[Omega], s, l, m, \[Nu], \[Lambda], r]";
+MSTRadialIn::usage = "MSTRadialIn[s, l, m, q, \[Epsilon], \[Nu], \[Lambda]][r]";
+MSTRadialUp::usage = "MSTRadialUp[s, l, m, q, \[Epsilon], \[Nu], \[Lambda]][r]";
 
 Begin["`Private`"];
 
@@ -135,17 +135,15 @@ f[q_, \[Epsilon]_, \[Kappa]_, \[Tau]_, \[Nu]_, \[Lambda]_, s_, m_, nf_] :=
 (* Throwe B.1, Sasaki & Tagoshi Eqs. (116) and (120) *)
 SetAttributes[MSTRadialIn, {NumericFunction}];
 
-MSTRadialIn[M_, a_, \[Omega]_, s_Integer, l_Integer, m_Integer, \[Nu]_, \[Lambda]_, r_?InexactNumberQ] := 
- Module[{q, \[Epsilon], \[Kappa], \[Tau], rp, z, zp, x, resUp, nUp, resDown, nDown},
+MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_][r_?InexactNumberQ] := 
+ Module[{\[Kappa], \[Tau], rp, z, zp, x, resUp, nUp, resDown, nDown},
  Block[{H2F1},
  Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], f},
-  q = a/M;
-  \[Epsilon] = 2 M \[Omega];
   \[Kappa] = Sqrt[1 - q^2];
   \[Tau] = (\[Epsilon] - m q)/\[Kappa];
-  rp = M + Sqrt[M^2 - a^2];
-  z = \[Omega] r;
-  zp = \[Omega] rp;
+  rp = 1 + Sqrt[1 - q^2];
+  z = \[Epsilon] r / 2;
+  zp = \[Epsilon] rp / 2;
   x = (zp - z)/(\[Epsilon] \[Kappa]);
 
   H2F1[n : (0 | 1)] := H2F1[n] = H2F1Exact[n, s, \[Nu], \[Tau], \[Epsilon], x];
@@ -177,19 +175,17 @@ MSTRadialIn[M_, a_, \[Omega]_, s_Integer, l_Integer, m_Integer, \[Nu]_, \[Lambda
   E^(I \[Epsilon] \[Kappa] x) (-x)^(-s - I (\[Epsilon] + \[Tau])/2) (1 - x)^(I (\[Epsilon] - \[Tau])/2) (resUp + resDown)
 ]]];
 
-Derivative[0, 0, 0, 0, 0, 0, 0, 0, 1][MSTRadialIn][M_, a_, \[Omega]_, s_Integer, l_Integer, m_Integer, \[Nu]_, \[Lambda]_, r_?InexactNumberQ] :=
- Module[{q, \[Epsilon], \[Kappa], \[Tau], rp, z, zp, x, dxdr, resUp, nUp, resDown, nDown},
+Derivative[1][MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_]][r_?InexactNumberQ] :=
+ Module[{\[Kappa], \[Tau], rp, z, zp, x, dxdr, resUp, nUp, resDown, nDown},
  Block[{H2F1, dH2F1},
  Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], f},
-  q = a/M;
-  \[Epsilon] = 2 M \[Omega];
   \[Kappa] = Sqrt[1 - q^2];
   \[Tau] = (\[Epsilon] - m q)/\[Kappa];
-  rp = M + Sqrt[M^2 - a^2];
-  z = \[Omega] r;
-  zp = \[Omega] rp;
+  rp = 1 + Sqrt[1 - q^2];
+  z = \[Epsilon] r / 2;
+  zp = \[Epsilon] rp / 2;
   x = (zp - z)/(\[Epsilon] \[Kappa]);
-  dxdr = - \[Omega]/(\[Epsilon] \[Kappa]);
+  dxdr = - 1/(2\[Kappa]);
 
   H2F1[n : (0 | 1)] := H2F1[n] = H2F1Exact[n, s, \[Nu], \[Tau], \[Epsilon], x];
 
@@ -232,32 +228,30 @@ Derivative[0, 0, 0, 0, 0, 0, 0, 0, 1][MSTRadialIn][M_, a_, \[Omega]_, s_Integer,
   1/2 E^(I x \[Epsilon] \[Kappa]) (1 - x)^(1/2 I (2 I + \[Epsilon] - \[Tau])) (-x)^(-1 - s - 1/2 I (\[Epsilon] + \[Tau])) (resUp + resDown) dxdr
 ]]];
 
-Derivative[0, 0, 0, 0, 0, 0, 0, 0, n_Integer?Positive][MSTRadialIn][M_, a_, \[Omega]_, s_Integer, l_Integer, m_Integer, \[Nu]_, \[Lambda]_, r0_?InexactNumberQ] :=
+Derivative[n_Integer?Positive][MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_]][r0_?InexactNumberQ] :=
  Module[{d2R, Rderivs, R, r, i},
-  d2R = (-(-\[Lambda] + 4 I r s \[Omega] + (-2 I (-1 + r) s (-a m + (a^2 + r^2) \[Omega]) + (-a m + (a^2 + r^2) \[Omega])^2)/(a^2 - 2 r + r^2)) R[r] - (-2 + 2 r) (1 + s) Derivative[1][R][r])/(a^2 - 2 r + r^2);
+  d2R = (-(-\[Lambda] + 2 I r s \[Epsilon] + (-2 I (-1 + r) s (-q m + (q^2 + r^2) \[Epsilon]/2) + (-q m + (q^2 + r^2) \[Epsilon]/2)^2)/(q^2 - 2 r + r^2)) R[r] - (-2 + 2 r) (1 + s) Derivative[1][R][r])/(q^2 - 2 r + r^2);
 
   pderivs = D[R[r_], {r_, i_}] :> D[d2R, {r, i - 2}] /; i >= 2;
   Do[Derivative[i][R][r] = Simplify[D[Derivative[i - 1][R][r], r] /. pderivs];, {i, 2, n}];
   Derivative[n][R][r] /. {
-    R'[r] -> Derivative[0, 0, 0, 0, 0, 0, 0, 0, 1][MSTRadialIn][M, a, \[Omega], s, l, m, \[Nu], \[Lambda], r0],
-    R[r] -> MSTRadialIn[M, a, \[Omega], s, l, m, \[Nu], \[Lambda], r0], r -> r0}
+    R'[r] -> MSTRadialIn[s, l, m, q, \[Epsilon], \[Nu], \[Lambda]]'[r0],
+    R[r] -> MSTRadialIn[s, l, m, q, \[Epsilon], \[Nu], \[Lambda]][r0], r -> r0}
 ];
 
 (* Throwe B.5, Sasaki & Tagoshi (153) and (159) *)
 SetAttributes[MSTRadialUp, {NumericFunction}];
 
-MSTRadialUp[M_, a_, \[Omega]_, s_Integer, l_Integer, m_Integer, \[Nu]_, \[Lambda]_, r_?InexactNumberQ] := 
- Module[{q, \[Epsilon], \[Kappa], \[Tau], \[Epsilon]p, rm, z, zm, zhat, resUp, nUp, resDown, nDown},
+MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_][r_?InexactNumberQ]  := 
+ Module[{\[Kappa], \[Tau], \[Epsilon]p, rm, z, zm, zhat, resUp, nUp, resDown, nDown},
  Block[{HU},
  Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], f},
-  q = a/M;
-  \[Epsilon] = 2 M \[Omega];
   \[Kappa] = Sqrt[1 - q^2];
   \[Tau] = (\[Epsilon] - m q)/\[Kappa];
   \[Epsilon]p = 1/2 (\[Tau]+\[Epsilon]);
-  rm = M - Sqrt[M^2 - a^2];
-  z = \[Omega] r;
-  zm = \[Omega] rm;
+  rm = 1 - Sqrt[1 - q^2];
+  z = \[Epsilon] r / 2;
+  zm = \[Epsilon] rm / 2;
   zhat = z - zm;
  
   HU[n : (0 | 1)] := HU[n] = HUExact[n, s, \[Nu], \[Epsilon], zhat];
@@ -289,20 +283,18 @@ MSTRadialUp[M_, a_, \[Omega]_, s_Integer, l_Integer, m_Integer, \[Nu]_, \[Lambda
   2^\[Nu] E^(-\[Pi] \[Epsilon]) E^(-I \[Pi](\[Nu]+1+s)) E^(I zhat) zhat^(\[Nu]+I \[Epsilon]p) (zhat-\[Epsilon] \[Kappa])^(-s-I \[Epsilon]p) (resUp + resDown)
 ]]];
 
-Derivative[0, 0, 0, 0, 0, 0, 0, 0, 1][MSTRadialUp][M_, a_, \[Omega]_, s_Integer, l_Integer, m_Integer, \[Nu]_, \[Lambda]_, r_?InexactNumberQ] := 
- Module[{q, \[Epsilon], \[Kappa], \[Tau], \[Epsilon]p, rm, z, zm, zhat, dzhatdr, resUp, nUp, resDown, nDown},
+Derivative[1][MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_]][r_?InexactNumberQ] :=
+ Module[{\[Kappa], \[Tau], \[Epsilon]p, rm, z, zm, zhat, dzhatdr, resUp, nUp, resDown, nDown},
  Block[{HU, dHU},
  Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], f},
-  q = a/M;
-  \[Epsilon] = 2 M \[Omega];
   \[Kappa] = Sqrt[1 - q^2];
   \[Tau] = (\[Epsilon] - m q)/\[Kappa];
   \[Epsilon]p = 1/2 (\[Tau]+\[Epsilon]);
-  rm = M - Sqrt[M^2 - a^2];
-  z = \[Omega] r;
-  zm = \[Omega] rm;
+  rm = 1 - Sqrt[1 - q^2];
+  z = \[Epsilon] r / 2;
+  zm = \[Epsilon] rm / 2;
   zhat = z - zm;
-  dzhatdr = \[Omega];
+  dzhatdr = \[Epsilon] / 2;
  
   HU[n : (0 | 1)] := HU[n] = HUExact[n, s, \[Nu], \[Epsilon], zhat];
  
@@ -345,15 +337,15 @@ Derivative[0, 0, 0, 0, 0, 0, 0, 0, 1][MSTRadialUp][M_, a_, \[Omega]_, s_Integer,
   E^(-\[Pi] (\[Epsilon] + I (1 + s + \[Nu]))) (zhat - \[Epsilon] \[Kappa])^(-1 - s - I \[Epsilon]p) (resUp + resDown) dzhatdr
 ]]];
 
-Derivative[0, 0, 0, 0, 0, 0, 0, 0, n_Integer?Positive][MSTRadialUp][M_, a_, \[Omega]_, s_Integer, l_Integer, m_Integer, \[Nu]_, \[Lambda]_, r0_?InexactNumberQ] :=
+Derivative[n_Integer?Positive][MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_]][r0_?InexactNumberQ] :=
  Module[{d2R, Rderivs, R, r, i},
-  d2R = (-(-\[Lambda] + 4 I r s \[Omega] + (-2 I (-1 + r) s (-a m + (a^2 + r^2) \[Omega]) + (-a m + (a^2 + r^2) \[Omega])^2)/(a^2 - 2 r + r^2)) R[r] - (-2 + 2 r) (1 + s) Derivative[1][R][r])/(a^2 - 2 r + r^2);
+  d2R = (-(-\[Lambda] + 2 I r s \[Epsilon] + (-2 I (-1 + r) s (-q m + (q^2 + r^2) \[Epsilon]/2) + (-q m + (q^2 + r^2) \[Epsilon]/2)^2)/(q^2 - 2 r + r^2)) R[r] - (-2 + 2 r) (1 + s) Derivative[1][R][r])/(q^2 - 2 r + r^2);
 
   pderivs = D[R[r_], {r_, i_}] :> D[d2R, {r, i - 2}] /; i >= 2;
   Do[Derivative[i][R][r] = Simplify[D[Derivative[i - 1][R][r], r] /. pderivs];, {i, 2, n}];
   Derivative[n][R][r] /. {
-    R'[r] -> Derivative[0, 0, 0, 0, 0, 0, 0, 0, 1][MSTRadialUp][M, a, \[Omega], s, l, m, \[Nu], \[Lambda], r0],
-    R[r] -> MSTRadialUp[M, a, \[Omega], s, l, m, \[Nu], \[Lambda], r0], r -> r0}
+    R'[r] -> MSTRadialUp[s, l, m, q, \[Epsilon], \[Nu], \[Lambda]]'[r0],
+    R[r] -> MSTRadialUp[s, l, m, q, \[Epsilon], \[Nu], \[Lambda]][r0], r -> r0}
 ];
 
 End[];
