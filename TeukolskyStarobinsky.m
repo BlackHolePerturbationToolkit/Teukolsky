@@ -27,7 +27,7 @@ R2=(A0 (D[R1[r],r]-(I K)/\[CapitalDelta] R1[r])+B0 R1[r]);
 
 
 (*FIXME: add \[Omega]=0 case, add s\[NotEqual]-2 cases, add inhomogeneous transformation*)
-TeukolskyStarobinskyUp[s_/;s=-2, l_, m_, a_, \[Lambda]_, \[Omega]_, r0_, {RUp_,dRUp_}]:=Module[{M=1,\[CapitalDelta],K,A0,B0,R2,R,p,\[Alpha],r,d2RUp},
+TeukolskyStarobinskyUp[-2, l_, m_, a_, \[Lambda]_, \[Omega]_, r0_, {RUp_,dRUp_}]:=Module[{M=1,\[CapitalDelta],K,A0,B0,R2,R,p,\[Alpha],r,d2RUp},
 
 R2 = R2Func[s,l,m,a,\[Lambda],\[Omega],r0,{RUp,dRUp}];
 
@@ -39,7 +39,7 @@ p=\[Lambda]^2 (\[Lambda]+2)^2-8 \[Omega]^2 \[Lambda](\[Alpha]^2 (5\[Lambda]+6)-1
 ]
 
 
-TeukolskyStarobinskyIn[s_/;s=-2, l_, m_, a_, \[Lambda]_, \[Omega]_, r0_, {RIn_,dRIn_}]:=Module[{M=1, rp, k0, w1, q1, Q1,R2,A0,B0,r,R,\[CapitalDelta],K,d2RIn},
+TeukolskyStarobinskyIn[-2, l_, m_, a_, \[Lambda]_, \[Omega]_, r0_, {RIn_,dRIn_}]:=Module[{M=1, rp, k0, w1, q1, Q1,R2,A0,B0,r,R,\[CapitalDelta],K,d2RIn},
 
 R2 = R2Func[s,l,m,a,\[Lambda],\[Omega],r0,{RIn,dRIn}];
 
