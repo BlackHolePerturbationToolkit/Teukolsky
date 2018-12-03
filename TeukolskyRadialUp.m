@@ -3,7 +3,7 @@
 BeginPackage["Teukolsky`TeukolskyRadialUp`"];
 
 
-TeukolskyRadialUp::usage = 
+(*TeukolskyRadialUp::usage = 
 "TeukolskyRadialUp[s, \[Lambda], m, a, \[Omega], r]";
 
 SasakiNakamuraRadialUp::usage = 
@@ -13,7 +13,7 @@ SasakiNakamuraEquation::usage =
 "SasakiNakamuraEquation[\[Lambda], m, a, \[Omega], r, {X[r], X'[r], X''[r]}]";
 
 TeukolskyRadialEquation::usage =
-"TeukolskyRadialEquation[s, \[Lambda], m, a, \[Omega], r, {R[r], R'[r], R''[r]}]";
+"TeukolskyRadialEquation[s, \[Lambda], m, a, \[Omega], r, {R[r], R'[r], R''[r]}]";*)
  
 Begin["`Private`"];
 

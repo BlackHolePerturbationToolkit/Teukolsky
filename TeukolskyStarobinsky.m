@@ -2,8 +2,8 @@
 
 BeginPackage["Teukolsky`TeukolskyStarobinsky`"];
 
-TeukolskyStarobinskyUp::usage = "TeukolskyStarobinskyUp[s, l, m, a, \[Lambda], \[Omega], r, {RUp, dRUp}]";
-TeukolskyStarobinskyIn::usage = "TeukolskyStarobinskyIn[s, l, m, a, \[Lambda], \[Omega], r, {RIn, dRIn}]";
+(*TeukolskyStarobinskyUp::usage = "TeukolskyStarobinskyUp[s, l, m, a, \[Lambda], \[Omega], r, {RUp, dRUp}]";
+TeukolskyStarobinskyIn::usage = "TeukolskyStarobinskyIn[s, l, m, a, \[Lambda], \[Omega], r, {RIn, dRIn}]";*)
 
 Begin["`Private`"];
 
