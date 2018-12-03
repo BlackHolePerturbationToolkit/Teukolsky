@@ -170,7 +170,7 @@ SetAttributes[RenormalizedAngularMomentum, {NumericFunction}];
 
 RenormalizedAngularMomentum[s_, l_, m_, q_, \[Epsilon]_] /; l < Abs[s] := 0; (* FIXME: unphysical cases *)
 
-RenormalizedAngularMomentum[0, 0, 0, (0|0.), (0|0.)] := 0; (* FIXME: special cases *)
+RenormalizedAngularMomentum[s_, l_, m_, q_, (0|0.)] := l(l-1);
 
 RenormalizedAngularMomentum[s_Integer, l_Integer, m_Integer, q_?NumericQ, \[Epsilon]_?NumericQ, \[Lambda]_?NumericQ,
  Method -> {"FindRoot", "InitialGuess" -> \[Nu]_}] /; InexactNumberQ[q] || InexactNumberQ[\[Epsilon]] || InexactNumberQ[\[Lambda]] :=
