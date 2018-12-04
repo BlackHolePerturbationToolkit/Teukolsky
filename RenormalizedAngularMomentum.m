@@ -168,9 +168,9 @@ SyntaxInformation[RenormalizedAngularMomentum] =
 Options[RenormalizedAngularMomentum] = {Method -> Automatic};
 SetAttributes[RenormalizedAngularMomentum, {NumericFunction}];
 
-RenormalizedAngularMomentum[s_, l_, m_, q_, \[Epsilon]_] /; l < Abs[s] := 0; (* FIXME: unphysical cases *)
+RenormalizedAngularMomentum[s_, l_, m_, q_, \[Epsilon]_, \[Lambda]_, OptionsPattern[RenormalizedAngularMomentum]] /; l < Abs[s] := 0;
 
-RenormalizedAngularMomentum[0, 0, 0, (0|0.), (0|0.)] := 0; (* FIXME: special cases *)
+RenormalizedAngularMomentum[s_, l_, m_, q_, (0|0.), \[Lambda]_, OptionsPattern[RenormalizedAngularMomentum]] := l(l-1);
 
 RenormalizedAngularMomentum[s_Integer, l_Integer, m_Integer, q_?NumericQ, \[Epsilon]_?NumericQ, \[Lambda]_?NumericQ,
  Method -> {"FindRoot", "InitialGuess" -> \[Nu]_}] /; InexactNumberQ[q] || InexactNumberQ[\[Epsilon]] || InexactNumberQ[\[Lambda]] :=
@@ -205,10 +205,10 @@ RenormalizedAngularMomentum[s_Integer, l_Integer, m_Integer, q_?NumericQ, \[Epsi
  InexactNumberQ[q] || InexactNumberQ[\[Epsilon]] || InexactNumberQ[\[Lambda]] :=
    RenormalizedAngularMomentum[s, l, m, q, \[Epsilon], \[Lambda], Method -> "FindRoot"];
 
-RenormalizedAngularMomentum[s_Integer, l_Integer, m_Integer, q_?NumericQ, \[Epsilon]_?NumericQ, opts___] :=
+RenormalizedAngularMomentum[s_Integer, l_Integer, m_Integer, q_?NumericQ, \[Epsilon]_?NumericQ, opts:OptionsPattern[RenormalizedAngularMomentum]] :=
   RenormalizedAngularMomentum[s, l, m, q, \[Epsilon], SpinWeightedSpheroidalEigenvalue[s, l, m, q \[Epsilon]/2], opts];
 
-RenormalizedAngularMomentum /: N[RenormalizedAngularMomentum[s_Integer, l_Integer, m_Integer, q_?NumericQ, \[Epsilon]_?NumericQ, \[Lambda]_?NumericQ], Nopts___] :=
+RenormalizedAngularMomentum /: N[RenormalizedAngularMomentum[s_Integer, l_Integer, m_Integer, q_?NumericQ, \[Epsilon]_?NumericQ, \[Lambda]_?NumericQ], Nopts:OptionsPattern[N]] :=
   RenormalizedAngularMomentum[s, l, m, N[q, Nopts], N[\[Epsilon], Nopts], N[\[Lambda], Nopts]];
 
 End[];
