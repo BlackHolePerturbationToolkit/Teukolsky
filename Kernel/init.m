@@ -5,3 +5,4 @@ Get["Teukolsky`RenormalizedAngularMomentum`"];
 Get["Teukolsky`TeukolskyRadialUp`"];
 Get["Teukolsky`MST`"];
 Get["Teukolsky`TeukolskyStarobinsky`"];
+Get["Teukolsky`TeukolskyRadial`"];
