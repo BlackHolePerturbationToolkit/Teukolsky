@@ -18,7 +18,7 @@ Begin["`Private`"];
 
 Options[TeukolskyRadial] = {Method -> {"MST", "RenormalizedAngularMomentum" -> "Monodromy"}, "BoundaryConditions" -> {"In", "Up"}};
 
-TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, OptionsPattern[]] := Module[{assoc, \[Lambda], \[Nu]=Null, RIn, RUp,solFuncs,method},
+TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, OptionsPattern[]] := Module[{assoc, \[Lambda], \[Nu], rmin, rmax, solFuncs, method},
 	\[Lambda] = SpinWeightedSpheroidalEigenvalue[s,l,m,a \[Omega]];
 	
 	Switch[OptionValue[Method],
