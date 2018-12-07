@@ -47,17 +47,17 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, OptionsPattern[]
 
 Format[TeukolskyRadialFunction[s_,l_,m_,a_,\[Omega]_,assoc_]] := "TeukolskyRadialFunction["<>ToString[s]<>","<>ToString[l]<>","<>ToString[m]<>","<>ToString[a]<>","<>ToString[m]<>","<>ToString[\[Omega]]<>",<<>>]";
 
-TeukolskyRadialFunction[s_,l_,m_,a_,\[Omega]_,assoc_][y_String/;(y=="In"||y=="Up")] := Module[{assocNew=assoc},
-	assocNew["SolutionFunctions"] = {Association[MapThread[#1 -> #2 &, {assoc["BoundaryConditions"], assoc["SolutionFunctions"]}]][y]};
-	assocNew["BoundaryConditions"]={y};
+TeukolskyRadialFunction[s_,l_,m_,a_,\[Omega]_,assoc_][y:("In"|"Up")] := Module[{assocNew=assoc},
+	assocNew["SolutionFunctions"] = First[Pick[assoc["SolutionFunctions"], assoc["BoundaryConditions"], y]];
+	assocNew["BoundaryConditions"] = y;
 	TeukolskyRadialFunction[s, l, m, a, \[Omega], assocNew]
 ];
 TeukolskyRadialFunction[s_,l_,m_,a_,\[Omega]_,assoc_][y_String] /; !MemberQ[{"SolutionFunctions"},y]:= assoc[y];
 TeukolskyRadialFunction[s_,l_,m_,a_,\[Omega]_,assoc_][r_?NumericQ] := Module[{},
 	If[
-		Length[assoc["BoundaryConditions"]]==1, 
-		Return[assoc["SolutionFunctions"][[1]][r]],
-		Return[Association[MapThread[#1 -> #2[r] &, {assoc["BoundaryConditions"], assoc["SolutionFunctions"]}]]]
+		Head[assoc["BoundaryConditions"]] === List,
+		Return[Association[MapThread[#1 -> #2[r] &, {assoc["BoundaryConditions"], assoc["SolutionFunctions"]}]]], 
+		Return[assoc["SolutionFunctions"][r]]
 	];	
 ]
 
