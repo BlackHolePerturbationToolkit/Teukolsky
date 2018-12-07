@@ -16,14 +16,14 @@ TeukolskyRadialFunction::usage = "TeukolskyRadialFunction[s, l, m, a, \[Omega], 
 Begin["`Private`"];
 
 
-Options[TeukolskyRadial]={Method -> {"MST","Nu"->"Monodromy"}, "BoundaryConditions"->{"In","Up"}}
+Options[TeukolskyRadial] = {Method -> {"MST", "RenormalizedAngularMomentum" -> "Monodromy"}, "BoundaryConditions" -> {"In", "Up"}};
 
 TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, OptionsPattern[]] := Module[{assoc, \[Lambda], \[Nu]=Null, RIn, RUp,solFuncs,method},
 	\[Lambda] = SpinWeightedSpheroidalEigenvalue[s,l,m,a \[Omega]];
 	
 	Switch[OptionValue[Method],
 		"MST"|{"MST", ___},
-			\[Nu] = RenormalizedAngularMomentum[s, l, m, a, 2 \[Omega], \[Lambda], Method->"Nu"/.OptionValue[Method][[2;;]] ];
+			\[Nu] = RenormalizedAngularMomentum[s, l, m, a, 2 \[Omega], \[Lambda], Method->"RenormalizedAngularMomentum"/.OptionValue[Method][[2;;]] ];
 			method = {"MST", "RenormalizedAngularMomentum" -> \[Nu]};
 			solFuncs = OptionValue["BoundaryConditions"] /. {"In" -> Teukolsky`MST`Private`MSTRadialIn[s,l,m,a,2\[Omega],\[Lambda],\[Nu]], "Up" -> Teukolsky`MST`Private`MSTRadialUp[s,l,m,a,2\[Omega],\[Lambda],\[Nu]]};,
 		{"SasakiNakamura","rmin" -> _, "rmax" -> _},
