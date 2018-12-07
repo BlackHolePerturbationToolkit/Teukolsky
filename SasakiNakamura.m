@@ -1,21 +1,9 @@
 (* ::Package:: *)
 
-BeginPackage["Teukolsky`TeukolskyRadialUp`"];
+BeginPackage["Teukolsky`SasakiNakamura`"];
 
 
-(*TeukolskyRadialUp::usage = 
-"TeukolskyRadialUp[s, \[Lambda], m, a, \[Omega], r]";
-
-SasakiNakamuraRadialUp::usage = 
-"SasakiNakamuraRadialUp[\[Lambda], m, a, \[Omega], r]";
-
-SasakiNakamuraEquation::usage =
-"SasakiNakamuraEquation[\[Lambda], m, a, \[Omega], r, {X[r], X'[r], X''[r]}]";
-
-TeukolskyRadialEquation::usage =
-"TeukolskyRadialEquation[s, \[Lambda], m, a, \[Omega], r, {R[r], R'[r], R''[r]}]";*)
- 
-Begin["`Private`"];
+ Begin["`Private`"];
 
 
 (**********************************************************)
@@ -81,10 +69,6 @@ U=((\[CapitalDelta] U1)/(r^2+a^2)^2+G^2+(\[CapitalDelta] D[G,r])/(r^2+a^2)-F G);
 
 f^2 d2X + f(D[f,r]-F)dX - U X/.r->r1
 
-]
- 
-TeukolskyRadialUp[a_, \[Lambda]_, m_, \[Omega]_, r1_, Method -> "MST"] := Module[{},
-	Print["MST method not yet implemented"]
 ]
  
 SasakiNakamuraRadialUp[a_?NumericQ, \[Lambda]_?NumericQ, m_?NumericQ, \[Omega]_?NumericQ, r1_?NumericQ] := Module[{M=1, r, rout, outBC, XUp},
