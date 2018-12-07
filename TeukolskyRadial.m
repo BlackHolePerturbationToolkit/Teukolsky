@@ -42,7 +42,7 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, OptionsPattern[]
 
 	TeukolskyRadialFunction[s,l,m,a,\[Omega],assoc]
 
-]
+];
 
 
 Format[TeukolskyRadialFunction[s_,l_,m_,a_,\[Omega]_,assoc_]] := "TeukolskyRadialFunction["<>ToString[s]<>","<>ToString[l]<>","<>ToString[m]<>","<>ToString[a]<>","<>ToString[m]<>","<>ToString[\[Omega]]<>",<<>>]";
