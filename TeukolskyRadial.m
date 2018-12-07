@@ -59,7 +59,15 @@ TeukolskyRadialFunction[s_,l_,m_,a_,\[Omega]_,assoc_][r_?NumericQ] := Module[{},
 		Return[Association[MapThread[#1 -> #2[r] &, {assoc["BoundaryConditions"], assoc["SolutionFunctions"]}]]], 
 		Return[assoc["SolutionFunctions"][r]]
 	];	
-]
+];
+
+Derivative[n_][TeukolskyRadialFunction[s_,l_,m_,a_,\[Omega]_,assoc_]][r_?NumericQ] := Module[{},
+	If[
+		Head[assoc["BoundaryConditions"]] === List,
+		Return[Association[MapThread[#1 -> Derivative[n][#2][r] &, {assoc["BoundaryConditions"], assoc["SolutionFunctions"]}]]], 
+		Return[Derivative[n][assoc["SolutionFunctions"]][r]]
+	];	
+];
 
 
 End[];
