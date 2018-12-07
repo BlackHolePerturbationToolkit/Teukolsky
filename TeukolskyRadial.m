@@ -10,8 +10,8 @@ BeginPackage["Teukolsky`TeukolskyRadial`",
    "Teukolsky`MST`"}
 ];
 
-TeukolskyRadial::usage = "TeukolskyRadial[s,l,m,a,\[Omega]] computes radial solutions to the Teukolsky equation"
-TeukolskyRadialFunction::usage = "TeukolskyRadialFunction[s,l,m,a,\[Omega],assoc] an object for storing the solutions to the Teukolsky equation"
+TeukolskyRadial::usage = "TeukolskyRadial[s,l,m,a,\[Omega]] computes solutions to the radial Teukolsky equation."
+TeukolskyRadialFunction::usage = "TeukolskyRadialFunction[s, l, m, a, \[Omega], assoc] an object representing solutions to the Teukolsky equation."
 
 Begin["`Private`"];
 
