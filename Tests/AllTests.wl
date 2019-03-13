@@ -2,7 +2,6 @@
 
 Print["Mathematica Version: ", $Version];
 
-<< SpinWeightedSpheroidalHarmonics`
 << Teukolsky`
 
 testFiles = FileNames["*.wlt", 
@@ -12,7 +11,7 @@ reports = TestReport /@ testFiles;
 
 numTestsSucceeded = Total[#["TestsSucceededCount"] & /@ reports];
 numTestsFailed    = Total[#["TestsFailedCount"]& /@ reports];
-numTests          = testsSucceededCount + failureCount;
+numTests          = numTestsSucceeded + numTestsFailed;
 
 time = QuantityMagnitude[Total[(#["TimeElapsed"] & /@ reports)], "Seconds"];
 
@@ -49,7 +48,8 @@ testsuiteXML[report_] :=
 xml = XMLObject["Document"][{XMLObject["Declaration"]["Version" -> "1.0",  "Encoding" -> "UTF-8"]}, 
   XMLElement[
     "testsuites",
-    {"name" -> "Teukolsky Tests", 
+    {"id" -> DateString["ISODateTime"],
+     "name" -> "Teukolsky Tests",
      "time" -> ToString[time],
      "tests" -> ToString[numTests], 
      "failures" -> ToString[numTestsFailed]}, 
