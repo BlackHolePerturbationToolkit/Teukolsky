@@ -2,6 +2,8 @@
 
 Print["Mathematica Version: ", $Version];
 
+PrependTo[$Path, FileNameDrop[ExpandFileName[First[$ScriptCommandLine]],-3]];
+
 << Teukolsky`
 
 testFiles = FileNames["*.wlt", 
