@@ -16,7 +16,8 @@ VerificationTest[
          1.9800007321197113, -0.33267928615316333], Teukolsky`MST`Private`MSTRadialUp[2, 2, 
          2, 0.5, 0.2, 1.9800007321197113, -0.33267928615316333]}|>]
     ,
-    TestID->"TeukolskyRadial"
+    TestID->"TeukolskyRadial",
+    SameTest -> withinRoundoff
 ]
 
 (****************************************************************)
@@ -93,7 +94,8 @@ VerificationTest[
     <|"In" -> 8.380259040239462 + 4.366632556855613*I, 
      "Up" -> 0.1172587510862727 - 0.04222308216793374*I|>
     ,
-    TestID->"Numerical Evaluation"
+    TestID->"Numerical Evaluation",
+    SameTest -> withinRoundoff
 ]
 
 
@@ -106,7 +108,8 @@ VerificationTest[
     <|"In" -> 0.22123657279829767 - 0.7299412890543474*I, 
      "Up" -> -0.05992621567089734 + 0.03634423319292853*I|>
     ,
-    TestID->"Derivative Numerical Evaluation "
+    TestID->"Derivative Numerical Evaluation ",
+    SameTest -> withinRoundoff
 ]
 
 
@@ -119,7 +122,8 @@ VerificationTest[
     <|"In" -> -0.0028955067079097616 + 0.0010988209544549633*I, 
      "Up" -> 0.021151996439270782 - 0.02462511502507206*I|>
     ,
-    TestID->"Higher Derivative Numerical Evaluation "
+    TestID->"Higher Derivative Numerical Evaluation ",
+    SameTest -> withinRoundoff
 ]
 
 
@@ -157,7 +161,8 @@ VerificationTest[
     ,
     8.380259040239462 + 4.366632556855613*I
     ,
-    TestID->"Single Subcase Numerical Evaluation"
+    TestID->"Single Subcase Numerical Evaluation",
+    SameTest -> withinRoundoff
 ]
 
 
@@ -169,7 +174,8 @@ VerificationTest[
     ,
     0.22123657279829767 - 0.7299412890543474*I
     ,
-    TestID->"Single Subcase Derivative Numerical Evaluation "
+    TestID->"Single Subcase Derivative Numerical Evaluation ",
+    SameTest -> withinRoundoff
 ]
 
 
