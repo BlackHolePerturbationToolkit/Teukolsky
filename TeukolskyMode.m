@@ -8,7 +8,8 @@ BeginPackage["Teukolsky`TeukolskyMode`",
 	{"Teukolsky`TeukolskySource`",
 	 "Teukolsky`TeukolskyRadial`",
 	 "Teukolsky`ConvolveSource`",
-	 "KerrGeodesics`"}
+	 "KerrGeodesics`",
+	 "SpinWeightedSpheroidalHarmonics`"}
 ];
 
 TeukolskyModeObject::usage = "TeukolskyModeObject[assoc] an object which contains a Teukolsky mode"
@@ -18,22 +19,33 @@ TeukolskyPointParticleMode::usage = "TeukolskyPointParticleMode[s, l, m, n, k, o
 Begin["`Private`"];
 
 
-TeukolskyPointParticleMode[s_, l_, m_, n_, k_, orbit_]:=Module[{assoc, source, radial, \[Omega], \[CapitalOmega]r, \[CapitalOmega]\[Phi], \[CapitalOmega]\[Theta], Z},
+TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer, orbit_KerrGeoOrbitFunction] := Module[{source},
+	source = TeukolskyPointParticleSource[s, orbit];
+	TeukolskyPointParticleMode[s,l,m,n,k,orbit,source]
+]
+
+TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer, orbit_KerrGeoOrbitFunction, source_TeukolskySourceObject]:=Module[{assoc, R, S, \[Omega], \[CapitalOmega]r, \[CapitalOmega]\[Phi], \[CapitalOmega]\[Theta], Z, a},
 
 {\[CapitalOmega]r, \[CapitalOmega]\[Theta], \[CapitalOmega]\[Phi]} = orbit["Frequencies"];
 \[Omega] = m \[CapitalOmega]\[Phi] + n \[CapitalOmega]r + k \[CapitalOmega]\[Theta];
-radial = TeukolskyRadial[s, l, m, orbit[[1]], \[Omega]];  (*FIXME: should be able to get parameters from the orbit via assocication*)
 
-source = TeukolskyPointParticleSource[s, orbit];
+a = orbit[[1]]; (*FIXME: should be able to get parameters from the orbit via assocication*)
 
-Z = Teukolsky`ConvolveSource`Private`ConvolveSource[radial,source];
+R = TeukolskyRadial[s, l, m, a, \[Omega]];  
+
+S = SpinWeightedSpheroidalHarmonicS[s, l, m, a \[Omega]];
+
+Z = Teukolsky`ConvolveSource`Private`ConvolveSource[R, S, source];
 
 assoc = <| "s" -> s, 
-		    "modeType" -> "PointParticle", 
-		    "source" -> source, 
-		    "radial" -> radial,
-		    "orbit" -> orbit,
-		    "Z" -> Z
+		   "l" -> l,
+		   "m" -> m,
+		   "n" -> n,
+		   "k" -> k,
+		    "Type" -> "PointParticle", 
+		    "Radial" -> R,
+		    "Angular" -> S,
+		    "Amplitudes" -> Z
 		    |>;
 
 TeukolskyModeObject[assoc]

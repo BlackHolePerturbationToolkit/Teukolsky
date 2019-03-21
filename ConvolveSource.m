@@ -9,7 +9,7 @@ BeginPackage["Teukolsky`ConvolveSource`"];
 Begin["`Private`"];
 
 
-ConvolveSource[TRF_, TSO_]:=Module[{},
+ConvolveSource[TRF_, S_, TSO_]:=Module[{},
 
 <| "ZInf" -> 1, "ZHor" -> 1 |>
 
