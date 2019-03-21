@@ -52,7 +52,7 @@ TeukolskyModeObject[assoc]
 ]
 
 
-Format[TeukolskyModeObject[assoc_]] := "TeukolskyModeObject[<<>>]";
+Format[TeukolskyModeObject[assoc_]] := "TeukolskyModeObject["<>ToString[assoc["s"]]<>","<>ToString[assoc["l"]]<>","<>ToString[assoc["m"]]<>","<>ToString[assoc["n"]]<>","<>ToString[assoc["k"]]<>",<<>>]";
 
 TeukolskyModeObject[assoc_][string_] := assoc[string]
 
