@@ -7,6 +7,7 @@
 BeginPackage["Teukolsky`TeukolskyMode`",
 	{"Teukolsky`TeukolskySource`",
 	 "Teukolsky`TeukolskyRadial`",
+	 "Teukolsky`ConvolveSource`",
 	 "KerrGeodesics`"}
 ];
 
@@ -17,7 +18,7 @@ TeukolskyPointParticleMode::usage = "TeukolskyPointParticleMode[s, l, m, n, k, o
 Begin["`Private`"];
 
 
-TeukolskyPointParticleMode[s_, l_, m_, n_, k_, orbit_]:=Module[{assoc, source, radial, \[Omega], \[CapitalOmega]r, \[CapitalOmega]\[Phi], \[CapitalOmega]\[Theta]},
+TeukolskyPointParticleMode[s_, l_, m_, n_, k_, orbit_]:=Module[{assoc, source, radial, \[Omega], \[CapitalOmega]r, \[CapitalOmega]\[Phi], \[CapitalOmega]\[Theta], Z},
 
 {\[CapitalOmega]r, \[CapitalOmega]\[Theta], \[CapitalOmega]\[Phi]} = orbit["Frequencies"];
 \[Omega] = m \[CapitalOmega]\[Phi] + n \[CapitalOmega]r + k \[CapitalOmega]\[Theta];
@@ -25,11 +26,14 @@ radial = TeukolskyRadial[s, l, m, orbit[[1]], \[Omega]];  (*FIXME: should be abl
 
 source = TeukolskyPointParticleSource[s, orbit];
 
+Z = Teukolsky`ConvolveSource`Private`ConvolveSource[radial,source];
+
 assoc = <| "s" -> s, 
 		    "modeType" -> "PointParticle", 
 		    "source" -> source, 
 		    "radial" -> radial,
-		    "orbit" -> orbit
+		    "orbit" -> orbit,
+		    "Z" -> Z
 		    |>;
 
 TeukolskyModeObject[assoc]
