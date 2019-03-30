@@ -8,7 +8,8 @@ BeginPackage["Teukolsky`TeukolskyMode`",
 	{"Teukolsky`TeukolskySource`",
 	 "Teukolsky`TeukolskyRadial`",
 	 "Teukolsky`ConvolveSource`",
-	 "KerrGeodesics`",
+	 "KerrGeodesics`KerrGeoOrbit`",
+	 "KerrGeodesics`OrbitalFrequencies`",
 	 "SpinWeightedSpheroidalHarmonics`"}
 ];
 
@@ -24,9 +25,12 @@ TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer
 	TeukolskyPointParticleMode[s,l,m,n,k,orbit,source]
 ]
 
-TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer, orbit_KerrGeoOrbitFunction, source_TeukolskySourceObject]:=Module[{assoc, R, S, \[Omega], \[CapitalOmega]r, \[CapitalOmega]\[Phi], \[CapitalOmega]\[Theta], Z, a},
+TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer, orbit_KerrGeoOrbitFunction, source_TeukolskySourceObject]:=Module[{assoc, R, S, \[Omega], \[CapitalOmega]r, \[CapitalOmega]\[Phi], \[CapitalOmega]\[Theta], Z, a, Fluxes},
 
-{\[CapitalOmega]r, \[CapitalOmega]\[Theta], \[CapitalOmega]\[Phi]} = orbit["Frequencies"];
+(*{\[CapitalOmega]r, \[CapitalOmega]\[Theta], \[CapitalOmega]\[Phi]} = orbit["Frequencies"];*) (*This gives Mino frequencies, need BL frequencies*)
+
+{\[CapitalOmega]r, \[CapitalOmega]\[Theta], \[CapitalOmega]\[Phi]} = Values[KerrGeoFrequencies[orbit["a"], orbit["p"], orbit["e"], orbit["Inclination"]]];
+
 \[Omega] = m \[CapitalOmega]\[Phi] + n \[CapitalOmega]r + k \[CapitalOmega]\[Theta];
 
 a = orbit[[1]]; (*FIXME: should be able to get parameters from the orbit via assocication*)
@@ -37,15 +41,20 @@ S = SpinWeightedSpheroidalHarmonicS[s, l, m, a \[Omega]];
 
 Z = Teukolsky`ConvolveSource`Private`ConvolveSource[R, S, source];
 
+(*For flux calculation we need to check the normalization*)
+Fluxes = <|"FluxInf" -> Abs[Z["ZInf"]]^2/(4 \[Pi] \[Omega]^2)|>;
+
 assoc = <| "s" -> s, 
 		   "l" -> l,
 		   "m" -> m,
 		   "n" -> n,
 		   "k" -> k,
+		   "\[Omega]" -> \[Omega],
 		    "Type" -> "PointParticle", 
 		    "Radial" -> R,
 		    "Angular" -> S,
-		    "Amplitudes" -> Z
+		    "Amplitudes" -> Z,
+		    "Fluxes" -> "We need the normalization of R first"
 		    |>;
 
 TeukolskyModeObject[assoc]

@@ -34,6 +34,10 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, OptionsPattern[]
 	
 	
 	assoc = Association[
+		"s" -> s,
+		"l" -> l,
+		"m" -> m,
+		"\[Omega]" -> \[Omega],
 		"Method" -> method,
 		"BoundaryConditions" -> OptionValue["BoundaryConditions"],
 		"Eigenvalue" -> \[Lambda],
