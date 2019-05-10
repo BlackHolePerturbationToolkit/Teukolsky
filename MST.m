@@ -171,7 +171,7 @@ MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_
     f[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nDown] H2F1[nDown]), 
     nDown--;
   ];
-  norm = 4^s \[Kappa]^(2 s) E^(I (\[Epsilon] \[Kappa]+\[Tau]) (1/2+Log[\[Kappa]]/(1+\[Kappa]))) Sum[f[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n], {n, nDown, nUp}];
+  norm = 4^s \[Kappa]^(2 s) E^(I (\[Epsilon]+\[Tau]) \[Kappa] (1/2+Log[\[Kappa]]/(1+\[Kappa]))) Sum[f[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n], {n, nDown, nUp}];
   E^(I \[Epsilon] \[Kappa] x) (-x)^(-s - I (\[Epsilon] + \[Tau])/2) (1 - x)^(I (\[Epsilon] - \[Tau])/2) (resUp + resDown) / norm
 ]]];
 
@@ -225,7 +225,7 @@ Derivative[1][MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu
     nDown--;
   ];
 
-  norm = 4^s \[Kappa]^(2 s) E^(I (\[Epsilon] \[Kappa]+\[Tau]) (1/2+Log[\[Kappa]]/(1+\[Kappa]))) Sum[f[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n], {n, nDown, nUp}];
+  norm = 4^s \[Kappa]^(2 s) E^(I (\[Epsilon]+\[Tau]) \[Kappa] (1/2+Log[\[Kappa]]/(1+\[Kappa]))) Sum[f[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n], {n, nDown, nUp}];
   1/2 E^(I x \[Epsilon] \[Kappa]) (1 - x)^(1/2 I (2 I + \[Epsilon] - \[Tau])) (-x)^(-1 - s - 1/2 I (\[Epsilon] + \[Tau])) (resUp + resDown) dxdr / norm
 ]]];
 
