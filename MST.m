@@ -136,7 +136,7 @@ f[q_, \[Epsilon]_, \[Kappa]_, \[Tau]_, \[Nu]_, \[Lambda]_, s_, m_, nf_] :=
 SetAttributes[MSTRadialIn, {NumericFunction}];
 
 MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_][r_?InexactNumberQ] := 
- Module[{\[Kappa], \[Tau], rp, z, zp, x, resUp, nUp, resDown, nDown},
+ Module[{\[Kappa], \[Tau], rp, z, zp, x, resUp, nUp, resDown, nDown, norm},
  Block[{H2F1},
  Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], f},
   \[Kappa] = Sqrt[1 - q^2];
@@ -171,12 +171,12 @@ MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_
     f[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nDown] H2F1[nDown]), 
     nDown--;
   ];
-
-  E^(I \[Epsilon] \[Kappa] x) (-x)^(-s - I (\[Epsilon] + \[Tau])/2) (1 - x)^(I (\[Epsilon] - \[Tau])/2) (resUp + resDown)
+  norm = 4^s \[Kappa]^(2 s) E^(I (\[Epsilon] \[Kappa]+\[Tau]) (1/2+Log[\[Kappa]]/(1+\[Kappa]))) Sum[f[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n], {n, nDown, nUp}];
+  E^(I \[Epsilon] \[Kappa] x) (-x)^(-s - I (\[Epsilon] + \[Tau])/2) (1 - x)^(I (\[Epsilon] - \[Tau])/2) (resUp + resDown) / norm
 ]]];
 
 Derivative[1][MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_]][r_?InexactNumberQ] :=
- Module[{\[Kappa], \[Tau], rp, z, zp, x, dxdr, resUp, nUp, resDown, nDown},
+ Module[{\[Kappa], \[Tau], rp, z, zp, x, dxdr, resUp, nUp, resDown, nDown, norm},
  Block[{H2F1, dH2F1},
  Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], f},
   \[Kappa] = Sqrt[1 - q^2];
@@ -225,7 +225,8 @@ Derivative[1][MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu
     nDown--;
   ];
 
-  1/2 E^(I x \[Epsilon] \[Kappa]) (1 - x)^(1/2 I (2 I + \[Epsilon] - \[Tau])) (-x)^(-1 - s - 1/2 I (\[Epsilon] + \[Tau])) (resUp + resDown) dxdr
+  norm = 4^s \[Kappa]^(2 s) E^(I (\[Epsilon] \[Kappa]+\[Tau]) (1/2+Log[\[Kappa]]/(1+\[Kappa]))) Sum[f[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n], {n, nDown, nUp}];
+  1/2 E^(I x \[Epsilon] \[Kappa]) (1 - x)^(1/2 I (2 I + \[Epsilon] - \[Tau])) (-x)^(-1 - s - 1/2 I (\[Epsilon] + \[Tau])) (resUp + resDown) dxdr / norm
 ]]];
 
 Derivative[n_Integer?Positive][MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_]][r0_?InexactNumberQ] :=
@@ -243,7 +244,7 @@ Derivative[n_Integer?Positive][MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, 
 SetAttributes[MSTRadialUp, {NumericFunction}];
 
 MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_][r_?InexactNumberQ]  := 
- Module[{\[Kappa], \[Tau], \[Epsilon]p, rm, z, zm, zhat, resUp, nUp, resDown, nDown},
+ Module[{\[Kappa], \[Tau], \[Epsilon]p, rm, z, zm, zhat, resUp, nUp, resDown, nDown, norm},
  Block[{HU},
  Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], f},
   \[Kappa] = Sqrt[1 - q^2];
@@ -280,11 +281,12 @@ MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_
     nDown--;
   ];
 
-  2^\[Nu] E^(-\[Pi] \[Epsilon]) E^(-I \[Pi](\[Nu]+1+s)) E^(I zhat) zhat^(\[Nu]+I \[Epsilon]p) (zhat-\[Epsilon] \[Kappa])^(-s-I \[Epsilon]p) (resUp + resDown)
+  norm = (\[Epsilon]/2)^(-1-2s) Exp[I \[Epsilon](Log[\[Epsilon]]-(1-\[Kappa])/2)] 2^(-1-s+I \[Epsilon]) Exp[-\[Pi] (\[Epsilon]+I(\[Nu]+1+s))/2]Sum[(-1)^n Pochhammer[\[Nu]+1+s-I \[Epsilon],n]/Pochhammer[\[Nu]+1-s+I \[Epsilon],n] f[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n], {n, nDown, nUp}];
+  2^\[Nu] E^(-\[Pi] \[Epsilon]) E^(-I \[Pi](\[Nu]+1+s)) E^(I zhat) zhat^(\[Nu]+I \[Epsilon]p) (zhat-\[Epsilon] \[Kappa])^(-s-I \[Epsilon]p) (resUp + resDown) / norm
 ]]];
 
 Derivative[1][MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_]][r_?InexactNumberQ] :=
- Module[{\[Kappa], \[Tau], \[Epsilon]p, rm, z, zm, zhat, dzhatdr, resUp, nUp, resDown, nDown},
+ Module[{\[Kappa], \[Tau], \[Epsilon]p, rm, z, zm, zhat, dzhatdr, resUp, nUp, resDown, nDown, norm},
  Block[{HU, dHU},
  Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], f},
   \[Kappa] = Sqrt[1 - q^2];
@@ -334,7 +336,8 @@ Derivative[1][MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu
     nDown--;
   ];
 
-  E^(-\[Pi] (\[Epsilon] + I (1 + s + \[Nu]))) (zhat - \[Epsilon] \[Kappa])^(-1 - s - I \[Epsilon]p) (resUp + resDown) dzhatdr
+  norm = (\[Epsilon]/2)^(-1-2s) Exp[I \[Epsilon](Log[\[Epsilon]]-(1-\[Kappa])/2)] 2^(-1-s+I \[Epsilon]) Exp[-\[Pi] (\[Epsilon]+I(\[Nu]+1+s))/2]Sum[(-1)^n Pochhammer[\[Nu]+1+s-I \[Epsilon],n]/Pochhammer[\[Nu]+1-s+I \[Epsilon],n] f[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n], {n, nDown, nUp}];
+  E^(-\[Pi] (\[Epsilon] + I (1 + s + \[Nu]))) (zhat - \[Epsilon] \[Kappa])^(-1 - s - I \[Epsilon]p) (resUp + resDown) dzhatdr / norm
 ]]];
 
 Derivative[n_Integer?Positive][MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_]][r0_?InexactNumberQ] :=
