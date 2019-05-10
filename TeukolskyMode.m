@@ -54,7 +54,7 @@ assoc = <| "s" -> s,
 		    "Radial" -> R,
 		    "Angular" -> S,
 		    "Amplitudes" -> Z,
-		    "Fluxes" -> "We need the normalization of R first"
+		    "Fluxes" -> Fluxes
 		    |>;
 
 TeukolskyModeObject[assoc]
