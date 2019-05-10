@@ -67,7 +67,8 @@ assoc = <| "s" -> s,
 		    "Radial" -> R,
 		    "Angular" -> S,
 		    "Amplitudes" -> Z,
-		    "Fluxes" -> Fluxes
+		    "Fluxes" -> Fluxes,
+		    "Eigenvalue" -> R["Eigenvalue"]
 		    |>;
 
 TeukolskyModeObject[assoc]
