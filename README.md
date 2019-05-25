@@ -1,8 +1,8 @@
 ===============================================================================
  Teukolsky
 ===============================================================================
- Version 0.1
- Copyright 2017 Barry Wardell
+ Version 0.2
+ Copyright 2019 Black Hole Perturbation Toolkit
 
 The Teukolsky package provides a set of functions for computing solutions
 to the Teukolsky equation for perturbations about the spacetime of a Kerr
@@ -46,6 +46,7 @@ Documentation Center.
 
 Changelog
 ---------
+25 May 2019: Move the development work into the main branch. You can now calculate the flux for s=-2 for a particle on a circular, equatorial orbit
 7 Dec 2018: The module is going through massive API changes so do not update for a while
 7 Jul 2017: Initial version released.
 
