@@ -64,8 +64,8 @@ be found in the LICENSE file.
 
 ### Authors
 
-Barry Wardell 
-Niels Warburton 
-Marc Casals 
-Adrian Ottewill 
-Chris Kavanagh 
+Barry Wardell  
+Niels Warburton  
+Marc Casals  
+Adrian Ottewill  
+Chris Kavanagh  
