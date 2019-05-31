@@ -12,12 +12,14 @@ BeginPackage["Teukolsky`ConvolveSource`",
 Begin["`Private`"];
 
 
-ConvolveSource[R_TeukolskyRadialFunction, S_SpinWeightedSpheroidalHarmonicSFunction, TS_TeukolskySourceObject]:=Module[{orbit},
+ConvolveSource[R_TeukolskyRadialFunction, S_SpinWeightedSpheroidalHarmonicSFunction, TS_TeukolskySourceObject]:=Module[{s, orbit},
 	orbit = TS["Orbit"];
+	
+	s = R["s"];
 
 	If[TS["SourceType"] == "PointParticle",
 		If[orbit["e"] == 0 && Abs[orbit["Inclination"]] == 1,
-			Return[ConvolveSourcePointParticleCircular[R,S,TS]],
+			Return[ConvolveSourcePointParticleCircular[s,R,S,TS]],
 			Print["No convolution function for those orbital parameters"]
 		],
 		Print["Source Type not recognized"];
@@ -26,7 +28,7 @@ ConvolveSource[R_TeukolskyRadialFunction, S_SpinWeightedSpheroidalHarmonicSFunct
 ]
 
 
-ConvolveSourcePointParticleCircular[R_TeukolskyRadialFunction, SH_SpinWeightedSpheroidalHarmonicSFunction, TS_TeukolskySourceObject]:=Module[{a, r0, m, \[Omega],\[CapitalDelta], W, Ann0, Anmb0, Ambmb0, Anmb1, Ambmb1, Ambmb2,RIn, ROut, dRIn, dROut, CIn, COut, ZIn, ZOut,S, dS, d2S, L2dagS, L1dagL2dagS,\[Rho],\[Rho]b,K},
+ConvolveSourcePointParticleCircular[-2, R_TeukolskyRadialFunction, SH_SpinWeightedSpheroidalHarmonicSFunction, TS_TeukolskySourceObject]:=Module[{a, r0, m, \[Omega],\[CapitalDelta], W, Ann0, Anmb0, Ambmb0, Anmb1, Ambmb1, Ambmb2,RIn, ROut, dRIn, dROut, CIn, COut, ZIn, ZOut,S, dS, d2S, L2dagS, L1dagL2dagS,\[Rho],\[Rho]b,K},
 	a  = TS["Orbit"]["a"];
 	r0 = TS["Orbit"]["p"];
 	m  = R["m"];
@@ -71,6 +73,32 @@ ConvolveSourcePointParticleCircular[R_TeukolskyRadialFunction, SH_SpinWeightedSp
 	ZOut = 2 \[Pi] CIn/W;
 
 
+	<| "ZInf" -> ZOut, "ZHor" -> ZIn |>
+
+]
+
+
+ConvolveSourcePointParticleCircular[0, R_TeukolskyRadialFunction, SH_SpinWeightedSpheroidalHarmonicSFunction, TS_TeukolskySourceObject]:=Module[{a,r0,\[Psi]In, \[Psi]Out, d\[Psi]In, d\[Psi]Out, W, \[Alpha], ZIn, ZOut, S},
+
+	a  = TS["Orbit"]["a"];
+	r0 = TS["Orbit"]["p"];
+
+	(*\[Psi][r] = r R[r] *)
+	\[Psi]In = R["In"][r0] r0;
+	\[Psi]Out = R["Up"][r0] r0;
+	
+	d\[Psi]In = R["In"][r0] + r0 R["In"]'[r0];
+	d\[Psi]Out = R["Up"][r0] + r0 R["Up"]'[r0];
+
+	W = \[Psi]In d\[Psi]Out - \[Psi]Out d\[Psi]In;
+	
+	S = SH[\[Pi]/2, 0];
+			
+	\[Alpha] = TS["\[Alpha]"] S;
+
+	ZIn = \[Alpha] \[Psi]Out/W;
+	ZOut = \[Alpha] \[Psi]In/W;
+	
 	<| "ZInf" -> ZOut, "ZHor" -> ZIn |>
 
 ]

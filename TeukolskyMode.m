@@ -33,7 +33,7 @@ TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer
 
 \[Omega] = m \[CapitalOmega]\[Phi] + n \[CapitalOmega]r + k \[CapitalOmega]\[Theta];
 
-a = orbit[[1]]; (*FIXME: should be able to get parameters from the orbit via assocication*)
+a = orbit["a"];
 
 R = TeukolskyRadial[s, l, m, a, \[Omega]];  
 
@@ -52,8 +52,12 @@ AbsCSq = ((\[Lambda]+2)^2 + 4 a m \[Omega] - 4a^2 \[Omega]^2)(\[Lambda]^2+36 m a
 
 \[Alpha] = (256(2M rh)^5 \[Kappa](\[Kappa]^2+4\[Epsilon]^2)(\[Kappa]^2+16\[Epsilon]^2)\[Omega]^3)/AbsCSq;
 
-FluxInf =  Abs[Z["ZInf"]]^2/(4 \[Pi] \[Omega]^2);
-FluxHor = \[Alpha] Abs[Z["ZHor"]]^2/(4 \[Pi] \[Omega]^2);
+FluxInf = Abs[Z["ZInf"]]^2 \[Omega]^(2(1-Abs[s]))/(4 \[Pi]);
+
+FluxHor = Switch[s,
+			-2, \[Alpha] Abs[Z["ZHor"]]^2/(4 \[Pi] \[Omega]^2),
+			0,  1/(2 \[Pi] rh) \[Omega](\[Omega]-m \[CapitalOmega]h) Abs[Z["ZHor"]]^2*rh^2       (*This rh^2 factor vs arXiv:1003.1860 Eq. (55) is needed as \[Psi] = r R*)
+			];
 
 Fluxes = <|"FluxInf" -> FluxInf, "FluxHor" -> FluxHor, "FluxTotal" -> FluxInf + FluxHor |>;
 
