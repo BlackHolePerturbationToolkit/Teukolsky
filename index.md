@@ -6,8 +6,11 @@ A Mathematica package for computing solutions to the Teukolsky equation. Note th
 
 Explicitly the package computes solutions to:
 
-$\Delta^{-s} \dfrac{d}{dr}&\bigg[\Delta^{s+1}\dfrac{d R}{dr}\bigg] + \bigg[\frac{K^2 - 2 i s (r-M)K}{\Delta} + 4 i s \omega r - \lambda \bigg]R = \text{source}$
+$\Delta^{-s} \dfrac{d}{dr} \bigg[\Delta^{s+1}\dfrac{d R}{dr}\bigg] + \bigg[\frac{K^2 - 2 i s (r-M)K}{\Delta} + 4 i s \omega r - \lambda \bigg]R = \text{source}$
  
 where
 
+$K=$
+$s$ is the spin-weight of the perturbing field.
 $\lambda$ is the spin-weighted spheroidal eigenvalue.
+$\omega$ is the mode frequency
