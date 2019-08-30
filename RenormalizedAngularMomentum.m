@@ -73,6 +73,7 @@ Cos2\[Pi]\[Nu]Series[a_, \[Omega]_, s_, l_, m_] :=
   (* There are three possible cases: *)
   Check[Which[
     -1 <= Cos2\[Pi]\[Nu] <= 1, (* \[Nu] Real *)
+      (* FIXME: The order of the arguments assumes \[Nu]0 is positive *)
       \[Nu] /. FindRoot[Re[\[Beta][0, \[Nu]] + R[1, \[Nu]] + L[-1, \[Nu]]] == 0, {\[Nu], \[Nu]0, 9/10 \[Nu]0, 11/10 \[Nu]0}, WorkingPrecision -> precision]
     ,
     Cos2\[Pi]\[Nu] < -1, (* \[Nu] = 1/2 + I \[Nu]i *)
