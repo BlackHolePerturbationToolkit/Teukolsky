@@ -210,7 +210,7 @@ RenormalizedAngularMomentum[s_Integer, l_Integer, m_Integer, a_?NumericQ, \[Omeg
   RenormalizedAngularMomentum[s, l, m, a, \[Omega], SpinWeightedSpheroidalEigenvalue[s, l, m, q \[Omega]], opts];
 
 RenormalizedAngularMomentum /: N[RenormalizedAngularMomentum[s_Integer, l_Integer, m_Integer, a_?NumericQ, \[Omega]_?NumericQ, \[Lambda]_?NumericQ], Nopts:OptionsPattern[N]] :=
-  RenormalizedAngularMomentum[s, l, m, N[a, Nopts], N[\Omega, Nopts], N[\[Lambda], Nopts]];
+  RenormalizedAngularMomentum[s, l, m, N[a, Nopts], N[\[Omega], Nopts], N[\[Lambda], Nopts]];
 
 End[];
 EndPackage[];
