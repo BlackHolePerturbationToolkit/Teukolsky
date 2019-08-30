@@ -169,7 +169,7 @@ Cos2\[Pi]\[Nu]Series[a_, \[Omega]_, s_, l_, m_] :=
 
 SyntaxInformation[RenormalizedAngularMomentum] =
  {"ArgumentsPattern" -> {_, _, _, _, _, ___}};
-Options[RenormalizedAngularMomentum] = {Method -> Automatic};
+Options[RenormalizedAngularMomentum] = {Method -> "Monodromy"};
 SetAttributes[RenormalizedAngularMomentum, {NumericFunction}];
 
 RenormalizedAngularMomentum[s_, l_, m_, a_, \[Omega]_, \[Lambda]_, OptionsPattern[RenormalizedAngularMomentum]] /; l < Abs[s] := 0;
