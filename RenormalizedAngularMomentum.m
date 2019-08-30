@@ -204,7 +204,7 @@ RenormalizedAngularMomentum[s_Integer, l_Integer, m_Integer, a_?NumericQ, \[Omeg
 
 RenormalizedAngularMomentum[s_Integer, l_Integer, m_Integer, a_?NumericQ, \[Omega]_?NumericQ, \[Lambda]_?NumericQ] /;
  InexactNumberQ[a] || InexactNumberQ[\[Omega]] || InexactNumberQ[\[Lambda]] :=
-   RenormalizedAngularMomentum[s, l, m, a, \[Omega], \[Lambda], Method -> "FindRoot"];
+   RenormalizedAngularMomentum[s, l, m, a, \[Omega], \[Lambda], Method -> "Monodromy"];
 
 RenormalizedAngularMomentum[s_Integer, l_Integer, m_Integer, a_?NumericQ, \[Omega]_?NumericQ, opts:OptionsPattern[RenormalizedAngularMomentum]] :=
   RenormalizedAngularMomentum[s, l, m, a, \[Omega], SpinWeightedSpheroidalEigenvalue[s, l, m, a \[Omega]], opts];
