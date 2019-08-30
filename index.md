@@ -37,7 +37,7 @@ Note the high precision of the input values for $a$ and $r_0$. Currently this is
 
 ## Homogeneous solutions
 
-The homogeneous solutions are also easily computed. They can be extracted from the `mode` object above using `R=mode["Radial"]`. This returns a `TeukolskyRadialFunction[]` which can be evaluated at a given radius, i.e., `R[20.]`. The homogeneous solutions can also be computed directly via the `TeukolskyRadial[s, l, m, a, ω]` function.
+The homogeneous solutions are also easily computed. They can be extracted from the `mode` object above using `R = mode["Radial"]`. This returns a `TeukolskyRadialFunction[]` which can be evaluated at a given radius, i.e., `R[20.]`. The homogeneous solutions can also be computed directly via the `TeukolskyRadial[s, l, m, a, ω]` function.
 
 ## Renormalized angular momentum
 
@@ -46,4 +46,7 @@ Under the hood the Teukolsky package defaults to using the MST method for comput
  ν = RenormalizedAngularMomentum[s, l, m, a, ω]
 ```
 
+### Further examples
+
+Example notebooks can be found in the [Mathematica Toolkit Examples](https://github.com/BlackHolePerturbationToolkit/MathematicaToolkitExamples) repository.
 
