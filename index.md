@@ -15,7 +15,7 @@ where
 $\Delta = r^2 - 2Mr + a^2$  
 $K=(r^2 + a^2)\omega - a m$  
 $s$ is the spin-weight of the perturbing field 
-$\lambda$ is the spin-weighted spheroidal eigenvalue 
+$\lambda$ is the spin-weighted spheroidal eigenvalue  
 $\omega$ is the mode frequency  
 $\mathcal{T}$ is the source
 
