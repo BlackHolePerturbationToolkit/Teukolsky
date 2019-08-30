@@ -1,0 +1,69 @@
+Notebook[{
+Cell[" ", "SymbolColorBar",
+ CellMargins->{{Inherited, Inherited}, {-5, 0}}],
+
+Cell[TextData[{
+ ButtonBox["Teukolsky",
+  BaseStyle->{"Link", "LinkTrail"},
+  ButtonData->"paclet:Teukolsky/guide/Teukolsky"],
+ StyleBox[" > ", "LinkTrailSeparator"],
+ ButtonBox["Teukolsky`TeukolskySource",
+  BaseStyle->{"Link", "LinkTrail"},
+  ButtonData->"paclet:Teukolsky/guide/Teukolsky`TeukolskySource"],
+ StyleBox[" > ", "LinkTrailSeparator"],
+ ButtonBox["TeukolskySourceObject",
+  BaseStyle->{"Link", "LinkTrail"},
+  ButtonData->"paclet:Teukolsky/ref/TeukolskySourceObject"]
+}], "LinkTrail"],
+
+Cell["TeukolskySourceObject", "ObjectName"],
+
+Cell[BoxData[GridBox[{
+   {"", Cell[TextData[{
+     Cell[BoxData[
+      RowBox[{
+       ButtonBox["TeukolskySourceObject",
+        BaseStyle->"Link",
+        ButtonData->"paclet:Teukolsky/ref/TeukolskySourceObject"], "[", 
+       StyleBox["assoc", "TI"], "]"}]], "InlineFormula"],
+     "\[LineSeparator]an object which contains a Teukolsky source"
+    }]]}
+  }]], "Usage"],
+
+Cell[CellGroupData[{
+
+Cell[" ", "FooterCell"],
+
+Cell[BoxData[""]]
+}, Open  ]]
+},
+Saveable->False,
+ScreenStyleEnvironment->"Working",
+WindowSize->{725, 750},
+WindowMargins->{{0, Automatic}, {Automatic, 0}},
+WindowTitle->"TeukolskySourceObject",
+Visible->True,
+PrivateNotebookOptions->{"FileOutlineCache"->False},
+TaggingRules->{
+ "ModificationHighlight" -> False, 
+  "Metadata" -> {
+   "context" -> "Teukolsky`", 
+    "keywords" -> {
+     "TeukolskySourceObject", "TEUKOLSKYSOURCEOBJECT", 
+      "teukolskysourceobject"}, "index" -> True, "label" -> 
+    "Teukolsky/Teukolsky`TeukolskySource Symbol", "language" -> "en", 
+    "paclet" -> "Teukolsky`TeukolskySource", "status" -> "None", "summary" -> 
+    "TeukolskySourceObject[assoc] an object which contains a Teukolsky \
+source", "synonyms" -> {
+     "TeukolskySourceObject", "TEUKOLSKYSOURCEOBJECT", 
+      "teukolskysourceobject"}, "title" -> "TeukolskySourceObject", 
+    "windowTitle" -> "TeukolskySourceObject", "type" -> "Symbol", "uri" -> 
+    "Teukolsky/ref/TeukolskySourceObject"}, "SearchTextTranslated" -> "", 
+  "LinkTrails" -> ""},
+TrackCellChangeTimes->False,
+FrontEndVersion->"10.3 for Mac OS X x86 (32-bit, 64-bit Kernel) (December 10, \
+2015)",
+StyleDefinitions->FrontEnd`FileName[{"Wolfram"}, "Reference.nb", 
+  CharacterEncoding -> "UTF-8"]
+]
+

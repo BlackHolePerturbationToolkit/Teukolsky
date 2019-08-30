@@ -1,0 +1,195 @@
+Notebook[{
+Cell[" ", "GuideColorBar",
+ CellMargins->{{Inherited, Inherited}, {-5, 0}}],
+
+Cell[TextData[{
+ ButtonBox["Teukolsky",
+  BaseStyle->{"Link", "LinkTrail"},
+  ButtonData->"paclet:Teukolsky/guide/Teukolsky"],
+ StyleBox[" > ", "LinkTrailSeparator"],
+ ButtonBox["Solutions to the radial Teukolsky equation.",
+  BaseStyle->{"Link", "LinkTrail"},
+  ButtonData->"paclet:Teukolsky/guide/Teukolsky"]
+}], "LinkTrail"],
+
+Cell[BoxData[GridBox[{
+   {Cell["TEUKOLSKY GUIDE", "PacletNameCell"], Cell[TextData[{
+     Cell[BoxData[
+      ActionMenuBox[
+       FrameBox["\<\"Tutorials \[RightGuillemet]\"\>",
+        StripOnInput->False], {"Teukolsky":>Documentation`HelpLookup[
+       "paclet:Teukolsky/tutorial/Teukolsky"]},
+       Appearance->None,
+       MenuAppearance->Automatic]],
+      LineSpacing->{1.4, 0}],
+     "\[ThickSpace]\[ThickSpace]\[ThickSpace]\[ThickSpace]\[ThickSpace]\
+\[ThickSpace]",
+     Cell[BoxData[
+      ActionMenuBox[
+       FrameBox["\<\"URL \[RightGuillemet]\"\>",
+        StripOnInput->False], {"\<\"Go to Teukolsky website\"\>":>
+       FrontEndExecute[{
+         NotebookLocate[{
+           URL["http://bhptoolkit.org/Teukolsky"], None}]}], 
+       Delimiter, "\<\"Go to wolfram Mathematica website\"\>":>
+       FrontEndExecute[{
+         NotebookLocate[{
+           URL[
+           "http://reference.wolfram.com/mathematica/guide/Mathematica.html"],
+            None}]}]},
+       Appearance->None,
+       MenuAppearance->Automatic]],
+      LineSpacing->{1.4, 0}]
+    }], "AnchorBar"]}
+  }]], "AnchorBarGrid"],
+
+Cell[CellGroupData[{
+
+Cell["Solutions to the radial Teukolsky equation.", "GuideTitle"],
+
+Cell["\<\
+The Teukolsky package provides functions for computing solutions to the \
+radial Teukolsky equation and related functions. Support is included for \
+arbitrary-precision numerical evaluation.\
+\>", "GuideAbstract"],
+
+Cell[CellGroupData[{
+
+Cell["Solutions of the radial Teukolsky equation", "GuideFunctionsSubsection"],
+
+Cell[TextData[{
+ Cell[TextData[ButtonBox["TeukolskyRadial",
+  BaseStyle->"Link",
+  ButtonData->"paclet:Teukolsky/ref/TeukolskyRadial"]], 
+  "InlineFunctionSans"],
+ " ",
+ StyleBox["\[LongDash]", "GuideEmDash"],
+ " ",
+ "compute homogeneous solutions of the Teukolsky equation"
+}], "GuideText"],
+
+Cell[TextData[{
+ Cell[TextData[ButtonBox["TeukolskyRadialFunction",
+  BaseStyle->"Link",
+  ButtonData->"paclet:Teukolsky/ref/TeukolskyRadialFunction"]], 
+  "InlineFunctionSans"],
+ " ",
+ StyleBox["\[LongDash]", "GuideEmDash"],
+ " ",
+ "object representing a solution of the Teukolsky equation"
+}], "GuideText"],
+
+Cell[TextData[{
+ Cell[TextData[ButtonBox["RenormalizedAngularMomentum",
+  BaseStyle->"Link",
+  ButtonData->"paclet:Teukolsky/ref/RenormalizedAngularMomentum"]], 
+  "InlineFunctionSans"],
+ " ",
+ StyleBox["\[LongDash]", "GuideEmDash"],
+ " ",
+ "parameter used in MST method"
+}], "GuideText"],
+
+Cell[TextData[{
+ Cell[TextData[ButtonBox["TeukolskyModeObject",
+  BaseStyle->"Link",
+  ButtonData->"paclet:Teukolsky/ref/TeukolskyModeObject"]], 
+  "InlineFunctionSans"],
+ " ",
+ StyleBox["\[LongDash]", "GuideEmDash"],
+ " ",
+ "object representing a single mode of a solution of the Teukolsky equation"
+}], "GuideText"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Sources", "GuideFunctionsSubsection"],
+
+Cell[TextData[{
+ Cell[TextData[ButtonBox["TeukolskySourceObject",
+  BaseStyle->"Link",
+  ButtonData->"paclet:Teukolsky/ref/TeukolskySourceObject"]], 
+  "InlineFunctionSans"],
+ " ",
+ StyleBox["\[LongDash]", "GuideEmDash"],
+ " ",
+ "object representing a source for the Teukolsky equation"
+}], "GuideText"],
+
+Cell[TextData[{
+ Cell[TextData[ButtonBox["TeukolskyPointParticleMode",
+  BaseStyle->"Link",
+  ButtonData->"paclet:Teukolsky/ref/TeukolskyPointParticleMode"]], 
+  "InlineFunctionSans"],
+ " ",
+ StyleBox["\[LongDash]", "GuideEmDash"],
+ " ",
+ "object representing a single mode of a solution of the Teukolsky equation \
+with point particle source"
+}], "GuideText"],
+
+Cell[TextData[{
+ Cell[TextData[ButtonBox["TeukolskyPointParticleSource",
+  BaseStyle->"Link",
+  ButtonData->"paclet:Teukolsky/ref/TeukolskyPointParticleSource"]], 
+  "InlineFunctionSans"],
+ " ",
+ StyleBox["\[LongDash]", "GuideEmDash"],
+ " ",
+ "object representing a point-particle source for the Teukolsky equation"
+}], "GuideText"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["", "GuideTutorialsSection",
+ CellFrameLabels->{{
+    FEPrivate`If[
+     FEPrivate`Or[
+      FEPrivate`SameQ[FEPrivate`$ProductVersion, "6.0"], 
+      FEPrivate`SameQ[FEPrivate`$ProductVersion, "7.0"], 
+      FEPrivate`SameQ[FEPrivate`$ProductVersion, "8.0"]], 
+     Cell["TUTORIALS", "GuideTutorialsSection"], 
+     Cell["Tutorials", "GuideTutorialsSection"]], None}, {None, None}},
+ CellFrameLabelMargins->0],
+
+Cell[TextData[ButtonBox["Teukolsky",
+ BaseStyle->"Link",
+ ButtonData->"paclet:Teukolsky/tutorial/Teukolsky"]], "GuideTutorial"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[" ", "FooterCell"],
+
+Cell[BoxData[""]]
+}, Open  ]]
+},
+Saveable->False,
+ScreenStyleEnvironment->"Working",
+WindowSize->{725, 750},
+WindowMargins->{{0, Automatic}, {Automatic, 0}},
+WindowTitle->"Solutions to the radial Teukolsky equation.",
+Visible->True,
+PrivateNotebookOptions->{"FileOutlineCache"->False},
+TaggingRules->{
+ "ModificationHighlight" -> False, 
+  "Metadata" -> {
+   "context" -> "Teukolsky`", "keywords" -> {"Teukolsky"}, "index" -> True, 
+    "label" -> "Teukolsky Application", "language" -> "en", "paclet" -> 
+    "Teukolsky", "status" -> "None", "summary" -> 
+    "Functions for computing solutions to the radial Teukolsky equation and \
+related functions.", "synonyms" -> {"Teukolsky", "Teukolsky"}, "title" -> 
+    "Solutions to the radial Teukolsky equation.", "windowTitle" -> 
+    "Solutions to the radial Teukolsky equation.", "type" -> "Guide", "uri" -> 
+    "Teukolsky/guide/Teukolsky"}, "SearchTextTranslated" -> "", "LinkTrails" -> 
+  ""},
+TrackCellChangeTimes->False,
+FrontEndVersion->"10.3 for Mac OS X x86 (32-bit, 64-bit Kernel) (December 10, \
+2015)",
+StyleDefinitions->FrontEnd`FileName[{"Wolfram"}, "Reference.nb", 
+  CharacterEncoding -> "UTF-8"]
+]
+
