@@ -8,6 +8,9 @@ RenormalizedAngularMomentum::usage =
  "RenormalizedAngularMomentum[s, l, m, a, \[Omega], \[Lambda]] gives the renormalized angular momentum \[Nu].\n" <>
  "RenormalizedAngularMomentum[s, l, m, a, \[Omega]] gives the renormalized angular momentum \[Nu].";
 
+(* Messages *)
+RenormalizedAngularMomentum::precision = "Method \"Monodromy\" currently only works reliably with arbitrary precision numbers. Converting all machine precision inputs to arbitrary precision.";
+
 Begin["`Private`"];
 
 (**********************************************************)
@@ -192,7 +195,15 @@ RenormalizedAngularMomentum[s_Integer, l_Integer, m_Integer, a_?NumericQ, \[Omeg
 
 RenormalizedAngularMomentum[s_Integer, l_Integer, m_Integer, a_?NumericQ, \[Omega]_?NumericQ, \[Lambda]_?NumericQ, 
  Method -> {"Monodromy", "nmax" -> nmax_}] /; InexactNumberQ[a] || InexactNumberQ[\[Omega]] || InexactNumberQ[\[Lambda]] :=
-  \[Nu]RCHMonodromy[a, \[Omega], \[Lambda], s, l, m, nmax];
+ Module[{precision, ap, \[Omega]p, \[Lambda]p, \[Nu]},
+  precision = Precision[{a, \[Omega], \[Lambda]}];
+  If[precision === MachinePrecision,
+    Message[RenormalizedAngularMomentum::precision];
+    {ap, \[Omega]p, \[Lambda]p} = SetPrecision[{a, \[Omega], \[Lambda]}, precision];,
+    {ap, \[Omega]p, \[Lambda]p} = {a, \[Omega], \[Lambda]};
+  ];
+  \[Nu] = \[Nu]RCHMonodromy[ap, \[Omega]p, \[Lambda]p, s, l, m, nmax]
+];
 
 RenormalizedAngularMomentum[s_Integer, l_Integer, m_Integer, a_?NumericQ, \[Omega]_?NumericQ, \[Lambda]_?NumericQ, 
  Method -> ("Series"|{"Series"})] /; InexactNumberQ[a] || InexactNumberQ[\[Omega]] || InexactNumberQ[\[Lambda]] :=
