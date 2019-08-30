@@ -35,4 +35,15 @@ This returns an association with the results:
 ```
 Note the high precision of the input values for $a$ and $r_0$. Currently this is often a requirement to get an accurate result.
 
+## Homogeneous solutions
+
+The homogeneous solutions are also easily computed. They can be extracted from the `mode` object above using `R=mode["Radial"]`. This returns a `TeukolskyRadialFunction[]` which can be evaluated at a given radius, i.e., `R[20.]`. The homogeneous solutions can also be computed directly via the `TeukolskyRadial[s, l, m, a, ω]` function.
+
+## Renormalized angular momentum
+
+Under the hood the Teukolsky package defaults to using the MST method for computing the homogeneous solutions (Sasaki-Nakamura methods are in development). A key part of the MST method is the calculation of the renormalized angular momentum, $\nu$. This can be computed directly via
+```
+ ν = RenormalizedAngularMomentum[s, l, m, a, ω]
+```
+
 
