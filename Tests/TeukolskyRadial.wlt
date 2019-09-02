@@ -9,8 +9,8 @@
 VerificationTest[
     \[Psi]
     ,
-    TeukolskyRadialFunction[2, 2, 2, 0.5, 0.1, 
-     <|"Method" -> {"MST", "RenormalizedAngularMomentum" -> 1.9800007321197113}, 
+    TeukolskyRadialFunction[2, 2, 2, 0.5, 0.1, <|"s" -> 2, "l" -> 2, "m" -> 2, "ω" -> 0.1,
+      "Method" -> {"MST", "RenormalizedAngularMomentum" -> 1.9800007321197113}, 
       "BoundaryConditions" -> {"In", "Up"}, "Eigenvalue" -> -0.33267928615316333, 
       "SolutionFunctions" -> {Teukolsky`MST`Private`MSTRadialIn[2, 2, 2, 0.5, 0.2, 
          1.9800007321197113, -0.33267928615316333], Teukolsky`MST`Private`MSTRadialUp[2, 2, 
@@ -74,8 +74,8 @@ VerificationTest[
 VerificationTest[
     \[Psi]["SolutionFunctions"]
     ,
-    TeukolskyRadialFunction[2, 2, 2, 0.5, 0.1, 
-      <|"Method" -> {"MST", "RenormalizedAngularMomentum" -> 1.9800007321197113}, 
+    TeukolskyRadialFunction[2, 2, 2, 0.5, 0.1, <|"s" -> 2, "l" -> 2, "m" -> 2, "ω" -> 0.1,
+       "Method" -> {"MST", "RenormalizedAngularMomentum" -> 1.9800007321197113}, 
        "BoundaryConditions" -> {"In", "Up"}, "Eigenvalue" -> -0.33267928615316333, 
        "SolutionFunctions" -> {Teukolsky`MST`Private`MSTRadialIn[2, 2, 2, 0.5, 0.2, 
           1.9800007321197113, -0.33267928615316333], Teukolsky`MST`Private`MSTRadialUp[2, 2, 
@@ -133,8 +133,8 @@ VerificationTest[
 VerificationTest[
     \[Psi]In
     ,
-    TeukolskyRadialFunction[2, 2, 2, 0.5, 0.1, 
-     <|"Method" -> {"MST", "RenormalizedAngularMomentum" -> 1.9800007321197113}, 
+    TeukolskyRadialFunction[2, 2, 2, 0.5, 0.1, <|"s" -> 2, "l" -> 2, "m" -> 2, "ω" -> 0.1,
+      "Method" -> {"MST", "RenormalizedAngularMomentum" -> 1.9800007321197113}, 
       "BoundaryConditions" -> "In", "Eigenvalue" -> -0.33267928615316333, 
       "SolutionFunctions" -> Teukolsky`MST`Private`MSTRadialIn[2, 2, 2, 0.5, 0.2, 
         1.9800007321197113, -0.33267928615316333]|>]
