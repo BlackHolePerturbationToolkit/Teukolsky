@@ -91,8 +91,8 @@ VerificationTest[
 VerificationTest[
     \[Psi][10.0]
     ,
-    <|"In" -> 8.380259040239462 + 4.366632556855613*I, 
-     "Up" -> 0.1172587510862727 - 0.04222308216793374*I|>
+    <|"In" -> 0.8151274455692021 + 0.5569358329985141*I,
+      "Up" -> 1.999804503329915*^-6 + 0.000013378466321641552*I|>
     ,
     TestID->"Numerical Evaluation",
     SameTest -> withinRoundoff
@@ -105,8 +105,8 @@ VerificationTest[
 VerificationTest[
     \[Psi]'[10.0]
     ,
-    <|"In" -> 0.22123657279829767 - 0.7299412890543474*I, 
-     "Up" -> -0.05992621567089734 + 0.03634423319292853*I|>
+    <|"In" -> 0.03200583839610331 - 0.07297367974124275*I,
+      "Up" -> -2.593598129598713*^-6 - 7.151271833408181*^-6*I|>
     ,
     TestID->"Derivative Numerical Evaluation ",
     SameTest -> withinRoundoff
@@ -119,8 +119,8 @@ VerificationTest[
 VerificationTest[
     \[Psi]''''[10.0]
     ,
-    <|"In" -> -0.0028955067079097616 + 0.0010988209544549633*I, 
-     "Up" -> 0.021151996439270782 - 0.02462511502507206*I|>
+    <|"In" -> -0.0003139910712826748 + 0.00007805860280741137*I,
+      "Up" -> 2.171038044040099*^-6 + 2.775091588344741*^-6*I|>
     ,
     TestID->"Higher Derivative Numerical Evaluation ",
     SameTest -> withinRoundoff
@@ -159,7 +159,7 @@ VerificationTest[
 VerificationTest[
     \[Psi]In[10.0]
     ,
-    8.380259040239462 + 4.366632556855613*I
+    0.8151274455692021 + 0.5569358329985141*I
     ,
     TestID->"Single Subcase Numerical Evaluation",
     SameTest -> withinRoundoff
@@ -172,7 +172,7 @@ VerificationTest[
 VerificationTest[
     \[Psi]In'[10.0]
     ,
-    0.22123657279829767 - 0.7299412890543474*I
+    0.03200583839610331 - 0.07297367974124275*I
     ,
     TestID->"Single Subcase Derivative Numerical Evaluation ",
     SameTest -> withinRoundoff
