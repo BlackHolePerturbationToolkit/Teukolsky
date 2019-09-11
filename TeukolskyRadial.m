@@ -18,14 +18,15 @@ Begin["`Private`"];
 
 Options[TeukolskyRadial] = {Method -> {"MST", "RenormalizedAngularMomentum" -> "Monodromy"}, "BoundaryConditions" -> {"In", "Up"}};
 
-TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, OptionsPattern[]] := Module[{assoc, \[Lambda], \[Nu], rmin, rmax, solFuncs, method},
+TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, OptionsPattern[]] := Module[{assoc, \[Lambda], \[Nu], rmin, rmax, solFuncs, method, norms},
 	\[Lambda] = SpinWeightedSpheroidalEigenvalue[s,l,m,a \[Omega]];
 	
 	Switch[OptionValue[Method],
 		"MST"|{"MST", ___},
 			\[Nu] = RenormalizedAngularMomentum[s, l, m, a, \[Omega], \[Lambda], Method->"RenormalizedAngularMomentum"/.OptionValue[Method][[2;;]] ];
 			method = {"MST", "RenormalizedAngularMomentum" -> \[Nu]};
-			solFuncs = OptionValue["BoundaryConditions"] /. {"In" -> Teukolsky`MST`Private`MSTRadialIn[s,l,m,a,2\[Omega],\[Nu],\[Lambda]], "Up" -> Teukolsky`MST`Private`MSTRadialUp[s,l,m,a,2\[Omega],\[Nu],\[Lambda]]};,
+			solFuncs = OptionValue["BoundaryConditions"] /. {"In" -> Teukolsky`MST`Private`MSTRadialIn[s,l,m,a,2\[Omega],\[Nu],\[Lambda]], "Up" -> Teukolsky`MST`Private`MSTRadialUp[s,l,m,a,2\[Omega],\[Nu],\[Lambda]]};
+			norms = Teukolsky`MST`Private`Amplitudes[s,l,m,a,2\[Omega],\[Nu],\[Lambda]];,
 		{"SasakiNakamura", "rmin" -> _, "rmax" -> _},
 			method = {"SasakiNakamura", rmin, rmax} /. OptionValue[Method];
 			solFuncs = $Failed;
@@ -41,6 +42,7 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, OptionsPattern[]
 		"Method" -> method,
 		"BoundaryConditions" -> OptionValue["BoundaryConditions"],
 		"Eigenvalue" -> \[Lambda],
+		"Amplitudes" -> norms,
 		"SolutionFunctions" -> solFuncs
 		];
 
@@ -53,6 +55,7 @@ Format[TeukolskyRadialFunction[s_,l_,m_,a_,\[Omega]_,assoc_]] := "TeukolskyRadia
 
 TeukolskyRadialFunction[s_,l_,m_,a_,\[Omega]_,assoc_][y:("In"|"Up")] := Module[{assocNew=assoc},
 	assocNew["SolutionFunctions"] = First[Pick[assoc["SolutionFunctions"], assoc["BoundaryConditions"], y]];
+	assocNew["Amplitudes"] = First[Pick[assoc["Amplitudes"], assoc["BoundaryConditions"], y]];
 	assocNew["BoundaryConditions"] = y;
 	TeukolskyRadialFunction[s, l, m, a, \[Omega], assocNew]
 ];
@@ -60,16 +63,16 @@ TeukolskyRadialFunction[s_,l_,m_,a_,\[Omega]_,assoc_][y_String] /; !MemberQ[{"So
 TeukolskyRadialFunction[s_,l_,m_,a_,\[Omega]_,assoc_][r_?NumericQ] := Module[{},
 	If[
 		Head[assoc["BoundaryConditions"]] === List,
-		Return[Association[MapThread[#1 -> #2[r] &, {assoc["BoundaryConditions"], assoc["SolutionFunctions"]}]]], 
-		Return[assoc["SolutionFunctions"][r]]
+		Return[Association[MapThread[#1 -> #2[r]/assoc["Amplitudes"][#1]["Transmission"] &, {assoc["BoundaryConditions"], assoc["SolutionFunctions"]}]]], 
+		Return[assoc["SolutionFunctions"][r]/assoc["Amplitudes"]["Transmission"]]
 	];	
 ];
 
 Derivative[n_][TeukolskyRadialFunction[s_,l_,m_,a_,\[Omega]_,assoc_]][r_?NumericQ] := Module[{},
 	If[
 		Head[assoc["BoundaryConditions"]] === List,
-		Return[Association[MapThread[#1 -> Derivative[n][#2][r] &, {assoc["BoundaryConditions"], assoc["SolutionFunctions"]}]]], 
-		Return[Derivative[n][assoc["SolutionFunctions"]][r]]
+		Return[Association[MapThread[#1 -> Derivative[n][#2][r]/assoc["Amplitudes"][#1]["Transmission"] &, {assoc["BoundaryConditions"], assoc["SolutionFunctions"]}]]], 
+		Return[Derivative[n][assoc["SolutionFunctions"]][r]/assoc["Amplitudes"]["Transmission"]]
 	];	
 ];
 

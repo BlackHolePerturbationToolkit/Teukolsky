@@ -127,6 +127,109 @@ f[q_, \[Epsilon]_, \[Kappa]_, \[Tau]_, \[Nu]_, \[Lambda]_, s_, m_, nf_] :=
   ret
 ];
 
+(******************************************************************************)
+(*************************** Asymptotic amplitudes ****************************)
+(******************************************************************************)
+
+Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_] :=
+ Module[{\[Kappa], \[Tau], \[Epsilon]p, \[Omega], K\[Nu], Aplus, Btrans, Ctrans, n, fSumUp, fSumDown, fSumK\[Nu]1Up, fSumK\[Nu]1Down, fSumK\[Nu]2Up, fSumK\[Nu]2Down, fSumCUp, fSumCDown},
+ Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], f},
+  \[Kappa] = Sqrt[1 - q^2];
+  \[Tau] = (\[Epsilon] - m q)/\[Kappa];
+  \[Epsilon]p = 1/2 (\[Tau] + \[Epsilon]);
+  \[Omega] = \[Epsilon] / 2;
+
+  (* All of the formulae are taken from Sasaki & Tagoshi, Living Rev. Relativity 6:6 *)
+
+  (* There are three formally infinite sums which must be computed, but which may be numerically 
+     truncated after a finite number of terms. We determine how many terms to include by summing
+     until the result doesn't change. *)
+
+  (* Sum MST series coefficients with no extra factors*)
+  fSumUp = fSumDown = 0;
+
+  n = 0;
+  While[fSumUp != (fSumUp += 
+    f[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n]),
+    n++;
+  ];
+
+  n = -1;
+  While[fSumDown != (fSumDown += 
+    f[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n]), 
+    n--;
+  ];
+  
+  (* Sums appearing in ST Eq. (165). We evaluate these with 1: \[Nu] and 2:-\[Nu]-1 *)
+  fSumK\[Nu]1Up = fSumK\[Nu]1Down = 0;
+
+  n = 0;
+  While[fSumK\[Nu]1Up != (fSumK\[Nu]1Up += 
+    ((-1)^n Gamma[1 + n + s + I \[Epsilon] + \[Nu]] Gamma[1 + n + 2 \[Nu]] Gamma[1 + n + \[Nu] + I \[Tau]])/(n! Gamma[1 + n - s - I \[Epsilon] + \[Nu]] Gamma[1 + n + \[Nu] - I \[Tau]]) f[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n]),
+    n++;
+  ];
+
+  n = 0;
+  While[fSumK\[Nu]1Down != (fSumK\[Nu]1Down += 
+    (((-1)^n) Pochhammer[1 + s - I \[Epsilon] + \[Nu], n])/((-n)! Pochhammer[1 - s + I \[Epsilon] + \[Nu], n] Pochhammer[2 + 2 \[Nu], n]) f[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n]), 
+    n--;
+  ];
+
+  fSumK\[Nu]2Up = fSumK\[Nu]2Down = 0;
+
+  n = 0;
+  While[fSumK\[Nu]2Up != (fSumK\[Nu]2Up += 
+    ((-1)^n Gamma[1 + n + s + I \[Epsilon] + (-1-\[Nu])] Gamma[1 + n + 2 (-1-\[Nu])] Gamma[1 + n + (-1-\[Nu]) + I \[Tau]])/(n! Gamma[1 + n - s - I \[Epsilon] + (-1-\[Nu])] Gamma[1 + n + (-1-\[Nu]) - I \[Tau]]) f[q, \[Epsilon], \[Kappa], \[Tau], (-1-\[Nu]), \[Lambda], s, m, n]),
+    n++;
+  ];
+
+  n = 0;
+  While[fSumK\[Nu]2Down != (fSumK\[Nu]2Down += 
+    (((-1)^n) Pochhammer[1 + s - I \[Epsilon] + (-1-\[Nu]), n])/((-n)! Pochhammer[1 - s + I \[Epsilon] + (-1-\[Nu]), n] Pochhammer[2 + 2 (-1-\[Nu]), n]) f[q, \[Epsilon], \[Kappa], \[Tau], (-1-\[Nu]), \[Lambda], s, m, n]), 
+    n--;
+  ];
+
+  (* Sum appearing in ST Eq. (158) *)
+  fSumCUp = fSumCDown = 0;
+
+  n = 0;
+  While[fSumCUp != (fSumCUp += 
+    (-1)^n Pochhammer[\[Nu] + 1 + s - I \[Epsilon], n]/Pochhammer[\[Nu] + 1 - s + I \[Epsilon], n] f[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n]),
+    n++;
+  ];
+
+  n = -1;
+  While[fSumCDown != (fSumCDown += 
+    (-1)^n Pochhammer[\[Nu] + 1 + s - I \[Epsilon], n]/Pochhammer[\[Nu] + 1 - s + I \[Epsilon], n] f[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n]), 
+    n--;
+  ];
+  
+
+  (* K\[Nu]: ST Eq. (165) *)
+  K\[Nu]1 = ((2^-\[Nu]) (E^(I \[Epsilon] \[Kappa])) ((\[Epsilon] \[Kappa])^(s - \[Nu])) Gamma[1 - s - 2 I \[Epsilon]p] Gamma[2 + 2 \[Nu]])/(Gamma[1 - s + I \[Epsilon] + \[Nu]] Gamma[1 + s + I \[Epsilon] + \[Nu]] Gamma[1 + \[Nu] + I \[Tau]]) fSumK\[Nu]1Up / fSumK\[Nu]1Down;
+
+  K\[Nu]2 = ((2^-(-1-\[Nu])) (E^(I \[Epsilon] \[Kappa])) ((\[Epsilon] \[Kappa])^(s - (-1-\[Nu]))) Gamma[1 - s - 2 I \[Epsilon]p] Gamma[2 + 2 (-1-\[Nu])])/(Gamma[1 - s + I \[Epsilon] + (-1-\[Nu])] Gamma[1 + s + I \[Epsilon] + (-1-\[Nu])] Gamma[1 + (-1-\[Nu]) + I \[Tau]]) fSumK\[Nu]2Up / fSumK\[Nu]2Down;
+
+  (* A+: ST Eq. (157) *)
+  Aplus = (2^(-1 + s - I \[Epsilon]) E^(-((\[Pi] \[Epsilon])/2) + 1/2 I \[Pi] (1 - s + \[Nu])) Gamma[1 - s + I \[Epsilon] + \[Nu]])/Gamma[1 + s - I \[Epsilon] + \[Nu]] (fSumUp+fSumDown);
+
+  (* Btrans: ST Eq. (167) *)
+  Btrans = 4^s \[Kappa]^(2 s) E^(I (\[Epsilon] + \[Tau]) \[Kappa] (1/2 + Log[\[Kappa]]/(1 + \[Kappa]))) (fSumUp+fSumDown);
+
+  (* Binc: ST Eq. (168) *)
+  Binc = \[Omega]^-1 (K\[Nu]1 - I E^(-I \[Pi] \[Nu]) Sin[\[Pi] (\[Nu] - s + I \[Epsilon])] / Sin[\[Pi] (\[Nu] + s - I \[Epsilon])] K\[Nu]2) Exp[-I \[Epsilon] (Log[\[Epsilon]] - (1 - \[Kappa])/2)] Aplus;
+
+  (* Bref: ST Eq. (169) *)
+  Bref = Ctrans (K\[Nu]1 + I E^(I \[Pi] \[Nu]) K\[Nu]2);
+
+  (* Ctrans: ST Eqs. (158) and (170) *)
+  Ctrans = (\[Epsilon]/2)^(-1 - 2 s) Exp[I \[Epsilon] (Log[\[Epsilon]] - (1 - \[Kappa])/2)] 2^(-1 - s + I \[Epsilon]) Exp[-\[Pi] (\[Epsilon] + I (\[Nu] + 1 + s))/2] (fSumCUp+fSumCDown);
+
+  (* Return results as an Association *)
+  <| "In" -> <| "Incidence" -> Binc, "Transmission" -> Btrans, "Reflection" -> Bref|>,
+     "Up" -> <| "Transmission" -> Ctrans |>
+   |>
+]];
 
 (******************************************************************************)
 (****************************** Radial functions ******************************)
@@ -136,7 +239,7 @@ f[q_, \[Epsilon]_, \[Kappa]_, \[Tau]_, \[Nu]_, \[Lambda]_, s_, m_, nf_] :=
 SetAttributes[MSTRadialIn, {NumericFunction}];
 
 MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_][r_?InexactNumberQ] := 
- Module[{\[Kappa], \[Tau], rp, z, zp, x, resUp, nUp, resDown, nDown, norm},
+ Module[{\[Kappa], \[Tau], rp, z, zp, x, resUp, nUp, resDown, nDown},
  Block[{H2F1},
  Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], f},
   \[Kappa] = Sqrt[1 - q^2];
@@ -171,12 +274,12 @@ MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_
     f[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nDown] H2F1[nDown]), 
     nDown--;
   ];
-  norm = 4^s \[Kappa]^(2 s) E^(I (\[Epsilon]+\[Tau]) \[Kappa] (1/2+Log[\[Kappa]]/(1+\[Kappa]))) Sum[f[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n], {n, nDown, nUp}];
-  E^(I \[Epsilon] \[Kappa] x) (-x)^(-s - I (\[Epsilon] + \[Tau])/2) (1 - x)^(I (\[Epsilon] - \[Tau])/2) (resUp + resDown) / norm
+
+  E^(I \[Epsilon] \[Kappa] x) (-x)^(-s - I (\[Epsilon] + \[Tau])/2) (1 - x)^(I (\[Epsilon] - \[Tau])/2) (resUp + resDown)
 ]]];
 
 Derivative[1][MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_]][r_?InexactNumberQ] :=
- Module[{\[Kappa], \[Tau], rp, z, zp, x, dxdr, resUp, nUp, resDown, nDown, norm},
+ Module[{\[Kappa], \[Tau], rp, z, zp, x, dxdr, resUp, nUp, resDown, nDown},
  Block[{H2F1, dH2F1},
  Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], f},
   \[Kappa] = Sqrt[1 - q^2];
@@ -225,8 +328,7 @@ Derivative[1][MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu
     nDown--;
   ];
 
-  norm = 4^s \[Kappa]^(2 s) E^(I (\[Epsilon]+\[Tau]) \[Kappa] (1/2+Log[\[Kappa]]/(1+\[Kappa]))) Sum[f[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n], {n, nDown, nUp}];
-  1/2 E^(I x \[Epsilon] \[Kappa]) (1 - x)^(1/2 I (2 I + \[Epsilon] - \[Tau])) (-x)^(-1 - s - 1/2 I (\[Epsilon] + \[Tau])) (resUp + resDown) dxdr / norm
+  1/2 E^(I x \[Epsilon] \[Kappa]) (1 - x)^(1/2 I (2 I + \[Epsilon] - \[Tau])) (-x)^(-1 - s - 1/2 I (\[Epsilon] + \[Tau])) (resUp + resDown) dxdr
 ]]];
 
 Derivative[n_Integer?Positive][MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_]][r0_?InexactNumberQ] :=
@@ -245,7 +347,7 @@ Derivative[n_Integer?Positive][MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, 
 SetAttributes[MSTRadialUp, {NumericFunction}];
 
 MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_][r_?InexactNumberQ]  := 
- Module[{\[Kappa], \[Tau], \[Epsilon]p, rm, z, zm, zhat, resUp, nUp, resDown, nDown, norm},
+ Module[{\[Kappa], \[Tau], \[Epsilon]p, rm, z, zm, zhat, resUp, nUp, resDown, nDown},
  Block[{HU},
  Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], f},
   \[Kappa] = Sqrt[1 - q^2];
@@ -282,12 +384,11 @@ MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_
     nDown--;
   ];
 
-  norm = (\[Epsilon]/2)^(-1-2s) Exp[I \[Epsilon](Log[\[Epsilon]]-(1-\[Kappa])/2)] 2^(-1-s+I \[Epsilon]) Exp[-\[Pi] (\[Epsilon]+I(\[Nu]+1+s))/2]Sum[(-1)^n Pochhammer[\[Nu]+1+s-I \[Epsilon],n]/Pochhammer[\[Nu]+1-s+I \[Epsilon],n] f[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n], {n, nDown, nUp}];
-  2^\[Nu] E^(-\[Pi] \[Epsilon]) E^(-I \[Pi](\[Nu]+1+s)) E^(I zhat) zhat^(\[Nu]+I \[Epsilon]p) (zhat-\[Epsilon] \[Kappa])^(-s-I \[Epsilon]p) (resUp + resDown) / norm
+  2^\[Nu] E^(-\[Pi] \[Epsilon]) E^(-I \[Pi](\[Nu]+1+s)) E^(I zhat) zhat^(\[Nu]+I \[Epsilon]p) (zhat-\[Epsilon] \[Kappa])^(-s-I \[Epsilon]p) (resUp + resDown)
 ]]];
 
 Derivative[1][MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_]][r_?InexactNumberQ] :=
- Module[{\[Kappa], \[Tau], \[Epsilon]p, rm, z, zm, zhat, dzhatdr, resUp, nUp, resDown, nDown, norm},
+ Module[{\[Kappa], \[Tau], \[Epsilon]p, rm, z, zm, zhat, dzhatdr, resUp, nUp, resDown, nDown},
  Block[{HU, dHU},
  Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], f},
   \[Kappa] = Sqrt[1 - q^2];
@@ -337,8 +438,7 @@ Derivative[1][MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu
     nDown--;
   ];
 
-  norm = (\[Epsilon]/2)^(-1-2s) Exp[I \[Epsilon](Log[\[Epsilon]]-(1-\[Kappa])/2)] 2^(-1-s+I \[Epsilon]) Exp[-\[Pi] (\[Epsilon]+I(\[Nu]+1+s))/2]Sum[(-1)^n Pochhammer[\[Nu]+1+s-I \[Epsilon],n]/Pochhammer[\[Nu]+1-s+I \[Epsilon],n] f[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n], {n, nDown, nUp}];
-  E^(-\[Pi] (\[Epsilon] + I (1 + s + \[Nu]))) (zhat - \[Epsilon] \[Kappa])^(-1 - s - I \[Epsilon]p) (resUp + resDown) dzhatdr / norm
+  E^(-\[Pi] (\[Epsilon] + I (1 + s + \[Nu]))) (zhat - \[Epsilon] \[Kappa])^(-1 - s - I \[Epsilon]p) (resUp + resDown) dzhatdr
 ]]];
 
 Derivative[n_Integer?Positive][MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_]][r0_?InexactNumberQ] :=
