@@ -25,8 +25,10 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, OptionsPattern[]
 		"MST"|{"MST", ___},
 			\[Nu] = RenormalizedAngularMomentum[s, l, m, a, \[Omega], \[Lambda], Method->"RenormalizedAngularMomentum"/.OptionValue[Method][[2;;]] ];
 			method = {"MST", "RenormalizedAngularMomentum" -> \[Nu]};
-			solFuncs = OptionValue["BoundaryConditions"] /. {"In" -> Teukolsky`MST`Private`MSTRadialIn[s,l,m,a,2\[Omega],\[Nu],\[Lambda]], "Up" -> Teukolsky`MST`Private`MSTRadialUp[s,l,m,a,2\[Omega],\[Nu],\[Lambda]]};
 			norms = Teukolsky`MST`Private`Amplitudes[s,l,m,a,2\[Omega],\[Nu],\[Lambda]];
+			solFuncs = OptionValue["BoundaryConditions"] /.
+			  {"In" -> Teukolsky`MST`Private`MSTRadialIn[s,l,m,a,2\[Omega],\[Nu],\[Lambda],norms["In"]["Transmission"]],
+			   "Up" -> Teukolsky`MST`Private`MSTRadialUp[s,l,m,a,2\[Omega],\[Nu],\[Lambda],norms["Up"]["Transmission"]]};
 			norms = norms/norms[[All, "Transmission"]];
 			norms[[All, "Transmission"]] = 1;,
 		{"SasakiNakamura", "rmin" -> _, "rmax" -> _},
