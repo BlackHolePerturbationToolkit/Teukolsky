@@ -29,8 +29,7 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, OptionsPattern[]
 			solFuncs = OptionValue["BoundaryConditions"] /.
 			  {"In" -> Teukolsky`MST`Private`MSTRadialIn[s,l,m,a,2\[Omega],\[Nu],\[Lambda],norms["In"]["Transmission"]],
 			   "Up" -> Teukolsky`MST`Private`MSTRadialUp[s,l,m,a,2\[Omega],\[Nu],\[Lambda],norms["Up"]["Transmission"]]};
-			norms = norms/norms[[All, "Transmission"]];
-			norms[[All, "Transmission"]] = 1;,
+			norms = norms/norms[[All, "Transmission"]];,
 		{"SasakiNakamura", "rmin" -> _, "rmax" -> _},
 			method = {"SasakiNakamura", rmin, rmax} /. OptionValue[Method];
 			solFuncs = $Failed;
