@@ -109,23 +109,26 @@ dHUDown[n_, s_, \[Nu]_, \[Epsilon]_, zhat_] :=
  \[Gamma][q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n] =
   -((I \[Epsilon] \[Kappa] (n + \[Nu] - s + I \[Epsilon]) (n + \[Nu] - s - I \[Epsilon]) (n + \[Nu] - I \[Tau]))/((n + \[Nu]) (2 n + 2 \[Nu] - 1)));
 
-f[q_, \[Epsilon]_, \[Kappa]_, \[Tau]_, \[Nu]_, \[Lambda]_, s_, m_, 0] = 1;
+fT[q_, \[Epsilon]_, \[Kappa]_, \[Tau]_, \[Nu]_, \[Lambda]_, s_, m_, 0] = 1;
 
-f[q_, \[Epsilon]_, \[Kappa]_, \[Tau]_, \[Nu]_, \[Lambda]_, s_, m_, nf_] :=
- f[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nf] =
+fT[q_, \[Epsilon]_, \[Kappa]_, \[Tau]_, \[Nu]_, \[Lambda]_, s_, m_, nf_] :=
+ fT[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nf] =
  Module[{\[Alpha]n, \[Beta]n, \[Gamma]n, i, n, ret},
   \[Alpha]n[n_] := \[Alpha][q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n];
   \[Beta]n[n_] := \[Beta][q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n];
   \[Gamma]n[n_] := \[Gamma][q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n];
 
   If[nf > 0,
-    ret = f[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nf - 1] CF[-\[Alpha]n[i - 1] \[Gamma]n[i], \[Beta]n[i], {i, nf}]/\[Alpha]n[nf - 1];
+    ret = fT[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nf - 1] CF[-\[Alpha]n[i - 1] \[Gamma]n[i], \[Beta]n[i], {i, nf}]/\[Alpha]n[nf - 1];
   ,
-    ret = f[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nf + 1] CF[-\[Alpha]n[2 nf - i] \[Gamma]n[2 nf - i + 1], \[Beta]n[2 nf - i], {i, nf}]/\[Gamma]n[nf + 1];
+    ret = fT[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nf + 1] CF[-\[Alpha]n[2 nf - i] \[Gamma]n[2 nf - i + 1], \[Beta]n[2 nf - i], {i, nf}]/\[Gamma]n[nf + 1];
   ];
   
   ret
 ];
+
+f[q_, \[Epsilon]_, \[Kappa]_, \[Tau]_, \[Nu]_, \[Lambda]_, s_, m_, nf_, RW_:True] :=
+  If[RW,Pochhammer[-\[Nu]+s-I \[Epsilon],-nf]Pochhammer[\[Nu]+1+s-I \[Epsilon],nf](-1)^nf Pochhammer[\[Nu]+I \[Epsilon]+1,nf]/Pochhammer[\[Nu]-I \[Epsilon]+1,nf],1]fT[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nf];
 
 (******************************************************************************)
 (*************************** Asymptotic amplitudes ****************************)
@@ -133,7 +136,7 @@ f[q_, \[Epsilon]_, \[Kappa]_, \[Tau]_, \[Nu]_, \[Lambda]_, s_, m_, nf_] :=
 
 Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_] :=
  Module[{\[Kappa], \[Tau], \[Epsilon]p, \[Omega], K\[Nu], Aplus, Btrans, Ctrans, Binc, Bref, n, fSumUp, fSumDown, fSumK\[Nu]1Up, fSumK\[Nu]1Down, fSumK\[Nu]2Up, fSumK\[Nu]2Down, fSumCUp, fSumCDown},
- Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], f},
+ Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], fT},
   \[Kappa] = Sqrt[1 - q^2];
   \[Tau] = (\[Epsilon] - m q)/\[Kappa];
   \[Epsilon]p = 1/2 (\[Tau] + \[Epsilon]);
@@ -241,7 +244,7 @@ SetAttributes[MSTRadialIn, {NumericFunction}];
 MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_][r_?InexactNumberQ] := 
  Module[{\[Kappa], \[Tau], rp, z, zp, x, resUp, nUp, resDown, nDown},
  Block[{H2F1},
- Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], f},
+ Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], fT},
   \[Kappa] = Sqrt[1 - q^2];
   \[Tau] = (\[Epsilon] - m q)/\[Kappa];
   rp = 1 + Sqrt[1 - q^2];
@@ -281,7 +284,7 @@ MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_
 Derivative[1][MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_]][r_?InexactNumberQ] :=
  Module[{\[Kappa], \[Tau], rp, z, zp, x, dxdr, resUp, nUp, resDown, nDown},
  Block[{H2F1, dH2F1},
- Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], f},
+ Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], fT},
   \[Kappa] = Sqrt[1 - q^2];
   \[Tau] = (\[Epsilon] - m q)/\[Kappa];
   rp = 1 + Sqrt[1 - q^2];
@@ -349,7 +352,7 @@ SetAttributes[MSTRadialUp, {NumericFunction}];
 MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_][r_?InexactNumberQ]  := 
  Module[{\[Kappa], \[Tau], \[Epsilon]p, rm, z, zm, zhat, resUp, nUp, resDown, nDown},
  Block[{HU},
- Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], f},
+ Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], fT},
   \[Kappa] = Sqrt[1 - q^2];
   \[Tau] = (\[Epsilon] - m q)/\[Kappa];
   \[Epsilon]p = 1/2 (\[Tau]+\[Epsilon]);
@@ -390,7 +393,7 @@ MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_
 Derivative[1][MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_]][r_?InexactNumberQ] :=
  Module[{\[Kappa], \[Tau], \[Epsilon]p, rm, z, zm, zhat, dzhatdr, resUp, nUp, resDown, nDown},
  Block[{HU, dHU},
- Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], f},
+ Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], fT},
   \[Kappa] = Sqrt[1 - q^2];
   \[Tau] = (\[Epsilon] - m q)/\[Kappa];
   \[Epsilon]p = 1/2 (\[Tau]+\[Epsilon]);
