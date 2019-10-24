@@ -93,7 +93,7 @@ Cos2\[Pi]\[Nu]Series[a_, \[Omega]_, s_, l_, m_] :=
 ];
 
 \[Nu]RCHMonodromy[a_, \[Omega]_, \[Lambda]_, s_, l_, m_, Npmax_] :=
- Module[{q, \[Epsilon], \[Kappa], \[Tau], \[Gamma]CH, \[Delta]CH, \[Epsilon]CH, \[Alpha]CH, qCH, \[Mu]1C, \[Mu]2C, a1, a2, a1sum, a2sum, Pochhammerp1m2, Pochhammerm1p2, Cos2\[Pi]\[Nu], nmax, Cos2\[Pi]\[Nu]precision, \[Nu]},
+ Module[{q, \[Epsilon], \[Kappa], \[Tau], \[Gamma]CH, \[Delta]CH, \[Epsilon]CH, \[Alpha]CH\[Epsilon]CH, qCH, \[Mu]1C, \[Mu]2C, a1, a2, a1sum, a2sum, Pochhammerp1m2, Pochhammerm1p2, Cos2\[Pi]\[Nu], nmax, Cos2\[Pi]\[Nu]precision, \[Nu]},
   q = a;
   \[Epsilon] = 2 \[Omega];
   \[Kappa] = Sqrt[1-q^2];
@@ -103,20 +103,20 @@ Cos2\[Pi]\[Nu]Series[a_, \[Omega]_, s_, l_, m_] :=
   \[Gamma]CH = 1-s-I \[Epsilon]-I \[Tau];
   \[Delta]CH = 1+s+I \[Epsilon]-I \[Tau];
   \[Epsilon]CH = 2I \[Epsilon] \[Kappa];
-  \[Alpha]CH = 2 \[Epsilon] \[Kappa] (I-I s-\[Epsilon]+\[Tau]);
+  \[Alpha]CH\[Epsilon]CH =(1-s+I(\[Epsilon]-\[Tau]));
   qCH = -(-s (1+s)+\[Epsilon]^2+I (-1+2 s) \[Epsilon] \[Kappa]-\[Lambda]-\[Tau] (I+\[Tau]));
 
-  \[Mu]1C = \[Alpha]CH/\[Epsilon]CH-(\[Gamma]CH+\[Delta]CH);
-  \[Mu]2C=-(\[Alpha]CH/\[Epsilon]CH);
+  \[Mu]1C = \[Alpha]CH\[Epsilon]CH-(\[Gamma]CH+\[Delta]CH);
+  \[Mu]2C = -\[Alpha]CH\[Epsilon]CH;
 
   (* Recurrence relations *)
   a1[-1] = 0;
   a1[0] = 1;
-  a1[n_] := a1[n] = ((\[Alpha]CH-(-1+n+\[Delta]CH) \[Epsilon]CH) (\[Alpha]CH-(-2+n+\[Gamma]CH+\[Delta]CH) \[Epsilon]CH) )/(n \[Epsilon]CH) a1[n-2]-1/(n \[Epsilon]CH^2) (\[Alpha]CH^2+\[Alpha]CH \[Epsilon]CH (1-2 n-\[Gamma]CH-\[Delta]CH+\[Epsilon]CH)+\[Epsilon]CH^2 (n^2-qCH+n (-1+\[Gamma]CH+\[Delta]CH-\[Epsilon]CH)+\[Epsilon]CH-\[Delta]CH \[Epsilon]CH)) a1[n-1];
+  a1[n_] := a1[n] = (((\[Alpha]CH\[Epsilon]CH-(-1+n+\[Delta]CH)) (\[Alpha]CH\[Epsilon]CH-(-2+n+\[Gamma]CH+\[Delta]CH))\[Epsilon]CH) a1[n-2])/n-((\[Alpha]CH\[Epsilon]CH^2+\[Alpha]CH\[Epsilon]CH (1-2 n-\[Gamma]CH-\[Delta]CH+\[Epsilon]CH)+(n^2-qCH+n (-1+\[Gamma]CH+\[Delta]CH-\[Epsilon]CH)+\[Epsilon]CH-\[Delta]CH \[Epsilon]CH)) a1[n-1])/n ;
 
   a2[-1] = 0;
   a2[0] = 1;
-  a2[n_] := a2[n] = -(((\[Alpha]CH+(-2+n) \[Epsilon]CH) (\[Alpha]CH+(-1+n-\[Gamma]CH) \[Epsilon]CH) )/(n \[Epsilon]CH))a2[n-2]+1/(n \[Epsilon]CH^2) (\[Alpha]CH^2+(n^2-qCH+\[Gamma]CH+\[Delta]CH-n (1+\[Gamma]CH+\[Delta]CH-\[Epsilon]CH)-\[Epsilon]CH) \[Epsilon]CH^2+\[Alpha]CH \[Epsilon]CH (-1+2 n-\[Gamma]CH-\[Delta]CH+\[Epsilon]CH)) a2[n-1];
+  a2[n_] := a2[n] = -((((\[Alpha]CH\[Epsilon]CH+(-2+n)) (\[Alpha]CH\[Epsilon]CH+(-1+n-\[Gamma]CH))\[Epsilon]CH) a2[n-2])/n)+((\[Alpha]CH\[Epsilon]CH^2+(n^2-qCH+\[Gamma]CH+\[Delta]CH-n (1+\[Gamma]CH+\[Delta]CH-\[Epsilon]CH)-\[Epsilon]CH)+\[Alpha]CH\[Epsilon]CH(-1+2 n-\[Gamma]CH-\[Delta]CH+\[Epsilon]CH)) a2[n-1])/n;
 
   Pochhammerp1m2[0] = 1;
   Pochhammerp1m2[i_] := Pochhammerp1m2[i] = (-\[Mu]2C+\[Mu]1C+i-1)Pochhammerp1m2[i-1];
