@@ -174,7 +174,7 @@ SetAttributes[RenormalizedAngularMomentum, {NumericFunction}];
 
 RenormalizedAngularMomentum[s_, l_, m_, a_, \[Omega]_, \[Lambda]_, OptionsPattern[RenormalizedAngularMomentum]] /; l < Abs[s] := 0;
 
-RenormalizedAngularMomentum[s_, l_, m_, a_, (0|0.), \[Lambda]_, OptionsPattern[RenormalizedAngularMomentum]] := l(l-1);
+RenormalizedAngularMomentum[s_, l_, m_, a_, \[Omega]_?PossibleZeroQ, \[Lambda]_, OptionsPattern[RenormalizedAngularMomentum]] := l;
 
 RenormalizedAngularMomentum[s_Integer, l_Integer, m_Integer, a_?NumericQ, \[Omega]_?NumericQ, \[Lambda]_?NumericQ,
  Method -> {"FindRoot", "InitialGuess" -> \[Nu]_}] /; InexactNumberQ[a] || InexactNumberQ[\[Omega]] || InexactNumberQ[\[Lambda]] :=
