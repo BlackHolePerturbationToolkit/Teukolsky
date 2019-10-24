@@ -133,7 +133,7 @@ Cos2\[Pi]\[Nu]Series[a_, \[Omega]_, s_, l_, m_] :=
     If[Precision[Cos2\[Pi]\[Nu][nmax]] == 0, Return[$Failed]];
     Cos2\[Pi]\[Nu]precision = -RealExponent[Im[Cos2\[Pi]\[Nu][nmax]/Re[Cos2\[Pi]\[Nu][nmax]]]];
   ,
-    (* FIXME: we should be able tor predict nmax based on the convergence for large nmax and the loss of precision in a1 and a2 *)
+    (* FIXME: we should be able to predict nmax based on the convergence for large nmax and the loss of precision in a1 and a2 *)
     nmax = 2 Ceiling[E^ProductLog[Precision[{a, \[Omega], \[Lambda]}] Log[100]]];
     If[Precision[Cos2\[Pi]\[Nu][nmax]] == 0, Return[$Failed]];
     Cos2\[Pi]\[Nu]precision = 0;
