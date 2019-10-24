@@ -152,7 +152,7 @@ Cos2\[Pi]\[Nu]Series[a_, \[Omega]_, s_, l_, m_] :=
   \[Nu] = Which[
     Re[Cos2\[Pi]\[Nu][nmax]]<-1, 
       1/2-Im[ArcCos[Re[Cos2\[Pi]\[Nu][nmax]]]/(2\[Pi])]I,
-    -1<=Re[Cos2\[Pi]\[Nu][nmax]]<1,
+    -1<=Re[Cos2\[Pi]\[Nu][nmax]]<=1,
       l-ArcCos[Re[Cos2\[Pi]\[Nu][nmax]]]/(2\[Pi]),
     Re[Cos2\[Pi]\[Nu][nmax]]>1,
       -I Im[ArcCos[Re[Cos2\[Pi]\[Nu][nmax]]]/(2\[Pi])],
