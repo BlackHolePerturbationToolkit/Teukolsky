@@ -239,15 +239,13 @@ Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_]
 SetAttributes[MSTRadialIn, {NumericFunction}];
 
 MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_][r_?NumericQ] :=
- Module[{\[Kappa], \[Tau], rp, z, zp, x, resUp, nUp, resDown, nDown},
+ Module[{\[Kappa], \[Tau], rp, x, resUp, nUp, resDown, nDown},
  Block[{H2F1},
  Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], f},
   \[Kappa] = Sqrt[1 - q^2];
   \[Tau] = (\[Epsilon] - m q)/\[Kappa];
   rp = 1 + Sqrt[1 - q^2];
-  z = \[Epsilon] r / 2;
-  zp = \[Epsilon] rp / 2;
-  x = (zp - z)/(\[Epsilon] \[Kappa]);
+  x = (r - rp)/(2 \[Kappa]);
 
   H2F1[n : (0 | 1)] := H2F1[n] = H2F1Exact[n, s, \[Nu], \[Tau], \[Epsilon], x];
 
@@ -279,15 +277,13 @@ MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_
 ]]];
 
 Derivative[1][MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_]][r_?NumericQ] :=
- Module[{\[Kappa], \[Tau], rp, z, zp, x, dxdr, resUp, nUp, resDown, nDown},
+ Module[{\[Kappa], \[Tau], rp, x, dxdr, resUp, nUp, resDown, nDown},
  Block[{H2F1, dH2F1},
  Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], f},
   \[Kappa] = Sqrt[1 - q^2];
   \[Tau] = (\[Epsilon] - m q)/\[Kappa];
   rp = 1 + Sqrt[1 - q^2];
-  z = \[Epsilon] r / 2;
-  zp = \[Epsilon] rp / 2;
-  x = (zp - z)/(\[Epsilon] \[Kappa]);
+  x = (r - rp)/(2 \[Kappa]);
   dxdr = - 1/(2\[Kappa]);
 
   H2F1[n : (0 | 1)] := H2F1[n] = H2F1Exact[n, s, \[Nu], \[Tau], \[Epsilon], x];
