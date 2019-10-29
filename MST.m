@@ -244,8 +244,8 @@ MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_
  Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], f},
   \[Kappa] = Sqrt[1 - q^2];
   \[Tau] = (\[Epsilon] - m q)/\[Kappa];
-  rp = 1 + Sqrt[1 - q^2];
-  x = (r - rp)/(2 \[Kappa]);
+  rp = 1 + \[Kappa];
+  x = (rp - r)/(2 \[Kappa]);
 
   H2F1[n : (0 | 1)] := H2F1[n] = H2F1Exact[n, s, \[Nu], \[Tau], \[Epsilon], x];
 
@@ -282,8 +282,8 @@ Derivative[1][MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu
  Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], f},
   \[Kappa] = Sqrt[1 - q^2];
   \[Tau] = (\[Epsilon] - m q)/\[Kappa];
-  rp = 1 + Sqrt[1 - q^2];
-  x = (r - rp)/(2 \[Kappa]);
+  rp = 1 + \[Kappa];
+  x = (rp - r)/(2 \[Kappa]);
   dxdr = - 1/(2\[Kappa]);
 
   H2F1[n : (0 | 1)] := H2F1[n] = H2F1Exact[n, s, \[Nu], \[Tau], \[Epsilon], x];
