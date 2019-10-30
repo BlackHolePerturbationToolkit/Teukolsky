@@ -33,7 +33,8 @@ CF[a_, b_, {n_, n0_}] := Module[{A, B, ak, bk, res = Indeterminate, j = n0},
 (******************************************************************************)
 
 H2F1Exact[n_, s_, \[Nu]_, \[Tau]_, \[Epsilon]_, x_] := 
-  Hypergeometric2F1[n + \[Nu] + 1 - I \[Tau], -n - \[Nu] - I \[Tau], 1 - s - I (\[Epsilon] + \[Tau]), x];
+  (*Hypergeometric2F1[n + \[Nu] + 1 - I \[Tau], -n - \[Nu] - I \[Tau], 1 - s - I (\[Epsilon] + \[Tau]), x]*)
+  Hypergeometric2F1[-n - \[Nu]+s - I \[Tau],n + \[Nu]+s+1 - I \[Tau], 1 - 2 I \[Epsilon], x];
 
 H2F1Up[n_, s_, \[Nu]_, \[Tau]_, \[Epsilon]_, x_] :=
   (n + \[Nu])/((n + \[Nu] - (s + I \[Epsilon])) ((n + \[Nu]) - I \[Tau])) {
@@ -49,7 +50,8 @@ H2F1Down[n_, s_, \[Nu]_, \[Tau]_, \[Epsilon]_, x_] :=
 
 (* FIXME: There's probably a better way to write this using identities for derivaties of 2F1 *)
 dH2F1Exact[n_, s_, \[Nu]_, \[Tau]_, \[Epsilon]_, x_] := 
-  Derivative[0, 0, 0, 1][Hypergeometric2F1][n + \[Nu] + 1 - I \[Tau], -n - \[Nu] - I \[Tau], 1 - s - I (\[Epsilon] + \[Tau]), x];
+  (*Derivative[0, 0, 0, 1][Hypergeometric2F1][n + \[Nu] + 1 - I \[Tau], -n - \[Nu] - I \[Tau], 1 - s - I (\[Epsilon] + \[Tau]), x];*)
+  Derivative[0, 0, 0, 1][Hypergeometric2F1][-n - \[Nu]+s - I \[Tau],n + \[Nu]+s+1 - I \[Tau], 1 - 2 I \[Epsilon], x];
 
 dH2F1Up[n_, s_, \[Nu]_, \[Tau]_, \[Epsilon]_, x_] :=
   (n + \[Nu])/((n + \[Nu] - (s + I \[Epsilon])) ((n + \[Nu]) - I \[Tau])) {
@@ -241,7 +243,7 @@ Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_]
 (* Throwe B.1, Sasaki & Tagoshi Eqs. (116) and (120) *)
 SetAttributes[MSTRadialIn, {NumericFunction}];
 
-MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_][r_?InexactNumberQ] := 
+MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, RW_:True][r_?InexactNumberQ] := 
  Module[{\[Kappa], \[Tau], rp, z, zp, x, resUp, nUp, resDown, nDown},
  Block[{H2F1},
  Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], fT},
@@ -254,7 +256,7 @@ MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_
 
   H2F1[n : (0 | 1)] := H2F1[n] = H2F1Exact[n, s, \[Nu], \[Tau], \[Epsilon], x];
 
-  H2F1[n_Integer] := H2F1[n] =
+  H2F1[n_Integer] := H2F1[n] = H2F1Exact[n, s, \[Nu], \[Tau], \[Epsilon], x];(*H2F1[n] =
    Module[{t1, t2, res},
     {t1, t2} = If[n>0, H2F1Up[n, s, \[Nu], \[Tau], \[Epsilon], x], H2F1Down[n, s, \[Nu], \[Tau], \[Epsilon], x]];
     res = t1 + t2;
@@ -262,7 +264,7 @@ MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_
       res = H2F1Exact[n, s, \[Nu], \[Tau], \[Epsilon], x];
     ];
     res
-  ];
+  ];*)
  
   resUp = resDown = 0;
 
@@ -278,10 +280,10 @@ MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_
     nDown--;
   ];
 
-  E^(I \[Epsilon] \[Kappa] x) (-x)^(-s - I (\[Epsilon] + \[Tau])/2) (1 - x)^(I (\[Epsilon] - \[Tau])/2) (resUp + resDown) / norm
+  If[RW,(1-x)^(s+1) (-x)^(-I \[Epsilon]) E^(I \[Epsilon] x), (-x)^(-s - I (\[Epsilon] + \[Tau])/2) (1 - x)^(I (\[Epsilon] - \[Tau])/2) E^(I \[Epsilon] \[Kappa] x)](resUp + resDown) / norm
 ]]];
 
-Derivative[1][MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_]][r_?InexactNumberQ] :=
+Derivative[1][MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, RW_:True]][r_?InexactNumberQ] :=
  Module[{\[Kappa], \[Tau], rp, z, zp, x, dxdr, resUp, nUp, resDown, nDown},
  Block[{H2F1, dH2F1},
  Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], fT},
