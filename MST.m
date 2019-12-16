@@ -328,15 +328,15 @@ Derivative[1][MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu
 ]]];
 
 Derivative[n_Integer?Positive][MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_]][r0_?NumericQ] :=
- Module[{d2R, Rderivs, R, r, i},
+ Module[{d2R, Rderivs, R, r, i, \[Lambda]L, \[Epsilon]L, qL},
  (*FIXME: Add appropriate factors of M here *)
-  d2R = (-(-\[Lambda] + 2 I r s \[Epsilon] + (-2 I (-1 + r) s (-q m + (q^2 + r^2) \[Epsilon]/2) + (-q m + (q^2 + r^2) \[Epsilon]/2)^2)/(q^2 - 2 r + r^2)) R[r] - (-2 + 2 r) (1 + s) Derivative[1][R][r])/(q^2 - 2 r + r^2);
+  d2R = (-(-\[Lambda]L + 2 I r s \[Epsilon]L + (-2 I (-1 + r) s (-qL m + (qL^2 + r^2) \[Epsilon]L/2) + (-qL m + (qL^2 + r^2) \[Epsilon]L/2)^2)/(qL^2 - 2 r + r^2)) R[r] - (-2 + 2 r) (1 + s) Derivative[1][R][r])/(qL^2 - 2 r + r^2);
 
   pderivs = D[R[r_], {r_, i_}] :> D[d2R, {r, i - 2}] /; i >= 2;
-  Do[Derivative[i][R][r] = Simplify[D[Derivative[i - 1][R][r], r] /. pderivs];, {i, 2, n}];
+  Do[Derivative[i][R][r] = Collect[D[Derivative[i - 1][R][r], r] /. pderivs,{R'[r], R[r]}, Simplify];, {i, 2, n}];
   Derivative[n][R][r] /. {
     R'[r] -> MSTRadialIn[s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm]'[r0],
-    R[r] -> MSTRadialIn[s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm][r0], r -> r0}
+    R[r] -> MSTRadialIn[s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm][r0], r -> r0, \[Epsilon]L -> \[Epsilon], qL -> q, \[Lambda]L -> \[Lambda]}
 ];
 
 (* Throwe B.5, Sasaki & Tagoshi (153) and (159) *)
@@ -438,14 +438,14 @@ Derivative[1][MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu
 ]]];
 
 Derivative[n_Integer?Positive][MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_]][r0_?NumericQ] :=
- Module[{d2R, Rderivs, R, r, i},
-  d2R = (-(-\[Lambda] + 2 I r s \[Epsilon] + (-2 I (-1 + r) s (-q m + (q^2 + r^2) \[Epsilon]/2) + (-q m + (q^2 + r^2) \[Epsilon]/2)^2)/(q^2 - 2 r + r^2)) R[r] - (-2 + 2 r) (1 + s) Derivative[1][R][r])/(q^2 - 2 r + r^2);
+ Module[{d2R, Rderivs, R, r, i, \[Lambda]L, \[Epsilon]L, qL},
+  d2R = (-(-\[Lambda]L + 2 I r s \[Epsilon]L + (-2 I (-1 + r) s (-qL m + (qL^2 + r^2) \[Epsilon]L/2) + (-qL m + (qL^2 + r^2) \[Epsilon]L/2)^2)/(qL^2 - 2 r + r^2)) R[r] - (-2 + 2 r) (1 + s) Derivative[1][R][r])/(qL^2 - 2 r + r^2);
 
   pderivs = D[R[r_], {r_, i_}] :> D[d2R, {r, i - 2}] /; i >= 2;
-  Do[Derivative[i][R][r] = Simplify[D[Derivative[i - 1][R][r], r] /. pderivs];, {i, 2, n}];
+  Do[Derivative[i][R][r] = Collect[D[Derivative[i - 1][R][r], r] /. pderivs, {R'[r], R[r]}, Simplify];, {i, 2, n}];
   Derivative[n][R][r] /. {
     R'[r] -> MSTRadialUp[s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm]'[r0],
-    R[r] -> MSTRadialUp[s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm][r0], r -> r0}
+    R[r] -> MSTRadialUp[s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm][r0], r -> r0, \[Epsilon]L -> \[Epsilon], qL -> q, \[Lambda]L -> \[Lambda]}
 ];
 
 End[];
