@@ -7,6 +7,8 @@ MSTRadialUp::usage = "MSTRadialUp[s, l, m, q, \[Epsilon], \[Nu], \[Lambda]][r]";
 
 Begin["`Private`"];
 
+$MasterFunction = "ReggeWheeler";
+
 (******************************************************************************)
 (***************************** Utility functions ******************************)
 (******************************************************************************)
@@ -32,38 +34,77 @@ CF[a_, b_, {n_, n0_}] := Module[{A, B, ak, bk, res = Indeterminate, j = n0},
 (************************** Hypergeometric functions **************************)
 (******************************************************************************)
 
-H2F1Exact[n_, s_, \[Nu]_, \[Tau]_, \[Epsilon]_, x_] := 
-  (*Hypergeometric2F1[n + \[Nu] + 1 - I \[Tau], -n - \[Nu] - I \[Tau], 1 - s - I (\[Epsilon] + \[Tau]), x]*)
-  Hypergeometric2F1[-n - \[Nu]+s - I \[Tau],n + \[Nu]+s+1 - I \[Tau], 1 - 2 I \[Epsilon], x];
+H2F1Exact[n_, s_, \[Nu]_, \[Tau]_, \[Epsilon]_, x_] :=
+ Module[{a, b, c},
+  Switch[$MasterFunction,
+    "ReggeWheeler",
+    a=\[Nu]+s+1-I \[Epsilon]; b=-\[Nu]+s-I \[Epsilon]; c=1-2 I \[Epsilon];,
+    "Teukolsky",
+    a=\[Nu]+1-I \[Tau]; b=-\[Nu]-I \[Tau]; c=1-s-I(\[Epsilon]+\[Tau]);,
+    _, Abort[]
+  ];
+  Hypergeometric2F1[n + a, -n +b,c, x]
+];
 
 H2F1Up[n_, s_, \[Nu]_, \[Tau]_, \[Epsilon]_, x_] :=
-  (n + \[Nu])/((n + \[Nu] - (s + I \[Epsilon])) ((n + \[Nu]) - I \[Tau])) {
-    -((((n + \[Nu]) - 1 + (s + I \[Epsilon])) ((n + \[Nu]) - 1 + I \[Tau]) )/((n + \[Nu]) - 1) ) H2F1[n - 2],
-    (2 (n + \[Nu]) - 1) (1 - 2 x + (I (s + I \[Epsilon]) \[Tau])/(((n + \[Nu]) - 1) (n + \[Nu]))) H2F1[n - 1]
-  };
+ Module[{a, b, c},
+  Switch[$MasterFunction,
+    "ReggeWheeler",
+    a=\[Nu]+s+1-I \[Epsilon]; b=-\[Nu]+s-I \[Epsilon]; c=1-2 I \[Epsilon];,
+    "Teukolsky",
+    a=\[Nu]+1-I \[Tau]; b=-\[Nu]-I \[Tau]; c=1-s-I(\[Epsilon]+\[Tau]);,
+    _, Abort[]
+  ];
+  1/((3-a+b-2 n) (1+b-c-n) (-1+a+n)){-(1-a+b-2 n) (1+b-n) (-1+a-c+n) H2F1[-2+n], -(-2+a-b+2 n) (-2+2 a-2 b+2 a b+c-a c-b c+4 n-2 a n+2 b n-2 n^2+3 x-4 a x+a^2 x+4 b x-2 a b x+b^2 x-8 n x+4 a n x-4 b n x+4 n^2 x) H2F1[-1+n]}
+]
 
 H2F1Down[n_, s_, \[Nu]_, \[Tau]_, \[Epsilon]_, x_] :=
-  (1 + n + \[Nu])/((1 + n + s + I \[Epsilon] + \[Nu]) (1 + n + \[Nu] + I \[Tau])) {
-    (2 (n + \[Nu]) + 3) (1 - 2 x + (I (s + I \[Epsilon]) \[Tau])/(((n + \[Nu]) + 1) ((n + \[Nu]) + 2))) H2F1[n + 1],
-    -((((n + \[Nu]) + 2 - (s + I \[Epsilon])) ((n + \[Nu]) + 2 - I \[Tau]))/(2 + n + \[Nu]) ) H2F1[n + 2]
-  };
+ Module[{a, b, c},
+  Switch[$MasterFunction,
+    "ReggeWheeler",
+    a=\[Nu]+s+1-I \[Epsilon]; b=-\[Nu]+s-I \[Epsilon]; c=1-2 I \[Epsilon];,
+    "Teukolsky",
+    a=\[Nu]+1-I \[Tau]; b=-\[Nu]-I \[Tau]; c=1-s-I(\[Epsilon]+\[Tau]);,
+    _, Abort[]
+  ];
+  1/((-3-a+b-2 n) (-1+b-n) (1+a-c+n)){(-2-a+b-2 n) (-2-2 a+2 b+2 a b+c-a c-b c-4 n-2 a n+2 b n-2 n^2+3 x+4 a x+a^2 x-4 b x-2 a b x+b^2 x+8 n x+4 a n x-4 b n x+4 n^2 x) H2F1[1+n], -(-1-a+b-2 n) (-1+b-c-n) (1+a+n) H2F1[2+n]}
+];
 
-(* FIXME: There's probably a better way to write this using identities for derivaties of 2F1 *)
-dH2F1Exact[n_, s_, \[Nu]_, \[Tau]_, \[Epsilon]_, x_] := 
-  (*Derivative[0, 0, 0, 1][Hypergeometric2F1][n + \[Nu] + 1 - I \[Tau], -n - \[Nu] - I \[Tau], 1 - s - I (\[Epsilon] + \[Tau]), x];*)
-  Derivative[0, 0, 0, 1][Hypergeometric2F1][-n - \[Nu]+s - I \[Tau],n + \[Nu]+s+1 - I \[Tau], 1 - 2 I \[Epsilon], x];
+dH2F1Exact[n_, s_, \[Nu]_, \[Tau]_, \[Epsilon]_, x_] :=
+ Module[{a, b, c},
+  Switch[$MasterFunction,
+    "ReggeWheeler",
+    a=\[Nu]+s+1-I \[Epsilon]; b=-\[Nu]+s-I \[Epsilon]; c=1-2 I \[Epsilon];,
+    "Teukolsky",
+    a=\[Nu]+1-I \[Tau]; b=-\[Nu]-I \[Tau]; c=1-s-I(\[Epsilon]+\[Tau]);,
+    _, Abort[]
+  ];
+  (n+a)(-n+b)/c Hypergeometric2F1[n + a + 1, -n + b + 1, c + 1, x]
+];
 
 dH2F1Up[n_, s_, \[Nu]_, \[Tau]_, \[Epsilon]_, x_] :=
-  (n + \[Nu])/((n + \[Nu] - (s + I \[Epsilon])) ((n + \[Nu]) - I \[Tau])) {
-   -(((-1 + n + s + I \[Epsilon] + \[Nu]) (-1 + n + \[Nu] + I \[Tau]) dH2F1[n - 2])/(-1 + n + \[Nu])),
-   (-1 + 2 (n + \[Nu])) (-2 H2F1[n - 1]),
-   (-1 + 2 (n + \[Nu])) (1 - 2 x + (I (s + I \[Epsilon]) \[Tau])/((-1 + n + \[Nu]) (n + \[Nu]))) dH2F1[n - 1]};
+ Module[{a, b, c},
+  Switch[$MasterFunction,
+    "ReggeWheeler",
+    a=\[Nu]+s+1-I \[Epsilon]; b=-\[Nu]+s-I \[Epsilon]; c=1-2 I \[Epsilon];,
+    "Teukolsky",
+    a=\[Nu]+1-I \[Tau]; b=-\[Nu]-I \[Tau]; c=1-s-I(\[Epsilon]+\[Tau]);,
+    _, Abort[]
+  ];
+  1/((1+b-c-n) (-1+a+n)){-(((1-a+b-2 n) (1+b-n) (-1+a-c+n) dH2F1[-2+n])/(3-a+b-2 n) ), 1/(3-a+b-2 n)  (2-a+b-2 n) (-2+2 a-2 b+2 a b+c-a c-b c+4 n-2 a n+2 b n-2 n^2+3 x-4 a x+a^2 x+4 b x-2 a b x+b^2 x-8 n x+4 a n x-4 b n x+4 n^2 x) dH2F1[-1+n],(1-a+b-2 n) (2-a+b-2 n) H2F1[-1+n]}
+];
 
 dH2F1Down[n_, s_, \[Nu]_, \[Tau]_, \[Epsilon]_, x_] :=
-  (1 + n + \[Nu])/((1 + n + s + I \[Epsilon] + \[Nu]) (1 + n + \[Nu] + I \[Tau])) {
-    (3 + 2 (n + \[Nu])) (-2 H2F1[n + 1]),
-    (3 + 2 (n + \[Nu])) (1 - 2 x + (I (s + I \[Epsilon]) \[Tau])/((1 + n + \[Nu]) (2 + n + \[Nu]))) dH2F1[n + 1],
-    -(((2 + n - s - I \[Epsilon] + \[Nu]) (2 + n + \[Nu] - I \[Tau]) dH2F1[n + 2])/(2 + n + \[Nu]))};
+ Module[{a, b, c},
+  Switch[$MasterFunction,
+    "ReggeWheeler",
+    a=\[Nu]+s+1-I \[Epsilon]; b=-\[Nu]+s-I \[Epsilon];c=1-2 I \[Epsilon];,
+    "Teukolsky",
+    a=\[Nu]+1-I \[Tau]; b=-\[Nu]-I \[Tau]; c=1-s-I(\[Epsilon]+\[Tau]);,
+    _, Abort[]
+  ];
+  1/((-1+b-n) (1+a-c+n)){1/(-3-a+b-2 n)  (-2-a+b-2 n) (-2-2 a+2 b+2 a b+c-a c-b c-4 n-2 a n+2 b n-2 n^2+3 x+4 a x+a^2 x-4 b x-2 a b x+b^2 x+8 n x+4 a n x-4 b n x+4 n^2 x) dH2F1[1+n], -(((-1-a+b-2 n) (-1+b-c-n) (1+a+n) dH2F1[2+n])/(-3-a+b-2 n)),(-2-a+b-2 n) (-1-a+b-2 n) H2F1[1+n]}
+];
 
 HUExact[n_, s_, \[Nu]_, \[Epsilon]_, zhat_] :=
   E^(I zhat) (-2 I zhat)^(n + \[Nu] + 1) HypergeometricU[n + \[Nu] + 1 + s - I \[Epsilon], 2 (n + \[Nu]) + 2, -2 I zhat];
@@ -129,8 +170,13 @@ fT[q_, \[Epsilon]_, \[Kappa]_, \[Tau]_, \[Nu]_, \[Lambda]_, s_, m_, nf_] :=
   ret
 ];
 
-f[q_, \[Epsilon]_, \[Kappa]_, \[Tau]_, \[Nu]_, \[Lambda]_, s_, m_, nf_, RW_:True] :=
-  If[RW,Pochhammer[-\[Nu]+s-I \[Epsilon],-nf]Pochhammer[\[Nu]+1+s-I \[Epsilon],nf](-1)^nf Pochhammer[\[Nu]+I \[Epsilon]+1,nf]/Pochhammer[\[Nu]-I \[Epsilon]+1,nf],1]fT[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nf];
+f[q_, \[Epsilon]_, \[Kappa]_, \[Tau]_, \[Nu]_, \[Lambda]_, s_, m_, nf_] :=
+  Switch[$MasterFunction,
+    "ReggeWheeler",
+    Pochhammer[-\[Nu]+s-I \[Epsilon],-nf]Pochhammer[\[Nu]+1+s-I \[Epsilon],nf](-1)^nf Pochhammer[\[Nu]+I \[Epsilon]+1,nf]/Pochhammer[\[Nu]-I \[Epsilon]+1,nf],
+    "Teukolsky",
+    1
+   ]fT[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nf];
 
 (******************************************************************************)
 (*************************** Asymptotic amplitudes ****************************)
@@ -242,8 +288,7 @@ Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_]
 
 (* Throwe B.1, Sasaki & Tagoshi Eqs. (116) and (120) *)
 SetAttributes[MSTRadialIn, {NumericFunction}];
-
-MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, RW_:True][r_?InexactNumberQ] := 
+MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_][r_?InexactNumberQ] :=
  Module[{\[Kappa], \[Tau], rp, z, zp, x, resUp, nUp, resDown, nDown},
  Block[{H2F1},
  Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], fT},
@@ -256,7 +301,7 @@ MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_
 
   H2F1[n : (0 | 1)] := H2F1[n] = H2F1Exact[n, s, \[Nu], \[Tau], \[Epsilon], x];
 
-  H2F1[n_Integer] := H2F1[n] = H2F1Exact[n, s, \[Nu], \[Tau], \[Epsilon], x];(*H2F1[n] =
+  H2F1[n_Integer] := H2F1[n] =
    Module[{t1, t2, res},
     {t1, t2} = If[n>0, H2F1Up[n, s, \[Nu], \[Tau], \[Epsilon], x], H2F1Down[n, s, \[Nu], \[Tau], \[Epsilon], x]];
     res = t1 + t2;
@@ -264,7 +309,7 @@ MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_
       res = H2F1Exact[n, s, \[Nu], \[Tau], \[Epsilon], x];
     ];
     res
-  ];*)
+  ];
  
   resUp = resDown = 0;
 
@@ -280,10 +325,16 @@ MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_
     nDown--;
   ];
 
-  If[RW,(1-x)^(s+1) (-x)^(-I \[Epsilon]) E^(I \[Epsilon] x), (-x)^(-s - I (\[Epsilon] + \[Tau])/2) (1 - x)^(I (\[Epsilon] - \[Tau])/2) E^(I \[Epsilon] \[Kappa] x)](resUp + resDown) / norm
+  Switch[$MasterFunction,
+    "ReggeWheeler",
+    (1-x)^(s+1) (-x)^(-I \[Epsilon]) E^(I \[Epsilon] x),
+    "Teukolsky",
+    (-x)^(-s - I (\[Epsilon] + \[Tau])/2) (1 - x)^(I (\[Epsilon] - \[Tau])/2) E^(I \[Epsilon] \[Kappa] x),
+    _, Abort[]
+  ](resUp + resDown) / norm
 ]]];
 
-Derivative[1][MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, RW_:True]][r_?InexactNumberQ] :=
+Derivative[1][MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_]][r_?InexactNumberQ] :=
  Module[{\[Kappa], \[Tau], rp, z, zp, x, dxdr, resUp, nUp, resDown, nDown},
  Block[{H2F1, dH2F1},
  Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], fT},
