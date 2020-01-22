@@ -106,36 +106,25 @@ dH2F1Down[n_, s_, \[Nu]_, \[Tau]_, \[Epsilon]_, x_] :=
   1/((-1+b-n) (1+a-c+n)){1/(-3-a+b-2 n)  (-2-a+b-2 n) (-2-2 a+2 b+2 a b+c-a c-b c-4 n-2 a n+2 b n-2 n^2+3 x+4 a x+a^2 x-4 b x-2 a b x+b^2 x+8 n x+4 a n x-4 b n x+4 n^2 x) dH2F1[1+n], -(((-1-a+b-2 n) (-1+b-c-n) (1+a+n) dH2F1[2+n])/(-3-a+b-2 n)),(-2-a+b-2 n) (-1-a+b-2 n) H2F1[1+n]}
 ];
 
-HUExact[n_, s_, \[Nu]_, \[Epsilon]_, zhat_] :=
-  E^(I zhat) (-2 I zhat)^(n + \[Nu] + 1) HypergeometricU[n + \[Nu] + 1 + s - I \[Epsilon], 2 (n + \[Nu]) + 2, -2 I zhat];
+HUExact[n_, s_,\[Nu]_,\[Epsilon]_,zhat_] := Module[{a,b,c},Switch[$MasterFunction,"ReggeWheeler",a=\[Nu]+1-I \[Epsilon];,"Teukolsky",
+a=\[Nu]+s+1-I \[Epsilon];,_,Abort[]];b=2\[Nu]+2;c=-2 I zhat;
+  (c)^n HypergeometricU[n+a,2n+b,c]];
 
-HUUp[n_, s_, \[Nu]_, \[Epsilon]_, zhat_] :=
-  1/(((n + \[Nu]) - 1) ((n + \[Nu]) + s - I \[Epsilon])) {
-    (n + \[Nu]) ((n + \[Nu]) - 1 - (s - I \[Epsilon])) HU[n - 2],
-    (I (2 (n + \[Nu]) - 1) ((n + \[Nu])^2 - (n + \[Nu]) - zhat (\[Epsilon] + I s)))/zhat HU[n - 1]
-  };
+HUUp[n_,s_,\[Nu]_,\[Epsilon]_,zhat_]:=Module[{a,b,c},Switch[$MasterFunction,"ReggeWheeler",a=\[Nu]+1-I \[Epsilon];,"Teukolsky",
+a=\[Nu]+s+1-I \[Epsilon];,_,Abort[]];b=2\[Nu]+2;c=-2 I zhat;1/((-1+a+n) (-4+b+2 n) ) {(-2-a+b+n) (-2+b+2 n) HU[-2+n],(-3+b+2 n) (8+(b+2 n)^2+2 (a+n) c-(b+2 n) (6+c)) HU[-1+n]/c}];
 
-HUDown[n_, s_, \[Nu]_, \[Epsilon]_, zhat_] :=
-  {-((I (2 (n + \[Nu]) + 3) ((n + \[Nu])^2 + 3 (n + \[Nu]) + 2 - zhat (\[Epsilon] + I s)))/(((n + \[Nu]) + 2) zhat ((n + \[Nu]) + 1 - (s - I \[Epsilon])))) HU[n + 1],
-   (((n + \[Nu]) + 1) ((n + \[Nu]) + 2 + (s - I \[Epsilon])))/(((n + \[Nu]) + 2) ((n + \[Nu]) + 1 - (s - I \[Epsilon]))) HU[n + 2]
-  };
+HUDown[n_,s_,\[Nu]_,\[Epsilon]_,zhat_]:=Module[{a,b,c},Switch[$MasterFunction,"ReggeWheeler",a=\[Nu]+1-I \[Epsilon];,"Teukolsky",
+a=\[Nu]+s+1-I \[Epsilon];,_,Abort[]];b=2\[Nu]+2;c=-2 I zhat;1/((-a+b+n) (2+b+2 n)){-(((1+b+2 n) (b^2+4 n (1+n)+b (2+4 n-c)+2 a c) HU[1+n])/ c),(1+a+n) (b+2 n) HU[2+n]}];
 
-dHUExact[n_, s_, \[Nu]_, \[Epsilon]_, zhat_] :=
- 2^(1 + n + \[Nu]) E^(I zhat) (-I zhat)^(n + \[Nu]) (-I (1 + n + I zhat + \[Nu]) HypergeometricU[n + \[Nu] + 1 + s - I \[Epsilon], 2 (n + \[Nu]) + 2, -2 I zhat] - 2 zhat Derivative[0,0,1][HypergeometricU][n + \[Nu] + 1 + s - I \[Epsilon], 2 (n + \[Nu]) + 2, -2 I zhat]);
+dHUExact[n_, s_,\[Nu]_,\[Epsilon]_,zhat_] := Module[{a,b,c},Switch[$MasterFunction,"ReggeWheeler",a=\[Nu]+1-I \[Epsilon];,"Teukolsky",
+a=\[Nu]+s+1-I \[Epsilon];,_,Abort[]];b=2\[Nu]+2;c=-2 I zhat;
+(-2 I) (c^(-1+n) n HypergeometricU[a+n,b+2 n,c]-c^n (a+n) HypergeometricU[1+a+n,1+b+2 n,c])];
 
-dHUUp[n_, s_, \[Nu]_, \[Epsilon]_, zhat_] :=
- 1/(((n + \[Nu]) - 1) ((n + \[Nu]) + s - I \[Epsilon])) {
-   (n + \[Nu]) ((n + \[Nu]) - 1 - (s - I \[Epsilon])) dHU[n - 2],
-   I (-1 + 2 n + 2 \[Nu]) (n - n^2 + \[Nu] - 2 n \[Nu] - \[Nu]^2) HU[n - 1] / zhat^2,
-   I (-1 + 2 n + 2 \[Nu]) (n^2 - I s zhat - zhat \[Epsilon] - \[Nu] + \[Nu]^2 + n (-1 + 2 \[Nu])) dHU[n - 1] / zhat
- };
+dHUUp[n_,s_,\[Nu]_,\[Epsilon]_,zhat_]:=Module[{a,b,c},Switch[$MasterFunction,"ReggeWheeler",a=\[Nu]+1-I \[Epsilon];,"Teukolsky",
+a=\[Nu]+s+1-I \[Epsilon];,_,Abort[]];b=2\[Nu]+2;c=-2 I zhat;1/(-1+a+n) {((-2-a+b+n) (-2+b+2 n) dHU[-2+n])/(-4+b+2 n),((-3+b+2 n) (8+b^2+4 (-3+n) n+b (-6+4 n-c)+2 a c) dHU[-1+n])/( (-4+b+2 n) c),(2 I (-3+b+2 n) (-2+b+2 n) HU[-1+n])/c^2}];
 
-dHUDown[n_, s_, \[Nu]_, \[Epsilon]_, zhat_] :=
- 1 / ((2 + n + \[Nu]) (1 + n - s + I \[Epsilon] + \[Nu])) {
-   -I (3 + 2 (n + \[Nu])) / zhat^2 (-(2 + n^2 + 3 \[Nu] + \[Nu]^2 + n (3 + 2 \[Nu])) HU[n + 1]),
-   -I (3 + 2 (n + \[Nu])) / zhat (2 + n^2 - I s zhat - zhat \[Epsilon] + 3 \[Nu] + \[Nu]^2 + n (3 + 2 \[Nu])) dHU[n + 1],
-   (1 + n + \[Nu]) (2 + n + s - I \[Epsilon] + \[Nu]) dHU[n + 2]};
-
+dHUDown[n_,s_,\[Nu]_,\[Epsilon]_,zhat_]:=Module[{a,b,c},Switch[$MasterFunction,"ReggeWheeler",a=\[Nu]+1-I \[Epsilon];,"Teukolsky",
+a=\[Nu]+s+1-I \[Epsilon];,_,Abort[]];b=2\[Nu]+2;c=-2 I zhat;1/((a-b-n) (2+b+2 n) c^2){(1+b+2 n) c (b^2+4 n (1+n)+b (2+4 n-c)+2 a c) dHU[1+n],(b+2 n) (-(1+a+n) c^2 dHU[2+n]),(b+2 n)(2 I (1+b+2 n) (2+b+2 n) HU[1+n])}];
 (******************************************************************************)
 (************************** MST series coefficients ***************************)
 (******************************************************************************)
@@ -177,10 +166,12 @@ f[q_, \[Epsilon]_, \[Kappa]_, \[Tau]_, \[Nu]_, \[Lambda]_, s_, m_, nf_] :=
     "Teukolsky",
     1
    ]fT[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nf];
-
+   
+an[q_, \[Epsilon]_, \[Kappa]_, \[Tau]_, \[Nu]_, \[Lambda]_, s_, m_, nf_] :=(-1)^nf Pochhammer[\[Nu]+I \[Epsilon]+1,nf]/Pochhammer[\[Nu]-I \[Epsilon]+1,nf]fT[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nf];
 (******************************************************************************)
 (*************************** Asymptotic amplitudes ****************************)
 (******************************************************************************)
+(*Does this section need a RW option?*)
 
 Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_] :=
  Module[{\[Kappa], \[Tau], \[Epsilon]p, \[Omega], K\[Nu], Aplus, Btrans, Ctrans, Binc, Bref, n, fSumUp, fSumDown, fSumK\[Nu]1Up, fSumK\[Nu]1Down, fSumK\[Nu]2Up, fSumK\[Nu]2Down, fSumCUp, fSumCDown},
@@ -334,6 +325,7 @@ MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_
   ](resUp + resDown) / norm
 ]]];
 
+
 Derivative[1][MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_]][r_?InexactNumberQ] :=
  Module[{\[Kappa], \[Tau], rp, z, zp, x, dxdr, resUp, nUp, resDown, nDown},
  Block[{H2F1, dH2F1},
@@ -373,24 +365,28 @@ Derivative[1][MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu
   resUp = resDown = 0;
 
   nUp = 0;
-  While[resUp != (resUp += 
-    f[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nUp] ((-2 s (-1 + x) + I (\[Epsilon] - 2 x \[Epsilon] \[Kappa] + 2 x^2 \[Epsilon] \[Kappa] + \[Tau] - 2 x \[Tau])) H2F1[nUp] + 2 (-1 + x) x dH2F1[nUp])),
-    nUp++;
-  ];
+While[resUp!=(resUp+=f[q,\[Epsilon],\[Kappa],\[Tau],\[Nu],\[Lambda],s,m,nUp] Switch[$MasterFunction,
+"ReggeWheeler",-(((I (-I (1+s) x+(-1+x)^2 \[Epsilon])) H2F1[nUp])/x)+(1-x) dH2F1[nUp],
+"Teukolsky",(-2 s (-1+x)+I (\[Epsilon]-2 x \[Epsilon] \[Kappa]+2 x^2 \[Epsilon] \[Kappa]+\[Tau]-2 x \[Tau])) H2F1[nUp]+2 (-1+x) x dH2F1[nUp],
+_,Abort[]]),nUp++;];
 
   nDown = -1;
-  While[resDown != (resDown += 
-    f[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nDown] ((-2 s (-1 + x) + I (\[Epsilon] - 2 x \[Epsilon] \[Kappa] + 2 x^2 \[Epsilon] \[Kappa] + \[Tau] - 2 x \[Tau])) H2F1[nDown] + 2 (-1 + x) x dH2F1[nDown])),
-    nDown--;
-  ];
+While[resDown!=(resDown+=f[q,\[Epsilon],\[Kappa],\[Tau],\[Nu],\[Lambda],s,m,nDown] Switch[$MasterFunction,
+"ReggeWheeler",-(((I (-I (1+s) x+(-1+x)^2 \[Epsilon])) H2F1[nDown])/x)+(1-x) dH2F1[nDown],
+"Teukolsky",(-2 s (-1+x)+I (\[Epsilon]-2 x \[Epsilon] \[Kappa]+2 x^2 \[Epsilon] \[Kappa]+\[Tau]-2 x \[Tau])) H2F1[nDown]+2 (-1+x) x dH2F1[nDown],
+_,Abort[]]),nDown--;];
 
-  1/2 E^(I x \[Epsilon] \[Kappa]) (1 - x)^(1/2 I (2 I + \[Epsilon] - \[Tau])) (-x)^(-1 - s - 1/2 I (\[Epsilon] + \[Tau])) (resUp + resDown) dxdr / norm
+Switch[$MasterFunction,
+"ReggeWheeler",E^(I x \[Epsilon]) (1-x)^s (-x)^(-I \[Epsilon]) ,
+"Teukolsky",((E^(I x \[Epsilon] \[Kappa])) ((1-x)^(1/2 I (2 I+\[Epsilon]-\[Tau]))) ((-x)^(-1-s-1/2 I (\[Epsilon]+\[Tau]))) )/2,
+_,Abort[]](resUp+resDown) dxdr/norm
 ]]];
+
 
 Derivative[n_Integer?Positive][MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_]][r0_?InexactNumberQ] :=
  Module[{d2R, Rderivs, R, r, i},
  (*FIXME: Add appropriate factors of M here *)
-  d2R = (-(-\[Lambda] + 2 I r s \[Epsilon] + (-2 I (-1 + r) s (-q m + (q^2 + r^2) \[Epsilon]/2) + (-q m + (q^2 + r^2) \[Epsilon]/2)^2)/(q^2 - 2 r + r^2)) R[r] - (-2 + 2 r) (1 + s) Derivative[1][R][r])/(q^2 - 2 r + r^2);
+  d2R = Switch[$MasterFunction,"ReggeWheeler",-1/(1-2/r)2/r^2 Derivative[1][R][r]+1/(1-2/r)(l (l+1)/r^2-2(1-s^2)/r^3)R[r]-(\[Epsilon]/2)^2/(1-2/r)^2 R[r],"Teukolsky",(-(-\[Lambda] + 2 I r s \[Epsilon] + (-2 I (-1 + r) s (-q m + (q^2 + r^2) \[Epsilon]/2) + (-q m + (q^2 + r^2) \[Epsilon]/2)^2)/(q^2 - 2 r + r^2)) R[r] - (-2 + 2 r) (1 + s) Derivative[1][R][r])/(q^2 - 2 r + r^2),_,Abort[]];
 
   pderivs = D[R[r_], {r_, i_}] :> D[d2R, {r, i - 2}] /; i >= 2;
   Do[Derivative[i][R][r] = Simplify[D[Derivative[i - 1][R][r], r] /. pderivs];, {i, 2, n}];
@@ -428,20 +424,31 @@ MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_
 
   resDown = resUp = 0;
   nUp = 0;
-
+  
+(*Check if should be f or an? Should be fT or anT for Teukolsky case. Unlike in Ingoing case need option here. Note zhat is just z for RW - perhaps have this as an automatic?*)
   While[resUp != (resUp +=
-    I^nUp Pochhammer[\[Nu] + 1 + s - I \[Epsilon], nUp]/Pochhammer[\[Nu] + 1 - s + I \[Epsilon], nUp] f[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nUp](2zhat)^nUp HU[nUp]/(E^(I zhat) (-2 I zhat)^(nUp + \[Nu] + 1) )),
+    Switch[$MasterFunction,
+    "ReggeWheeler",
+    (-I)^nUp Pochhammer[\[Nu]+1+s-I \[Epsilon],nUp]Pochhammer[\[Nu]+1-I \[Epsilon],nUp]/(Pochhammer[\[Nu]+1-s+I \[Epsilon],nUp]Pochhammer[\[Nu]+1+I \[Epsilon],nUp])an[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nUp](2 zhat)^nUp HU[nUp]/((-2 I zhat)^(nUp)) ,
+    "Teukolsky",
+    I^nUp Pochhammer[\[Nu] + 1 + s - I \[Epsilon], nUp]/Pochhammer[\[Nu] + 1 - s + I \[Epsilon], nUp] fT[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nUp](2zhat)^nUp HU[nUp]/((-2 I zhat)^(nUp)),
+    _, Abort[]]),
     nUp++;
   ];
   
   nDown = -1;
-  While[resDown != (resDown +=
-    I^nDown Pochhammer[\[Nu] + 1 + s - I \[Epsilon], nDown]/Pochhammer[\[Nu] + 1 - s + I \[Epsilon], nDown] f[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nDown](2zhat)^nDown HU[nDown]/(E^(I zhat) (-2 I zhat)^(nDown + \[Nu] + 1) )),
+  While[resDown != (resDown -=
+    Switch[$MasterFunction,
+    "ReggeWheeler",
+    (-I)^nDown Pochhammer[\[Nu]+1+s-I \[Epsilon],nDown]Pochhammer[\[Nu]+1-I \[Epsilon],nDown]/(Pochhammer[\[Nu]+1-s+I \[Epsilon],nDown]Pochhammer[\[Nu]+1+I \[Epsilon],nDown])an[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nDown](2 zhat)^nDown HU[nDown]/((-2 I zhat)^(nDown)) ,
+    "Teukolsky",
+    I^nDown Pochhammer[\[Nu] + 1 + s - I \[Epsilon], nDown]/Pochhammer[\[Nu] + 1 - s + I \[Epsilon], nDown] fT[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nDown](2zhat)^nDown HU[nDown]/((-2 I zhat)^(nDown)),
+    _, Abort[]]),
     nDown--;
   ];
+    2^\[Nu] E^(-\[Pi] \[Epsilon]) E^(-I \[Pi](\[Nu]+1)) E^(I zhat) zhat^(\[Nu]+I \[Epsilon]p) (zhat-\[Epsilon] \[Kappa])^(-I \[Epsilon]p)(Switch[$MasterFunction,"ReggeWheeler",zhat (resUp + resDown) / norm,"Teukolsky",E^(-I \[Pi](s))(zhat-\[Epsilon] \[Kappa])^(-s)(resUp + resDown) / norm,_,Abort[]])
+ ]]];
 
-  2^\[Nu] E^(-\[Pi] \[Epsilon]) E^(-I \[Pi](\[Nu]+1+s)) E^(I zhat) zhat^(\[Nu]+I \[Epsilon]p) (zhat-\[Epsilon] \[Kappa])^(-s-I \[Epsilon]p) (resUp + resDown) / norm
-]]];
 
 Derivative[1][MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_]][r_?InexactNumberQ] :=
  Module[{\[Kappa], \[Tau], \[Epsilon]p, rm, z, zm, zhat, dzhatdr, resUp, nUp, resDown, nDown},
@@ -469,11 +476,11 @@ Derivative[1][MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu
   ];
  
   dHU[n : (0 | 1)] := dHU[n] = dHUExact[n, s, \[Nu], \[Epsilon], zhat];
- 
+  
   dHU[n_Integer] := dHU[n] =
    Module[{t1, t2, t3, res},
     {t1, t2, t3} = If[n>0, dHUUp[n, s, \[Nu], \[Epsilon], zhat], dHUDown[n, s, \[Nu], \[Epsilon], zhat]];
-    res = t1 + t2 + t3;
+    res = t1 + t2 + t3 ;
     If[Max[Abs[{t1, t2, t3}/res]] > 2.,
       res = dHUExact[n, s, \[Nu], \[Epsilon], zhat];
     ];
@@ -483,23 +490,27 @@ Derivative[1][MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu
   resDown = resUp = 0;
   nUp = 0;
 
-  While[resUp != (resUp +=
-    I^nUp (-I zhat)^(1 - nUp - \[Nu]) zhat^(-3 + nUp + I \[Epsilon]p + \[Nu]) f[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nUp] Pochhammer[1 + s - I \[Epsilon] + \[Nu], nUp] (((1 + s) zhat + I \[Epsilon] (I + \[Epsilon]p) \[Kappa]) HU[nUp] + zhat (-zhat + \[Epsilon] \[Kappa]) dHU[nUp]) / (2 Pochhammer[1 - s + I \[Epsilon] + \[Nu], nUp])),
-    nUp++;
-  ];
+While[resUp!=(resUp+=Switch[$MasterFunction,
+"ReggeWheeler",((-I)^nUp Pochhammer[\[Nu]+1+s-I \[Epsilon],nUp] Pochhammer[\[Nu]+1-I \[Epsilon],nUp] an[q,\[Epsilon],\[Kappa],\[Tau],\[Nu],\[Lambda],s,m,nUp] (2 zhat)^nUp ((1+I \[Epsilon]p+zhat (I+(I \[Epsilon]p)/(-zhat+\[Epsilon] \[Kappa]))+\[Nu]) HU[nUp]+zhat dHU[nUp]))/((Pochhammer[\[Nu]+1-s+I \[Epsilon],nUp] Pochhammer[\[Nu]+1+I \[Epsilon],nUp]) (-2 I zhat)^nUp),
+"Teukolsky",(I^nUp Pochhammer[\[Nu]+1+s-I \[Epsilon],nUp] (2 zhat)^nUp f[q,\[Epsilon],\[Kappa],\[Tau],\[Nu],\[Lambda],s,m,nUp] (((-s zhat+I (zhat^2-\[Epsilon] (zhat+\[Epsilon]p) \[Kappa])+(zhat-\[Epsilon] \[Kappa]) \[Nu]) HU[nUp])/(zhat (zhat-\[Epsilon] \[Kappa]))+dHU[nUp]))/(Pochhammer[\[Nu]+1-s+I \[Epsilon],nUp] (-2 I zhat)^nUp),
+_,Abort[]]),nUp++;];
   
   nDown = -1;
-  While[resDown != (resDown +=
-    I^nDown (-I zhat)^(1 - nDown - \[Nu]) zhat^(-3 + nDown + I \[Epsilon]p + \[Nu]) f[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nDown] Pochhammer[1 + s - I \[Epsilon] + \[Nu], nDown] (((1 + s) zhat + I \[Epsilon] (I + \[Epsilon]p) \[Kappa]) HU[nDown] + zhat (-zhat + \[Epsilon] \[Kappa]) dHU[nDown]) / (2 Pochhammer[1 - s + I \[Epsilon] + \[Nu], nDown])),
-    nDown--;
-  ];
+While[resDown!=(resDown+=Switch[$MasterFunction,
+"ReggeWheeler",((-I)^nUp Pochhammer[\[Nu]+1+s-I \[Epsilon],nUp] Pochhammer[\[Nu]+1-I \[Epsilon],nUp] an[q,\[Epsilon],\[Kappa],\[Tau],\[Nu],\[Lambda],s,m,nUp] (2 zhat)^nUp ((1+I \[Epsilon]p+zhat (I+(I \[Epsilon]p)/(-zhat+\[Epsilon] \[Kappa]))+\[Nu]) HU[nUp]+zhat dHU[nUp]))/((Pochhammer[\[Nu]+1-s+I \[Epsilon],nUp] Pochhammer[\[Nu]+1+I \[Epsilon],nUp]) (-2 I zhat)^nUp),
+"Teukolsky",(I^nDown Pochhammer[\[Nu]+1+s-I \[Epsilon],nDown] (2 zhat)^nDown f[q,\[Epsilon],\[Kappa],\[Tau],\[Nu],\[Lambda],s,m,nDown] (((-s zhat+I (zhat^2-\[Epsilon] (zhat+\[Epsilon]p) \[Kappa])+(zhat-\[Epsilon] \[Kappa]) \[Nu]) HU[nDown])/(zhat (zhat-\[Epsilon] \[Kappa]))+dHU[nDown]))/(Pochhammer[\[Nu]+1-s+I \[Epsilon],nDown] (-2 I zhat)^nDown),
+_,Abort[]]),nDown--;];
 
-  E^(-\[Pi] (\[Epsilon] + I (1 + s + \[Nu]))) (zhat - \[Epsilon] \[Kappa])^(-1 - s - I \[Epsilon]p) (resUp + resDown) dzhatdr / norm
+2^\[Nu] E^(-\[Pi] \[Epsilon]) E^(-I \[Pi] (\[Nu]+1)) E^(I zhat) zhat^(\[Nu]+I \[Epsilon]p) (zhat-\[Epsilon] \[Kappa])^(-I \[Epsilon]p) Switch[$MasterFunction,
+"ReggeWheeler",1,
+"Teukolsky",E^(-I \[Pi] s) (zhat-\[Epsilon] \[Kappa])^-s,
+_,Abort[]] (resUp+resDown) dzhatdr/norm
 ]]];
+
 
 Derivative[n_Integer?Positive][MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_]][r0_?InexactNumberQ] :=
  Module[{d2R, Rderivs, R, r, i},
-  d2R = (-(-\[Lambda] + 2 I r s \[Epsilon] + (-2 I (-1 + r) s (-q m + (q^2 + r^2) \[Epsilon]/2) + (-q m + (q^2 + r^2) \[Epsilon]/2)^2)/(q^2 - 2 r + r^2)) R[r] - (-2 + 2 r) (1 + s) Derivative[1][R][r])/(q^2 - 2 r + r^2);
+  d2R = Switch[$MasterFunction,"ReggeWheeler",-1/(1-2/r)2/r^2 Derivative[1][R][r]+1/(1-2/r)(l (l+1)/r^2-2(1-s^2)/r^3)R[r]-(\[Epsilon]/2)^2/(1-2/r)^2 R[r],"Teukolsky",(-(-\[Lambda] + 2 I r s \[Epsilon] + (-2 I (-1 + r) s (-q m + (q^2 + r^2) \[Epsilon]/2) + (-q m + (q^2 + r^2) \[Epsilon]/2)^2)/(q^2 - 2 r + r^2)) R[r] - (-2 + 2 r) (1 + s) Derivative[1][R][r])/(q^2 - 2 r + r^2),_,Abort[]];
 
   pderivs = D[R[r_], {r_, i_}] :> D[d2R, {r, i - 2}] /; i >= 2;
   Do[Derivative[i][R][r] = Simplify[D[Derivative[i - 1][R][r], r] /. pderivs];, {i, 2, n}];
