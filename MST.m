@@ -425,23 +425,22 @@ MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_
   resDown = resUp = 0;
   nUp = 0;
 
-  While[resUp != (resUp +=
+   While[resUp != (resUp +=
     I^nUp Pochhammer[\[Nu] + 1 + s - I \[Epsilon], nUp]/Pochhammer[\[Nu] + 1 - s + I \[Epsilon], nUp](2zhat)^nUp /((*E^(I zhat)*) (-2 I zhat)^(nUp (*+ \[Nu] + 1*)) )Switch[$MasterFunction,"ReggeWheeler",Pochhammer[\[Nu]+1 -I \[Epsilon],nUp]/Pochhammer[\[Nu]+1+I \[Epsilon],nUp] an[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nUp](-1)^nUp HU[nUp],"Teukolsky",fT[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nUp]HU[nUp],_,Abort[]]),
     nUp++;
   ];
   
   nDown = -1;
   While[resDown != (resDown +=
-    I^nDown Pochhammer[\[Nu] + 1 + s - I \[Epsilon], nDown]/Pochhammer[\[Nu] + 1 - s + I \[Epsilon], nDown](2zhat)^nDown HU[nDown]/((*E^(I zhat)*) (-2 I zhat)^(nDown (*+ \[Nu] + 1*)) )Switch[$MasterFunction,"ReggeWheeler",Pochhammer[\[Nu]+1 -I \[Epsilon],nDown]/Pochhammer[\[Nu]+1+I \[Epsilon],nDown] an[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nDown](-1)^nDown HU[nDown],"Teukolsky",fT[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nDown]HU[nDown],_,Abort[]]),
+    I^nDown Pochhammer[\[Nu] + 1 + s - I \[Epsilon], nDown]/Pochhammer[\[Nu] + 1 - s + I \[Epsilon], nDown](2zhat)^nDown/((*E^(I zhat)*) (-2 I zhat)^(nDown (*+ \[Nu] + 1*)) )Switch[$MasterFunction,"ReggeWheeler",Pochhammer[\[Nu]+1 -I \[Epsilon],nDown]/Pochhammer[\[Nu]+1+I \[Epsilon],nDown] an[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nDown](-1)^nDown HU[nDown],"Teukolsky",fT[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nDown]HU[nDown],_,Abort[]]),
     nDown--;
   ];
 
 2^\[Nu] E^(-\[Pi] \[Epsilon]) E^(-I \[Pi] (\[Nu]+1)) E^(I zhat) zhat^(\[Nu]+I \[Epsilon]p) (zhat-\[Epsilon] \[Kappa])^(-I \[Epsilon]p) Switch[$MasterFunction,
-"ReggeWheeler",(zhat (resUp+resDown))/norm,
-"Teukolsky",(E^(-I \[Pi] s) (zhat-\[Epsilon] \[Kappa])^-s (resUp+resDown))/norm,
-_,Abort[]]
+"ReggeWheeler",zhat ,
+"Teukolsky",E^(-I \[Pi] s) (zhat-\[Epsilon] \[Kappa])^(-s) ,
+_,Abort[]](resUp+resDown)/norm
 ]]];
-
 
 
 Derivative[1][MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_]][r_?InexactNumberQ] :=
