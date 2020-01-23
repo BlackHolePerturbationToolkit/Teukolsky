@@ -437,7 +437,6 @@ MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_
   ];
 
 2^\[Nu] E^(-\[Pi] \[Epsilon]) E^(-I \[Pi] (\[Nu]+1)) E^(I zhat) zhat^(\[Nu]+I \[Epsilon]p) (zhat-\[Epsilon] \[Kappa])^(-I \[Epsilon]p) Switch[$MasterFunction,
-<<<<<<< HEAD
 "ReggeWheeler",zhat ,
 "Teukolsky",E^(-I \[Pi] s) (zhat-\[Epsilon] \[Kappa])^(-s) ,
 _,Abort[]](resUp+resDown)/norm
