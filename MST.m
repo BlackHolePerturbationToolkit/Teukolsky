@@ -503,7 +503,7 @@ _,Abort[]]),nDown--;];
 
 2^\[Nu] E^(-\[Pi] \[Epsilon]) E^(-I \[Pi] (\[Nu]+1)) E^(I zhat) zhat^(\[Nu]+I \[Epsilon]p) (zhat-\[Epsilon] \[Kappa])^(-I \[Epsilon]p) Switch[$MasterFunction,
 "ReggeWheeler",1,
-"Teukolsky",E^(-I \[Pi] s) (zhat-\[Epsilon] \[Kappa])^-s,
+"Teukolsky",E^(-I \[Pi] s) (zhat-\[Epsilon] \[Kappa])^(-s),
 _,Abort[]] (resUp+resDown) dzhatdr/norm
 ]]];
 
