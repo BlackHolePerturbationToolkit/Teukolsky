@@ -10,16 +10,16 @@ VerificationTest[
     \[Psi]
     ,
     TeukolskyRadialFunction[2, 2, 2, 0.5, 0.1, <|"s" -> 2, "l" -> 2, "m" -> 2, "\[Omega]" -> 0.1,
-      "Method" -> {"MST", "RenormalizedAngularMomentum" -> 1.9800007321197113}, 
+      "Method" -> {"MST", "RenormalizedAngularMomentum" -> 1.9800007321197157}, 
       "BoundaryConditions" -> {"In", "Up"}, "Eigenvalue" -> -0.33267928615316333, 
       "Amplitudes" ->
-        <|"In" -> <|"Incidence" -> -19.52506873659395 - 2.1406611822516983*I,
-                    "Transmission" -> 1. + 0.*I,
-                    "Reflection" -> 230676.6511912053 - 151449.7903946477*I |>,
-          "Up" -> <|"Transmission" -> 0.9999999999999999 + 5.551115123125783*^-17*I |>|>,
+        <|"In" -> <|"Incidence" -> -19.525068736594484 - 2.140661182251906*I,
+                    "Transmission" -> 1.0000000000000002 - 1.3877787807814457*^-17*I,
+                    "Reflection" -> 230676.6511912123 - 151449.79039465528*I |>,
+          "Up" -> <|"Transmission" -> 1.0000000000000002 + 0.*I |>|>,
       "SolutionFunctions" -> {Teukolsky`MST`Private`MSTRadialIn[2, 2, 2, 0.5, 0.2, 
-         1.9800007321197113, -0.33267928615316333, 9.504222894583032 - 1.136766701917988*I], Teukolsky`MST`Private`MSTRadialUp[2, 2, 
-         2, 0.5, 0.2, 1.9800007321197113, -0.33267928615316333, -1805.5571508475773 - 9034.631436940852*I]}|>]
+         1.9800007321197157, -0.33267928615316333, 9.50422289458304 - 1.1367667019179721*I], Teukolsky`MST`Private`MSTRadialUp[2, 2, 
+         2, 0.5, 0.2, 1.9800007321197157, -0.33267928615316333, -1805.5571508476348 - 9034.631436940841*I]}|>]
     ,
     TestID->"TeukolskyRadial",
     SameTest -> withinRoundoff
@@ -55,7 +55,7 @@ VerificationTest[
 VerificationTest[
     \[Psi]["Method"]
     ,
-    {"MST", "RenormalizedAngularMomentum" -> 1.9800007321197113}
+    {"MST", "RenormalizedAngularMomentum" -> 1.9800007321197157}
     ,
     TestID->"Method"
 ]
@@ -80,16 +80,16 @@ VerificationTest[
     \[Psi]["SolutionFunctions"]
     ,
     TeukolskyRadialFunction[2, 2, 2, 0.5, 0.1, <|"s" -> 2, "l" -> 2, "m" -> 2, "\[Omega]" -> 0.1,
-       "Method" -> {"MST", "RenormalizedAngularMomentum" -> 1.9800007321197113}, 
+       "Method" -> {"MST", "RenormalizedAngularMomentum" -> 1.9800007321197157}, 
        "BoundaryConditions" -> {"In", "Up"}, "Eigenvalue" -> -0.33267928615316333, 
        "Amplitudes" ->
-         <|"In" -> <|"Incidence" -> -19.52506873659395 - 2.1406611822516983*I,
-                     "Transmission" -> 1. + 0.*I,
-                     "Reflection" -> 230676.6511912053 - 151449.7903946477*I |>,
-           "Up" -> <|"Transmission" -> 0.9999999999999999 + 5.551115123125783*^-17*I |>|>,
+         <|"In" -> <|"Incidence" -> -19.525068736594484 - 2.140661182251906*I,
+                     "Transmission" -> 1.0000000000000002 - 1.3877787807814457*^-17*I,
+                     "Reflection" -> 230676.6511912123 - 151449.79039465528*I |>,
+           "Up" -> <|"Transmission" -> 1.0000000000000002 + 0.*I |>|>,
        "SolutionFunctions" -> {Teukolsky`MST`Private`MSTRadialIn[2, 2, 2, 0.5, 0.2, 
-          1.9800007321197113, -0.33267928615316333, 9.504222894583032 - 1.136766701917988*I], Teukolsky`MST`Private`MSTRadialUp[2, 2, 
-          2, 0.5, 0.2, 1.9800007321197113, -0.33267928615316333, -1805.5571508475773 - 9034.631436940852*I]}|>]["SolutionFunctions"]
+          1.9800007321197157, -0.33267928615316333, 9.50422289458304 - 1.1367667019179721*I], Teukolsky`MST`Private`MSTRadialUp[2, 2, 
+          2, 0.5, 0.2, 1.9800007321197157, -0.33267928615316333, -1805.5571508476348 - 9034.631436940841*I]}|>]["SolutionFunctions"]
     ,
     TestID->"SolutionFunctions"
 ]
@@ -144,14 +144,14 @@ VerificationTest[
     \[Psi]In
     ,
     TeukolskyRadialFunction[2, 2, 2, 0.5, 0.1, <|"s" -> 2, "l" -> 2, "m" -> 2, "\[Omega]" -> 0.1,
-      "Method" -> {"MST", "RenormalizedAngularMomentum" -> 1.9800007321197113}, 
+      "Method" -> {"MST", "RenormalizedAngularMomentum" -> 1.9800007321197157}, 
       "BoundaryConditions" -> "In", "Eigenvalue" -> -0.33267928615316333, 
       "Amplitudes" -> 
-        <|"Incidence" -> -19.52506873659395 - 2.1406611822516983*I,
-          "Transmission" -> 1. + 0.*I,
-          "Reflection" -> 230676.6511912053 - 151449.7903946477*I |>,
+        <|"Incidence" -> -19.525068736594484 - 2.140661182251906*I,
+          "Transmission" -> 1.0000000000000002 - 1.3877787807814457*^-17*I,
+          "Reflection" -> 230676.6511912123 - 151449.79039465528*I |>,
       "SolutionFunctions" -> Teukolsky`MST`Private`MSTRadialIn[2, 2, 2, 0.5, 0.2, 
-        1.9800007321197113, -0.33267928615316333, 9.504222894583032 - 1.136766701917988*I]|>]
+        1.9800007321197157, -0.33267928615316333, 9.50422289458304 - 1.1367667019179721*I]|>]
     ,
     TestID->"Subcase"
 ]
