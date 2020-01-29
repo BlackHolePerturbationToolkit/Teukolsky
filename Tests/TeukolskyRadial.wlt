@@ -14,9 +14,9 @@ VerificationTest[
       "BoundaryConditions" -> {"In", "Up"}, "Eigenvalue" -> -0.33267928615316333, 
       "Amplitudes" ->
         <|"In" -> <|"Incidence" -> -19.52506873659395 - 2.1406611822516983*I,
-                    "Transmission" -> 1,
+                    "Transmission" -> 1. + 0.*I,
                     "Reflection" -> 230676.6511912053 - 151449.7903946477*I |>,
-          "Up" -> <|"Transmission" -> 1 |>|>,
+          "Up" -> <|"Transmission" -> 0.9999999999999999 + 5.551115123125783*^-17*I |>|>,
       "SolutionFunctions" -> {Teukolsky`MST`Private`MSTRadialIn[2, 2, 2, 0.5, 0.2, 
          1.9800007321197113, -0.33267928615316333, 9.504222894583032 - 1.136766701917988*I], Teukolsky`MST`Private`MSTRadialUp[2, 2, 
          2, 0.5, 0.2, 1.9800007321197113, -0.33267928615316333, -1805.5571508475773 - 9034.631436940852*I]}|>]
@@ -84,9 +84,9 @@ VerificationTest[
        "BoundaryConditions" -> {"In", "Up"}, "Eigenvalue" -> -0.33267928615316333, 
        "Amplitudes" ->
          <|"In" -> <|"Incidence" -> -19.52506873659395 - 2.1406611822516983*I,
-                     "Transmission" -> 1,
+                     "Transmission" -> 1. + 0.*I,
                      "Reflection" -> 230676.6511912053 - 151449.7903946477*I |>,
-           "Up" -> <|"Transmission" -> 1 |>|>,
+           "Up" -> <|"Transmission" -> 0.9999999999999999 + 5.551115123125783*^-17*I |>|>,
        "SolutionFunctions" -> {Teukolsky`MST`Private`MSTRadialIn[2, 2, 2, 0.5, 0.2, 
           1.9800007321197113, -0.33267928615316333, 9.504222894583032 - 1.136766701917988*I], Teukolsky`MST`Private`MSTRadialUp[2, 2, 
           2, 0.5, 0.2, 1.9800007321197113, -0.33267928615316333, -1805.5571508475773 - 9034.631436940852*I]}|>]["SolutionFunctions"]
@@ -148,7 +148,7 @@ VerificationTest[
       "BoundaryConditions" -> "In", "Eigenvalue" -> -0.33267928615316333, 
       "Amplitudes" -> 
         <|"Incidence" -> -19.52506873659395 - 2.1406611822516983*I,
-          "Transmission" -> 1,
+          "Transmission" -> 1. + 0.*I,
           "Reflection" -> 230676.6511912053 - 151449.7903946477*I |>,
       "SolutionFunctions" -> Teukolsky`MST`Private`MSTRadialIn[2, 2, 2, 0.5, 0.2, 
         1.9800007321197113, -0.33267928615316333, 9.504222894583032 - 1.136766701917988*I]|>]

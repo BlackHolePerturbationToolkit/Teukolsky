@@ -174,7 +174,7 @@ an[q_, \[Epsilon]_, \[Kappa]_, \[Tau]_, \[Nu]_, \[Lambda]_, s_, m_, nf_] :=(-1)^
 (*Does this section need a RW option?*)
 
 Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_] :=
- Module[{\[Kappa], \[Tau], \[Epsilon]p, \[Omega], K\[Nu], Aplus, Btrans, Ctrans, Binc, Bref, n, fSumUp, fSumDown, fSumK\[Nu]1Up, fSumK\[Nu]1Down, fSumK\[Nu]2Up, fSumK\[Nu]2Down, fSumCUp, fSumCDown},
+ Module[{\[Kappa], \[Tau], \[Epsilon]p, \[Omega], K\[Nu], K\[Nu]1, K\[Nu]2, Aplus, Btrans, Ctrans, Binc, Bref, n, fSumUp, fSumDown, fSumK\[Nu]1Up, fSumK\[Nu]1Down, fSumK\[Nu]2Up, fSumK\[Nu]2Down, fSumCUp, fSumCDown},
  Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], fT},
   \[Kappa] = Sqrt[1 - q^2];
   \[Tau] = (\[Epsilon] - m q)/\[Kappa];
@@ -279,16 +279,15 @@ Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_]
 
 (* Throwe B.1, Sasaki & Tagoshi Eqs. (116) and (120) *)
 SetAttributes[MSTRadialIn, {NumericFunction}];
-MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_][r_?InexactNumberQ] :=
- Module[{\[Kappa], \[Tau], rp, z, zp, x, resUp, nUp, resDown, nDown},
+
+MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_][r_?NumericQ] :=
+ Module[{\[Kappa], \[Tau], rp, x, resUp, nUp, resDown, nDown},
  Block[{H2F1},
  Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], fT},
   \[Kappa] = Sqrt[1 - q^2];
   \[Tau] = (\[Epsilon] - m q)/\[Kappa];
-  rp = 1 + Sqrt[1 - q^2];
-  z = \[Epsilon] r / 2;
-  zp = \[Epsilon] rp / 2;
-  x = (zp - z)/(\[Epsilon] \[Kappa]);
+  rp = 1 + \[Kappa];
+  x = (rp - r)/(2 \[Kappa]);
 
   H2F1[n : (0 | 1)] := H2F1[n] = H2F1Exact[n, s, \[Nu], \[Tau], \[Epsilon], x];
 
@@ -326,16 +325,14 @@ MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_
 ]]];
 
 
-Derivative[1][MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_]][r_?InexactNumberQ] :=
- Module[{\[Kappa], \[Tau], rp, z, zp, x, dxdr, resUp, nUp, resDown, nDown},
+Derivative[1][MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_]][r_?NumericQ] :=
+ Module[{\[Kappa], \[Tau], rp, x, dxdr, resUp, nUp, resDown, nDown},
  Block[{H2F1, dH2F1},
  Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], fT},
   \[Kappa] = Sqrt[1 - q^2];
   \[Tau] = (\[Epsilon] - m q)/\[Kappa];
-  rp = 1 + Sqrt[1 - q^2];
-  z = \[Epsilon] r / 2;
-  zp = \[Epsilon] rp / 2;
-  x = (zp - z)/(\[Epsilon] \[Kappa]);
+  rp = 1 + \[Kappa];
+  x = (rp - r)/(2 \[Kappa]);
   dxdr = - 1/(2\[Kappa]);
 
   H2F1[n : (0 | 1)] := H2F1[n] = H2F1Exact[n, s, \[Nu], \[Tau], \[Epsilon], x];
@@ -383,22 +380,22 @@ _,Abort[]](resUp+resDown) dxdr/norm
 ]]];
 
 
-Derivative[n_Integer?Positive][MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_]][r0_?InexactNumberQ] :=
+Derivative[n_Integer?Positive][MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_]][r0_?NumericQ] :=
  Module[{d2R, Rderivs, R, r, i},
  (*FIXME: Add appropriate factors of M here *)
   d2R = Switch[$MasterFunction,"ReggeWheeler",-1/(1-2/r)2/r^2 Derivative[1][R][r]+1/(1-2/r)(l (l+1)/r^2-2(1-s^2)/r^3)R[r]-(\[Epsilon]/2)^2/(1-2/r)^2 R[r],"Teukolsky",(-(-\[Lambda] + 2 I r s \[Epsilon] + (-2 I (-1 + r) s (-q m + (q^2 + r^2) \[Epsilon]/2) + (-q m + (q^2 + r^2) \[Epsilon]/2)^2)/(q^2 - 2 r + r^2)) R[r] - (-2 + 2 r) (1 + s) Derivative[1][R][r])/(q^2 - 2 r + r^2),_,Abort[]];
 
   pderivs = D[R[r_], {r_, i_}] :> D[d2R, {r, i - 2}] /; i >= 2;
-  Do[Derivative[i][R][r] = Simplify[D[Derivative[i - 1][R][r], r] /. pderivs];, {i, 2, n}];
+  Do[Derivative[i][R][r] = Collect[D[Derivative[i - 1][R][r], r] /. pderivs,{R'[r], R[r]}, Simplify];, {i, 2, n}];
   Derivative[n][R][r] /. {
     R'[r] -> MSTRadialIn[s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm]'[r0],
-    R[r] -> MSTRadialIn[s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm][r0], r -> r0}
+    R[r] -> MSTRadialIn[s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm][r0], r -> r0, \[Epsilon]L -> \[Epsilon], qL -> q, \[Lambda]L -> \[Lambda]}
 ];
 
 (* Throwe B.5, Sasaki & Tagoshi (153) and (159) *)
 SetAttributes[MSTRadialUp, {NumericFunction}];
 
-MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_][r_?InexactNumberQ]   := 
+MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_][r_?NumericQ] :=
  Module[{\[Kappa], \[Tau], \[Epsilon]p, rm, z, zm, zhat, resUp, nUp, resDown, nDown},
  Block[{HU},
  Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], fT},
@@ -443,7 +440,7 @@ _,Abort[]](resUp+resDown)/norm
 ]]];
 
 
-Derivative[1][MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_]][r_?InexactNumberQ] :=
+Derivative[1][MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_]][r_?NumericQ] :=
  Module[{\[Kappa], \[Tau], \[Epsilon]p, rm, z, zm, zhat, dzhatdr, resUp, nUp, resDown, nDown},
  Block[{HU, dHU},
  Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], fT},
@@ -505,16 +502,15 @@ _,Abort[]] (resUp+resDown) dzhatdr/norm
 ]]];
 
 
-
-Derivative[n_Integer?Positive][MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_]][r0_?InexactNumberQ] :=
+Derivative[n_Integer?Positive][MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_]][r0_?NumericQ] :=
  Module[{d2R, Rderivs, R, r, i},
   d2R = Switch[$MasterFunction,"ReggeWheeler",-1/(1-2/r)2/r^2 Derivative[1][R][r]+1/(1-2/r)(l (l+1)/r^2-2(1-s^2)/r^3)R[r]-(\[Epsilon]/2)^2/(1-2/r)^2 R[r],"Teukolsky",(-(-\[Lambda] + 2 I r s \[Epsilon] + (-2 I (-1 + r) s (-q m + (q^2 + r^2) \[Epsilon]/2) + (-q m + (q^2 + r^2) \[Epsilon]/2)^2)/(q^2 - 2 r + r^2)) R[r] - (-2 + 2 r) (1 + s) Derivative[1][R][r])/(q^2 - 2 r + r^2),_,Abort[]];
 
   pderivs = D[R[r_], {r_, i_}] :> D[d2R, {r, i - 2}] /; i >= 2;
-  Do[Derivative[i][R][r] = Simplify[D[Derivative[i - 1][R][r], r] /. pderivs];, {i, 2, n}];
+  Do[Derivative[i][R][r] = Collect[D[Derivative[i - 1][R][r], r] /. pderivs, {R'[r], R[r]}, Simplify];, {i, 2, n}];
   Derivative[n][R][r] /. {
     R'[r] -> MSTRadialUp[s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm]'[r0],
-    R[r] -> MSTRadialUp[s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm][r0], r -> r0}
+    R[r] -> MSTRadialUp[s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm][r0], r -> r0, \[Epsilon]L -> \[Epsilon], qL -> q, \[Lambda]L -> \[Lambda]}
 ];
 
 
