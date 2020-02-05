@@ -377,7 +377,7 @@ MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_
   Switch[$MasterFunction,
   "ReggeWheeler",
   While[resUp != (resUp += Pochhammer[-\[Nu]+s-I \[Epsilon],-nUp]Pochhammer[\[Nu]+s-I \[Epsilon]+1,nUp]Pochhammer[\[Nu]+I \[Epsilon]+1,nUp]/Pochhammer[\[Nu]-I \[Epsilon]+1,nUp](-1)nUp fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nUp]H2F1[nUp]
-  , nUp++)],
+  ), nUp++],
   "Teukolsky",
   While[resUp != (resUp += fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nUp]H2F1[nUp])
   , nUp++]
@@ -388,7 +388,7 @@ MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_
   Switch[$MasterFunction,
   "ReggeWheeler",
   While[resDown != (resDown += Pochhammer[-\[Nu]+s-I \[Epsilon],-nDown]Pochhammer[\[Nu]+s-I \[Epsilon]+1,nDown]Pochhammer[\[Nu]+I \[Epsilon]+1,nDown]/Pochhammer[\[Nu]-I \[Epsilon]+1,nDown](-1)nDown fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nDown]H2F1[nDown]
-  , nDown--)],
+  ), nDown--],
   "Teukolsky", 
   While[resDown != (resDown += fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nDown]H2F1[nDown])
   , nDown--]
