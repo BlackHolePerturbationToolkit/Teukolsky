@@ -447,7 +447,6 @@ Derivative[1][MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu
   While[resUp != (resUp+= Pochhammer[-\[Nu]+s-I \[Epsilon],-nUp]Pochhammer[\[Nu]+s-I \[Epsilon]+1,nUp]Pochhammer[\[Nu]+I \[Epsilon]+1,nUp]/Pochhammer[\[Nu]-I \[Epsilon]+1,nUp](-1)^nUp fn[q,\[Epsilon],\[Kappa],\[Tau],\[Nu],\[Lambda],s,m,nUp](-(((I (-I (1+s) x+(-1+x)^2 \[Epsilon])) H2F1[nUp])/x)+(1-x) dH2F1[nUp]))
   ,nUp++],
   "Teukolsky",
-  While[resUp != (resUp+=(-2 s (-1+x)+I (\[Epsilon]-2 x \[Epsilon] \[Kappa]+2 x^2 \[Epsilon] \[Kappa]+\[Tau]-2 x \[Tau])) H2F1[nUp]+2 (-1+x) x dH2F1[nUp])
   While[resUp != (resUp+=fn[q,\[Epsilon],\[Kappa],\[Tau],\[Nu],\[Lambda],s,m,nUp]((-2 s (-1+x)+I (\[Epsilon]-2 x \[Epsilon] \[Kappa]+2 x^2 \[Epsilon] \[Kappa]+\[Tau]-2 x \[Tau])) H2F1[nUp]+2 (-1+x) x dH2F1[nUp]))
   ,nUp++]
   ,_,Abort[]
@@ -459,6 +458,7 @@ Derivative[1][MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu
   While[resDown != (resDown+= Pochhammer[-\[Nu]+s-I \[Epsilon],-nDown]Pochhammer[\[Nu]+s-I \[Epsilon]+1,nDown]Pochhammer[\[Nu]+I \[Epsilon]+1,nDown]/Pochhammer[\[Nu]-I \[Epsilon]+1,nDown](-1)^nDown fn[q,\[Epsilon],\[Kappa],\[Tau],\[Nu],\[Lambda],s,m,nDown](-(((I (-I (1+s) x+(-1+x)^2 \[Epsilon])) H2F1[nDown])/x)+(1-x) dH2F1[nDown]))
   ,nDown--],
   "Teukolsky",
+  While[resDown != (resDown+=fn[q,\[Epsilon],\[Kappa],\[Tau],\[Nu],\[Lambda],s,m,nDown]((-2 s (-1+x)+I (\[Epsilon]-2 x \[Epsilon] \[Kappa]+2 x^2 \[Epsilon] \[Kappa]+\[Tau]-2 x \[Tau])) H2F1[nDown]+2 (-1+x) x dH2F1[nDown]))
   ,nDown--]
   ,_,Abort[]
   ];
