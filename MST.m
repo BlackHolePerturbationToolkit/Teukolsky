@@ -376,15 +376,23 @@ MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_
   nUp = 0;
   Switch[$MasterFunction,
   "ReggeWheeler",
+  While[resUp != (resUp += Pochhammer[-\[Nu]+s-I \[Epsilon],-nUp]Pochhammer[\[Nu]+s-I \[Epsilon]+1,nUp]Pochhammer[\[Nu]+I \[Epsilon]+1,nUp]/Pochhammer[\[Nu]-I \[Epsilon]+1,nUp](-1)^nUp fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nUp]H2F1[nUp])
+  , nUp++],
   "Teukolsky",
   While[resUp != (resUp += fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nUp]H2F1[nUp])
+  , nUp++],
+  _,Abort[]
   ];
 
   nDown = -1;
   Switch[$MasterFunction,
   "ReggeWheeler",
+  While[resDown != (resDown += Pochhammer[-\[Nu]+s-I \[Epsilon],-nDown]Pochhammer[\[Nu]+s-I \[Epsilon]+1,nDown]Pochhammer[\[Nu]+I \[Epsilon]+1,nDown]/Pochhammer[\[Nu]-I \[Epsilon]+1,nDown](-1)^nDown fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nDown]H2F1[nDown])
+  , nDown--],
   "Teukolsky", 
   While[resDown != (resDown += fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nDown]H2F1[nDown])
+  , nDown--],
+  _,Abort[]
   ];
 
   Switch[$MasterFunction,
@@ -436,6 +444,7 @@ Derivative[1][MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu
   nUp = 0;
   Switch[$MasterFunction,
   "ReggeWheeler",
+  While[resUp != (resUp+= Pochhammer[-\[Nu]+s-I \[Epsilon],-nUp]Pochhammer[\[Nu]+s-I \[Epsilon]+1,nUp]Pochhammer[\[Nu]+I \[Epsilon]+1,nUp]/Pochhammer[\[Nu]-I \[Epsilon]+1,nUp](-1)^nUp fn[q,\[Epsilon],\[Kappa],\[Tau],\[Nu],\[Lambda],s,m,nUp](-(((I (-I (1+s) x+(-1+x)^2 \[Epsilon])) H2F1[nUp])/x)+(1-x) dH2F1[nUp]))
   ,nUp++],
   "Teukolsky",
   While[resUp != (resUp+=(-2 s (-1+x)+I (\[Epsilon]-2 x \[Epsilon] \[Kappa]+2 x^2 \[Epsilon] \[Kappa]+\[Tau]-2 x \[Tau])) H2F1[nUp]+2 (-1+x) x dH2F1[nUp])
@@ -446,6 +455,7 @@ Derivative[1][MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu
   nDown = -1;
   Switch[$MasterFunction,
   "ReggeWheeler",
+  While[resDown != (resDown+= Pochhammer[-\[Nu]+s-I \[Epsilon],-nDown]Pochhammer[\[Nu]+s-I \[Epsilon]+1,nDown]Pochhammer[\[Nu]+I \[Epsilon]+1,nDown]/Pochhammer[\[Nu]-I \[Epsilon]+1,nDown](-1)^nDown fn[q,\[Epsilon],\[Kappa],\[Tau],\[Nu],\[Lambda],s,m,nDown](-(((I (-I (1+s) x+(-1+x)^2 \[Epsilon])) H2F1[nDown])/x)+(1-x) dH2F1[nDown]))
   ,nDown--],
   "Teukolsky",
   While[resDown != (resDown+=(-2 s (-1+x)+I (\[Epsilon]-2 x \[Epsilon] \[Kappa]+2 x^2 \[Epsilon] \[Kappa]+\[Tau]-2 x \[Tau])) H2F1[nDown]+2 (-1+x) x dH2F1[nDown])
@@ -508,6 +518,7 @@ MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_
   nUp = 0;
   Switch[$MasterFunction,
   "ReggeWheeler", 
+   While[resUp != (resUp += I^nUp Pochhammer[\[Nu] + 1 + s - I \[Epsilon], nUp]/Pochhammer[\[Nu] + 1 - s + I \[Epsilon], nUp](2zhat)^nUp /((-2 I zhat)^(nUp))fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nUp] HU[nUp]),nUp++],
   "Teukolsky",
    While[resUp != (resUp += I^nUp Pochhammer[\[Nu] + 1 + s - I \[Epsilon], nUp]/Pochhammer[\[Nu] + 1 - s + I \[Epsilon], nUp](2zhat)^nUp /((-2 I zhat)^(nUp) ) fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nUp]HU[nUp]),nUp++],
    _,
@@ -518,6 +529,7 @@ MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_
   Switch[$MasterFunction,
   "ReggeWheeler", 
    While[resDown != (resDown += (-I)^nDown Pochhammer[\[Nu] + 1 + s - I \[Epsilon], nDown]/Pochhammer[\[Nu] + 1 - s + I \[Epsilon], nDown](2zhat)^nDown /((-2 I zhat)^(nDown))fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nDown] HU[nDown]),nDown--],
+   While[resDown != (resDown += I^nDown Pochhammer[\[Nu] + 1 + s - I \[Epsilon], nDown]/Pochhammer[\[Nu] + 1 - s + I \[Epsilon], nDown](2zhat)^nDown /((-2 I zhat)^(nDown))fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nDown] HU[nDown]),nDown--],
   "Teukolsky",
    While[resDown != (resDown += I^nDown Pochhammer[\[Nu] + 1 + s - I \[Epsilon], nDown]/Pochhammer[\[Nu] + 1 - s + I \[Epsilon], nDown](2zhat)^nDown /((-2 I zhat)^(nDown) ) fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nDown]HU[nDown]),nDown--],
    _,
@@ -577,6 +589,7 @@ Derivative[1][MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu
   Switch[$MasterFunction,
   "ReggeWheeler", 
    While[resUp!=(resUp+=(-I)^nUp Pochhammer[\[Nu]+1+s-I \[Epsilon],nUp]/(Pochhammer[\[Nu]+1-s+I \[Epsilon],nUp]) fn[q,\[Epsilon],\[Kappa],\[Tau],\[Nu],\[Lambda],s,m,nUp] (2 zhat)^nUp ((1+I \[Epsilon]p+zhat (I+(I \[Epsilon]p)/(-zhat+\[Epsilon] \[Kappa]))+\[Nu]) HU[nUp]+zhat dHU[nUp])/((-2 I zhat)^nUp))
+   While[resUp!=(resUp+=I^nUp Pochhammer[\[Nu]+1+s-I \[Epsilon],nUp]/(Pochhammer[\[Nu]+1-s+I \[Epsilon],nUp]) fn[q,\[Epsilon],\[Kappa],\[Tau],\[Nu],\[Lambda],s,m,nUp] (2 zhat)^nUp ((1+I \[Epsilon]p+zhat (I+(I \[Epsilon]p)/(-zhat+\[Epsilon] \[Kappa]))+\[Nu]) HU[nUp]+zhat dHU[nUp])/((-2 I zhat)^nUp))
    ,nUp++],
   "Teukolsky",
    While[resUp!=(resUp+= I^nUp Pochhammer[\[Nu]+1+s-I \[Epsilon],nUp]/(Pochhammer[\[Nu]+1-s+I \[Epsilon],nUp])(2 zhat)^nUp fn[q,\[Epsilon],\[Kappa],\[Tau],\[Nu],\[Lambda],s,m,nUp](((-s zhat+I (zhat^2-\[Epsilon] (zhat+\[Epsilon]p) \[Kappa])+(zhat-\[Epsilon] \[Kappa]) \[Nu]) HU[nUp])/(zhat (zhat-\[Epsilon] \[Kappa]))+dHU[nUp])/((-2 I zhat)^nUp))
@@ -588,8 +601,10 @@ Derivative[1][MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu
   nDown = -1;
   Switch[$MasterFunction,
   "ReggeWheeler", 
+   While[resDown!=(resDown+=I^nDown Pochhammer[\[Nu]+1+s-I \[Epsilon],nDown]/(Pochhammer[\[Nu]+1-s+I \[Epsilon],nDown]) fn[q,\[Epsilon],\[Kappa],\[Tau],\[Nu],\[Lambda],s,m,nDown] (2 zhat)^nDown ((1+I \[Epsilon]p+zhat (I+(I \[Epsilon]p)/(-zhat+\[Epsilon] \[Kappa]))+\[Nu]) HU[nDown]+zhat dHU[nDown])/((-2 I zhat)^nDown))
    ,nDown--],
   "Teukolsky",
+   While[resDown!=(resDown+=I^nDown Pochhammer[\[Nu]+1+s-I \[Epsilon],nDown]/(Pochhammer[\[Nu]+1-s+I \[Epsilon],nDown])(2 zhat)^nDown fn[q,\[Epsilon],\[Kappa],\[Tau],\[Nu],\[Lambda],s,m,nDown](((-s zhat+I (zhat^2-\[Epsilon] (zhat+\[Epsilon]p) \[Kappa])+(zhat-\[Epsilon] \[Kappa]) \[Nu]) HU[nDown])/(zhat (zhat-\[Epsilon] \[Kappa]))+dHU[nDown])/((-2 I zhat)^nDown))
    ,nDown--],
    _, 
    Abort[]
