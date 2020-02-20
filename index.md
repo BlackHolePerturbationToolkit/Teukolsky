@@ -33,7 +33,7 @@ mode["Fluxes"]
 ```  
 This returns an association with the results:  
 ```
-<|"FluxInf" -> 0.000044546001102360994, "FluxHor" -> -1.1967358426766726*10^-7, "FluxTotal" -> 0.000044426327518093327|>
+<|"FluxInf" -> 0.000022273000551180497057, "FluxHor" -> -5.9836792133833631984*10^-8, "FluxTotal" -> 0.000022213163759046663425|>
 ```
 Note the high precision of the input values for $a$ and $r_0$. Currently this is often a requirement to get an accurate result.
 
