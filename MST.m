@@ -36,159 +36,85 @@ CF[a_, b_, {n_, n0_}] := Module[{A, B, ak, bk, res = Indeterminate, j = n0},
 
 (*All recurrence relations for the hypergeometric functions below can be derived from equations provided by DLMF*)
 
+Switch[$MasterFunction,
+"ReggeWheeler",
+  (* Parameters for Hypergeometric2F1 *)
+  aF[s_, \[Nu]_, \[Tau]_, \[Epsilon]_] := \[Nu]+s+1-I \[Epsilon];
+  bF[s_, \[Nu]_, \[Tau]_, \[Epsilon]_] := -\[Nu]+s-I \[Epsilon];
+  cF[s_, \[Nu]_, \[Tau]_, \[Epsilon]_] := 1-2 I \[Epsilon];
+
+  (* Parameters for HypergeometricU *)
+  aU[s_, \[Nu]_, \[Tau]_, \[Epsilon]_] := \[Nu] + 1 - I \[Epsilon];,
+ 
+"Teukolsky",
+  (* Parameters for Hypergeometric2F1 *)
+  aF[s_, \[Nu]_, \[Tau]_, \[Epsilon]_] := \[Nu]+1-I \[Tau];
+  bF[s_, \[Nu]_, \[Tau]_, \[Epsilon]_] := -\[Nu]-I \[Tau];
+  cF[s_, \[Nu]_, \[Tau]_, \[Epsilon]_] := 1-s-I(\[Epsilon]+\[Tau]);
+
+  (* Parameters for HypergeometricU *)
+  aU[s_, \[Nu]_, \[Tau]_, \[Epsilon]_] := \[Nu] + s + 1 - I \[Epsilon];,
+
+_, Abort[]
+];
+
 H2F1Exact[n_, s_, \[Nu]_, \[Tau]_, \[Epsilon]_, x_] :=
- Module[{a, b, c},
-  Switch[$MasterFunction,
-    "ReggeWheeler",
-    a=\[Nu]+s+1-I \[Epsilon]; b=-\[Nu]+s-I \[Epsilon]; c=1-2 I \[Epsilon];,
-    "Teukolsky",
-    a=\[Nu]+1-I \[Tau]; b=-\[Nu]-I \[Tau]; c=1-s-I(\[Epsilon]+\[Tau]);,
-    _, Abort[]
-  ];
-  Hypergeometric2F1[n + a, -n +b,c, x]
+ Module[{a = aF[s, \[Nu], \[Tau], \[Epsilon]], b = bF[s, \[Nu], \[Tau], \[Epsilon]], c = cF[s, \[Nu], \[Tau], \[Epsilon]]},
+  Hypergeometric2F1[n + a, b-n, c, x]
 ];
 
 H2F1Up[n_, s_, \[Nu]_, \[Tau]_, \[Epsilon]_, x_] :=
- Module[{a, b, c},
-  Switch[$MasterFunction,
-    "ReggeWheeler",
-    a=\[Nu]+s+1-I \[Epsilon]; b=-\[Nu]+s-I \[Epsilon]; c=1-2 I \[Epsilon];,
-    "Teukolsky",
-    a=\[Nu]+1-I \[Tau]; b=-\[Nu]-I \[Tau]; c=1-s-I(\[Epsilon]+\[Tau]);,
-    _, Abort[]
-  ];
+ Module[{a = aF[s, \[Nu], \[Tau], \[Epsilon]], b = bF[s, \[Nu], \[Tau], \[Epsilon]], c = cF[s, \[Nu], \[Tau], \[Epsilon]]},
   1/((3-a+b-2 n) (1+b-c-n) (-1+a+n)){-(1-a+b-2 n) (1+b-n) (-1+a-c+n) H2F1[-2+n], -(-2+a-b+2 n) (-2+2 a-2 b+2 a b+c-a c-b c+4 n-2 a n+2 b n-2 n^2+3 x-4 a x+a^2 x+4 b x-2 a b x+b^2 x-8 n x+4 a n x-4 b n x+4 n^2 x) H2F1[-1+n]}
-]
+];
 
 H2F1Down[n_, s_, \[Nu]_, \[Tau]_, \[Epsilon]_, x_] :=
- Module[{a, b, c},
-  Switch[$MasterFunction,
-    "ReggeWheeler",
-    a=\[Nu]+s+1-I \[Epsilon]; b=-\[Nu]+s-I \[Epsilon]; c=1-2 I \[Epsilon];,
-    "Teukolsky",
-    a=\[Nu]+1-I \[Tau]; b=-\[Nu]-I \[Tau]; c=1-s-I(\[Epsilon]+\[Tau]);,
-    _, Abort[]
-  ];
+ Module[{a = aF[s, \[Nu], \[Tau], \[Epsilon]], b = bF[s, \[Nu], \[Tau], \[Epsilon]], c = cF[s, \[Nu], \[Tau], \[Epsilon]]},
   1/((-3-a+b-2 n) (-1+b-n) (1+a-c+n)){(-2-a+b-2 n) (-2-2 a+2 b+2 a b+c-a c-b c-4 n-2 a n+2 b n-2 n^2+3 x+4 a x+a^2 x-4 b x-2 a b x+b^2 x+8 n x+4 a n x-4 b n x+4 n^2 x) H2F1[1+n], -(-1-a+b-2 n) (-1+b-c-n) (1+a+n) H2F1[2+n]}
 ];
 
 dH2F1Exact[n_, s_, \[Nu]_, \[Tau]_, \[Epsilon]_, x_] :=
- Module[{a, b, c},
-  Switch[$MasterFunction,
-    "ReggeWheeler",
-    a=\[Nu]+s+1-I \[Epsilon]; b=-\[Nu]+s-I \[Epsilon]; c=1-2 I \[Epsilon];,
-    "Teukolsky",
-    a=\[Nu]+1-I \[Tau]; b=-\[Nu]-I \[Tau]; c=1-s-I(\[Epsilon]+\[Tau]);,
-    _, Abort[]
-  ];
+ Module[{a = aF[s, \[Nu], \[Tau], \[Epsilon]], b = bF[s, \[Nu], \[Tau], \[Epsilon]], c = cF[s, \[Nu], \[Tau], \[Epsilon]]},
   (n+a)(-n+b)/c Hypergeometric2F1[n + a + 1, -n + b + 1, c + 1, x]
 ];
 
 dH2F1Up[n_, s_, \[Nu]_, \[Tau]_, \[Epsilon]_, x_] :=
- Module[{a, b, c},
-  Switch[$MasterFunction,
-    "ReggeWheeler",
-    a=\[Nu]+s+1-I \[Epsilon]; b=-\[Nu]+s-I \[Epsilon]; c=1-2 I \[Epsilon];,
-    "Teukolsky",
-    a=\[Nu]+1-I \[Tau]; b=-\[Nu]-I \[Tau]; c=1-s-I(\[Epsilon]+\[Tau]);,
-    _, Abort[]
-  ];
+ Module[{a = aF[s, \[Nu], \[Tau], \[Epsilon]], b = bF[s, \[Nu], \[Tau], \[Epsilon]], c = cF[s, \[Nu], \[Tau], \[Epsilon]]},
   1/((1+b-c-n) (-1+a+n)){-(((1-a+b-2 n) (1+b-n) (-1+a-c+n) dH2F1[-2+n])/(3-a+b-2 n) ), 1/(3-a+b-2 n)  (2-a+b-2 n) (-2+2 a-2 b+2 a b+c-a c-b c+4 n-2 a n+2 b n-2 n^2+3 x-4 a x+a^2 x+4 b x-2 a b x+b^2 x-8 n x+4 a n x-4 b n x+4 n^2 x) dH2F1[-1+n],(1-a+b-2 n) (2-a+b-2 n) H2F1[-1+n]}
 ];
 
 dH2F1Down[n_, s_, \[Nu]_, \[Tau]_, \[Epsilon]_, x_] :=
- Module[{a, b, c},
-  Switch[$MasterFunction,
-    "ReggeWheeler",
-    a=\[Nu]+s+1-I \[Epsilon]; b=-\[Nu]+s-I \[Epsilon];c=1-2 I \[Epsilon];,
-    "Teukolsky",
-    a=\[Nu]+1-I \[Tau]; b=-\[Nu]-I \[Tau]; c=1-s-I(\[Epsilon]+\[Tau]);,
-    _, Abort[]
-  ];
+ Module[{a = aF[s, \[Nu], \[Tau], \[Epsilon]], b = bF[s, \[Nu], \[Tau], \[Epsilon]], c = cF[s, \[Nu], \[Tau], \[Epsilon]]},
   1/((-1+b-n) (1+a-c+n)){1/(-3-a+b-2 n)  (-2-a+b-2 n) (-2-2 a+2 b+2 a b+c-a c-b c-4 n-2 a n+2 b n-2 n^2+3 x+4 a x+a^2 x-4 b x-2 a b x+b^2 x+8 n x+4 a n x-4 b n x+4 n^2 x) dH2F1[1+n], -(((-1-a+b-2 n) (-1+b-c-n) (1+a+n) dH2F1[2+n])/(-3-a+b-2 n)),(-2-a+b-2 n) (-1-a+b-2 n) H2F1[1+n]}
 ];
 
 HUExact[n_, s_, \[Nu]_, \[Epsilon]_, zhat_] :=
- Module[{a, b, c},
-  Switch[$MasterFunction,
-    "ReggeWheeler",
-    a = \[Nu] + 1 - I \[Epsilon];,
-    "Teukolsky",
-    a = \[Nu] + s + 1 - I \[Epsilon];,
-    _, Abort[]
-  ];
-  b = 2 \[Nu] + 2;
-  c = -2 I zhat;
+ Module[{a = aU[s, \[Nu], \[Tau], \[Epsilon]], b = 2 \[Nu] + 2, c = -2 I zhat},
   (c)^n HypergeometricU[n+a,2n+b,c]
 ];
 
 HUUp[n_, s_, \[Nu]_, \[Epsilon]_, zhat_] :=
- Module[{a, b, c},
-  Switch[$MasterFunction,
-    "ReggeWheeler",
-    a = \[Nu] +1 -I \[Epsilon];,
-    "Teukolsky",
-    a=\[Nu]+s+1-I \[Epsilon];,
-    _, Abort[]
-  ];
-  b = 2 \[Nu] + 2;
-  c = -2 I zhat;
+ Module[{a = aU[s, \[Nu], \[Tau], \[Epsilon]], b = 2 \[Nu] + 2, c = -2 I zhat},
   1/((-1+a+n) (-4+b+2 n) ) {(-2-a+b+n) (-2+b+2 n) HU[-2+n],(-3+b+2 n) (8+(b+2 n)^2+2 (a+n) c-(b+2 n) (6+c)) HU[-1+n]/c}
 ];
 
 HUDown[n_, s_, \[Nu]_, \[Epsilon]_, zhat_] :=
- Module[{a, b, c},
-  Switch[$MasterFunction,
-    "ReggeWheeler",
-    a = \[Nu] + 1 - I \[Epsilon];,
-    "Teukolsky",
-    a = \[Nu] + s + 1 -I \[Epsilon];,
-    _, Abort[]
-  ];
-  b = 2 \[Nu] + 2;
-  c = -2 I zhat;
+ Module[{a = aU[s, \[Nu], \[Tau], \[Epsilon]], b = 2 \[Nu] + 2, c = -2 I zhat},
   1/((-a+b+n) (2+b+2 n)){-(((1+b+2 n) (b^2+4 n (1+n)+b (2+4 n-c)+2 a c) HU[1+n])/ c),(1+a+n) (b+2 n) HU[2+n]}
 ];
 
 dHUExact[n_, s_, \[Nu]_, \[Epsilon]_, zhat_] :=
- Module[{a, b, c},
-  Switch[$MasterFunction,
-    "ReggeWheeler",
-    a = \[Nu] + 1 - I \[Epsilon];,
-    "Teukolsky",
-    a = \[Nu] + s + 1 - I \[Epsilon];,
-    _, Abort[]
-  ];
-  b = 2 \[Nu] + 2;
-  c = -2 I zhat;
+ Module[{a = aU[s, \[Nu], \[Tau], \[Epsilon]], b = 2 \[Nu] + 2, c = -2 I zhat},
   (-2 I) (c^(-1+n) n HypergeometricU[a+n,b+2 n,c]-c^n (a+n) HypergeometricU[1+a+n,1+b+2 n,c])
 ];
 
 dHUUp[n_, s_, \[Nu]_, \[Epsilon]_, zhat_] :=
- Module[{a, b, c},
-  Switch[$MasterFunction,
-    "ReggeWheeler",
-    a = \[Nu] + 1 - I \[Epsilon];,
-    "Teukolsky",
-    a = \[Nu] + s + 1 - I \[Epsilon];,
-    _, Abort[]
-  ];
-  b = 2 \[Nu] + 2;
-  c = -2 I zhat;
+ Module[{a = aU[s, \[Nu], \[Tau], \[Epsilon]], b = 2 \[Nu] + 2, c = -2 I zhat},
   1/(-1+a+n) {((-2-a+b+n) (-2+b+2 n) dHU[-2+n])/(-4+b+2 n),((-3+b+2 n) (8+b^2+4 (-3+n) n+b (-6+4 n-c)+2 a c) dHU[-1+n])/( (-4+b+2 n) c),(2 I (-3+b+2 n) (-2+b+2 n) HU[-1+n])/c^2}
 ];
 
 dHUDown[n_, s_, \[Nu]_, \[Epsilon]_, zhat_] :=
- Module[{a, b, c},
-  Switch[$MasterFunction,
-    "ReggeWheeler",
-    a = \[Nu] + 1 - I \[Epsilon];,
-    "Teukolsky",
-    a = \[Nu] + s + 1 - I \[Epsilon];,
-    _, Abort[]
-  ];
-  b = 2 \[Nu] + 2;
-  c = -2 I zhat;
+ Module[{a = aU[s, \[Nu], \[Tau], \[Epsilon]], b = 2 \[Nu] + 2, c = -2 I zhat},
   1/((a-b-n) (2+b+2 n) c^2){(1+b+2 n) c (b^2+4 n (1+n)+b (2+4 n-c)+2 a c) dHU[1+n],(b+2 n) (-(1+a+n) c^2 dHU[2+n]),(b+2 n)(2 I (1+b+2 n) (2+b+2 n) HU[1+n])}
 ];
 
