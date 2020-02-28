@@ -11,9 +11,9 @@ Paclet[
     { "Kernel",
 	    "Context" -> {
         "Teukolsky`",
-        "Teukolsky`RenormalizedAngularMomentum`",
+        "Teukolsky`MST`RenormalizedAngularMomentum`",
+        "Teukolsky`MST`MST`",
         "Teukolsky`TeukolskyRadialUp`",
-        "Teukolsky`MST`",
         "Teukolsky`TeukolskyStarobinksy`"
       }
 	  },

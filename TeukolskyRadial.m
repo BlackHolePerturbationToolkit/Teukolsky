@@ -6,8 +6,8 @@
 
 BeginPackage["Teukolsky`TeukolskyRadial`",
   {"SpinWeightedSpheroidalHarmonics`",
-   "Teukolsky`RenormalizedAngularMomentum`",
-   "Teukolsky`MST`"}
+   "Teukolsky`MST`RenormalizedAngularMomentum`",
+   "Teukolsky`MST`MST`"}
 ];
 
 TeukolskyRadial::usage = "TeukolskyRadial[s,l,m,a,\[Omega]] computes solutions to the radial Teukolsky equation."
@@ -25,10 +25,10 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, OptionsPattern[]
 		"MST"|{"MST", ___},
 			\[Nu] = RenormalizedAngularMomentum[s, l, m, a, \[Omega], \[Lambda], Method->"RenormalizedAngularMomentum"/.OptionValue[Method][[2;;]] ];
 			method = {"MST", "RenormalizedAngularMomentum" -> \[Nu]};
-			norms = Teukolsky`MST`Private`Amplitudes[s,l,m,a,2\[Omega],\[Nu],\[Lambda]];
+			norms = Teukolsky`MST`MST`Private`Amplitudes[s,l,m,a,2\[Omega],\[Nu],\[Lambda]];
 			solFuncs = OptionValue["BoundaryConditions"] /.
-			  {"In" -> Teukolsky`MST`Private`MSTRadialIn[s,l,m,a,2\[Omega],\[Nu],\[Lambda],norms["In"]["Transmission"]],
-			   "Up" -> Teukolsky`MST`Private`MSTRadialUp[s,l,m,a,2\[Omega],\[Nu],\[Lambda],norms["Up"]["Transmission"]]};
+			  {"In" -> Teukolsky`MST`MST`Private`MSTRadialIn[s,l,m,a,2\[Omega],\[Nu],\[Lambda],norms["In"]["Transmission"]],
+			   "Up" -> Teukolsky`MST`MST`Private`MSTRadialUp[s,l,m,a,2\[Omega],\[Nu],\[Lambda],norms["Up"]["Transmission"]]};
 			norms = norms/norms[[All, "Transmission"]];,
 		{"SasakiNakamura", "rmin" -> _, "rmax" -> _},
 			method = {"SasakiNakamura", rmin, rmax} /. OptionValue[Method];
