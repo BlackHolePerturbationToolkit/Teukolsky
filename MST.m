@@ -2,9 +2,6 @@
 
 BeginPackage["Teukolsky`MST`"];
 
-(*MSTRadialIn::usage = "MSTRadialIn[s, l, m, q, \[Epsilon], \[Nu], \[Lambda]][r]";
-MSTRadialUp::usage = "MSTRadialUp[s, l, m, q, \[Epsilon], \[Nu], \[Lambda]][r]";*)
-
 Begin["`Private`"];
 
 (******************************************************************************)
