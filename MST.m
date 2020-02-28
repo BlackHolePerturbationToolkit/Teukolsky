@@ -365,7 +365,7 @@ Derivative[1][MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu
   While[resUp != (resUp+= fIn[q,\[Epsilon],\[Kappa],\[Tau],\[Nu],\[Lambda],s,m,nUp](dprefac H2F1[nUp] + prefac dH2F1[nUp])), nUp++];
 
   nDown = -1;
-  While[resDown != (resDown+= fIn[q,\[Epsilon],\[Kappa],\[Tau],\[Nu],\[Lambda],s,m,nDown](dprefac H2F1[nDown] + prefac dH2F1[nDown])), nDown++];
+  While[resDown != (resDown+= fIn[q,\[Epsilon],\[Kappa],\[Tau],\[Nu],\[Lambda],s,m,nDown](dprefac H2F1[nDown] + prefac dH2F1[nDown])), nDown--];
 
   (resUp+resDown) dxdr/norm
 ]]];
