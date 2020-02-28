@@ -167,7 +167,7 @@ fn[q_, \[Epsilon]_, \[Kappa]_, \[Tau]_, \[Nu]_, \[Lambda]_, s_, m_, nf_] :=
 
 Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_] :=
  Module[{\[Kappa], \[Tau], \[Epsilon]p, \[Omega], K\[Nu], K\[Nu]1, K\[Nu]2, Aplus, Btrans, Ctrans, Binc, Bref, n, fSumUp, fSumDown, fSumK\[Nu]1Up, fSumK\[Nu]1Down, fSumK\[Nu]2Up, fSumK\[Nu]2Down, fSumCUp, fSumCDown},
- Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], fT},
+ Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], fn},
   \[Kappa] = Sqrt[1 - q^2];
   \[Tau] = (\[Epsilon] - m q)/\[Kappa];
   \[Epsilon]p = 1/2 (\[Tau] + \[Epsilon]);
@@ -184,13 +184,13 @@ Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_]
 
   n = 0;
   While[fSumUp != (fSumUp += 
-    f[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n]),
+    fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n]),
     n++;
   ];
 
   n = -1;
   While[fSumDown != (fSumDown += 
-    f[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n]), 
+    fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n]), 
     n--;
   ];
   
@@ -199,13 +199,13 @@ Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_]
 
   n = 0;
   While[fSumK\[Nu]1Up != (fSumK\[Nu]1Up += 
-    ((-1)^n Gamma[1 + n + s + I \[Epsilon] + \[Nu]] Gamma[1 + n + 2 \[Nu]] Gamma[1 + n + \[Nu] + I \[Tau]])/(n! Gamma[1 + n - s - I \[Epsilon] + \[Nu]] Gamma[1 + n + \[Nu] - I \[Tau]]) f[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n]),
+    ((-1)^n Gamma[1 + n + s + I \[Epsilon] + \[Nu]] Gamma[1 + n + 2 \[Nu]] Gamma[1 + n + \[Nu] + I \[Tau]])/(n! Gamma[1 + n - s - I \[Epsilon] + \[Nu]] Gamma[1 + n + \[Nu] - I \[Tau]]) fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n]),
     n++;
   ];
 
   n = 0;
   While[fSumK\[Nu]1Down != (fSumK\[Nu]1Down += 
-    (((-1)^n) Pochhammer[1 + s - I \[Epsilon] + \[Nu], n])/((-n)! Pochhammer[1 - s + I \[Epsilon] + \[Nu], n] Pochhammer[2 + 2 \[Nu], n]) f[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n]), 
+    (((-1)^n) Pochhammer[1 + s - I \[Epsilon] + \[Nu], n])/((-n)! Pochhammer[1 - s + I \[Epsilon] + \[Nu], n] Pochhammer[2 + 2 \[Nu], n]) fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n]), 
     n--;
   ];
 
@@ -213,13 +213,13 @@ Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_]
 
   n = 0;
   While[fSumK\[Nu]2Up != (fSumK\[Nu]2Up += 
-    ((-1)^n Gamma[1 + n + s + I \[Epsilon] + (-1-\[Nu])] Gamma[1 + n + 2 (-1-\[Nu])] Gamma[1 + n + (-1-\[Nu]) + I \[Tau]])/(n! Gamma[1 + n - s - I \[Epsilon] + (-1-\[Nu])] Gamma[1 + n + (-1-\[Nu]) - I \[Tau]]) f[q, \[Epsilon], \[Kappa], \[Tau], (-1-\[Nu]), \[Lambda], s, m, n]),
+    ((-1)^n Gamma[1 + n + s + I \[Epsilon] + (-1-\[Nu])] Gamma[1 + n + 2 (-1-\[Nu])] Gamma[1 + n + (-1-\[Nu]) + I \[Tau]])/(n! Gamma[1 + n - s - I \[Epsilon] + (-1-\[Nu])] Gamma[1 + n + (-1-\[Nu]) - I \[Tau]]) fn[q, \[Epsilon], \[Kappa], \[Tau], (-1-\[Nu]), \[Lambda], s, m, n]),
     n++;
   ];
 
   n = 0;
   While[fSumK\[Nu]2Down != (fSumK\[Nu]2Down += 
-    (((-1)^n) Pochhammer[1 + s - I \[Epsilon] + (-1-\[Nu]), n])/((-n)! Pochhammer[1 - s + I \[Epsilon] + (-1-\[Nu]), n] Pochhammer[2 + 2 (-1-\[Nu]), n]) f[q, \[Epsilon], \[Kappa], \[Tau], (-1-\[Nu]), \[Lambda], s, m, n]), 
+    (((-1)^n) Pochhammer[1 + s - I \[Epsilon] + (-1-\[Nu]), n])/((-n)! Pochhammer[1 - s + I \[Epsilon] + (-1-\[Nu]), n] Pochhammer[2 + 2 (-1-\[Nu]), n]) fn[q, \[Epsilon], \[Kappa], \[Tau], (-1-\[Nu]), \[Lambda], s, m, n]), 
     n--;
   ];
 
@@ -228,13 +228,13 @@ Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_]
 
   n = 0;
   While[fSumCUp != (fSumCUp += 
-    (-1)^n Pochhammer[\[Nu] + 1 + s - I \[Epsilon], n]/Pochhammer[\[Nu] + 1 - s + I \[Epsilon], n] f[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n]),
+    (-1)^n Pochhammer[\[Nu] + 1 + s - I \[Epsilon], n]/Pochhammer[\[Nu] + 1 - s + I \[Epsilon], n] fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n]),
     n++;
   ];
 
   n = -1;
   While[fSumCDown != (fSumCDown += 
-    (-1)^n Pochhammer[\[Nu] + 1 + s - I \[Epsilon], n]/Pochhammer[\[Nu] + 1 - s + I \[Epsilon], n] f[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n]), 
+    (-1)^n Pochhammer[\[Nu] + 1 + s - I \[Epsilon], n]/Pochhammer[\[Nu] + 1 - s + I \[Epsilon], n] fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n]), 
     n--;
   ];
   
