@@ -17,8 +17,8 @@ VerificationTest[
                     "Transmission" -> 1.0000000000000002 - 1.3877787807814457*^-17*I,
                     "Reflection" -> 230676.6511912123 - 151449.79039465528*I |>,
           "Up" -> <|"Transmission" -> 1.0000000000000002 + 0.*I |>|>,
-      "SolutionFunctions" -> {Teukolsky`MST`Private`MSTRadialIn[2, 2, 2, 0.5, 0.2, 
-         1.9800007321197157, -0.33267928615316333, 9.50422289458304 - 1.1367667019179721*I], Teukolsky`MST`Private`MSTRadialUp[2, 2, 
+      "SolutionFunctions" -> {Teukolsky`MST`MST`Private`MSTRadialIn[2, 2, 2, 0.5, 0.2, 
+         1.9800007321197157, -0.33267928615316333, 9.50422289458304 - 1.1367667019179721*I], Teukolsky`MST`MST`Private`MSTRadialUp[2, 2, 
          2, 0.5, 0.2, 1.9800007321197157, -0.33267928615316333, -1805.5571508476348 - 9034.631436940841*I]}|>]
     ,
     TestID->"TeukolskyRadial",
@@ -87,8 +87,8 @@ VerificationTest[
                      "Transmission" -> 1.0000000000000002 - 1.3877787807814457*^-17*I,
                      "Reflection" -> 230676.6511912123 - 151449.79039465528*I |>,
            "Up" -> <|"Transmission" -> 1.0000000000000002 + 0.*I |>|>,
-       "SolutionFunctions" -> {Teukolsky`MST`Private`MSTRadialIn[2, 2, 2, 0.5, 0.2, 
-          1.9800007321197157, -0.33267928615316333, 9.50422289458304 - 1.1367667019179721*I], Teukolsky`MST`Private`MSTRadialUp[2, 2, 
+       "SolutionFunctions" -> {Teukolsky`MST`MST`Private`MSTRadialIn[2, 2, 2, 0.5, 0.2, 
+          1.9800007321197157, -0.33267928615316333, 9.50422289458304 - 1.1367667019179721*I], Teukolsky`MST`MST`Private`MSTRadialUp[2, 2, 
           2, 0.5, 0.2, 1.9800007321197157, -0.33267928615316333, -1805.5571508476348 - 9034.631436940841*I]}|>]["SolutionFunctions"]
     ,
     TestID->"SolutionFunctions"
@@ -150,7 +150,7 @@ VerificationTest[
         <|"Incidence" -> -19.525068736594484 - 2.140661182251906*I,
           "Transmission" -> 1.0000000000000002 - 1.3877787807814457*^-17*I,
           "Reflection" -> 230676.6511912123 - 151449.79039465528*I |>,
-      "SolutionFunctions" -> Teukolsky`MST`Private`MSTRadialIn[2, 2, 2, 0.5, 0.2, 
+      "SolutionFunctions" -> Teukolsky`MST`MST`Private`MSTRadialIn[2, 2, 2, 0.5, 0.2, 
         1.9800007321197157, -0.33267928615316333, 9.50422289458304 - 1.1367667019179721*I]|>]
     ,
     TestID->"Subcase"
