@@ -157,53 +157,52 @@ fn[q_, \[Epsilon]_, \[Kappa]_, \[Tau]_, \[Nu]_, \[Lambda]_, s_, m_, nf_] :=
 (******************************************************************************)
 (*************************** Asymptotic amplitudes ****************************)
 (******************************************************************************)
+Switch[MST`$MasterFunction,
+"ReggeWheeler",
+  prefacInTrans[s_, \[Epsilon]_, \[Tau]_, \[Kappa]_] := E^(I \[Epsilon]);
+  prefacUpTrans[s_, \[Epsilon]_, \[Tau]_, \[Kappa]_] := (2I)^s Exp[I \[Epsilon] Log[\[Epsilon]]];
+  prefacAplus[s_, \[Epsilon]_, \[Tau]_, \[Kappa]_, \[Nu]_] := (2^(-1 - I \[Epsilon]) E^(-((\[Pi] \[Epsilon])/2) + 1/2 I \[Pi] (1 + \[Nu])) Gamma[\[Nu]+I \[Epsilon]+1])/Gamma[\[Nu]-I \[Epsilon]+1];
+  prefacInInc[s_, \[Epsilon]_, \[Tau]_, \[Kappa]_, \[Nu]_, K\[Nu]1_, K\[Nu]2_] := (K\[Nu]1 - I E^(-I \[Pi] \[Nu]) Sin[\[Pi] (\[Nu] + I \[Epsilon])] / Sin[\[Pi] (\[Nu] - I \[Epsilon])] K\[Nu]2);,
+"Teukolsky", 
+  prefacInTrans[s_, \[Epsilon]_, \[Tau]_, \[Kappa]_] := 4^s \[Kappa]^(2 s) E^(I (\[Epsilon] + \[Tau]) \[Kappa] (1/2 + Log[\[Kappa]]/(1 + \[Kappa])));
+  prefacUpTrans[s_, \[Epsilon]_, \[Tau]_, \[Kappa]_] := (\[Epsilon]/2)^(-1 - 2 s) Exp[I \[Epsilon] (Log[\[Epsilon]] - (1 - \[Kappa])/2)];
+  prefacAplus[s_, \[Epsilon]_, \[Tau]_, \[Kappa]_, \[Nu]_] := (2^(-1 + s - I \[Epsilon]) E^(-((\[Pi] \[Epsilon])/2) + 1/2 I \[Pi] (1 - s + \[Nu])) Gamma[1 - s + I \[Epsilon] + \[Nu]])/Gamma[1 + s - I \[Epsilon] + \[Nu]];
+  prefacInInc[s_, \[Epsilon]_, \[Tau]_, \[Kappa]_, \[Nu]_, K\[Nu]1_, K\[Nu]2_] := (\[Epsilon]/2)^-1 (K\[Nu]1 - I E^(-I \[Pi] \[Nu]) Sin[\[Pi] (\[Nu] - s + I \[Epsilon])] / Sin[\[Pi] (\[Nu] + s - I \[Epsilon])] K\[Nu]2) Exp[-I \[Epsilon] (Log[\[Epsilon]] - (1 - \[Kappa])/2)];,
+_, Abort[];
+];
+
 Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_] :=
- Module[{\[Kappa], \[Tau], \[Epsilon]p, \[Omega], K\[Nu], K\[Nu]1, K\[Nu]2, Aplus, Btrans, Ctrans, Binc, Bref, n, fSumUp, fSumDown, fSumK\[Nu]1Up, fSumK\[Nu]1Down, fSumK\[Nu]2Up, fSumK\[Nu]2Down, fSumCUp, fSumCDown},
+ Module[{\[Kappa], \[Tau], \[Epsilon]p, \[Omega], K\[Nu], K\[Nu]1, K\[Nu]2, Aminus, Aplus, InTrans, UpTrans, InInc, InRef, n, fSumUp, fSumDown, fSumK\[Nu]1Up, fSumK\[Nu]1Down, fSumK\[Nu]2Up, fSumK\[Nu]2Down, fSumAminusUp, fSumAminusDown},
  Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], fn},
   \[Kappa] = Sqrt[1 - q^2];
   \[Tau] = (\[Epsilon] - m q)/\[Kappa];
   \[Epsilon]p = 1/2 (\[Tau] + \[Epsilon]);
   \[Omega] = \[Epsilon] / 2;
 
-  (* All of the formulae are taken from Sasaki & Tagoshi, Living Rev. Relativity 6:6 *)
+  (* All of the formulae are taken from Sasaki & Tagoshi, Living Rev. Relativity 6:6 (ST)
+     and Casals & Ottewill, Phys. Rev. D 92, 124055 (CO) *)
 
   (* There are three formally infinite sums which must be computed, but which may be numerically 
      truncated after a finite number of terms. We determine how many terms to include by summing
      until the result doesn't change. *)
 
-  (* Sum MST series coefficients with no extra factors*)
+  (* Sum MST series coefficients with no extra factors *)
   fSumUp = fSumDown = 0;
 
   n = 0;
   While[fSumUp != (fSumUp += 
-    fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n]),
+    fIn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n]),
     n++;
   ];
 
   n = -1;
   While[fSumDown != (fSumDown += 
-    fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n]), 
+    fIn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n]), 
     n--;
   ];
-  
-    (* Sum MST series coefficients for A+RW*)
-  fSumUpAplusRW = fSumDownAplusRW = 0;
 
-  n = 0;
-  While[fSumUpAplusRW != (fSumUpAplusRW += 
-    Gamma[n+\[Nu]-I \[Epsilon]+1+s]Pochhammer[\[Nu]+I \[Epsilon]+1,n]/(Gamma[n+\[Nu]+I \[Epsilon]+1-s]Pochhammer[\[Nu]-I \[Epsilon]+1,n])fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n]),
-    n++;
-  ];
+  (* Sums appearing in ST Eq. (165) with r=0. We evaluate these with 1: \[Nu] and 2:-\[Nu]-1 *)
 
-  n = -1;
-  While[fSumDownAplusRW != (fSumDownAplusRW += 
-     Gamma[n+\[Nu]-I \[Epsilon]+1+s]Pochhammer[\[Nu]+I \[Epsilon]+1,n]/(Gamma[n+\[Nu]+I \[Epsilon]+1-s]Pochhammer[\[Nu]-I \[Epsilon]+1,n])fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n]), 
-    n--;
-  ];
-  
-  (* Sums appearing in ST Eq. (165). We evaluate these with 1: \[Nu] and 2:-\[Nu]-1 *)
-  (*integer r chosen to be 0?*)
-  
   fSumK\[Nu]1Up = fSumK\[Nu]1Down = 0;
 
   n = 0;
@@ -232,63 +231,46 @@ Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_]
     n--;
   ];
 
-  (* Sum appearing in ST Eq. (158) *)
-  fSumCUp = fSumCDown = 0;
+  (* Sum appearing in ST (158), CO (3.19) *)
+  fSumAminusUp = fSumAminusDown = 0;
 
   n = 0;
-  While[fSumCUp != (fSumCUp += 
+  While[fSumAminusUp != (fSumAminusUp +=
     (-1)^n Pochhammer[\[Nu] + 1 + s - I \[Epsilon], n]/Pochhammer[\[Nu] + 1 - s + I \[Epsilon], n] fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n]),
     n++;
   ];
 
   n = -1;
-  While[fSumCDown != (fSumCDown += 
+  While[fSumAminusDown != (fSumAminusDown +=
     (-1)^n Pochhammer[\[Nu] + 1 + s - I \[Epsilon], n]/Pochhammer[\[Nu] + 1 - s + I \[Epsilon], n] fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n]), 
     n--;
   ];
   
+  (* In transmission coefficient: Btrans in ST (167) and CO (3.12) *)
+  InTrans = prefacInTrans[s, \[Epsilon], \[Tau], \[Kappa]] (fSumUp+fSumDown);
 
-  (* K\[Nu]: ST Eq. (165) *)
-  (*K\[Nu] are same for RW case*)
+  (* A-: ST (158), CO (3.19) *)
+  Aminus = 2^(-s - 1 + I \[Epsilon]) E^(-\[Pi] \[Epsilon] / 2 - I \[Pi] (\[Nu]+1+s) / 2) (fSumAminusUp+fSumAminusDown);
+
+  (* Up Transmission coefficient: Ctrans in ST (170), CO (3.20) *)
+  UpTrans = prefacUpTrans[s, \[Epsilon], \[Tau], \[Kappa]] Aminus;
+
+  (* K\[Nu]: ST (165), CO (3.32) *)
   K\[Nu]1 = ((2^-\[Nu]) (E^(I \[Epsilon] \[Kappa])) ((\[Epsilon] \[Kappa])^(s - \[Nu])) Gamma[1 - s - 2 I \[Epsilon]p] Gamma[2 + 2 \[Nu]])/(Gamma[1 - s + I \[Epsilon] + \[Nu]] Gamma[1 + s + I \[Epsilon] + \[Nu]] Gamma[1 + \[Nu] + I \[Tau]]) fSumK\[Nu]1Up / fSumK\[Nu]1Down;
-
   K\[Nu]2 = ((2^-(-1-\[Nu])) (E^(I \[Epsilon] \[Kappa])) ((\[Epsilon] \[Kappa])^(s - (-1-\[Nu]))) Gamma[1 - s - 2 I \[Epsilon]p] Gamma[2 + 2 (-1-\[Nu])])/(Gamma[1 - s + I \[Epsilon] + (-1-\[Nu])] Gamma[1 + s + I \[Epsilon] + (-1-\[Nu])] Gamma[1 + (-1-\[Nu]) + I \[Tau]]) fSumK\[Nu]2Up / fSumK\[Nu]2Down;
 
-  (*A- are same for RW case, A+ are different*)
-  (* A+: ST Eq. (157) *)
-  AplusT = (2^(-1 + s - I \[Epsilon]) E^(-((\[Pi] \[Epsilon])/2) + 1/2 I \[Pi] (1 - s + \[Nu])) Gamma[1 - s + I \[Epsilon] + \[Nu]])/Gamma[1 + s - I \[Epsilon] + \[Nu]] (fSumUp+fSumDown);
-  (*CO()3.38*)
-  AplusRW = (2^(-1 - I \[Epsilon]) E^(-((\[Pi] \[Epsilon])/2) + 1/2 I \[Pi] (1 + \[Nu])) Gamma[1 - s + I \[Epsilon] + \[Nu]]Gamma[\[Nu]+I \[Epsilon]+1])/(Gamma[1 + s - I \[Epsilon] + \[Nu]] Gamma[\[Nu]-I \[Epsilon]+1])(fSumUpAplusRW+fSumDownAplusRW);
-  (* A-: ST Eq. (158) *)
-  AminusT = 2^(-1 - s + I \[Epsilon]) E^(-((\[Pi] \[Epsilon])/2) - 1/2 I \[Pi] (1 + s + \[Nu])) (fSumCUp+fSumCDown);
-  (*Same as T CO(3.19) chage to Schwarzschild, no other changes.*)
-  AminusRW = (2^(-1 + s - I \[Epsilon]) E^(-((\[Pi] \[Epsilon])/2) + 1/2 I \[Pi] (1 - s + \[Nu])) Gamma[1 - s + I \[Epsilon] + \[Nu]])/Gamma[1 + s - I \[Epsilon] + \[Nu]] (fSumUp+fSumDown);
-  
-  
-  rp=1-Sqrt[1-q^2];
-  c0=-6 I \[Epsilon] +\[Lambda](\[Lambda]+2)-6 q \[Epsilon](q \[Epsilon]/2-m);
-  d=Sqrt[2 rp]((8-12 I \[Epsilon]-4 \[Epsilon]^2)rp^2+(12 I q m-16+8 q m \[Epsilon]+12 I \[Epsilon])rp-4 q^2 m^2-12 I q m+8);
-  (* Btrans: ST Eq. (167) *)
-  Btrans = 4^s \[Kappa]^(2 s) E^(I (\[Epsilon] + \[Tau]) \[Kappa] (1/2 + Log[\[Kappa]]/(1 + \[Kappa]))) (fSumUp+fSumDown);
-(*CO68*)
-Atrans=d Btrans;
-  (* Binc: ST Eq. (168) *)
-  Binc = \[Omega]^-1 (K\[Nu]1 - I E^(-I \[Pi] \[Nu]) Sin[\[Pi] (\[Nu] - s + I \[Epsilon])] / Sin[\[Pi] (\[Nu] + s - I \[Epsilon])] K\[Nu]2) Exp[-I \[Epsilon] (Log[\[Epsilon]] - (1 - \[Kappa])/2)] Aplus;
-(*(CO 66)*)
-Ainc=-\[Epsilon]^2 Binc; 
-  (* Bref: ST Eq. (169) *)
-  Bref = Ctrans (K\[Nu]1 + I E^(I \[Pi] \[Nu]) K\[Nu]2);
-  (*CO 67*)
-  Aref=-c0/\[Epsilon]^2 Bref;
-(*Can use Chandrasekhar to compute Ainc, Aref, Atrans and similarly for Dinc, Dref, Dtrans*)
-(*need Cref and Cinc*)
-  (* Ctrans: ST Eqs. (158) and (170) *)
-  Ctrans = (\[Epsilon]/2)^(-1 - 2 s) Exp[I \[Epsilon] (Log[\[Epsilon]] - (1 - \[Kappa])/2)] 2^(-1 - s + I \[Epsilon]) Exp[-\[Pi] (\[Epsilon] + I (\[Nu] + 1 + s))/2] (fSumCUp+fSumCDown);
-(*CheckThis:*)
-Dtrans= d Ctrans;
+  (* In reflection coefficient: Bref in ST (169), CO (3.37) *)
+  InRef = UpTrans (K\[Nu]1 + I E^(I \[Pi] \[Nu]) K\[Nu]2);
+
+  (* A+: ST (157), CO (3.38) and (3.41) *)
+  Aplus = prefacAplus[s, \[Epsilon], \[Tau], \[Kappa], \[Nu]] (fSumUp+fSumDown);
+
+  (* In incidence coefficient: Binc from ST (168), CO (3.36) and (3.39) *)
+  InInc = prefacInInc[s, \[Epsilon], \[Tau], \[Kappa], \[Nu], K\[Nu]1, K\[Nu]2] Aplus;
+
   (* Return results as an Association *)
-  <| "In" -> <| "Incidence" -> Binc, "Transmission" -> Btrans, "Reflection" -> Bref|>,
-     "Up" -> <| "Transmission" -> Ctrans |>
+  <| "In" -> <| "Incidence" -> InInc, "Transmission" -> InTrans, "Reflection" -> InRef|>,
+     "Up" -> <| "Transmission" -> UpTrans |>
    |>
 ]];
 
@@ -310,7 +292,7 @@ Switch[MST`$MasterFunction,
   fUp[q_, \[Epsilon]_, \[Kappa]_, \[Tau]_, \[Nu]_, \[Lambda]_, s_, m_, n_] := (-1)^n Pochhammer[\[Nu] + 1 + s - I \[Epsilon], n]/Pochhammer[\[Nu] + 1 - s + I \[Epsilon], n] fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n];
   prefacUp[s_, \[Epsilon]_, \[Kappa]_, \[Tau]_, \[Nu]_, zhat_] := 2^\[Nu] E^(-\[Pi] \[Epsilon]) E^(-I \[Pi] (\[Nu]+1)) E^(I zhat) zhat^(\[Nu]+I (\[Epsilon]+\[Tau])/2) (zhat-\[Epsilon] \[Kappa])^(-I (\[Epsilon]+\[Tau])/2) zhat;,
 "Teukolsky", 
-  fIn[q_, \[Epsilon]_, \[Kappa]_, \[Tau]_, \[Nu]_, \[Lambda]_, s_, m_, nDown_] := fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nDown];
+  fIn[q_, \[Epsilon]_, \[Kappa]_, \[Tau]_, \[Nu]_, \[Lambda]_, s_, m_, n_] := fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n];
   prefacIn[s_, \[Epsilon]_, \[Tau]_, \[Kappa]_, x_] := (-x)^(-s - I (\[Epsilon] + \[Tau])/2) (1 - x)^(I (\[Epsilon] - \[Tau])/2) E^(I \[Epsilon] \[Kappa] x);
   fUp[q_, \[Epsilon]_, \[Kappa]_, \[Tau]_, \[Nu]_, \[Lambda]_, s_, m_, n_] := (-1)^n Pochhammer[\[Nu] + 1 + s - I \[Epsilon], n]/Pochhammer[\[Nu] + 1 - s + I \[Epsilon], n] fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n];
   prefacUp[s_, \[Epsilon]_, \[Kappa]_, \[Tau]_, \[Nu]_, zhat_] := 2^\[Nu] E^(-\[Pi] \[Epsilon]) E^(-I \[Pi] (\[Nu]+1)) E^(I zhat) zhat^(\[Nu]+I (\[Epsilon]+\[Tau])/2) (zhat-\[Epsilon] \[Kappa])^(-I (\[Epsilon]+\[Tau])/2) E^(-I \[Pi] s) (zhat-\[Epsilon] \[Kappa])^(-s);
