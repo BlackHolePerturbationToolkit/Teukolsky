@@ -1,6 +1,6 @@
 (* ::Package:: *)
 
-BeginPackage["Teukolsky`RenormalizedAngularMomentum`",
+BeginPackage[MST`$MasterFunction<>"`MST`RenormalizedAngularMomentum`",
   {"SpinWeightedSpheroidalHarmonics`"}
 ];
 
