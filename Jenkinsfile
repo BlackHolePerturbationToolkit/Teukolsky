@@ -12,6 +12,10 @@ pipeline {
           git 'https://github.com/BlackHolePerturbationToolkit/SpinWeightedSpheroidalHarmonics.git'
         }
 
+        dir(path: 'KerrGeodesics') {
+          git 'https://github.com/BlackHolePerturbationToolkit/KerrGeodesics.git'
+        }
+
         dir(path: 'Teukolsky') {
           checkout scm
           sh 'Tests/AllTests.wls'
