@@ -92,7 +92,57 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, OptionsPattern[]
 (*Output format*)
 
 
-Format[TeukolskyRadialFunction[s_,l_,m_,a_,\[Omega]_,assoc_]] := "TeukolskyRadialFunction["<>ToString[s]<>","<>ToString[l]<>","<>ToString[m]<>","<>ToString[a]<>","<>ToString[\[Omega]]<>",<<>>]";
+(* ::Subsubsection::Closed:: *)
+(*Icons*)
+
+
+icons = <|
+ "In" -> Graphics[{
+         Line[{{0,1/2},{1/2,1},{1,1/2},{1/2,0},{0,1/2}}],
+         Line[{{3/4,1/4},{1/2,1/2}}],
+         {Arrowheads[0.2],Arrow[Line[{{1/2,1/2},{1/4,3/4}}]]},
+         {Arrowheads[0.2],Arrow[Line[{{1/2,1/2},{3/4,3/4}}]]}},
+         Background -> White,
+         ImageSize -> Dynamic[{Automatic, 3.5 CurrentValue["FontCapHeight"]/AbsoluteCurrentValue[Magnification]}]],
+ "Up" -> Graphics[{
+         Line[{{0,1/2},{1/2,1},{1,1/2},{1/2,0},{0,1/2}}],
+         Line[{{1/4,1/4},{1/2,1/2}}],
+         {Arrowheads[0.2],Arrow[Line[{{1/2,1/2},{1/4,3/4}}]]},
+         {Arrowheads[0.2],Arrow[Line[{{1/2,1/2},{3/4,3/4}}]]}},
+         Background -> White,
+         ImageSize -> Dynamic[{Automatic, 3.5 CurrentValue["FontCapHeight"]/AbsoluteCurrentValue[Magnification]}]]
+|>;
+
+
+(* ::Subsubsection::Closed:: *)
+(*Formatting of TeukolskyRadialFunction*)
+
+
+TeukolskyRadialFunction /:
+ MakeBoxes[trf:TeukolskyRadialFunction[s_, l_, m_, a_, \[Omega]_, assoc_], form:(StandardForm|TraditionalForm)] :=
+ Module[{summary, extended},
+  summary = {Row[{BoxForm`SummaryItem[{"s: ", s}], "  ",
+                  BoxForm`SummaryItem[{"l: ", l}], "  ",
+                  BoxForm`SummaryItem[{"m: ", m}], "  ",
+                  BoxForm`SummaryItem[{"a: ", a}], "  ",
+                  BoxForm`SummaryItem[{"\[Omega]: ", \[Omega]}]}],
+             BoxForm`SummaryItem[{"Domain: ", assoc["Domain"]}],
+             BoxForm`SummaryItem[{"Boundary Conditions: " , assoc["BoundaryConditions"]}]};
+  extended = {BoxForm`SummaryItem[{"Eigenvalue: ", assoc["Eigenvalue"]}],
+              BoxForm`SummaryItem[{"Transmission Amplitude: ", assoc["Amplitudes", "Transmission"]}],
+              BoxForm`SummaryItem[{"Incidence Amplitude: ", Lookup[assoc["Amplitudes"], "Incidence", Missing]}],
+              BoxForm`SummaryItem[{"Reflection Amplitude: ", Lookup[assoc["Amplitudes"], "Reflection", Missing]}],
+              BoxForm`SummaryItem[{"Method: ", First[assoc["Method"]]}],
+              BoxForm`SummaryItem[{"Method options: ",Column[Rest[assoc["Method"]]]}]};
+  BoxForm`ArrangeSummaryBox[
+    TeukolskyRadialFunction,
+    trf,
+    Lookup[icons, assoc["BoundaryConditions"], None],
+    summary,
+    extended,
+    form,
+    "Interpretable" -> Automatic]
+];
 
 
 (* ::Subsection::Closed:: *)
