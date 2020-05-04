@@ -1,7 +1,15 @@
 (* ::Package:: *)
 
-(* ::Chapter:: *)
-(*Convolve Source*)
+(* ::Title:: *)
+(*ConvolveSource*)
+
+
+(* ::Section::Closed:: *)
+(*Create Package*)
+
+
+(* ::Subsection::Closed:: *)
+(*BeginPackage*)
 
 
 BeginPackage["Teukolsky`ConvolveSource`",
@@ -9,7 +17,16 @@ BeginPackage["Teukolsky`ConvolveSource`",
 			  "Teukolsky`TeukolskySource`",
 			  "SpinWeightedSpheroidalHarmonics`"}];
 
+
+(* ::Subsection::Closed:: *)
+(*Begin Private section*)
+
+
 Begin["`Private`"];
+
+
+(* ::Section::Closed:: *)
+(*ConvolveSource*)
 
 
 ConvolveSource[R_TeukolskyRadialFunction, S_SpinWeightedSpheroidalHarmonicSFunction, TS_TeukolskySourceObject]:=Module[{s, orbit},
@@ -102,6 +119,10 @@ ConvolveSourcePointParticleCircular[0, R_TeukolskyRadialFunction, SH_SpinWeighte
 	<| "ZInf" -> ZOut, "ZHor" -> ZIn |>
 
 ]
+
+
+(* ::Section::Closed:: *)
+(*End Package*)
 
 
 End[];

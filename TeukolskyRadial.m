@@ -1,7 +1,15 @@
 (* ::Package:: *)
 
-(* ::Chapter:: *)
-(*TeukolskyRadial: calculate the radial solutions to the Teukolsky equation*)
+(* ::Title:: *)
+(*TeukolskyRadial*)
+
+
+(* ::Section::Closed:: *)
+(*Create Package*)
+
+
+(* ::Subsection::Closed:: *)
+(*BeginPackage*)
 
 
 BeginPackage["Teukolsky`TeukolskyRadial`",
@@ -10,10 +18,32 @@ BeginPackage["Teukolsky`TeukolskyRadial`",
    "Teukolsky`MST`MST`"}
 ];
 
+
+(* ::Subsection::Closed:: *)
+(*Usage messages*)
+
+
 TeukolskyRadial::usage = "TeukolskyRadial[s,l,m,a,\[Omega]] computes solutions to the radial Teukolsky equation."
 TeukolskyRadialFunction::usage = "TeukolskyRadialFunction[s, l, m, a, \[Omega], assoc] an object representing solutions to the Teukolsky equation."
 
+
+(* ::Subsection:: *)
+(*Error Messages*)
+
+
+(* ::Subsection::Closed:: *)
+(*Begin Private section*)
+
+
 Begin["`Private`"];
+
+
+(* ::Section::Closed:: *)
+(*TeukolskyRadial*)
+
+
+(* ::Subsection::Closed:: *)
+(*TeukolskyRadial*)
 
 
 Options[TeukolskyRadial] = {Method -> {"MST", "RenormalizedAngularMomentum" -> "Monodromy"}, "BoundaryConditions" -> {"In", "Up"}};
@@ -54,7 +84,20 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, OptionsPattern[]
 ];
 
 
+(* ::Section::Closed:: *)
+(*TeukolskyRadialFunction*)
+
+
+(* ::Subsection::Closed:: *)
+(*Output format*)
+
+
 Format[TeukolskyRadialFunction[s_,l_,m_,a_,\[Omega]_,assoc_]] := "TeukolskyRadialFunction["<>ToString[s]<>","<>ToString[l]<>","<>ToString[m]<>","<>ToString[a]<>","<>ToString[\[Omega]]<>",<<>>]";
+
+
+(* ::Subsection::Closed:: *)
+(*Accessing attributes*)
+
 
 TeukolskyRadialFunction[s_,l_,m_,a_,\[Omega]_,assoc_][y:("In"|"Up")] := Module[{assocNew=assoc},
 	assocNew["SolutionFunctions"] = First[Pick[assoc["SolutionFunctions"], assoc["BoundaryConditions"], y]];
@@ -62,7 +105,14 @@ TeukolskyRadialFunction[s_,l_,m_,a_,\[Omega]_,assoc_][y:("In"|"Up")] := Module[{
 	assocNew["BoundaryConditions"] = y;
 	TeukolskyRadialFunction[s, l, m, a, \[Omega], assocNew]
 ];
+
 TeukolskyRadialFunction[s_,l_,m_,a_,\[Omega]_,assoc_][y_String] /; !MemberQ[{"SolutionFunctions"},y]:= assoc[y];
+
+
+(* ::Subsection::Closed:: *)
+(*Numerical evaluation*)
+
+
 TeukolskyRadialFunction[s_,l_,m_,a_,\[Omega]_,assoc_][r_?NumericQ] := Module[{},
 	If[
 		Head[assoc["BoundaryConditions"]] === List,
@@ -78,6 +128,10 @@ Derivative[n_][TeukolskyRadialFunction[s_,l_,m_,a_,\[Omega]_,assoc_]][r_?Numeric
 		Return[Derivative[n][assoc["SolutionFunctions"]][r]/assoc["Amplitudes"]["Transmission"]]
 	];	
 ];
+
+
+(* ::Section::Closed:: *)
+(*End Package*)
 
 
 End[];

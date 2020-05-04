@@ -1,16 +1,37 @@
 (* ::Package:: *)
 
-(* ::Chapter:: *)
+(* ::Title:: *)
 (*TeukolskySource*)
+
+
+(* ::Section::Closed:: *)
+(*Create Package*)
+
+
+(* ::Subsection::Closed:: *)
+(*BeginPackage*)
 
 
 BeginPackage["Teukolsky`TeukolskySource`"];
 
-TeukolskySourceObject::usage = "TeukolskySourceObject[assoc] an object which contains a Teukolsky source"
 
+(* ::Subsection::Closed:: *)
+(*Usage messages*)
+
+
+TeukolskySourceObject::usage = "TeukolskySourceObject[assoc] an object which contains a Teukolsky source"
 TeukolskyPointParticleSource::usage = "TeukolskyPointParticleSource[s, orbit] Point particle source for the Teukolsky equation"
 
+
+(* ::Subsection::Closed:: *)
+(*Begin Private section*)
+
+
 Begin["`Private`"];
+
+
+(* ::Section::Closed:: *)
+(*TeukolskyPointParticleSource*)
 
 
 TeukolskyPointParticleSource[s_, orbit_]:=Module[{assoc},
@@ -94,6 +115,10 @@ TeukolskyPointParticleSourceCircular[-2, orbit_] := Module[{assoc, a,r0, E0, Lz,
 Format[TeukolskySourceObject[assoc_]] := "TeukolskySourceObject[<<>>]";
 
 TeukolskySourceObject[assoc_][string_] := assoc[string]
+
+
+(* ::Section::Closed:: *)
+(*End Package*)
 
 
 End[];

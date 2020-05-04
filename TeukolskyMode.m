@@ -1,7 +1,15 @@
 (* ::Package:: *)
 
-(* ::Chapter:: *)
+(* ::Title:: *)
 (*TeukolskyMode*)
+
+
+(* ::Section::Closed:: *)
+(*Create Package*)
+
+
+(* ::Subsection::Closed:: *)
+(*BeginPackage*)
 
 
 BeginPackage["Teukolsky`TeukolskyMode`",
@@ -13,11 +21,28 @@ BeginPackage["Teukolsky`TeukolskyMode`",
 	 "SpinWeightedSpheroidalHarmonics`"}
 ];
 
-TeukolskyModeObject::usage = "TeukolskyModeObject[assoc] an object which contains a Teukolsky mode"
 
+(* ::Subsection::Closed:: *)
+(*Usage messages*)
+
+
+TeukolskyModeObject::usage = "TeukolskyModeObject[assoc] an object which contains a Teukolsky mode"
 TeukolskyPointParticleMode::usage = "TeukolskyPointParticleMode[s, l, m, n, k, orbit] Solve the Teukolsky equation with a point particle source"
 
+
+(* ::Subsection:: *)
+(*Error Messages*)
+
+
+(* ::Subsection::Closed:: *)
+(*Begin Private section*)
+
+
 Begin["`Private`"];
+
+
+(* ::Section::Closed:: *)
+(*TeukolskyPointParticleMode*)
 
 
 TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer, orbit_KerrGeoOrbitFunction] := Module[{source},
@@ -79,9 +104,26 @@ TeukolskyModeObject[assoc]
 ]
 
 
+(* ::Section::Closed:: *)
+(*TeukolskyMode*)
+
+
+(* ::Subsection::Closed:: *)
+(*Output format*)
+
+
 Format[TeukolskyModeObject[assoc_]] := "TeukolskyModeObject["<>ToString[assoc["s"]]<>","<>ToString[assoc["l"]]<>","<>ToString[assoc["m"]]<>","<>ToString[assoc["n"]]<>","<>ToString[assoc["k"]]<>",<<>>]";
 
+
+(* ::Subsection::Closed:: *)
+(*Accessing attributes*)
+
+
 TeukolskyModeObject[assoc_][string_] := assoc[string]
+
+
+(* ::Section::Closed:: *)
+(*End Package*)
 
 
 End[];
