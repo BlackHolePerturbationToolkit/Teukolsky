@@ -27,8 +27,11 @@ TeukolskyRadial::usage = "TeukolskyRadial[s,l,m,a,\[Omega]] computes solutions t
 TeukolskyRadialFunction::usage = "TeukolskyRadialFunction[s, l, m, a, \[Omega], assoc] an object representing solutions to the Teukolsky equation."
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Error Messages*)
+
+
+TeukolskyRadialFunction::dmval = "Radius `1` lies outside the computational domain. Results may be incorrect.";
 
 
 (* ::Subsection::Closed:: *)
@@ -149,35 +152,38 @@ TeukolskyRadialFunction /:
 (*Accessing attributes*)
 
 
-TeukolskyRadialFunction[s_,l_,m_,a_,\[Omega]_,assoc_][y:("In"|"Up")] := Module[{assocNew=assoc},
-	assocNew["SolutionFunctions"] = First[Pick[assoc["SolutionFunctions"], assoc["BoundaryConditions"], y]];
-	assocNew["Amplitudes"] = First[Pick[assoc["Amplitudes"], assoc["BoundaryConditions"], y]];
-	assocNew["BoundaryConditions"] = y;
-	TeukolskyRadialFunction[s, l, m, a, \[Omega], assocNew]
-];
-
-TeukolskyRadialFunction[s_,l_,m_,a_,\[Omega]_,assoc_][y_String] /; !MemberQ[{"SolutionFunctions"},y]:= assoc[y];
+TeukolskyRadialFunction[s_, l_, m_, a_, \[Omega]_, assoc_][y_String] /; !MemberQ[{"RadialFunction"}, y] :=
+  assoc[y];
 
 
 (* ::Subsection::Closed:: *)
 (*Numerical evaluation*)
 
 
-TeukolskyRadialFunction[s_,l_,m_,a_,\[Omega]_,assoc_][r_?NumericQ] := Module[{},
-	If[
-		Head[assoc["BoundaryConditions"]] === List,
-		Return[Association[MapThread[#1 -> #2[r]/assoc["Amplitudes"][#1]["Transmission"] &, {assoc["BoundaryConditions"], assoc["SolutionFunctions"]}]]], 
-		Return[assoc["SolutionFunctions"][r]/assoc["Amplitudes"]["Transmission"]]
-	];	
-];
+SetAttributes[TeukolskyRadialFunction, {NumericFunction}];
 
-Derivative[n_][TeukolskyRadialFunction[s_,l_,m_,a_,\[Omega]_,assoc_]][r_?NumericQ] := Module[{},
-	If[
-		Head[assoc["BoundaryConditions"]] === List,
-		Return[Association[MapThread[#1 -> Derivative[n][#2][r]/assoc["Amplitudes"][#1]["Transmission"] &, {assoc["BoundaryConditions"], assoc["SolutionFunctions"]}]]], 
-		Return[Derivative[n][assoc["SolutionFunctions"]][r]/assoc["Amplitudes"]["Transmission"]]
-	];	
-];
+
+outsideDomainQ[r_, rmin_, rmax_] := Min[r]<rmin || Max[r]>rmax;
+
+
+TeukolskyRadialFunction[s_, l_, m_, a_, \[Omega]_, assoc_][r:(_?NumericQ|{_?NumericQ..})] :=
+ Module[{rmin, rmax},
+  {rmin, rmax} = assoc["Domain"];
+  If[outsideDomainQ[r, rmin, rmax],
+    Message[TeukolskyRadialFunction::dmval, #]& /@ Select[Flatten[{r}], outsideDomainQ[#, rmin, rmax]&];
+  ];
+  Quiet[assoc["RadialFunction"][r], InterpolatingFunction::dmval]
+ ];
+
+
+Derivative[n_][TeukolskyRadialFunction[s_,l_,m_,a_,\[Omega]_,assoc_]][r:(_?NumericQ|{_?NumericQ..})] :=
+ Module[{rmin, rmax},
+  {rmin, rmax} = assoc["Domain"];
+  If[outsideDomainQ[r, rmin, rmax],
+    Message[TeukolskyRadialFunction::dmval, #]& /@ Select[Flatten[{r}], outsideDomainQ[#, rmin, rmax]&];
+  ];
+  Quiet[Derivative[n][assoc["RadialFunction"]][r], InterpolatingFunction::dmval]
+ ];
 
 
 (* ::Section::Closed:: *)
