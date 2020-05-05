@@ -23,8 +23,8 @@ BeginPackage["Teukolsky`TeukolskyRadial`",
 (*Usage messages*)
 
 
-TeukolskyRadial::usage = "TeukolskyRadial[s,l,m,a,\[Omega]] computes solutions to the radial Teukolsky equation."
-TeukolskyRadialFunction::usage = "TeukolskyRadialFunction[s, l, m, a, \[Omega], assoc] an object representing solutions to the Teukolsky equation."
+TeukolskyRadial::usage = "TeukolskyRadial[s,l,m,a,\[Omega]] computes homogeneous solutions to the radial Teukolsky equation."
+TeukolskyRadialFunction::usage = "TeukolskyRadialFunction[s, l, m, a, \[Omega], assoc] is an object representing a homogeneous solution to the radial Teukolsky equation."
 
 
 (* ::Subsection::Closed:: *)
