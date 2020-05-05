@@ -19,10 +19,6 @@ BeginPackage["Teukolsky`TeukolskySource`"];
 (*Usage messages*)
 
 
-TeukolskySourceObject::usage = "TeukolskySourceObject[assoc] an object which contains a Teukolsky source"
-TeukolskyPointParticleSource::usage = "TeukolskyPointParticleSource[s, orbit] Point particle source for the Teukolsky equation"
-
-
 (* ::Subsection::Closed:: *)
 (*Begin Private section*)
 
