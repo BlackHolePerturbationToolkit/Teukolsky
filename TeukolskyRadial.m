@@ -31,6 +31,9 @@ TeukolskyRadialFunction::usage = "TeukolskyRadialFunction[s, l, m, a, \[Omega], 
 (*Error Messages*)
 
 
+TeukolskyRadial::precw = "The precision of `1`=`2` is less than WorkingPrecision (`3`).";
+TeukolskyRadial::optx = "Unknown options in `1`";
+TeukolskyRadial::dm = "Option `1` is not valid with BoundaryConditions \[RightArrow] `2`.";
 TeukolskyRadialFunction::dmval = "Radius `1` lies outside the computational domain. Results may be incorrect.";
 
 
@@ -46,44 +49,177 @@ Begin["`Private`"];
 
 
 (* ::Subsection::Closed:: *)
+(*Sasaki-Nakamura Method*)
+
+
+Options[TeukolskyRadialSasakiNakamura] = Join[
+  {"Domain" -> None},
+  FilterRules[Options[NDSolve], Except[WorkingPrecision|AccuracyGoal|PrecisionGoal]]];
+
+
+domainQ[domain_] := MatchQ[domain, {_?NumericQ, _?NumericQ} | (_?NumericQ) | All];
+
+
+TeukolskyRadialSasakiNakamura[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, BCs_, {wp_, prec_, acc_}, opts:OptionsPattern[]] :=
+ Module[{\[Lambda], TRF, norms, ndsolveopts, solFuncs, domains},
+  (* Compute the eigenvalue *)
+  \[Lambda] = SpinWeightedSpheroidalEigenvalue[s, l, m, a \[Omega]];
+
+  (* Function to construct a single TeukolskyRadialFunction *)
+  TRF[bc_, ns_, sf_, domain_, ndsolveopts___] :=
+   Module[{solutionFunction},
+    solutionFunction = sf[domain];
+    TeukolskyRadialFunction[s, l, \[Omega],
+     Association["s" -> s, "l" -> l, "m" -> m, "a" -> a, "\[Omega]" -> \[Omega], "Eigenvalue" -> \[Lambda],
+      "Method" -> {"SasakiNakamura", ndsolveopts},
+      "BoundaryConditions" -> bc, "Amplitudes" -> ns,
+      "Domain" -> If[domain === All, {2, \[Infinity]}, First[solutionFunction["Domain"]]],
+      "RadialFunction" -> solutionFunction
+     ]
+    ]
+   ];
+
+  (* Domain over which the numerical solution can be evaluated *)
+  domains = OptionValue["Domain"];
+  If[ListQ[BCs],
+    If[!MatchQ[domains, (List|Association)[Rule["In"|"Up",_?domainQ]..]],
+      Message[TeukolskyRadial::dm, "Domain" -> domains, BCs];
+      Return[$Failed];
+    ];
+    domains = Lookup[domains, BCs, None]; 
+    If[!AllTrue[domains, domainQ],
+      Message[TeukolskyRadial::dm, "Domain" -> OptionValue["Domain"], BCs];
+      Return[$Failed];
+    ];
+  ,
+    If[!domainQ[domains],
+      Message[TeukolskyRadial::dm, "Domain" -> domains, BCs];
+      Return[$Failed];
+    ];
+  ];
+
+  (* Asymptotic normalizations such that we have unit transmission coefficient *)
+  norms = <|"In" -> <|"Transmission" -> 1|>, "Up" -> <|"Transmission" -> 1|>|>;
+  norms = Lookup[norms, BCs];
+
+  (* Solution functions for the specified boundary conditions *)
+  ndsolveopts = Sequence@@FilterRules[{opts}, Options[NDSolve]];
+  solFuncs =
+   <|"In" :> $Failed,
+     "Up" :> Teukolsky`SasakiNakamura`Private`TeukolskyRadialUp[s, \[Lambda], m, a, \[Omega](*, WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> acc, ndsolveopts*)]
+     |>;
+  solFuncs = Lookup[solFuncs, BCs];
+
+  If[ListQ[BCs],
+    Return[Association[MapThread[#1 -> TRF[#1, #2, #3, #4, ndsolveopts]&, {BCs, norms, solFuncs, domains}]]],
+    Return[TRF[BCs, norms, solFuncs, domains, ndsolveopts]]
+  ];
+];
+
+
+(* ::Subsection::Closed:: *)
+(*MST Method*)
+
+
+Options[TeukolskyRadialMST] = {
+  "RenormalizedAngularMomentum" -> "Monodromy"};
+
+
+TeukolskyRadialMST[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, BCs_, {wp_, prec_, acc_}, opts:OptionsPattern[]] :=
+ Module[{\[Lambda], \[Nu], norms, solFuncs, TRF},
+  (* Compute the eigenvalue and renormalized angular momentum *)
+  \[Lambda] = SpinWeightedSpheroidalEigenvalue[s, l, m, a \[Omega]];
+  \[Nu] = RenormalizedAngularMomentum[s, l, m, a, \[Omega], \[Lambda], Method -> OptionValue["RenormalizedAngularMomentum"]];
+
+  (* Function to construct a TeukolskyRadialFunction *)
+  TRF[bc_, ns_, sf_] :=
+    TeukolskyRadialFunction[s, l, m, a, \[Omega],
+     Association["s" -> s, "l" -> l, "m" -> m, "a" -> a, "\[Omega]" -> \[Omega], "Eigenvalue" -> \[Lambda],
+      "Method" -> {"MST", "RenormalizedAngularMomentum" -> \[Nu]},
+      "BoundaryConditions" -> bc, "Amplitudes" -> ns,
+      "Domain" -> {2, \[Infinity]}, "RadialFunction" -> sf
+     ]
+    ];
+
+  (* Compute the asymptotic normalisations *)
+  norms = Teukolsky`MST`MST`Private`Amplitudes[s, l, m, a, 2\[Omega], \[Nu], \[Lambda], {wp, prec, acc}];
+
+  (* Solution functions for the specified boundary conditions *)
+  solFuncs =
+    <|"In" :> Teukolsky`MST`MST`Private`MSTRadialIn[s,l,m,a,2\[Omega],\[Nu],\[Lambda],norms["In"]["Transmission"], {wp, prec, acc}],
+      "Up" :> Teukolsky`MST`MST`Private`MSTRadialUp[s,l,m,a,2\[Omega],\[Nu],\[Lambda],norms["Up"]["Transmission"], {wp, prec, acc}]|>;
+  solFuncs = Lookup[solFuncs, BCs];
+
+  (* Select normalisation coefficients for the specified boundary conditions and rescale
+     to give unit transmission coefficient. *)
+  norms = norms[[All, {"Transmission"}]]/norms[[All, "Transmission"]];
+  norms = Lookup[norms, BCs];
+
+  If[ListQ[BCs],
+    Return[Association[MapThread[#1 -> TRF[#1, #2, #3]&, {BCs, norms, solFuncs}]]],
+    Return[TRF[BCs, norms, solFuncs]]
+  ];
+];
+
+
+(* ::Subsection::Closed:: *)
 (*TeukolskyRadial*)
 
 
-Options[TeukolskyRadial] = {Method -> {"MST", "RenormalizedAngularMomentum" -> "Monodromy"}, "BoundaryConditions" -> {"In", "Up"}};
+SyntaxInformation[TeukolskyRadial] =
+ {"ArgumentsPattern" -> {_, _, _, _, _, OptionsPattern[]}};
 
-TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, OptionsPattern[]] := Module[{assoc, \[Lambda], \[Nu], rmin, rmax, solFuncs, method, norms},
-	\[Lambda] = SpinWeightedSpheroidalEigenvalue[s,l,m,a \[Omega]];
-	
-	Switch[OptionValue[Method],
-		"MST"|{"MST", ___},
-			\[Nu] = RenormalizedAngularMomentum[s, l, m, a, \[Omega], \[Lambda], Method->"RenormalizedAngularMomentum"/.OptionValue[Method][[2;;]] ];
-			method = {"MST", "RenormalizedAngularMomentum" -> \[Nu]};
-			norms = Teukolsky`MST`MST`Private`Amplitudes[s,l,m,a,2\[Omega],\[Nu],\[Lambda]];
-			solFuncs = OptionValue["BoundaryConditions"] /.
-			  {"In" -> Teukolsky`MST`MST`Private`MSTRadialIn[s,l,m,a,2\[Omega],\[Nu],\[Lambda],norms["In"]["Transmission"]],
-			   "Up" -> Teukolsky`MST`MST`Private`MSTRadialUp[s,l,m,a,2\[Omega],\[Nu],\[Lambda],norms["Up"]["Transmission"]]};
-			norms = norms/norms[[All, "Transmission"]];,
-		{"SasakiNakamura", "rmin" -> _, "rmax" -> _},
-			method = {"SasakiNakamura", rmin, rmax} /. OptionValue[Method];
-			solFuncs = $Failed;
-	];
-	
-	
-	
-	assoc = Association[
-		"s" -> s,
-		"l" -> l,
-		"m" -> m,
-		"\[Omega]" -> \[Omega],
-		"Method" -> method,
-		"BoundaryConditions" -> OptionValue["BoundaryConditions"],
-		"Eigenvalue" -> \[Lambda],
-		"Amplitudes" -> norms,
-		"SolutionFunctions" -> solFuncs
-		];
 
-	TeukolskyRadialFunction[s,l,m,a,\[Omega],assoc]
+Options[TeukolskyRadial] = {
+  Method -> "MST",
+  "BoundaryConditions" -> {"In", "Up"},
+  WorkingPrecision -> Automatic,
+  PrecisionGoal -> Automatic,
+  AccuracyGoal -> Automatic
+};
 
+
+TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPattern[]] /; InexactNumberQ[a] || InexactNumberQ[\[Omega]] :=
+ Module[{TRF, subopts, BCs, wp, prec, acc},
+  (* Extract suboptions from Method to be passed on. *)
+  If[ListQ[OptionValue[Method]],
+    subopts = Rest[OptionValue[Method]];,
+    subopts = {};
+  ];
+
+  (* Determine which boundary conditions the homogeneous solution(s) should satisfy *)
+  BCs = OptionValue["BoundaryConditions"];
+  If[!MatchQ[BCs, "In"|"Up"|{("In"|"Up")..}], 
+    Message[TeukolskyRadial::optx, "BoundaryConditions" -> BCs];
+    Return[$Failed];
+  ];
+
+  (* Options associated with precision and accuracy *)
+  {wp, prec, acc} = OptionValue[{WorkingPrecision, PrecisionGoal, AccuracyGoal}];
+  If[wp === Automatic, wp = Precision[\[Omega]]];
+  If[prec === Automatic, prec = wp / 2];
+  If[acc === Automatic, acc = wp / 2];
+  If[Precision[a] < wp, Message[TeukolskyRadial::precw, "a", a, wp]];
+  If[Precision[\[Omega]] < wp, Message[TeukolskyRadial::precw, "\[Omega]", \[Omega], wp]];
+
+  (* Decide which implementation to use *)
+  Switch[OptionValue[Method],
+    "MST" | {"MST", OptionsPattern[TeukolskyRadialMST]},
+      TRF = TeukolskyRadialMST,
+    "SasakiNakamura" | {"SasakiNakamura", OptionsPattern[TeukolskyRadialSasakiNakamura]},
+      TRF = TeukolskyRadialSasakiNakamura;,
+    _,
+      Message[TeukolskyRadial::optx, Method -> OptionValue[Method]];
+      Return[$Failed];
+  ];
+
+  (* Check only supported sub-options have been specified *)  
+  If[subopts =!= (subopts = FilterRules[subopts, Options[TRF]]),
+    Message[TeukolskyRadial::optx, Method -> OptionValue[Method]];
+  ];
+
+  (* Call the chosen implementation *)
+  TRF[s, l, m, a, \[Omega], BCs, {wp, prec, acc}, Sequence@@subopts]
 ];
 
 

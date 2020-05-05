@@ -118,9 +118,9 @@ SasakiNakamuraRadialUp[a_?NumericQ, \[Lambda]_?NumericQ, m_?NumericQ, \[Omega]_?
 (*Convert Sasaki-Nakamura back to Teukolsky variables*)
 
 
-TeukolskyRadialUp[s_, \[Lambda]_, m_, a_, \[Omega]_, r1_, Method->"Numerical"]/; s != -2 := Print["Only s=-2 is currently implemented for Method -> \"Numerical\""]
+TeukolskyRadialUp[s_, \[Lambda]_, m_, a_, \[Omega]_][r1_]/; s != -2 := Print["Only s=-2 is currently implemented for Method -> \"Numerical\""]
  
-TeukolskyRadialUp[-2, \[Lambda]_?NumericQ, m_?IntegerQ, a_?NumericQ, \[Omega]_?NumericQ, r1_?NumericQ, Method -> "Numerical"]:=Module[{M=1, r, \[Chi]m, X, XUp, Rup, c0, c1, c2, c3 ,c4, K, \[Eta], \[CapitalDelta], \[Alpha], \[Beta], \[Chi]},
+TeukolskyRadialUp[-2, \[Lambda]_?NumericQ, m_?IntegerQ, a_?NumericQ, \[Omega]_?NumericQ][r1_?NumericQ]:=Module[{M=1, r, \[Chi]m, X, XUp, Rup, c0, c1, c2, c3 ,c4, K, \[Eta], \[CapitalDelta], \[Alpha], \[Beta], \[Chi]},
 
 XUp = SasakiNakamuraRadialUp[a, \[Lambda], m, \[Omega], r1];
 
