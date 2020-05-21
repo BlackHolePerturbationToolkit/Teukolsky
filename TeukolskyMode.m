@@ -109,8 +109,8 @@ TeukolskyMode /:
     None,
     summary,
     extended,
-    form,
-    "Interpretable" -> Automatic]
+    form
+  ]
 ];
 
 
