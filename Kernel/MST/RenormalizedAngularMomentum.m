@@ -4,6 +4,8 @@ BeginPackage[MST`$MasterFunction<>"`MST`RenormalizedAngularMomentum`",
   {"SpinWeightedSpheroidalHarmonics`"}
 ];
 
+ClearAttributes[RenormalizedAngularMomentum, {Protected, ReadProtected}];
+
 RenormalizedAngularMomentum::usage =
  "RenormalizedAngularMomentum[s, l, m, a, \[Omega], \[Lambda]] gives the renormalized angular momentum \[Nu].\n" <>
  "RenormalizedAngularMomentum[s, l, m, a, \[Omega]] gives the renormalized angular momentum \[Nu].";
@@ -220,6 +222,8 @@ RenormalizedAngularMomentum[s_Integer, l_Integer, m_Integer, a_?NumericQ, \[Omeg
 
 RenormalizedAngularMomentum /: N[RenormalizedAngularMomentum[s_Integer, l_Integer, m_Integer, a_?NumericQ, \[Omega]_?NumericQ, \[Lambda]_?NumericQ], Nopts:OptionsPattern[N]] :=
   RenormalizedAngularMomentum[s, l, m, N[a, Nopts], N[\[Omega], Nopts], N[\[Lambda], Nopts]];
+
+SetAttributes[RenormalizedAngularMomentum, {Protected, ReadProtected}];
 
 End[];
 EndPackage[];
