@@ -1,25 +1,23 @@
 (* Mathematica Test File *)
 
-\[Psi] = TeukolskyRadial[2, 2, 2, 0.5, 0.1];
-\[Psi]In = \[Psi]["In"];
+{\[Psi]In, \[Psi]Up} = Values[TeukolskyRadial[2, 2, 2, 0.5, 0.1]];
 
 (****************************************************************)
 (* TeukolskyRadial                                              *)
 (****************************************************************)
 VerificationTest[
-    \[Psi]
+    \[Psi]In
     ,
-    TeukolskyRadialFunction[2, 2, 2, 0.5, 0.1, <|"s" -> 2, "l" -> 2, "m" -> 2, "\[Omega]" -> 0.1,
+    TeukolskyRadialFunction[2, 2, 2, 0.5, 0.1, <|
+      "s" -> 2, "l" -> 2, "m" -> 2, "a" -> 0.5, "\[Omega]" -> 0.1, "Eigenvalue" -> \[Lambda]_,
       "Method" -> {"MST", "RenormalizedAngularMomentum" -> \[Nu]_}, 
-      "BoundaryConditions" -> {"In", "Up"}, "Eigenvalue" -> \[Lambda]_, 
+      "BoundaryConditions" -> "In", 
       "Amplitudes" ->
-        <|"In" -> <|"Incidence" -> _,
-                    "Transmission" -> _,
-                    "Reflection" -> _ |>,
-          "Up" -> <|"Transmission" -> _ |>|>,
-      "SolutionFunctions" -> {Teukolsky`MST`MST`Private`MSTRadialIn[2, 2, 2, 0.5, 0.2, 
-         \[Nu]_, \[Lambda]_, _], Teukolsky`MST`MST`Private`MSTRadialUp[2, 2, 
-         2, 0.5, 0.2, \[Nu]_, \[Lambda]_, _]}|>]
+        <|(* "Incidence" -> _,  *)"Transmission" -> _(* , "Reflection" -> _  *)|>,
+        "Domain" -> {2, Infinity},
+      "RadialFunction" -> Teukolsky`MST`MST`Private`MSTRadialIn[2, 2, 2, 0.5, 0.2, 
+         \[Nu]_, \[Lambda]_, _, {MachinePrecision, MachinePrecision/2, MachinePrecision/2}]|>
+    ]
     ,
     TestID->"TeukolskyRadial",
     SameTest -> MatchQ
@@ -29,7 +27,7 @@ VerificationTest[
 (* InvalidKey                                                   *)
 (****************************************************************)
 VerificationTest[
-    \[Psi]["NotAKey"]
+    \[Psi]In["NotAKey"]
     ,
     Missing["KeyAbsent", "NotAKey"]
     ,
@@ -41,9 +39,9 @@ VerificationTest[
 (* BoundaryConditions                                           *)
 (****************************************************************)
 VerificationTest[
-    \[Psi]["BoundaryConditions"]
+    \[Psi]In["BoundaryConditions"]
     ,
-    {"In", "Up"}
+    "In"
     ,
     TestID->"BoundaryConditions"
 ]
@@ -53,7 +51,7 @@ VerificationTest[
 (* Method                                                       *)
 (****************************************************************)
 VerificationTest[
-    \[Psi]["Method"]
+    \[Psi]In["Method"]
     ,
     {"MST", "RenormalizedAngularMomentum" -> _}
     ,
@@ -66,7 +64,7 @@ VerificationTest[
 (* Eigenvalue                                                   *)
 (****************************************************************)
 VerificationTest[
-    \[Psi]["Eigenvalue"]
+    \[Psi]In["Eigenvalue"]
     ,
     -0.33267928615316333
     ,
@@ -78,21 +76,11 @@ VerificationTest[
 (* SolutionFunctions                                            *)
 (****************************************************************)
 VerificationTest[
-    \[Psi]["SolutionFunctions"]
+    \[Psi]In["RadialFunction"]
     ,
-    TeukolskyRadialFunction[2, 2, 2, 0.5, 0.1, <|"s" -> 2, "l" -> 2, "m" -> 2, "\[Omega]" -> 0.1,
-       "Method" -> {"MST", "RenormalizedAngularMomentum" -> \[Nu]_}, 
-       "BoundaryConditions" -> {"In", "Up"}, "Eigenvalue" -> \[Lambda]_, 
-       "Amplitudes" ->
-         <|"In" -> <|"Incidence" -> _,
-                     "Transmission" -> _,
-                     "Reflection" -> _ |>,
-           "Up" -> <|"Transmission" -> _ |>|>,
-       "SolutionFunctions" -> {Teukolsky`MST`MST`Private`MSTRadialIn[2, 2, 2, 0.5, 0.2, 
-          \[Nu]_, \[Lambda]_, _], Teukolsky`MST`MST`Private`MSTRadialUp[2, 2, 
-          2, 0.5, 0.2, \[Nu]_, \[Lambda]_, _]}|>]["SolutionFunctions"]
+    TeukolskyRadialFunction[__]["RadialFunction"]
     ,
-    TestID->"SolutionFunctions",
+    TestID->"RadialFunction",
     SameTest -> MatchQ
 ]
 
@@ -101,10 +89,9 @@ VerificationTest[
 (* Numerical Evaluation                                         *)
 (****************************************************************)
 VerificationTest[
-    \[Psi][10.0]
+    \[Psi]In[10.0]
     ,
-    <|"In" -> 0.8151274455692021 + 0.5569358329985141*I,
-      "Up" -> 1.999804503329915*^-6 + 0.000013378466321641552*I|>
+    0.8151274441805518 + 0.5569358337070693*I
     ,
     TestID->"Numerical Evaluation",
     SameTest -> withinRoundoff
@@ -115,10 +102,9 @@ VerificationTest[
 (* Derivative Numerical Evaluation                              *)
 (****************************************************************)
 VerificationTest[
-    \[Psi]'[10.0]
+    \[Psi]In'[10.0]
     ,
-    <|"In" -> 0.03200583839610331 - 0.07297367974124275*I,
-      "Up" -> -2.593598129598713*^-6 - 7.151271833408181*^-6*I|>
+    0.032005837243917735 - 0.07297367925001329*I
     ,
     TestID->"Derivative Numerical Evaluation ",
     SameTest -> withinRoundoff
@@ -129,70 +115,13 @@ VerificationTest[
 (* Higher Derivative Numerical Evaluation                       *)
 (****************************************************************)
 VerificationTest[
-    \[Psi]''''[10.0]
+    \[Psi]In''''[10.0]
     ,
-    <|"In" -> -0.0003139910712826748 + 0.00007805860280741137*I,
-      "Up" -> 2.171038044040099*^-6 + 2.775091588344741*^-6*I|>
+    -0.0003139905476106219 + 0.00007805832804581858*I
     ,
     TestID->"Higher Derivative Numerical Evaluation ",
     SameTest -> withinRoundoff
 ]
 
-
-(****************************************************************)
-(* Subcase                                                      *)
-(****************************************************************)
-VerificationTest[
-    \[Psi]In
-    ,
-    TeukolskyRadialFunction[2, 2, 2, 0.5, 0.1, <|"s" -> 2, "l" -> 2, "m" -> 2, "\[Omega]" -> 0.1,
-      "Method" -> {"MST", "RenormalizedAngularMomentum" -> \[Nu]_}, 
-      "BoundaryConditions" -> "In", "Eigenvalue" -> \[Lambda]_, 
-      "Amplitudes" -> 
-        <|"Incidence" -> _,
-          "Transmission" -> _,
-          "Reflection" -> _ |>,
-      "SolutionFunctions" -> Teukolsky`MST`MST`Private`MSTRadialIn[2, 2, 2, 0.5, 0.2, 
-        \[Nu]_, \[Lambda]_, _]|>]
-    ,
-    TestID->"Subcase",
-    SameTest -> MatchQ
-]
-
-(****************************************************************)
-(* Single Subcase Boundary Conditions                           *)
-(****************************************************************)
-VerificationTest[
-    \[Psi]In["BoundaryConditions"]
-    ,
-    "In"
-    ,
-    TestID->"Single Subcase Boundary Conditions"
-]
-
-(****************************************************************)
-(* Single Subcase Numerical Evaluation                          *)
-(****************************************************************)
-VerificationTest[
-    \[Psi]In[10.0]
-    ,
-    0.8151274455692021 + 0.5569358329985141*I
-    ,
-    TestID->"Single Subcase Numerical Evaluation",
-    SameTest -> withinRoundoff
-]
-
-
-(****************************************************************)
-(* Single Subcase Derivative Numerical Evaluation               *)
-(****************************************************************)
-VerificationTest[
-    \[Psi]In'[10.0]
-    ,
-    0.03200583839610331 - 0.07297367974124275*I
-    ,
-    TestID->"Single Subcase Derivative Numerical Evaluation ",
-    SameTest -> withinRoundoff
-]
 
 
