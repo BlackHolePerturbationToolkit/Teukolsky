@@ -20,6 +20,13 @@ BeginPackage["Teukolsky`TeukolskyRadial`",
 
 
 (* ::Subsection::Closed:: *)
+(*Unprotect symbols*)
+
+
+ClearAttributes[{TeukolskyRadial, TeukolskyRadialFunction}, {Protected, ReadProtected}];
+
+
+(* ::Subsection::Closed:: *)
 (*Usage messages*)
 
 
@@ -324,6 +331,17 @@ Derivative[n_][TeukolskyRadialFunction[s_,l_,m_,a_,\[Omega]_,assoc_]][r:(_?Numer
 
 (* ::Section::Closed:: *)
 (*End Package*)
+
+
+(* ::Subsection::Closed:: *)
+(*Protect symbols*)
+
+
+SetAttributes[{TeukolskyRadial, TeukolskyRadialFunction}, {Protected, ReadProtected}];
+
+
+(* ::Subsection::Closed:: *)
+(*End*)
 
 
 End[];

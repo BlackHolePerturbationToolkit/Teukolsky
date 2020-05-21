@@ -23,6 +23,13 @@ BeginPackage["Teukolsky`TeukolskyMode`",
 
 
 (* ::Subsection::Closed:: *)
+(*Unprotect symbols*)
+
+
+ClearAttributes[{TeukolskyMode, TeukolskyPointParticleMode}, {Protected}];
+
+
+(* ::Subsection::Closed:: *)
 (*Usage messages*)
 
 
@@ -166,6 +173,17 @@ EnergyFlux[mode_TeukolskyMode] :=
 
 (* ::Section::Closed:: *)
 (*End Package*)
+
+
+(* ::Subsection::Closed:: *)
+(*Protect symbols*)
+
+
+SetAttributes[{TeukolskyMode, TeukolskyPointParticleMode}, {Protected, ReadProtected}];
+
+
+(* ::Subsection::Closed:: *)
+(*End*)
 
 
 End[];
