@@ -40,6 +40,7 @@ TeukolskyRadialFunction::usage = "TeukolskyRadialFunction[s, l, m, a, \[Omega], 
 
 TeukolskyRadial::precw = "The precision of `1`=`2` is less than WorkingPrecision (`3`).";
 TeukolskyRadial::optx = "Unknown options in `1`";
+TeukolskyRadial::sopt = "Option `1` not supported for static (\[Omega]=0) modes.";
 TeukolskyRadial::dm = "Option `1` is not valid with BoundaryConditions \[RightArrow] `2`.";
 TeukolskyRadialFunction::dmval = "Radius `1` lies outside the computational domain. Results may be incorrect.";
 
@@ -170,6 +171,47 @@ TeukolskyRadialMST[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, BCs_, {wp_, p
 
 
 (* ::Subsection::Closed:: *)
+(*Static modes*)
+
+
+TeukolskyRadialStatic[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, BCs_] :=
+ Module[{\[Lambda], norms, solFuncs, RWRF},
+  (* Compute the eigenvalue *)
+  \[Lambda] = SpinWeightedSpheroidalEigenvalue[s, l, m, a \[Omega]];
+
+  (* Function to construct a TeukolskyRadialFunction *)
+  TRF[bc_, ns_, sf_] :=
+    TeukolskyRadialFunction[s, l, m, a, \[Omega],
+     Association["s" -> s, "l" -> l, "m" -> m, "a" -> a, "\[Omega]" -> \[Omega], "Eigenvalue" -> \[Lambda],
+      "Method" -> {"Static"},
+      "BoundaryConditions" -> bc, "Amplitudes" -> ns,
+      "Domain" -> {2, \[Infinity]}, "RadialFunction" -> sf
+     ]
+    ];
+
+  (* Compute the asymptotic normalisations *)
+  norms = <|"In" -> <|"Transmission" -> 1|>, "Up" -> <|"Transmission" -> 1|>|>;
+
+  (* Solution functions for the specified boundary conditions *)
+  solFuncs =
+    <|"In" :> Function[{r},With[{x = (r - 1 - Sqrt[1 - a^2])/(2 Sqrt[1 - a^2]), \[Tau] = -((m a)/Sqrt[1 - a^2])}, x^(-s - (I \[Tau])/2) (1 + x)^(-s + (I \[Tau])/2) Hypergeometric2F1[-l - s, 1 + l - s, 1 - s - I \[Tau], -x]]],
+      "Up" :> Function[{r},With[{x = (r - 1 - Sqrt[1 - a^2])/(2 Sqrt[1 - a^2]), \[Tau] = -((m a)/Sqrt[1 - a^2])}, x^((I \[Tau])/2) (1 + x)^(-((I \[Tau])/2)) Hypergeometric2F1[-l + s, 1 + l + s, 1 + s + I \[Tau], -x] - (x^(-s - (I \[Tau])/2) (1 + x)^(-s + (I \[Tau])/2) (l - s)! Hypergeometric2F1[-l - s, 1 + l - s, 1 - s - I \[Tau], -x] Pochhammer[1 - s - I \[Tau], l + s])/((l + s)! Pochhammer[1 + s + I \[Tau], l - s])]]
+     |>;
+  solFuncs = Lookup[solFuncs, BCs];
+
+  (* Select normalisation coefficients for the specified boundary conditions and rescale
+     to give unit transmission coefficient. *)
+  norms = norms[[All, {"Transmission"}]]/norms[[All, "Transmission"]];
+  norms = Lookup[norms, BCs];
+
+  If[ListQ[BCs],
+    Return[Association[MapThread[#1 -> TRF[#1, #2, #3]&, {BCs, norms, solFuncs}]]],
+    Return[TRF[BCs, norms, solFuncs]]
+  ];
+];
+
+
+(* ::Subsection::Closed:: *)
 (*TeukolskyRadial*)
 
 
@@ -178,12 +220,40 @@ SyntaxInformation[TeukolskyRadial] =
 
 
 Options[TeukolskyRadial] = {
-  Method -> "MST",
+  Method -> Automatic,
   "BoundaryConditions" -> {"In", "Up"},
   WorkingPrecision -> Automatic,
   PrecisionGoal -> Automatic,
   AccuracyGoal -> Automatic
 };
+
+
+(* ::Subsubsection::Closed:: *)
+(*Static modes*)
+
+
+TeukolskyRadial[s_Integer, l_Integer, m_, a_, \[Omega]_, opts:OptionsPattern[]] /; \[Omega] == 0 :=
+ Module[{BCs, wp, prec, acc},
+  (* Determine which boundary conditions the homogeneous solution(s) should satisfy *)
+  BCs = OptionValue["BoundaryConditions"];
+  If[!MatchQ[BCs, "In"|"Up"|{("In"|"Up")..}], 
+    Message[TeukolskyRadial::optx, "BoundaryConditions" -> BCs];
+    Return[$Failed];
+  ];
+
+  (* Options are not supported for static modes *)
+  Do[
+    If[OptionValue[opt] =!= Automatic, Message[TeukolskyRadial::sopt, opt]];,
+    {opt, {Method, WorkingPrecision, PrecisionGoal, AccuracyGoal}}
+  ];
+
+  (* Call the chosen implementation *)
+  TeukolskyRadialStatic[s, l, m, a, \[Omega], BCs]
+]
+
+
+(* ::Subsubsection::Closed:: *)
+(*Non-static modes*)
 
 
 TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPattern[]] /; InexactNumberQ[a] || InexactNumberQ[\[Omega]] :=
@@ -211,6 +281,8 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
 
   (* Decide which implementation to use *)
   Switch[OptionValue[Method],
+    Automatic,
+      TRF = TeukolskyRadialMST,
     "MST" | {"MST", OptionsPattern[TeukolskyRadialMST]},
       TRF = TeukolskyRadialMST,
     "SasakiNakamura" | {"SasakiNakamura", OptionsPattern[TeukolskyRadialSasakiNakamura]},
