@@ -108,8 +108,6 @@ TeukolskyPointParticleSourceCircular[-2, orbit_] := Module[{assoc, a,r0, E0, Lz,
 ]
 
 
-Format[TeukolskySourceObject[assoc_]] := "TeukolskySourceObject[<<>>]";
-
 TeukolskySourceObject[assoc_][string_] := assoc[string]
 
 
