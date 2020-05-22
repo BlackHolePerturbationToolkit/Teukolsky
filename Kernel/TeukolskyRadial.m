@@ -208,10 +208,19 @@ TeukolskyRadialStatic[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, BCs_] :=
   norms = <|"In" -> <|"Transmission" -> 1|>, "Up" -> <|"Transmission" -> 1|>|>;
 
   (* Solution functions for the specified boundary conditions *)
+  If[m == 0,
   solFuncs =
-    <|"In" :> Function[{r},With[{x = (r - 1 - Sqrt[1 - a^2])/(2 Sqrt[1 - a^2]), \[Tau] = -((m a)/Sqrt[1 - a^2])}, x^(-s - (I \[Tau])/2) (1 + x)^(-s + (I \[Tau])/2) Hypergeometric2F1[-l - s, 1 + l - s, 1 - s - I \[Tau], -x]]],
-      "Up" :> Function[{r},With[{x = (r - 1 - Sqrt[1 - a^2])/(2 Sqrt[1 - a^2]), \[Tau] = -((m a)/Sqrt[1 - a^2])}, x^((I \[Tau])/2) (1 + x)^(-((I \[Tau])/2)) Hypergeometric2F1[-l + s, 1 + l + s, 1 + s + I \[Tau], -x] - (x^(-s - (I \[Tau])/2) (1 + x)^(-s + (I \[Tau])/2) (l - s)! Hypergeometric2F1[-l - s, 1 + l - s, 1 - s - I \[Tau], -x] Pochhammer[1 - s - I \[Tau], l + s])/((l + s)! Pochhammer[1 + s + I \[Tau], l - s])]]
+      <|"In" :> Function[{r},((r-1-Sqrt[1-a^2])/(2Sqrt[1-a^2]) (1+(r-1-Sqrt[1-a^2])/(2Sqrt[1-a^2])))^(-s/2) LegendreP[l,s,3,1+2 (r-1-Sqrt[1-a^2])/(2Sqrt[1-a^2])]],
+        "Up" :> Function[{r}, (-1)^(s+1) 2s (l-s)!/(l+s)! ((r-1-Sqrt[1-a^2])/(2Sqrt[1-a^2]) (1+(r-1-Sqrt[1-a^2])/(2Sqrt[1-a^2])))^(-s/2) LegendreQ[l,s,3,1+2 (r-1-Sqrt[1-a^2])/(2Sqrt[1-a^2])]]
      |>;
+    ,
+    With[{\[Tau] = -((m a)/Sqrt[1-a^2])},
+      solFuncs =
+        <|"In" :> Function[{r},((r - 1 - Sqrt[1 - a^2])/(2 Sqrt[1 - a^2]))^(-s - (I \[Tau])/2) (1 + ((r - 1 - Sqrt[1 - a^2])/(2 Sqrt[1 - a^2])))^(-s + (I \[Tau])/2) Hypergeometric2F1[-l - s, 1 + l - s, 1 - s - I \[Tau], -((r - 1 - Sqrt[1 - a^2])/(2 Sqrt[1 - a^2]))]],
+          "Up" :> Function[{r},((r - 1 - Sqrt[1 - a^2])/(2 Sqrt[1 - a^2]))^((I \[Tau])/2) (1 + ((r - 1 - Sqrt[1 - a^2])/(2 Sqrt[1 - a^2])))^(-((I \[Tau])/2)) Hypergeometric2F1[-l + s, 1 + l + s, 1 + s + I \[Tau], -((r - 1 - Sqrt[1 - a^2])/(2 Sqrt[1 - a^2]))] - (((r - 1 - Sqrt[1 - a^2])/(2 Sqrt[1 - a^2]))^(-s - (I \[Tau])/2) (1 + ((r - 1 - Sqrt[1 - a^2])/(2 Sqrt[1 - a^2])))^(-s + (I \[Tau])/2) (l - s)! Hypergeometric2F1[-l - s, 1 + l - s, 1 - s - I \[Tau], -((r - 1 - Sqrt[1 - a^2])/(2 Sqrt[1 - a^2]))] Pochhammer[1 - s - I \[Tau], l + s])/((l + s)! Pochhammer[1 + s + I \[Tau], l - s])]
+         |>;
+    ];
+  ];
   solFuncs = Lookup[solFuncs, BCs];
 
   (* Select normalisation coefficients for the specified boundary conditions and rescale
