@@ -53,6 +53,18 @@ Begin["`Private`"];
 
 
 (* ::Section::Closed:: *)
+(*Utility Functions*)
+
+
+(* ::Subsection::Closed:: *)
+(*Horizon Locations*)
+
+
+rp[a_,M_] := M+Sqrt[M^2-a^2];
+rm[a_,M_] := M-Sqrt[M^2-a^2];
+
+
+(* ::Section::Closed:: *)
 (*TeukolskyRadial*)
 
 
@@ -81,7 +93,7 @@ TeukolskyRadialSasakiNakamura[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, BC
      Association["s" -> s, "l" -> l, "m" -> m, "a" -> a, "\[Omega]" -> \[Omega], "Eigenvalue" -> \[Lambda],
       "Method" -> {"SasakiNakamura", ndsolveopts},
       "BoundaryConditions" -> bc, "Amplitudes" -> ns,
-      "Domain" -> If[domain === All, {2, \[Infinity]}, First[solutionFunction["Domain"]]],
+      "Domain" -> If[domain === All, {rp[a, 1], \[Infinity]}, First[solutionFunction["Domain"]]],
       "RadialFunction" -> solutionFunction
      ]
     ]
@@ -145,7 +157,7 @@ TeukolskyRadialMST[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, BCs_, {wp_, p
      Association["s" -> s, "l" -> l, "m" -> m, "a" -> a, "\[Omega]" -> \[Omega], "Eigenvalue" -> \[Lambda],
       "Method" -> {"MST", "RenormalizedAngularMomentum" -> \[Nu]},
       "BoundaryConditions" -> bc, "Amplitudes" -> ns,
-      "Domain" -> {2, \[Infinity]}, "RadialFunction" -> sf
+      "Domain" -> {rp[a, 1], \[Infinity]}, "RadialFunction" -> sf
      ]
     ];
 
@@ -185,7 +197,7 @@ TeukolskyRadialStatic[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, BCs_] :=
      Association["s" -> s, "l" -> l, "m" -> m, "a" -> a, "\[Omega]" -> \[Omega], "Eigenvalue" -> \[Lambda],
       "Method" -> {"Static"},
       "BoundaryConditions" -> bc, "Amplitudes" -> ns,
-      "Domain" -> {2, \[Infinity]}, "RadialFunction" -> sf
+      "Domain" -> {rp[a, 1], \[Infinity]}, "RadialFunction" -> sf
      ]
     ];
 
