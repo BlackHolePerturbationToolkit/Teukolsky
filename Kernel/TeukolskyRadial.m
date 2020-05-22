@@ -13,9 +13,12 @@
 
 
 BeginPackage["Teukolsky`TeukolskyRadial`",
-  {"SpinWeightedSpheroidalHarmonics`",
+  {
+  "Teukolsky`SasakiNakamura`",
    "Teukolsky`MST`RenormalizedAngularMomentum`",
-   "Teukolsky`MST`MST`"}
+   "Teukolsky`MST`MST`",
+   "SpinWeightedSpheroidalHarmonics`"
+  }
 ];
 
 
