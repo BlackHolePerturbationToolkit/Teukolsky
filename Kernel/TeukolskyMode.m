@@ -54,7 +54,7 @@ Begin["`Private`"];
 
 
 SyntaxInformation[TeukolskyPointParticleMode] =
- {"ArgumentsPattern" -> {_, _, _, _, _, OptionsPattern[]}};
+ {"ArgumentsPattern" -> {_, _, _, _, _, _, OptionsPattern[]}};
 
 
 Options[TeukolskyPointParticleMode] = {};
