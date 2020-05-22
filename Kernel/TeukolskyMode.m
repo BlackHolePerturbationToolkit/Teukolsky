@@ -128,7 +128,10 @@ TeukolskyMode /:
 TeukolskyMode[assoc_]["EnergyFlux"] := EnergyFlux[TeukolskyMode[assoc]];
 
 
-TeukolskyMode[assoc_]["Fluxes"] := <|"Energy" -> TeukolskyMode[assoc]["EnergyFlux"]|>;
+TeukolskyMode[assoc_]["Fluxes"] := <|"Energy" -> TeukolskyMode[assoc]["EnergyFlux"], "AngularMomentum" -> TeukolskyMode[assoc]["AngularMomentumFlux"]|>;
+
+
+TeukolskyMode[assoc_]["AngularMomentumFlux"] := AngularMomentumFlux[TeukolskyMode[assoc]];
 
 
 TeukolskyMode[assoc_][string_] := assoc[string];
@@ -169,6 +172,13 @@ EnergyFlux[mode_TeukolskyMode] :=
 
   <| "\[ScriptCapitalI]" -> FluxInf, "\[ScriptCapitalH]" -> FluxHor |>
 ];
+
+
+(* ::Subsection::Closed:: *)
+(*Angular Momentum Flux*)
+
+
+AngularMomentumFlux[mode_TeukolskyMode] := EnergyFlux[mode] mode["m"]/mode["\[Omega]"];
 
 
 (* ::Section::Closed:: *)
