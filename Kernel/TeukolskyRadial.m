@@ -89,7 +89,7 @@ TeukolskyRadialSasakiNakamura[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, BC
   TRF[bc_, ns_, sf_, domain_, ndsolveopts___] :=
    Module[{solutionFunction},
     solutionFunction = sf[domain];
-    TeukolskyRadialFunction[s, l, \[Omega],
+    TeukolskyRadialFunction[s, l, m, a, \[Omega],
      Association["s" -> s, "l" -> l, "m" -> m, "a" -> a, "\[Omega]" -> \[Omega], "Eigenvalue" -> \[Lambda],
       "Method" -> {"SasakiNakamura", ndsolveopts},
       "BoundaryConditions" -> bc, "Amplitudes" -> ns,
