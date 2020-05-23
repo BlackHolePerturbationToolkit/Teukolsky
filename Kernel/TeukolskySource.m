@@ -30,14 +30,11 @@ Begin["`Private`"];
 (*TeukolskyPointParticleSource*)
 
 
-TeukolskyPointParticleSource[s_, orbit_]:=Module[{assoc},
-
-    If[(s==-2 || s==0) && orbit["e"] == 0 && Abs[orbit["Inclination"]] == 1,
-         Return[TeukolskyPointParticleSourceCircular[s,orbit]],
-         Print["No point-particle source yet available for those parameters"];
-      ]
-	
-]
+TeukolskyPointParticleSource[s_, orbit_] :=
+  If[(s==-2 || s==0) && orbit["e"] == 0 && Abs[orbit["Inclination"]] == 1,
+    Return[TeukolskyPointParticleSourceCircular[s,orbit]],
+    Return[$Failed];
+  ]
 
 
 TeukolskyPointParticleSourceCircular[0, orbit_] := Module[{assoc, \[Alpha], gtt, gt\[Phi], \[CapitalDelta], ut, a, r0, E0, Lz, \[CapitalSigma], \[Rho]},

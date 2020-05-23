@@ -42,6 +42,9 @@ TeukolskyPointParticleMode::usage = "TeukolskyPointParticleMode[s, l, m, n, k, o
 (*Error Messages*)
 
 
+TeukolskyPointParticleMode::params = "Parameters s=`1`, e=`2`, x=`3` are not currently supported.";
+
+
 (* ::Subsection::Closed:: *)
 (*Begin Private section*)
 
@@ -62,6 +65,11 @@ Options[TeukolskyPointParticleMode] = {};
 
 TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer, orbit_KerrGeoOrbitFunction, opts:OptionsPattern[]] /; AllTrue[orbit["Frequencies"], InexactNumberQ] :=
  Module[{source, assoc, R, S, \[Omega], \[CapitalOmega]r, \[CapitalOmega]\[Phi], \[CapitalOmega]\[Theta], Z, a, \[Lambda]},
+  If[(s != -2  && s != 0) || orbit["e"] != 0 || Abs[orbit["x"]] != 1,
+    Message[TeukolskyPointParticleMode::params, s, orbit["e"], orbit["Inclination"]];
+    Return[$Failed];
+  ];
+
   (*{\[CapitalOmega]r, \[CapitalOmega]\[Theta], \[CapitalOmega]\[Phi]} = orbit["Frequencies"];*) (*This gives Mino frequencies, need BL frequencies*)
   {\[CapitalOmega]r, \[CapitalOmega]\[Theta], \[CapitalOmega]\[Phi]} = Values[KerrGeoFrequencies[orbit["a"], orbit["p"], orbit["e"], orbit["Inclination"]]];
   \[Omega] = m \[CapitalOmega]\[Phi] + n \[CapitalOmega]r + k \[CapitalOmega]\[Theta];

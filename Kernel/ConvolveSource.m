@@ -33,16 +33,13 @@ Begin["`Private`"];
 ConvolveSource[R_, S_, TS_] :=
  Module[{s, orbit},
 	orbit = TS["Orbit"];
-	s = R["s"];
+  s = TS["s"];
 
-	If[TS["SourceType"] == "PointParticle",
-		If[orbit["e"] == 0 && Abs[orbit["Inclination"]] == 1,
-			Return[ConvolveSourcePointParticleCircular[s,R,S,TS]],
-			Print["No convolution function for those orbital parameters"]
-		],
-		Print["Source Type not recognized"];
-	]
+  If[TS["SourceType"] == "PointParticle" && orbit["e"] == 0 && Abs[orbit["Inclination"]] == 1,
+    Return[ConvolveSourcePointParticleCircular[s,R,S,TS]]
+  ];
 
+  $Failed
 ]
 
 
