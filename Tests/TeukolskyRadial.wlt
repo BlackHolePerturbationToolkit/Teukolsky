@@ -265,3 +265,20 @@ VerificationTest[
     ,
     TestID->"Static m=0 \"up\" mode (high-accuracy omega)"
 ]
+
+(****************************************************************)
+(* Fluxes                                                       *)
+(****************************************************************)
+VerificationTest[
+    Module[{orbit = KerrGeoOrbit[0.9`32, 10.0`32, 0, 1]},
+      TeukolskyPointParticleMode[-2, 2, 2, 0, 0, orbit]["Fluxes"]
+    ]
+    ,
+    <|"Energy" -> <|"\[ScriptCapitalI]" -> 0.0000222730005511804972562,
+       "\[ScriptCapitalH]" -> -5.9836792133833632312*10^-8|>,
+     "AngularMomentum" -> <|"\[ScriptCapitalI]" ->
+        0.00072437982117522330809,
+       "\[ScriptCapitalH]" -> -1.94605862313006131615*10^-6|>|>
+    ,
+    TestID->"Fluxes"
+]
