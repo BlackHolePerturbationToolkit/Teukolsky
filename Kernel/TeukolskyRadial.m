@@ -297,7 +297,7 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
 
   (* Options associated with precision and accuracy *)
   {wp, prec, acc} = OptionValue[{WorkingPrecision, PrecisionGoal, AccuracyGoal}];
-  If[wp === Automatic, wp = Precision[\[Omega]]];
+  If[wp === Automatic, wp = Precision[{a, \[Omega]}]];
   If[prec === Automatic, prec = wp / 2];
   If[acc === Automatic, acc = wp / 2];
   If[Precision[a] < wp, Message[TeukolskyRadial::precw, "a", a, wp]];
