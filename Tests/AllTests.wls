@@ -7,12 +7,17 @@ withinRoundoff[a_, b_] :=
   Block[{Internal`$SameQTolerance = 4},
     SameQ[a,b]];
 
-PrependTo[$Path, FileNameDrop[ExpandFileName[First[$ScriptCommandLine]],-3]];
+If[$VersionNumber >= 12.1,
+  PacletDirectoryLoad[FileNameDrop[ExpandFileName[First[$ScriptCommandLine]],-3]];
+  testFiles = FileNames["*.wlt",
+    FileNameJoin[{PacletObject["Teukolsky"]["Location"], "Tests"}]];
+  ,
+  PacletDirectoryAdd[FileNameDrop[ExpandFileName[First[$ScriptCommandLine]],-3]];
+  testFiles = FileNames["*.wlt",
+    FileNameJoin[{Lookup[PacletInformation["Teukolsky"], "Location"], "Tests"}]];
+];
 
 << Teukolsky`
-
-testFiles = FileNames["*.wlt", 
-  FileNameJoin[{$TeukolskyInstallationDirectory, "Tests"}]];
 
 reports = TestReport /@ testFiles;
 

@@ -3,7 +3,7 @@
 
 packages =
 { 
-  "RenormalizedAngularMomentum",
+  "MST`RenormalizedAngularMomentum",
   "TeukolskyMode",
   "TeukolskyRadial",
   "TeukolskySource"

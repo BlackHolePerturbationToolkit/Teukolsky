@@ -1,15 +1,35 @@
 (* ::Package:: *)
 
+(* ::Title:: *)
+(*SasakiNakamura*)
+
+
+(* ::Section::Closed:: *)
+(*Create Package*)
+
+
+(* ::Subsection::Closed:: *)
+(*BeginPackage*)
+
+
 BeginPackage["Teukolsky`SasakiNakamura`"];
 
 
- Begin["`Private`"];
+(* ::Subsection::Closed:: *)
+(*Begin Private section*)
 
 
-(**********************************************************)
-(* Internal functions                                     *)
-(**********************************************************)
- 
+Begin["`Private`"];
+
+
+(* ::Section::Closed:: *)
+(*Radial solutions*)
+
+
+(* ::Subsection::Closed:: *)
+(*Boundary Conditions*)
+
+
 (* Boundary conditions for the up solution of the Sasaki-Nakamura equation*)
 (* They were derived in S. E. Gralla, A. P. Porfyriadis, N. Warburton, Phys. Rev. D 92, 064029 (2015), arXiv:1506.08496*)
 OuterBCs[\[Lambda]_, m_, a_, \[Omega]_, rout_]:=Module[{M=1,recur,k,j,rp,rm,rs,X,r,c},
@@ -31,8 +51,12 @@ OuterBCs[\[Lambda]_, m_, a_, \[Omega]_, rout_]:=Module[{M=1,recur,k,j,rp,rm,rs,X
   {X[r], X'[r], X''[r]}/.r->rout
  
  ]
- 
-(* Teukolsky equation*)
+
+
+(* ::Subsection::Closed:: *)
+(*Teukolsky equation*)
+
+
 TeukolskyRadialEquation[s_, \[Lambda]_, m_, a_, \[Omega]_, r1_, {R_, dR_, d2R_}]:=Module[{M=1,\[CapitalDelta],r,K},
 
    \[CapitalDelta]=r^2 - 2M r + a^2;
@@ -41,8 +65,12 @@ TeukolskyRadialEquation[s_, \[Lambda]_, m_, a_, \[Omega]_, r1_, {R_, dR_, d2R_}]
  ((K^2-2 I K (-M+r) s)/\[CapitalDelta]-\[Lambda]+4 I r s \[Omega]) R + \[CapitalDelta]^-s ((-2 M+2 r) \[CapitalDelta]^s (1+s) dR + \[CapitalDelta]^(1+s) d2R)/.r->r1
 
 ]
- 
-(* Sasaki-Nakamura equation for s=-2 perturbations *)
+
+
+(* ::Subsection::Closed:: *)
+(*Sasaki-Nakamura equation for s=-2*)
+
+
 SasakiNakamuraEquation[\[Lambda]_, m_, a_,  \[Omega]_, r1_, {X_, dX_, d2X_}] := Module[{M=1,\[CapitalDelta],f,c0,c1,c2,c3,c4,\[Eta],K,V,\[Beta],\[Alpha],U1,G,F,U,r},
 
 \[CapitalDelta]=r^2-2M r +a^2;
@@ -70,7 +98,12 @@ U=((\[CapitalDelta] U1)/(r^2+a^2)^2+G^2+(\[CapitalDelta] D[G,r])/(r^2+a^2)-F G);
 f^2 d2X + f(D[f,r]-F)dX - U X/.r->r1
 
 ]
- 
+
+
+(* ::Subsection::Closed:: *)
+(*Numerical integration of Up solutions*)
+
+
 SasakiNakamuraRadialUp[a_?NumericQ, \[Lambda]_?NumericQ, m_?NumericQ, \[Omega]_?NumericQ, r1_?NumericQ] := Module[{M=1, r, rout, outBC, XUp},
 
  rout = 1000;
@@ -79,10 +112,15 @@ SasakiNakamuraRadialUp[a_?NumericQ, \[Lambda]_?NumericQ, m_?NumericQ, \[Omega]_?
   
  XUp 
 ]
+
+
+(* ::Subsection::Closed:: *)
+(*Convert Sasaki-Nakamura back to Teukolsky variables*)
+
+
+TeukolskyRadialUp[s_, \[Lambda]_, m_, a_, \[Omega]_][r1_]/; s != -2 := Print["Only s=-2 is currently implemented for Method -> \"Numerical\""]
  
-TeukolskyRadialUp[s_, \[Lambda]_, m_, a_, \[Omega]_, r1_, Method->"Numerical"]/; s != -2 := Print["Only s=-2 is currently implemented for Method -> \"Numerical\""]
- 
-TeukolskyRadialUp[-2, \[Lambda]_?NumericQ, m_?IntegerQ, a_?NumericQ, \[Omega]_?NumericQ, r1_?NumericQ, Method -> "Numerical"]:=Module[{M=1, r, \[Chi]m, X, XUp, Rup, c0, c1, c2, c3 ,c4, K, \[Eta], \[CapitalDelta], \[Alpha], \[Beta], \[Chi]},
+TeukolskyRadialUp[-2, \[Lambda]_?NumericQ, m_?IntegerQ, a_?NumericQ, \[Omega]_?NumericQ][r1_?NumericQ]:=Module[{M=1, r, \[Chi]m, X, XUp, Rup, c0, c1, c2, c3 ,c4, K, \[Eta], \[CapitalDelta], \[Alpha], \[Beta], \[Chi]},
 
 XUp = SasakiNakamuraRadialUp[a, \[Lambda], m, \[Omega], r1];
 
@@ -110,10 +148,11 @@ K=(r^2+a^2)\[Omega]-m a;
  {Rup, D[Rup,r]}/.{r->r1, X[r]->XUp[r1], X'[r] -> XUp'[r1], X''[r] -> XUp''[r1]}
  
  ]
-  
- 
+
+
+(* ::Section::Closed:: *)
+(*End Package*)
+
+
 End[];
 EndPackage[];
-
-
-
