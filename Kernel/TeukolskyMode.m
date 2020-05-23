@@ -176,7 +176,7 @@ EnergyFlux[mode_TeukolskyMode] :=
   FluxHor = Switch[s,
 			-2, \[Alpha] Abs[Z["\[ScriptCapitalH]"]]^2/(4 \[Pi] \[Omega]^2),
 			(* The rh^2 factor vs arXiv:1003.1860 Eq. (55) is needed as \[Psi] = r R*)
-			0,  1/(2 \[Pi] rh) \[Omega](\[Omega]-m \[CapitalOmega]h) Abs[Z["ZHor"]]^2*rh^2
+			0,  1/(2 \[Pi] rh) \[Omega](\[Omega]-m \[CapitalOmega]h) Abs[Z["\[ScriptCapitalH]"]]^2*rh^2
 			];
 
   <| "\[ScriptCapitalI]" -> FluxInf, "\[ScriptCapitalH]" -> FluxHor |>
