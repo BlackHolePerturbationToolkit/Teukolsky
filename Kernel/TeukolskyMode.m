@@ -38,7 +38,7 @@ TeukolskyPointParticleMode::usage = "TeukolskyPointParticleMode[s, l, m, n, k, o
  "TeukolskyMode representing a solution to the radial Teukolsky equation with a point particle source.";
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Error Messages*)
 
 

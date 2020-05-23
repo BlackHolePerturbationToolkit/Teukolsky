@@ -33,7 +33,7 @@ ClearAttributes[{TeukolskyRadial, TeukolskyRadialFunction}, {Protected, ReadProt
 (*Usage messages*)
 
 
-TeukolskyRadial::usage = "TeukolskyRadial[s,l,m,a,\[Omega]] computes homogeneous solutions to the radial Teukolsky equation."
+TeukolskyRadial::usage = "TeukolskyRadial[s, l, m, a, \[Omega]] computes homogeneous solutions to the radial Teukolsky equation."
 TeukolskyRadialFunction::usage = "TeukolskyRadialFunction[s, l, m, a, \[Omega], assoc] is an object representing a homogeneous solution to the radial Teukolsky equation."
 
 
@@ -43,8 +43,8 @@ TeukolskyRadialFunction::usage = "TeukolskyRadialFunction[s, l, m, a, \[Omega], 
 
 TeukolskyRadial::precw = "The precision of `1`=`2` is less than WorkingPrecision (`3`).";
 TeukolskyRadial::optx = "Unknown options in `1`";
-TeukolskyRadial::sopt = "Option `1` not supported for static (\[Omega]=0) modes.";
 TeukolskyRadial::dm = "Option `1` is not valid with BoundaryConditions \[RightArrow] `2`.";
+TeukolskyRadial::sopt = "Option `1` not supported for static (\[Omega]=0) modes.";
 TeukolskyRadialFunction::dmval = "Radius `1` lies outside the computational domain. Results may be incorrect.";
 
 
@@ -209,10 +209,10 @@ TeukolskyRadialStatic[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, BCs_] :=
 
   (* Solution functions for the specified boundary conditions *)
   If[m == 0,
-  solFuncs =
+    solFuncs =
       <|"In" :> Function[{r},((r-1-Sqrt[1-a^2])/(2Sqrt[1-a^2]) (1+(r-1-Sqrt[1-a^2])/(2Sqrt[1-a^2])))^(-s/2) LegendreP[l,s,3,1+2 (r-1-Sqrt[1-a^2])/(2Sqrt[1-a^2])]],
         "Up" :> Function[{r}, (-1)^(s+1) 2s (l-s)!/(l+s)! ((r-1-Sqrt[1-a^2])/(2Sqrt[1-a^2]) (1+(r-1-Sqrt[1-a^2])/(2Sqrt[1-a^2])))^(-s/2) LegendreQ[l,s,3,1+2 (r-1-Sqrt[1-a^2])/(2Sqrt[1-a^2])]]
-     |>;
+       |>;
     ,
     With[{\[Tau] = -((m a)/Sqrt[1-a^2])},
       solFuncs =
@@ -414,7 +414,7 @@ TeukolskyRadialFunction[s_, l_, m_, a_, \[Omega]_, assoc_][r:(_?NumericQ|{_?Nume
  ];
 
 
-Derivative[n_][TeukolskyRadialFunction[s_,l_,m_,a_,\[Omega]_,assoc_]][r:(_?NumericQ|{_?NumericQ..})] :=
+Derivative[n_][TeukolskyRadialFunction[s_, l_, m_, a_, \[Omega]_, assoc_]][r:(_?NumericQ|{_?NumericQ..})] :=
  Module[{rmin, rmax},
   {rmin, rmax} = assoc["Domain"];
   If[outsideDomainQ[r, rmin, rmax],
