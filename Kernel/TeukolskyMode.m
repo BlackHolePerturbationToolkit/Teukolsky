@@ -155,6 +155,7 @@ TeukolskyMode[assoc_][string_] := assoc[string];
 
 EnergyFlux[mode_TeukolskyMode] :=
  Module[{M = 1, s, l, m, a, \[Omega], \[Lambda], Z, rh, \[CapitalOmega]h, \[Kappa], \[Epsilon], AbsCSq, \[Alpha], FluxInf, FluxHor},
+  a = mode["a"];
   s = mode["s"];
   l = mode["l"];
   m = mode["m"];
@@ -171,9 +172,9 @@ EnergyFlux[mode_TeukolskyMode] :=
 
   \[Alpha] = (256(2M rh)^5 \[Kappa](\[Kappa]^2+4\[Epsilon]^2)(\[Kappa]^2+16\[Epsilon]^2)\[Omega]^3)/AbsCSq;
 
-  FluxInf = Abs[Z["ZInf"]]^2 \[Omega]^(2(1-Abs[s]))/(4 \[Pi]);
+  FluxInf = Abs[Z["\[ScriptCapitalI]"]]^2 \[Omega]^(2(1-Abs[s]))/(4 \[Pi]);
   FluxHor = Switch[s,
-			-2, \[Alpha] Abs[Z["ZHor"]]^2/(4 \[Pi] \[Omega]^2),
+			-2, \[Alpha] Abs[Z["\[ScriptCapitalH]"]]^2/(4 \[Pi] \[Omega]^2),
 			(* The rh^2 factor vs arXiv:1003.1860 Eq. (55) is needed as \[Psi] = r R*)
 			0,  1/(2 \[Pi] rh) \[Omega](\[Omega]-m \[CapitalOmega]h) Abs[Z["ZHor"]]^2*rh^2
 			];
