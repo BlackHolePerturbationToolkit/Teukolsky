@@ -14,7 +14,7 @@ VerificationTest[
       "BoundaryConditions" -> "In", 
       "Amplitudes" ->
         <|(* "Incidence" -> _,  *)"Transmission" -> _(* , "Reflection" -> _  *)|>,
-        "Domain" -> {2, Infinity},
+        "Domain" -> {_, Infinity},
       "RadialFunction" -> Teukolsky`MST`MST`Private`MSTRadialIn[2, 2, 2, 0.5, 0.2, 
          \[Nu]_, \[Lambda]_, _, {MachinePrecision, MachinePrecision/2, MachinePrecision/2}]|>
     ]
