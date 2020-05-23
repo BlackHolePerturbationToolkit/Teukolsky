@@ -276,7 +276,7 @@ TeukolskyRadial[s_Integer, l_Integer, m_, a_, \[Omega]_, opts:OptionsPattern[]] 
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Non-static modes*)
 
 
@@ -309,8 +309,6 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
       TRF = TeukolskyRadialMST,
     "MST" | {"MST", OptionsPattern[TeukolskyRadialMST]},
       TRF = TeukolskyRadialMST,
-    "SasakiNakamura" | {"SasakiNakamura", OptionsPattern[TeukolskyRadialSasakiNakamura]},
-      TRF = TeukolskyRadialSasakiNakamura;,
     _,
       Message[TeukolskyRadial::optx, Method -> OptionValue[Method]];
       Return[$Failed];

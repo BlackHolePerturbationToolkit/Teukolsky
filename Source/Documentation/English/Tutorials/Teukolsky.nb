@@ -302,13 +302,9 @@ Cell["Method", \
 "Subsubsection",ExpressionUUID->"20610b7e-db92-4613-b5f2-f059eddef911"],
 
 Cell["\<\
-There are currently two supported methods for computing homogeneous \
-solutions: MST and SasakiNakamura. The MST method is the default and can \
-produce highly accurate results, but often needs to work beyond machine \
-precision whereas the SasakiNakamura method is fast and can be used to \
-efficiently evaluate on a grid of points. Further details on the methods \
-including their supported sub-options are given in the Methods section below.\
-\
+There is currently only one supported method for computing homogeneous \
+solutions: MST. Further details on the method including its supported \
+sub-options are given in the Methods section below.\
 \>", "Text",ExpressionUUID->"3993445a-ee17-4396-8e4e-a4ae6d2c64c5"],
 
 Cell[BoxData[
@@ -316,20 +312,8 @@ Cell[BoxData[
   RowBox[{"s", ",", "l", ",", "m", ",", "a", ",", "\[Omega]", ",", 
    RowBox[{"\"\<BoundaryConditions\>\"", "\[Rule]", "\"\<In\>\""}], ",", 
    RowBox[{"Method", "\[Rule]", "\"\<MST\>\""}]}], "]"}]], "Input",
- CellLabel->"In[45]:=",ExpressionUUID->"1aaae077-6a74-43c0-84f9-dcb41d0bf16e"],
-
-Cell[BoxData[
- RowBox[{"TeukolskyRadial", "[", 
-  RowBox[{"s", ",", "l", ",", "m", ",", "a", ",", "\[Omega]", ",", 
-   RowBox[{"\"\<BoundaryConditions\>\"", "\[Rule]", "\"\<In\>\""}], ",", 
-   RowBox[{"Method", "\[Rule]", 
-    RowBox[{"{", 
-     RowBox[{"\"\<SasakiNakamura\>\"", ",", 
-      RowBox[{"\"\<Domain\>\"", "\[Rule]", 
-       RowBox[{"{", 
-        RowBox[{"3", ",", "20"}], "}"}]}]}], "}"}]}]}], "]"}]], "Input",
  CellLabel->
-  "In[47]:=",ExpressionUUID->"3883e55e-6ee7-4124-9748-22ea069caf12"]
+  "In[45]:=",ExpressionUUID->"1aaae077-6a74-43c0-84f9-dcb41d0bf16e"]
 }, Open  ]],
 
 Cell[CellGroupData[{
@@ -390,12 +374,10 @@ Cell["Methods", \
 "Section",ExpressionUUID->"5828fc03-b10a-4c90-9bd7-1ce587d266ae"],
 
 Cell["\<\
-There are currently two supported methods for computing homogeneous \
-solutions: MST and NumericalIntegration. The MST method is the default and \
-can produce highly accurate results, but often needs to work beyond machine \
-precision whereas the NumericalIntegration method is fast and can be used to \
-efficiently evaluate on a grid of points. Each of the methods has sub-options \
-which are detailed below.\
+There is currently only one supported method for computing homogeneous \
+solutions: MST. The MST method is the default and can produce highly accurate \
+results, but often needs to work beyond machine precision. The methods has \
+sub-options which are detailed below.\
 \>", "Text",ExpressionUUID->"c1e296c9-3753-432e-9f5d-f6978c6ed7b0"],
 
 Cell[CellGroupData[{
@@ -508,99 +490,6 @@ generally the most reliable choice provided it is given enough digits of \
 working precision.\
 \>", "Text",ExpressionUUID->"470ee3d6-5fb6-47b7-9c90-ecd019a75929"]
 }, Open  ]]
-}, Open  ]],
-
-Cell[CellGroupData[{
-
-Cell["SasakiNakamura", \
-"Subsection",ExpressionUUID->"f9e19a63-f458-4c84-8861-aa438a660d25"],
-
-Cell[TextData[{
- "The SasakiNakamura method produces solutions by directly solving the \
-Sasaki-Nakamura reformulation of the Teukolsky equation using NDSolve. This \
-requires that the integration domain (",
- Cell[BoxData[
-  FormBox[
-   SubscriptBox["r", "min"], TraditionalForm]],ExpressionUUID->
-  "66125b7c-7a91-478a-a94b-0f87d5b4354a"],
- " and ",
- Cell[BoxData[
-  FormBox[
-   SubscriptBox["r", "max"], TraditionalForm]],ExpressionUUID->
-  "a26e60b0-bff4-4287-89ce-7866a3624156"],
- " endpoints) is specified, one domain per homogeneous solution to compute. \
-For example, let\[CloseCurlyQuote]s produce solutions in the range [3,10] for \
-\[OpenCurlyDoubleQuote]in\[CloseCurlyDoubleQuote] and [5,20] for \
-\[OpenCurlyDoubleQuote]up\[CloseCurlyDoubleQuote]."
-}], "Text",ExpressionUUID->"0f3e6b7c-4bc2-4f50-bedf-5fb56c068a11"],
-
-Cell[BoxData[
- RowBox[{"TeukolskyRadial", "[", 
-  RowBox[{"s", ",", "l", ",", "m", ",", "a", ",", "\[Omega]", ",", 
-   RowBox[{"\"\<BoundaryConditions\>\"", "\[Rule]", 
-    RowBox[{"{", 
-     RowBox[{"\"\<Up\>\"", ",", "\"\<In\>\""}], "}"}]}], ",", 
-   RowBox[{"Method", "\[Rule]", 
-    RowBox[{"{", 
-     RowBox[{"\"\<SasakiNakamura\>\"", ",", 
-      RowBox[{"\"\<Domain\>\"", "\[Rule]", 
-       RowBox[{"{", 
-        RowBox[{
-         RowBox[{"\"\<In\>\"", "\[Rule]", 
-          RowBox[{"{", 
-           RowBox[{"3", ",", "10"}], "}"}]}], ",", 
-         RowBox[{"\"\<Up\>\"", "\[Rule]", 
-          RowBox[{"{", 
-           RowBox[{"5", ",", "20"}], "}"}]}]}], "}"}]}]}], "}"}]}]}], 
-  "]"}]], "Input",
- CellLabel->"In[57]:=",ExpressionUUID->"8f82a572-713a-4419-ad3a-44e7ff2b5769"],
-
-Cell["\<\
-It is possible to specify only one endpoint, in which case the other endpoint \
-is set to the location where the  boundary condition is applied (near the \
-horizon for \[OpenCurlyDoubleQuote]in\[CloseCurlyDoubleQuote] and near \
-\[ScriptCapitalI] for \[OpenCurlyDoubleQuote]up)\
-\>", "Text",
- CellChangeTimes->{{3.792528218673543*^9, 
-  3.792528294295285*^9}},ExpressionUUID->"7abf27d7-693e-48fa-9d25-\
-89d6b56da058"],
-
-Cell[BoxData[
- RowBox[{"TeukolskyRadial", "[", 
-  RowBox[{"s", ",", "l", ",", "m", ",", "a", ",", "\[Omega]", ",", 
-   RowBox[{"\"\<BoundaryConditions\>\"", "\[Rule]", 
-    RowBox[{"{", 
-     RowBox[{"\"\<Up\>\"", ",", "\"\<In\>\""}], "}"}]}], ",", 
-   RowBox[{"Method", "\[Rule]", 
-    RowBox[{"{", 
-     RowBox[{"\"\<SasakiNakamura\>\"", ",", 
-      RowBox[{"\"\<Domain\>\"", "\[Rule]", 
-       RowBox[{"{", 
-        RowBox[{
-         RowBox[{"\"\<In\>\"", "\[Rule]", "3"}], ",", 
-         RowBox[{"\"\<Up\>\"", "\[Rule]", "5"}]}], "}"}]}]}], "}"}]}]}], 
-  "]"}]], "Input",
- CellLabel->"In[58]:=",ExpressionUUID->"d2e124f2-cb0d-4c8b-83ff-fba640ae7276"],
-
-Cell["\<\
-It is also possible to specify the domain as All, in which case the \
-integration is not done until a point is specified. This allows the \
-TeukolskyRadialFunction to later be evaluated for any radius, but will \
-generally be slower as the integral needs to be repeated for each radial \
-evaluation.\
-\>", "Text",ExpressionUUID->"884ebcad-5a29-429c-bf92-5f670861b134"],
-
-Cell[BoxData[
- RowBox[{"TeukolskyRadial", "[", 
-  RowBox[{"s", ",", "l", ",", "m", ",", "a", ",", "\[Omega]", ",", 
-   RowBox[{"\"\<BoundaryConditions\>\"", "\[Rule]", "\"\<In\>\""}], ",", 
-   RowBox[{"Method", "\[Rule]", 
-    RowBox[{"{", 
-     RowBox[{"\"\<SasakiNakamura\>\"", ",", 
-      RowBox[{"\"\<Domain\>\"", "\[Rule]", "All"}]}], "}"}]}]}], 
-  "]"}]], "Input",
- CellLabel->
-  "In[59]:=",ExpressionUUID->"eee44c4f-2def-41bc-bdd4-4aea3521a60a"]
 }, Open  ]]
 }, Open  ]],
 
