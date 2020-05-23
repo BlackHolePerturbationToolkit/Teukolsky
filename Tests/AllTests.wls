@@ -8,11 +8,11 @@ withinRoundoff[a_, b_] :=
     SameQ[a,b]];
 
 If[$VersionNumber >= 12.1,
-  PacletDirectoryLoad[FileNameDrop[ExpandFileName[First[$ScriptCommandLine]],-2]];
+  PacletDirectoryLoad[FileNameDrop[ExpandFileName[First[$ScriptCommandLine]],-3]];
   testFiles = FileNames["*.wlt",
     FileNameJoin[{PacletObject["Teukolsky"]["Location"], "Tests"}]];
   ,
-  PacletDirectoryAdd[FileNameDrop[ExpandFileName[First[$ScriptCommandLine]],-2]];
+  PacletDirectoryAdd[FileNameDrop[ExpandFileName[First[$ScriptCommandLine]],-3]];
   testFiles = FileNames["*.wlt",
     FileNameJoin[{Lookup[PacletInformation["Teukolsky"], "Location"], "Tests"}]];
 ];
