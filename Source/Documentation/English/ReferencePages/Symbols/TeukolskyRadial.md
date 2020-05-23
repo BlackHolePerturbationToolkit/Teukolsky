@@ -4,7 +4,7 @@
     },
   "Basic Examples" -> {
     "R = TeukolskyRadial[-2, 2, 2, 0.1`32, 0.3`32]",
-    "R[10.0]"
+    "R[\"In\"][10.0]"
     },
   "Option Descriptions" -> {
     Method -> "Method to use. Possible choices include \"MST\" and \"SasakiNakamura\".",
