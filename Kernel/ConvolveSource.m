@@ -51,8 +51,8 @@ ConvolveSourcePointParticleCircular[-2, R_, SH_, TS_] :=
  Module[{a, r0, m, \[Omega], \[CapitalDelta], W, Ann0, Anmb0, Ambmb0, Anmb1, Ambmb1, Ambmb2, RIn, ROut, dRIn, dROut, CIn, COut, ZIn, ZOut,S, dS, d2S, L2dagS, L1dagL2dagS, \[Rho], \[Rho]b, K},
   a  = TS["Orbit"]["a"];
   r0 = TS["Orbit"]["p"];
-  m  = R["m"];
-  \[Omega]  = R["\[Omega]"];
+  m  = R["In"]["m"];
+  \[Omega]  = R["In"]["\[Omega]"];
 
   RIn = R["In"][r0];
   ROut = R["Up"][r0];
