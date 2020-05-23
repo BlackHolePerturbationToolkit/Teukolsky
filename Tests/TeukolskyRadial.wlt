@@ -124,4 +124,144 @@ VerificationTest[
 ]
 
 
+(****************************************************************)
+(* Static modes                                                 *)
+(****************************************************************)
+VerificationTest[
+    TeukolskyRadial[2, 2, 2, 1/3, 0]["In"][10]
+    ,
+    ((514105 + 77004 I) 2^(
+     1/2 - I/Sqrt[2] + 1/2 (2 - I/(2 Sqrt[2]))) 3^(-1 + I/(
+      2 Sqrt[2])) (9 - (2 Sqrt[2])/3)^(-2 + I/(
+      2 Sqrt[2])) (1 + (3 (9 - (2 Sqrt[2])/3))/(4 Sqrt[2]))^(-2 - I/(
+      2 Sqrt[2])))/((-2 I + Sqrt[2]) (2 I + Sqrt[2]) (-4 I + Sqrt[2]))
+    ,
+    TestID->"Static \"in\" mode"
+]
 
+VerificationTest[
+    TeukolskyRadial[2, 2, 2, 1/3, 0.0]["In"][10]
+    ,
+    ((514105 + 77004 I) 2^(
+     1/2 - I/Sqrt[2] + 1/2 (2 - I/(2 Sqrt[2]))) 3^(-1 + I/(
+      2 Sqrt[2])) (9 - (2 Sqrt[2])/3)^(-2 + I/(
+      2 Sqrt[2])) (1 + (3 (9 - (2 Sqrt[2])/3))/(4 Sqrt[2]))^(-2 - I/(
+      2 Sqrt[2])))/((-2 I + Sqrt[2]) (2 I + Sqrt[2]) (-4 I + Sqrt[2]))
+    ,
+    TestID->"Static \"in\" mode (machine-precision omega)"
+]
+
+VerificationTest[
+    TeukolskyRadial[2, 2, 2, 1/3, 0.0``32]["In"][10]
+    ,
+    ((514105 + 77004 I) 2^(
+     1/2 - I/Sqrt[2] + 1/2 (2 - I/(2 Sqrt[2]))) 3^(-1 + I/(
+      2 Sqrt[2])) (9 - (2 Sqrt[2])/3)^(-2 + I/(
+      2 Sqrt[2])) (1 + (3 (9 - (2 Sqrt[2])/3))/(4 Sqrt[2]))^(-2 - I/(
+      2 Sqrt[2])))/((-2 I + Sqrt[2]) (2 I + Sqrt[2]) (-4 I + Sqrt[2]))
+    ,
+    TestID->"Static \"in\" mode (high-accuracy omega)"
+]
+
+VerificationTest[
+    TeukolskyRadial[2, 2, 0, 1/3, 0]["In"][10]
+    ,
+    (6 (2 + (3 (9 - (2 Sqrt[2])/3))/(2 Sqrt[2])))/(1 + (
+     3 (9 - (2 Sqrt[2])/3))/(4 Sqrt[2]))
+    ,
+    TestID->"Static m=0 \"in\" mode"
+]
+
+VerificationTest[
+    TeukolskyRadial[2, 2, 0, 1/3, 0.0]["In"][10]
+    ,
+    (6 (2 + (3 (9 - (2 Sqrt[2])/3))/(2 Sqrt[2])))/(1 + (
+     3 (9 - (2 Sqrt[2])/3))/(4 Sqrt[2]))
+    ,
+    TestID->"Static m=0 \"in\" mode (machine-precision omega)"
+]
+
+VerificationTest[
+    TeukolskyRadial[2, 2, 0, 1/3, 0.0``32]["In"][10]
+    ,
+    (6 (2 + (3 (9 - (2 Sqrt[2])/3))/(2 Sqrt[2])))/(1 + (
+     3 (9 - (2 Sqrt[2])/3))/(4 Sqrt[2]))
+    ,
+    TestID->"Static m=0 \"in\" mode (high-accuracy omega)"
+]
+
+VerificationTest[
+    TeukolskyRadial[2, 2, 2, 1/3, 0]["Up"][10]
+    ,
+    ((77004 - 514105 I) 2^(-3 - I/Sqrt[2] + 
+         1/2 (2 - I/(2 Sqrt[2]))) (-1 + I/Sqrt[2]) (1 + I/Sqrt[2]) (2 + I/
+          Sqrt[2]) (3 (9 - (2 Sqrt[2])/3))^(-2 + I/(
+         2 Sqrt[2])) (1 + (3 (9 - (2 Sqrt[2])/3))/(4 Sqrt[2]))^(-2 - I/(
+         2 Sqrt[2])))/((-2 I + Sqrt[2]) (2 I + Sqrt[2]) (-4 I + Sqrt[
+          2])) + 2^((5 I)/(
+      4 Sqrt[2])) ((1 + (3 (9 - (2 Sqrt[2])/3))/(4 Sqrt[2]))/(
+       3 (9 - (2 Sqrt[2])/3)))^(I/(2 Sqrt[2]))
+    ,
+    TestID->"Static \"up\" mode"
+]
+
+VerificationTest[
+    TeukolskyRadial[2, 2, 2, 1/3, 0.0]["Up"][10]
+    ,
+    ((77004 - 514105 I) 2^(-3 - I/Sqrt[2] + 
+         1/2 (2 - I/(2 Sqrt[2]))) (-1 + I/Sqrt[2]) (1 + I/Sqrt[2]) (2 + I/
+          Sqrt[2]) (3 (9 - (2 Sqrt[2])/3))^(-2 + I/(
+         2 Sqrt[2])) (1 + (3 (9 - (2 Sqrt[2])/3))/(4 Sqrt[2]))^(-2 - I/(
+         2 Sqrt[2])))/((-2 I + Sqrt[2]) (2 I + Sqrt[2]) (-4 I + Sqrt[
+          2])) + 2^((5 I)/(
+      4 Sqrt[2])) ((1 + (3 (9 - (2 Sqrt[2])/3))/(4 Sqrt[2]))/(
+       3 (9 - (2 Sqrt[2])/3)))^(I/(2 Sqrt[2]))
+    ,
+    TestID->"Static \"up\" mode (machine-precision omega)"
+]
+
+VerificationTest[
+    TeukolskyRadial[2, 2, 2, 1/3, 0.0``32]["Up"][10]
+    ,
+    ((77004 - 514105 I) 2^(-3 - I/Sqrt[2] + 
+         1/2 (2 - I/(2 Sqrt[2]))) (-1 + I/Sqrt[2]) (1 + I/Sqrt[2]) (2 + I/
+          Sqrt[2]) (3 (9 - (2 Sqrt[2])/3))^(-2 + I/(
+         2 Sqrt[2])) (1 + (3 (9 - (2 Sqrt[2])/3))/(4 Sqrt[2]))^(-2 - I/(
+         2 Sqrt[2])))/((-2 I + Sqrt[2]) (2 I + Sqrt[2]) (-4 I + Sqrt[
+          2])) + 2^((5 I)/(
+      4 Sqrt[2])) ((1 + (3 (9 - (2 Sqrt[2])/3))/(4 Sqrt[2]))/(
+       3 (9 - (2 Sqrt[2])/3)))^(I/(2 Sqrt[2]))
+    ,
+    TestID->"Static \"up\" mode (high-accuracy omega)"
+]
+
+
+VerificationTest[
+    TeukolskyRadial[2, 2, 0, 1/3, 0]["Up"][10]
+    ,
+    -((2 Sqrt[2]
+       LegendreQ[2, 2, 3, 1 + (3 (9 - (2 Sqrt[2])/3))/(2 Sqrt[2])])/(
+     9 (9 - (2 Sqrt[2])/3) (1 + (3 (9 - (2 Sqrt[2])/3))/(4 Sqrt[2]))))
+    ,
+    TestID->"Static m=0 \"up\" mode"
+]
+
+VerificationTest[
+    TeukolskyRadial[2, 2, 0, 1/3, 0.0]["Up"][10]
+    ,
+    -((2 Sqrt[2]
+       LegendreQ[2, 2, 3, 1 + (3 (9 - (2 Sqrt[2])/3))/(2 Sqrt[2])])/(
+     9 (9 - (2 Sqrt[2])/3) (1 + (3 (9 - (2 Sqrt[2])/3))/(4 Sqrt[2]))))
+    ,
+    TestID->"Static m=0 \"up\" mode (machine-precision omega)"
+]
+
+VerificationTest[
+    TeukolskyRadial[2, 2, 0, 1/3, 0.0``32]["Up"][10]
+    ,
+    -((2 Sqrt[2]
+       LegendreQ[2, 2, 3, 1 + (3 (9 - (2 Sqrt[2])/3))/(2 Sqrt[2])])/(
+     9 (9 - (2 Sqrt[2])/3) (1 + (3 (9 - (2 Sqrt[2])/3))/(4 Sqrt[2]))))
+    ,
+    TestID->"Static m=0 \"up\" mode (high-accuracy omega)"
+]
