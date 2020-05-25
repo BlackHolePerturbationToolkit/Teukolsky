@@ -5,7 +5,10 @@ Block[{MST`$MasterFunction = "Teukolsky"},
   Get["Teukolsky`MST`MST`"];
 ];
 
-Get["Teukolsky`SasakiNakamura`"];
-Get["Teukolsky`TeukolskyRadial`"];
-Get["Teukolsky`TeukolskySource`"];
-Get["Teukolsky`TeukolskyMode`"];
+BeginPackage["Teukolsky`", {
+  "Teukolsky`SasakiNakamura`",
+  "Teukolsky`TeukolskyRadial`",
+  "Teukolsky`TeukolskySource`",
+  "Teukolsky`TeukolskyMode`"}];
+
+EndPackage[];
