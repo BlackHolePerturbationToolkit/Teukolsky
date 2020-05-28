@@ -4,17 +4,18 @@
 (*TeukolskyRadial*)
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Create Package*)
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*BeginPackage*)
 
 
 BeginPackage["Teukolsky`TeukolskyRadial`",
   {
   "Teukolsky`SasakiNakamura`",
+   "Teukolsky`HyperboloidalSlicing`",
    "Teukolsky`MST`RenormalizedAngularMomentum`",
    "Teukolsky`MST`MST`",
    "SpinWeightedSpheroidalHarmonics`"
@@ -37,7 +38,7 @@ TeukolskyRadial::usage = "TeukolskyRadial[s, l, m, a, \[Omega]] computes homogen
 TeukolskyRadialFunction::usage = "TeukolskyRadialFunction[s, l, m, a, \[Omega], assoc] is an object representing a homogeneous solution to the radial Teukolsky equation."
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Error Messages*)
 
 
@@ -45,6 +46,7 @@ TeukolskyRadial::precw = "The precision of `1`=`2` is less than WorkingPrecision
 TeukolskyRadial::optx = "Unknown options in `1`";
 TeukolskyRadial::dm = "Option `1` is not valid with BoundaryConditions \[RightArrow] `2`.";
 TeukolskyRadial::sopt = "Option `1` not supported for static (\[Omega]=0) modes.";
+TeukolskyRadial::kerr = "Option `1` not supported for Kerr (a>0) spacetime.";
 TeukolskyRadialFunction::dmval = "Radius `1` lies outside the computational domain. Results may be incorrect.";
 
 
@@ -67,11 +69,86 @@ rp[a_,M_] := M+Sqrt[M^2-a^2];
 rm[a_,M_] := M-Sqrt[M^2-a^2];
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*TeukolskyRadial*)
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
+(*Numerical Integration Method*)
+
+
+Options[TeukolskyRadialNumericalIntegration] = Join[
+  {"Domain" -> None},
+  FilterRules[Options[NDSolve], Except[WorkingPrecision|AccuracyGoal|PrecisionGoal]]];
+
+
+domainQ[domain_] := MatchQ[domain, {_?NumericQ, _?NumericQ} | (_?NumericQ) | All];
+
+
+TeukolskyRadialNumericalIntegration[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, BCs_, {wp_, prec_, acc_}, opts:OptionsPattern[]] :=
+ Module[{\[Lambda], TRF, norms, ndsolveopts, solFuncs, domains},
+  (* Compute the eigenvalue *)
+  \[Lambda] = SpinWeightedSpheroidalEigenvalue[s, l, m, a \[Omega]];
+  
+  (* Function to construct a single TeukolskyRadialFunction *)
+  TRF[bc_, ns_, sf_, domain_, ndsolveopts___] :=
+   Module[{solutionFunction},
+    solutionFunction = sf[domain];
+    TeukolskyRadialFunction[s, l, m, a, \[Omega],
+     Association["s" -> s, "l" -> l, "m" -> m, "a" -> a, "\[Omega]" -> \[Omega], "Eigenvalue" -> \[Lambda],
+      "Method" -> {"NumericalIntegration", ndsolveopts},
+      "BoundaryConditions" -> bc, "Amplitudes" -> ns,
+      "Domain" -> If[domain === All, {rp[a, 1], \[Infinity]}, First[solutionFunction["Domain"]]],
+      "RadialFunction" -> solutionFunction
+     ]
+    ]
+   ];
+   
+  (* Only Schwarzschild has been implemented for numerical integration
+  with hyperboloidal slicing *)
+  If[a!==0,
+    Message[TeukolskyRadial::kerr, "a" -> a];
+      Return[$Failed];
+   ];
+
+  (* Domain over which the numerical solution can be evaluated *)
+  domains = OptionValue["Domain"];
+  If[ListQ[BCs],
+    If[!MatchQ[domains, (List|Association)[Rule["In"|"Up",_?domainQ]..]],
+      Message[TeukolskyRadial::dm, "Domain" -> domains, BCs];
+      Return[$Failed];
+    ];
+    domains = Lookup[domains, BCs, None]; 
+    If[!AllTrue[domains, domainQ],
+      Message[TeukolskyRadial::dm, "Domain" -> OptionValue["Domain"], BCs];
+      Return[$Failed];
+    ];
+  ,
+    If[!domainQ[domains],
+      Message[TeukolskyRadial::dm, "Domain" -> domains, BCs];
+      Return[$Failed];
+    ];
+  ];
+
+  (* Asymptotic normalizations such that we have unit transmission coefficient *)
+  norms = <|"In" -> <|"Transmission" -> 1|>, "Up" -> <|"Transmission" -> 1|>|>;
+  norms = Lookup[norms, BCs];
+  
+  (* Solution functions for the specified boundary conditions *)
+  ndsolveopts = Sequence@@FilterRules[{opts}, Options[NDSolve]];
+  solFuncs =
+   <|"In" :> Teukolsky`NumericalIntegration`Private`psi[s, l, m, \[Omega], "In", WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> acc, ndsolveopts],
+     "Up" :> Teukolsky`NumericalIntegration`Private`psi[s, l, m, \[Omega], "Up", WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> acc, ndsolveopts]|>;
+  solFuncs = Lookup[solFuncs, BCs];
+
+  If[ListQ[BCs],
+    Return[Association[MapThread[#1 -> TRF[#1, #2, #3, #4, ndsolveopts]&, {BCs, norms, solFuncs, domains}]]],
+    Return[TRF[BCs, norms, solFuncs, domains, ndsolveopts]]
+  ];
+];
+
+
+(* ::Subsection:: *)
 (*Sasaki-Nakamura Method*)
 
 
@@ -235,7 +312,7 @@ TeukolskyRadialStatic[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, BCs_] :=
 ];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*TeukolskyRadial*)
 
 
@@ -252,7 +329,7 @@ Options[TeukolskyRadial] = {
 };
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Static modes*)
 
 
@@ -324,11 +401,11 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
 ];
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*TeukolskyRadialFunction*)
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Output format*)
 
 
@@ -392,7 +469,7 @@ TeukolskyRadialFunction[s_, l_, m_, a_, \[Omega]_, assoc_][y_String] /; !MemberQ
   assoc[y];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Numerical evaluation*)
 
 
