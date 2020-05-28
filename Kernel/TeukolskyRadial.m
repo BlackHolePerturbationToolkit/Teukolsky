@@ -15,7 +15,7 @@
 BeginPackage["Teukolsky`TeukolskyRadial`",
   {
   "Teukolsky`SasakiNakamura`",
-   "Teukolsky`HyperboloidalSlicing`",
+   "Teukolsky`NumericalIntegration`",
    "Teukolsky`MST`RenormalizedAngularMomentum`",
    "Teukolsky`MST`MST`",
    "SpinWeightedSpheroidalHarmonics`"
@@ -217,7 +217,7 @@ TeukolskyRadialSasakiNakamura[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, BC
 ];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*MST Method*)
 
 
@@ -262,7 +262,7 @@ TeukolskyRadialMST[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, BCs_, {wp_, p
 ];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Static modes*)
 
 
@@ -386,6 +386,8 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
       TRF = TeukolskyRadialMST,
     "MST" | {"MST", OptionsPattern[TeukolskyRadialMST]},
       TRF = TeukolskyRadialMST,
+    "NumericalIntegration" | {"NumericalIntegration", OptionsPattern[TeukolskyRadialNumericalIntegration]},
+      TRF = TeukolskyRadialNumericalIntegration;,
     _,
       Message[TeukolskyRadial::optx, Method -> OptionValue[Method]];
       Return[$Failed];

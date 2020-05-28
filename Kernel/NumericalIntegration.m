@@ -12,7 +12,7 @@
 (*Begin Package*)
 
 
-BeginPackage["Teukolsky`HyperboloidalSlicing`"];
+BeginPackage["Teukolsky`NumericalIntegration`"];
 
 
 (* ::Subsection:: *)
