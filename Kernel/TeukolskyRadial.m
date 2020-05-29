@@ -30,7 +30,7 @@ BeginPackage["Teukolsky`TeukolskyRadial`",
 ClearAttributes[{TeukolskyRadial, TeukolskyRadialFunction}, {Protected, ReadProtected}];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Usage messages*)
 
 
@@ -50,23 +50,31 @@ TeukolskyRadial::kerr = "Option `1` not supported for Kerr (a>0) spacetime.";
 TeukolskyRadialFunction::dmval = "Radius `1` lies outside the computational domain. Results may be incorrect.";
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Begin Private section*)
 
 
 Begin["`Private`"];
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Utility Functions*)
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Horizon Locations*)
 
 
 rp[a_,M_] := M+Sqrt[M^2-a^2];
 rm[a_,M_] := M-Sqrt[M^2-a^2];
+
+
+(* ::Subsection:: *)
+(*Hyperboloidal Transformation Functions*)
+
+
+f[r_]=1-2/r;
+rs[r_]:=r+2 Log[r/2-1];
 
 
 (* ::Section:: *)
@@ -98,7 +106,7 @@ TeukolskyRadialNumericalIntegration[s_Integer, l_Integer, m_Integer, a_, \[Omega
      Association["s" -> s, "l" -> l, "m" -> m, "a" -> a, "\[Omega]" -> \[Omega], "Eigenvalue" -> \[Lambda],
       "Method" -> {"NumericalIntegration", ndsolveopts},
       "BoundaryConditions" -> bc, "Amplitudes" -> ns,
-      "Domain" -> If[domain === All, {rp[a, 1], \[Infinity]}, First[solutionFunction["Domain"]]],
+      "Domain" -> If[domain === All, {2, \[Infinity]}, Last[solutionFunction[r]/.r->"Domain"]],
       "RadialFunction" -> solutionFunction
      ]
     ]
@@ -106,7 +114,7 @@ TeukolskyRadialNumericalIntegration[s_Integer, l_Integer, m_Integer, a_, \[Omega
    
   (* Only Schwarzschild has been implemented for numerical integration
   with hyperboloidal slicing *)
-  If[a!==0,
+  If[a!=0,
     Message[TeukolskyRadial::kerr, "a" -> a];
       Return[$Failed];
    ];
@@ -137,8 +145,8 @@ TeukolskyRadialNumericalIntegration[s_Integer, l_Integer, m_Integer, a_, \[Omega
   (* Solution functions for the specified boundary conditions *)
   ndsolveopts = Sequence@@FilterRules[{opts}, Options[NDSolve]];
   solFuncs =
-   <|"In" :> Teukolsky`NumericalIntegration`Private`psi[s, l, m, \[Omega], "In", WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> acc, ndsolveopts],
-     "Up" :> Teukolsky`NumericalIntegration`Private`psi[s, l, m, \[Omega], "Up", WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> acc, ndsolveopts]|>;
+   <|"In" :> Function[{r}, r^-(2s+1) f[r]^-s Exp[-I \[Omega] rs[r]] (Teukolsky`NumericalIntegration`Private`psi[s, l, m, \[Omega], "In", WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> acc, ndsolveopts])[r]],
+     "Up" :> Function[{r}, r^-(2s+1) f[r]^-s Exp[I \[Omega] rs[r]] (Teukolsky`NumericalIntegration`Private`psi[s, l, m, \[Omega], "Up", WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> acc, ndsolveopts])[r]]|>;
   solFuncs = Lookup[solFuncs, BCs];
 
   If[ListQ[BCs],
