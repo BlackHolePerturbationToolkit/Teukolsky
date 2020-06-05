@@ -12,10 +12,7 @@
 (*Begin Package*)
 
 
-BeginPackage["Teukolsky`NumericalIntegration`",
-  {
-    "Teukolsky`TeukolskyRadial`"
-  }];
+BeginPackage["Teukolsky`NumericalIntegration`"];
 
 
 (* ::Subsection:: *)
