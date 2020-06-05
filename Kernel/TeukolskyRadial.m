@@ -100,14 +100,15 @@ TeukolskyRadialNumericalIntegration[s_Integer, l_Integer, m_Integer, a_, \[Omega
   
   (* Function to construct a single TeukolskyRadialFunction *)
   TRF[bc_, ns_, sf_, domain_, ndsolveopts___] :=
-   Module[{solutionFunction},
+   Module[{solutionFunction, bcdir},
     solutionFunction = sf[domain];
+    bcdir = bc /. {"In" -> -1, "Up" -> +1};
     TeukolskyRadialFunction[s, l, m, a, \[Omega],
      Association["s" -> s, "l" -> l, "m" -> m, "a" -> a, "\[Omega]" -> \[Omega], "Eigenvalue" -> \[Lambda],
       "Method" -> {"NumericalIntegration", ndsolveopts},
       "BoundaryConditions" -> bc, "Amplitudes" -> ns,
       "Domain" -> If[domain === All, {rp[a, 1], \[Infinity]}, First[solutionFunction["Domain"]]],
-      "RadialFunction" -> solutionFunction
+      "RadialFunction" -> Function[{r}, r^-(2s+1) f[r]^-s Exp[bcdir I \[Omega] rs[r]] solutionFunction[r]]
      ]
     ]
    ];
@@ -145,8 +146,8 @@ TeukolskyRadialNumericalIntegration[s_Integer, l_Integer, m_Integer, a_, \[Omega
   (* Solution functions for the specified boundary conditions *)
   ndsolveopts = Sequence@@FilterRules[{opts}, Options[NDSolve]];
   solFuncs =
-   <|"In" :> Function[{r}, r^-(2s+1) f[r]^-s Exp[-I \[Omega] rs[r]] (Teukolsky`NumericalIntegration`Private`psi[s, l, m, \[Omega], "In", WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> acc, ndsolveopts])[r]],
-     "Up" :> Function[{r}, r^-(2s+1) f[r]^-s Exp[I \[Omega] rs[r]] (Teukolsky`NumericalIntegration`Private`psi[s, l, m, \[Omega], "Up", WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> acc, ndsolveopts])[r]]|>;
+   <|"In" :> Teukolsky`NumericalIntegration`Private`psi[s, l, m, \[Omega], "In", WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> acc, ndsolveopts],
+     "Up" :> Teukolsky`NumericalIntegration`Private`psi[s, l, m, \[Omega], "Up", WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> acc, ndsolveopts]|>;
   solFuncs = Lookup[solFuncs, BCs];
 
   If[ListQ[BCs],
