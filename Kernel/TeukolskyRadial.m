@@ -73,7 +73,7 @@ rm[a_,M_] := M-Sqrt[M^2-a^2];
 (*Hyperboloidal Transformation Functions*)
 
 
-f[r_]=1-2/r;
+f[r_] := 1-2/r;
 rs[r_]:=r+2 Log[r/2-1];
 
 
