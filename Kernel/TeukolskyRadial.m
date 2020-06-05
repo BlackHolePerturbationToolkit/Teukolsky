@@ -106,7 +106,7 @@ TeukolskyRadialNumericalIntegration[s_Integer, l_Integer, m_Integer, a_, \[Omega
      Association["s" -> s, "l" -> l, "m" -> m, "a" -> a, "\[Omega]" -> \[Omega], "Eigenvalue" -> \[Lambda],
       "Method" -> {"NumericalIntegration", ndsolveopts},
       "BoundaryConditions" -> bc, "Amplitudes" -> ns,
-      "Domain" -> If[domain === All, {2, \[Infinity]}, First[solutionFunction["Domain"]]],
+      "Domain" -> If[domain === All, {rp[a, 1], \[Infinity]}, First[solutionFunction["Domain"]]],
       "RadialFunction" -> solutionFunction
      ]
     ]
