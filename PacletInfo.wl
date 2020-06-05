@@ -1,5 +1,3 @@
-(* ::Package:: *)
-
 Paclet[
   "Name" -> "Teukolsky",
   "Version" -> "0.2.0",

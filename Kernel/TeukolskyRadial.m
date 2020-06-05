@@ -4,11 +4,11 @@
 (*TeukolskyRadial*)
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Create Package*)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*BeginPackage*)
 
 
@@ -30,7 +30,7 @@ BeginPackage["Teukolsky`TeukolskyRadial`",
 ClearAttributes[{TeukolskyRadial, TeukolskyRadialFunction}, {Protected, ReadProtected}];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Usage messages*)
 
 
@@ -38,7 +38,7 @@ TeukolskyRadial::usage = "TeukolskyRadial[s, l, m, a, \[Omega]] computes homogen
 TeukolskyRadialFunction::usage = "TeukolskyRadialFunction[s, l, m, a, \[Omega], assoc] is an object representing a homogeneous solution to the radial Teukolsky equation."
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Error Messages*)
 
 
@@ -50,18 +50,18 @@ TeukolskyRadial::kerr = "Option `1` not supported for Kerr (a>0) spacetime.";
 TeukolskyRadialFunction::dmval = "Radius `1` lies outside the computational domain. Results may be incorrect.";
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Begin Private section*)
 
 
 Begin["`Private`"];
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Utility Functions*)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Horizon Locations*)
 
 
@@ -69,7 +69,7 @@ rp[a_,M_] := M+Sqrt[M^2-a^2];
 rm[a_,M_] := M-Sqrt[M^2-a^2];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Hyperboloidal Transformation Functions*)
 
 
@@ -77,11 +77,11 @@ f[r_] := 1-2/r;
 rs[r_]:=r+2 Log[r/2-1];
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*TeukolskyRadial*)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Numerical Integration Method*)
 
 
@@ -157,7 +157,7 @@ TeukolskyRadialNumericalIntegration[s_Integer, l_Integer, m_Integer, a_, \[Omega
 ];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Sasaki-Nakamura Method*)
 
 
@@ -226,7 +226,7 @@ TeukolskyRadialSasakiNakamura[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, BC
 ];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*MST Method*)
 
 
@@ -271,7 +271,7 @@ TeukolskyRadialMST[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, BCs_, {wp_, p
 ];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Static modes*)
 
 
@@ -321,7 +321,7 @@ TeukolskyRadialStatic[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, BCs_] :=
 ];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*TeukolskyRadial*)
 
 
@@ -338,7 +338,7 @@ Options[TeukolskyRadial] = {
 };
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Static modes*)
 
 
@@ -362,7 +362,7 @@ TeukolskyRadial[s_Integer, l_Integer, m_, a_, \[Omega]_, opts:OptionsPattern[]] 
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Non-static modes*)
 
 
@@ -412,11 +412,11 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
 ];
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*TeukolskyRadialFunction*)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Output format*)
 
 
@@ -480,7 +480,7 @@ TeukolskyRadialFunction[s_, l_, m_, a_, \[Omega]_, assoc_][y_String] /; !MemberQ
   assoc[y];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Numerical evaluation*)
 
 

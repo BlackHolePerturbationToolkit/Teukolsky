@@ -4,29 +4,29 @@
 (*HyperboloidalSlicing*)
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Create Package*)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Begin Package*)
 
 
 BeginPackage["Teukolsky`NumericalIntegration`"];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Begin Private*)
 
 
 Begin["`Private`"];
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Radial Solutions with HPS*)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Useful Functions*)
 
 
@@ -35,7 +35,7 @@ rs[r_]:=r+2 Log[r/2-1];
 fr[r_]=1-2/r;
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Radial Bardeen-Press-Teukolsky Equation*)
 
 
@@ -103,7 +103,7 @@ Derivative[n_][AllIntegrator[s_,l_,m_,\[Omega]_,y1BC_,y2BC_,rBC_,potential_,H_?N
 	];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Boundary Conditions*)
 
 
@@ -127,7 +127,7 @@ TeukolskyUpBC[s1_Integer, l1_Integer, m1_Integer, \[Omega]1_, workingprecision_]
 
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*End Package*)
 
 
