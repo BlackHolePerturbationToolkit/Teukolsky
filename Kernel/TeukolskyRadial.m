@@ -175,7 +175,7 @@ TeukolskyRadialMST[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, BCs_, {wp_, p
 
   (* Select normalisation coefficients for the specified boundary conditions and rescale
      to give unit transmission coefficient. *)
-  norms = norms[[All, {"Transmission"}]]/norms[[All, "Transmission"]];
+  norms = norms/norms[[All, "Transmission"]];
   norms = Lookup[norms, BCs];
 
   If[ListQ[BCs],
@@ -225,7 +225,7 @@ TeukolskyRadialStatic[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, BCs_] :=
 
   (* Select normalisation coefficients for the specified boundary conditions and rescale
      to give unit transmission coefficient. *)
-  norms = norms[[All, {"Transmission"}]]/norms[[All, "Transmission"]];
+  norms = norms/norms[[All, "Transmission"]];
   norms = Lookup[norms, BCs];
 
   If[ListQ[BCs],
