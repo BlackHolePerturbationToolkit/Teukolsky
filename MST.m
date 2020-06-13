@@ -261,7 +261,7 @@ fn[q_, \[Epsilon]_, \[Kappa]_, \[Tau]_, \[Nu]_, \[Lambda]_, s_, m_, nf_] :=
 
 
 Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, {wp_, prec_, acc_}] :=
- Module[{\[Kappa], \[Tau], \[Epsilon]p, \[Omega], K\[Nu], K\[Nu]1, K\[Nu]2, Aminus, Aplus, InTrans, UpTrans, InInc, InRef, n, fSumUp, fSumDown, fSumK\[Nu]1Up, fSumK\[Nu]1Down, fSumK\[Nu]2Up, fSumK\[Nu]2Down, fSumAminusUp, fSumAminusDown, termf, termK\[Nu]1Up, termK\[Nu]1Down, termK\[Nu]2Up, termK\[Nu]2Down, termAminus},
+ Module[{\[Kappa], \[Tau], \[Epsilon]p, \[Omega], K\[Nu], K\[Nu]1, K\[Nu]2, Aminus, Aplus, D1, D12, D2, D22, InTrans, UpTrans, InInc, UpInc, InRef, UpRef, n, fSumUp, fSumDown, fSumK\[Nu]1Up, fSumK\[Nu]1Down, fSumK\[Nu]2Up, fSumK\[Nu]2Down, fSumAminusUp, fSumAminusDown, fSumD1Up, fSumD1Down, fSumD12Up, fSumD12Down, termf, termK\[Nu]1Up, termK\[Nu]1Down, termK\[Nu]2Up, termK\[Nu]2Down, termAminus, termD1, termD12},
  Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], fn},
   \[Kappa] = Sqrt[1 - q^2];
   \[Tau] = (\[Epsilon] - m q)/\[Kappa];
@@ -315,6 +315,25 @@ Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_,
 
   n = -1;
   While[fSumAminusDown != (fSumAminusDown += termAminus[n]), n--];
+
+  (* Sums appearing in "up" incidence coefficient *)
+  termD1[n_] := termD1[n] = (Gamma[1+\[Nu]+n+s+I \[Epsilon]] Gamma[1+\[Nu]+n+I \[Tau]])/(Gamma[1+\[Nu]+n-s-I \[Epsilon]] Gamma[1+\[Nu]+n-I \[Tau]]) fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n];
+  fSumD1Up = fSumD1Down = 0;
+
+  n = 0;
+  While[fSumD1Up != (fSumD1Up += termD1[n]), n++];
+
+  n = -1;
+  While[fSumD1Down != (fSumD1Down += termD1[n]), n--];
+
+  termD12[n_] := termD12[n] = (Gamma[1+(-1-\[Nu])+n+s+I \[Epsilon]] Gamma[1+(-1-\[Nu])+n+I \[Tau]])/(Gamma[1+(-1-\[Nu])+n-s-I \[Epsilon]] Gamma[1+(-1-\[Nu])+n-I \[Tau]]) fn[q, \[Epsilon], \[Kappa], \[Tau], (-1-\[Nu]), \[Lambda], s, m, n];
+  fSumD12Up = fSumD12Down = 0;
+
+  n = 0;
+  While[fSumD12Up != (fSumD12Up += termD12[n]), n++];
+
+  n = -1;
+  While[fSumD12Down != (fSumD12Down += termD12[n]), n--];
   
   (* In transmission coefficient: Btrans in ST (167) and CO (3.12) *)
   InTrans = prefacInTrans[s, \[Epsilon], \[Tau], \[Kappa]] (fSumUp+fSumDown);
@@ -332,15 +351,29 @@ Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_,
   (* In reflection coefficient: Bref in ST (169), CO (3.37) *)
   InRef = UpTrans (K\[Nu]1 + I E^(I \[Pi] \[Nu]) K\[Nu]2);
 
+  (* D2 *)
+  D2 = -Exp[(I \[Kappa] (\[Epsilon]+\[Tau]) (1+\[Kappa]+2 Log[\[Kappa]]))/(2 (1+\[Kappa]))] (2\[Kappa])^(2 s) ( Sin[\[Pi] (\[Nu]-I \[Epsilon])] Sin[\[Pi] (\[Nu]-I \[Tau])])/(Sin[2 \[Pi] \[Nu]] Sin[\[Pi] I (\[Epsilon]+\[Tau])]) (fSumUp+fSumDown);
+  D22 = -Exp[(I \[Kappa] (\[Epsilon]+\[Tau]) (1+\[Kappa]+2 Log[\[Kappa]]))/(2 (1+\[Kappa]))] (2\[Kappa])^(2 s) ( Sin[\[Pi] ((-1-\[Nu])-I \[Epsilon])] Sin[\[Pi] ((-1-\[Nu])-I \[Tau])])/(Sin[2 \[Pi] (-1-\[Nu])] Sin[\[Pi] I (\[Epsilon]+\[Tau])]) (fSumUp+fSumDown);
+
+  (* Up reflection coefficient *)
+  UpRef = Exp[-\[Pi] \[Epsilon]-I \[Pi] s]/Sin[2\[Pi] \[Nu]] ((Exp[-I \[Pi] \[Nu]]Sin[\[Pi](\[Nu]-s+I \[Epsilon])])/K\[Nu]1 D2-I Sin[\[Pi](\[Nu]+s-I \[Epsilon])]/K\[Nu]2 D22);
+
   (* A+: ST (157), CO (3.38) and (3.41) *)
   Aplus = prefacAplus[s, \[Epsilon], \[Tau], \[Kappa], \[Nu]] (fSumUp+fSumDown);
 
   (* In incidence coefficient: Binc from ST (168), CO (3.36) and (3.39) *)
   InInc = prefacInInc[s, \[Epsilon], \[Tau], \[Kappa], \[Nu], K\[Nu]1, K\[Nu]2] Aplus;
 
+  (* D1 *)
+  D1 = Exp[-((I \[Kappa] (\[Epsilon]+\[Tau]) (1+\[Kappa]+2 Log[\[Kappa]]))/(2 (1+\[Kappa])))] ( Sin[\[Pi] (\[Nu]+I \[Epsilon])] Sin[\[Pi] (\[Nu]+I \[Tau])] Gamma[1-s-I (\[Epsilon]+\[Tau])])/(Sin[2 \[Pi] \[Nu]] Sin[\[Pi] I (\[Epsilon]+\[Tau])]  Gamma[1+s+I \[Epsilon]+I \[Tau]]) (fSumD1Up+fSumD1Down);
+  D12 = Exp[-((I \[Kappa] (\[Epsilon]+\[Tau]) (1+\[Kappa]+2 Log[\[Kappa]]))/(2 (1+\[Kappa])))] ( Sin[\[Pi] ((-1-\[Nu])+I \[Epsilon])] Sin[\[Pi] ((-1-\[Nu])+I \[Tau])] Gamma[1-s-I (\[Epsilon]+\[Tau])])/(Sin[2 \[Pi] (-1-\[Nu])] Sin[\[Pi] I (\[Epsilon]+\[Tau])]  Gamma[1+s+I \[Epsilon]+I \[Tau]]) (fSumD12Up+fSumD12Down);
+
+  (* Up incidence coefficient *)
+  UpInc = Exp[-\[Pi] \[Epsilon]-I \[Pi] s]/Sin[2\[Pi] \[Nu]] ((Exp[-I \[Pi] \[Nu]]Sin[\[Pi](\[Nu]-s+I \[Epsilon])])/K\[Nu]1 D1-I Sin[\[Pi](\[Nu]+s-I \[Epsilon])]/K\[Nu]2 D12);
+
   (* Return results as an Association *)
   <| "In" -> <| "Incidence" -> InInc, "Transmission" -> InTrans, "Reflection" -> InRef|>,
-     "Up" -> <| "Transmission" -> UpTrans |>
+     "Up" -> <| "Incidence" -> UpInc, "Transmission" -> UpTrans, "Reflection" -> UpRef |>
    |>
 ]];
 
