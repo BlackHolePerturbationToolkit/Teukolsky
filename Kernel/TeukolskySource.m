@@ -31,7 +31,7 @@ Begin["`Private`"];
 
 
 TeukolskyPointParticleSource[s_, orbit_] :=
-  If[(s==-2 || s==0) && orbit["e"] == 0 && Abs[orbit["Inclination"]] == 1,
+  If[(s==-2 || s==-1|| s==0) && orbit["e"] == 0 && Abs[orbit["Inclination"]] == 1,
     Return[TeukolskyPointParticleSourceCircular[s,orbit]],
     Return[$Failed];
   ]
@@ -61,6 +61,46 @@ TeukolskyPointParticleSourceCircular[0, orbit_] := Module[{assoc, \[Alpha], gtt,
         "Orbit" -> orbit,
         "\[Alpha]" -> \[Alpha]
       |>;
+
+  TeukolskySourceObject[assoc]
+]
+
+
+TeukolskyPointParticleSourceCircular[-1, orbit_] := Module[{assoc, a, r0, E0, \[CapitalOmega], Lz, \[CapitalSigma], c, S, B, Am, Ai, ut, \[Rho], \[CapitalDelta], \[CapitalDelta]p, gtt, gt\[Phi]},
+  a = orbit["a"];
+  r0 = orbit["p"];
+
+  (*BEGIN FIXME: this should come from KerrGeoOrbit but currently we don't have code to compute the four-velocity in the KerrGeodesics package*)
+
+  E0 = orbit["Energy"];
+  Lz = orbit["AngularMomentum"];
+
+  \[CapitalSigma] = r0^2;
+  \[Rho] = -1/r0;
+
+  \[CapitalDelta] = r0^2 - 2r0 + a^2;
+  \[CapitalDelta]p = 2r0 - 2;
+  gtt = -(1/\[CapitalSigma])((r0^2+a^2)^2/\[CapitalDelta]-a^2);
+  gt\[Phi] = -((2 r0 a)/(\[CapitalSigma] \[CapitalDelta]));
+  ut = gt\[Phi] Lz - gtt E0;
+  \[CapitalOmega] = 1/(Sqrt[r0^3]+a);
+  (*END FIXME*)
+  
+	(* Define source terms. *)
+	S = (4*\[Pi])/(Sqrt[2]r0);
+	B = S*\[CapitalDelta]((r0^2+a^2)\[CapitalOmega] - a);
+	Am = S r0(r0((r0^2+a^2)\[CapitalOmega]^2-1)+2 (1-a \[CapitalOmega])^2);
+	Ai = S(a^2 (2-r0) \[CapitalOmega]+a \[CapitalDelta]p -r0^3 \[CapitalOmega]);
+	c = -S \[CapitalDelta](1-a \[CapitalOmega]);
+
+  assoc = <| "s" -> -1, 
+         "SourceType" -> "PointParticle",
+         "Orbit" -> orbit,
+         "B" -> B,
+         "Am" -> Am,
+         "Ai" -> Ai,
+         "C" -> c 
+         |>;
 
   TeukolskySourceObject[assoc]
 ]

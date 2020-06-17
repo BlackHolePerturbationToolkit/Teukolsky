@@ -65,7 +65,7 @@ Options[TeukolskyPointParticleMode] = {};
 
 TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer, orbit_KerrGeoOrbitFunction, opts:OptionsPattern[]] /; AllTrue[orbit["Frequencies"], InexactNumberQ] :=
  Module[{source, assoc, R, S, \[Omega], \[CapitalOmega]r, \[CapitalOmega]\[Phi], \[CapitalOmega]\[Theta], Z, a, \[Lambda]},
-  If[(s != -2  && s != 0) || orbit["e"] != 0 || Abs[orbit["x"]] != 1,
+  If[(s != -2  && s != -1 && s != 0) || orbit["e"] != 0 || Abs[orbit["x"]] != 1,
     Message[TeukolskyPointParticleMode::params, s, orbit["e"], orbit["Inclination"]];
     Return[$Failed];
   ];
@@ -175,6 +175,7 @@ EnergyFlux[mode_TeukolskyMode] :=
   FluxInf = Abs[Z["\[ScriptCapitalI]"]]^2 \[Omega]^(2(1-Abs[s]))/(4 \[Pi]);
   FluxHor = Switch[s,
 			-2, \[Alpha] Abs[Z["\[ScriptCapitalH]"]]^2/(4 \[Pi] \[Omega]^2),
+			-1,(\[Omega]*Abs[Z["\[ScriptCapitalH]"]]^2)/(4*(2*M*rh*\[Omega] - m*a)*2*\[Pi]),
 			(* The rh^2 factor vs arXiv:1003.1860 Eq. (55) is needed as \[Psi] = r R*)
 			0,  1/(2 \[Pi] rh) \[Omega](\[Omega]-m \[CapitalOmega]h) Abs[Z["\[ScriptCapitalH]"]]^2*rh^2
 			];
