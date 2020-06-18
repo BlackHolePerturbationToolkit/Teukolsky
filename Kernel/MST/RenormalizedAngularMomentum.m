@@ -76,7 +76,7 @@ Cos2\[Pi]\[Nu]Series[a_, \[Omega]_, s_, l_, m_] :=
   \[Nu]0 = l - ArcCos[Cos2\[Pi]\[Nu]p] / (2*\[Pi]);
 
   (* There are three possible cases: *)
-  Check[Which[
+  res = Check[Which[
     -1 <= Cos2\[Pi]\[Nu] <= 1, (* \[Nu] Real *)
       (* FIXME: The order of the arguments assumes \[Nu]0 is positive *)
       \[Nu] /. FindRoot[Re[\[Beta][0, \[Nu]] + R[1, \[Nu]] + L[-1, \[Nu]]] == 0, {\[Nu], \[Nu]0, 9/10 \[Nu]0, 11/10 \[Nu]0}, WorkingPrecision -> precision]
@@ -91,7 +91,9 @@ Cos2\[Pi]\[Nu]Series[a_, \[Omega]_, s_, l_, m_] :=
       $Failed
     ],
     $Failed
-  ]
+  ];
+  Clear[\[Alpha]\[Gamma], \[Beta], R, L];
+  res
 ];
 
 \[Nu]RCHMonodromy[a_, \[Omega]_, \[Lambda]_, s_, l_, m_, Npmax_] :=
@@ -161,7 +163,7 @@ Cos2\[Pi]\[Nu]Series[a_, \[Omega]_, s_, l_, m_] :=
     True,
       $Failed
   ];
-  
+  Clear[a1, a2, Pochhammerp1m2, Pochhammerm1p2, a1sum, a2sum, Cos2\[Pi]\[Nu]];
   \[Nu]
 ];
 
