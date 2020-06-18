@@ -13,7 +13,7 @@ VerificationTest[
       "Method" -> {"MST", "RenormalizedAngularMomentum" -> \[Nu]_}, 
       "BoundaryConditions" -> "In", 
       "Amplitudes" ->
-        <|(* "Incidence" -> _,  *)"Transmission" -> _(* , "Reflection" -> _  *)|>,
+        <|"Incidence" -> _,"Transmission" -> _, "Reflection" -> _|>,
         "Domain" -> {_, Infinity},
       "RadialFunction" -> Teukolsky`MST`MST`Private`MSTRadialIn[2, 2, 2, 0.5, 0.2, 
          \[Nu]_, \[Lambda]_, _, {MachinePrecision, MachinePrecision/2, MachinePrecision/2}]|>
