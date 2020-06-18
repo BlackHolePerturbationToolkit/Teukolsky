@@ -36,6 +36,7 @@ CF[a_, b_, {n_, n0_}] := Module[{A, B, ak, bk, res = Indeterminate, j = n0},
   A[k_] := A[k] = bk[k] A[k - 1] + ak[k] A[k - 2];
   B[k_] := B[k] = bk[k] B[k - 1] + ak[k] B[k - 2];
   While[res =!= (res = A[j]/B[j]), j++];
+  Clear[A, B, ak, bk];
   res
 ];
 
@@ -251,7 +252,7 @@ fn[q_, \[Epsilon]_, \[Kappa]_, \[Tau]_, \[Nu]_, \[Lambda]_, s_, m_, nf_] :=
   ,
     ret = fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, nf + 1] CF[-\[Alpha]n[2 nf - i] \[Gamma]n[2 nf - i + 1], \[Beta]n[2 nf - i], {i, nf}]/\[Gamma]n[nf + 1];
   ];
-  
+  Clear[\[Alpha]n, \[Beta]n, \[Gamma]n];
   ret
 ];
 
@@ -371,6 +372,9 @@ Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_,
   (* Up incidence coefficient *)
   UpInc = Exp[-\[Pi] \[Epsilon]-I \[Pi] s]/Sin[2\[Pi] \[Nu]] ((Exp[-I \[Pi] \[Nu]]Sin[\[Pi](\[Nu]-s+I \[Epsilon])])/K\[Nu]1 D1-I Sin[\[Pi](\[Nu]+s-I \[Epsilon])]/K\[Nu]2 D12);
 
+  (* Clear local symbols with DownValues to avoid memory leaks *)
+  Clear[termf, termK\[Nu]1Up, termK\[Nu]1Down, termK\[Nu]2Up, termK\[Nu]2Down, termAminus, termD1, termD12];
+
   (* Return results as an Association *)
   <| "In" -> <| "Incidence" -> InInc, "Transmission" -> InTrans, "Reflection" -> InRef|>,
      "Up" -> <| "Incidence" -> UpInc, "Transmission" -> UpTrans, "Reflection" -> UpRef |>
@@ -426,6 +430,8 @@ MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_
   nDown = -1;
   While[resDown != (resDown += term[nDown]) && (Abs[term[nDown]] > 10^-acc + Abs[resDown] 10^-prec), nDown--];
 
+  Clear[term];
+
   resUp + resDown
 ]]];
 
@@ -480,6 +486,8 @@ Derivative[1][MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu
   nDown = -1;
   While[resDown != (resDown+= term[nDown]) && (Abs[term[nDown]] > 10^-acc + Abs[resDown] 10^-prec), nDown--];
 
+  Clear[term];
+
   (resUp+resDown)
 ]]];
 
@@ -533,7 +541,9 @@ MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_
   
   nDown = -1;
   While[resDown != (resDown += term[nDown]) && (Abs[term[nDown]] > 10^-acc + Abs[resDown] 10^-prec), nDown--];
-  
+
+  Clear[term];
+
   resUp+resDown
 ]]];
 
@@ -589,7 +599,9 @@ Derivative[1][MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu
   
   nDown = -1;
   While[resDown != (resDown += term[nDown]) && (Abs[term[nDown]] > 10^-acc + Abs[resDown] 10^-prec), nDown--];
-  
+
+  Clear[term];
+
   (resUp+resDown)
 ]]];
 
@@ -599,12 +611,14 @@ Derivative[1][MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu
 
 
 Derivative[n_Integer?Positive][(MSTR:MSTRadialIn|MSTRadialUp)[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}]][r0_?NumericQ] :=
- Module[{Rderivs, R, r, i},
+ Module[{Rderivs, R, r, i, res},
   pderivs = D[R[r_], {r_, i_}] :> D[d2R[s, l, m, q, \[Epsilon], \[Lambda], r, R], {r, i - 2}] /; i >= 2;
   Do[Derivative[i][R][r] = Collect[D[Derivative[i - 1][R][r], r] /. pderivs,{R'[r], R[r]}, Simplify];, {i, 2, n}];
-  Derivative[n][R][r] /. {
+  res = Derivative[n][R][r] /. {
     R'[r] -> MSTR[s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm, {wp, prec, acc}]'[r0],
-    R[r] -> MSTR[s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm, {wp, prec, acc}][r0], r -> r0, \[Epsilon]L -> \[Epsilon], qL -> q, \[Lambda]L -> \[Lambda]}
+    R[r] -> MSTR[s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm, {wp, prec, acc}][r0], r -> r0, \[Epsilon]L -> \[Epsilon], qL -> q, \[Lambda]L -> \[Lambda]};
+  Remove[R, r];
+  res
 ];
 
 
