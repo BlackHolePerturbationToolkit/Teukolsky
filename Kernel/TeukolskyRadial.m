@@ -57,11 +57,11 @@ TeukolskyRadialFunction::dmval = "Radius `1` lies outside the computational doma
 Begin["`Private`"];
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Utility Functions*)
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Horizon Locations*)
 
 
@@ -69,19 +69,21 @@ rp[a_,M_] := M+Sqrt[M^2-a^2];
 rm[a_,M_] := M-Sqrt[M^2-a^2];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Hyperboloidal Transformation Functions*)
 
 
 f[r_] := 1-2/r;
-rs[r_]:=r+2 Log[r/2-1];
+rs[r_,a_]:=r+2/(rp[a,1]-rm[a,1]) (rp[a,1] Log[(r-rp[a,1])/2]-rm[a,1] Log[(r-rm[a,1])/2]);
+\[CapitalDelta][r_,a_]:=r^2+a^2-2r;
+\[Phi]Reg[r_,a_]:=a /(rp[a,1]-rm[a,1]) Log[(r-rp[a,1])/(r-rm[a,1])];
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*TeukolskyRadial*)
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Numerical Integration Method*)
 
 
@@ -108,16 +110,9 @@ TeukolskyRadialNumericalIntegration[s_Integer, l_Integer, m_Integer, a_, \[Omega
       "Method" -> {"NumericalIntegration", ndsolveopts},
       "BoundaryConditions" -> bc, "Amplitudes" -> ns,
       "Domain" -> If[domain === All, {rp[a, 1], \[Infinity]}, First[solutionFunction["Domain"]]],
-      "RadialFunction" -> Function[{r}, r^-(2s+1) f[r]^-s Exp[bcdir I \[Omega] rs[r]] solutionFunction[r]]
+      "RadialFunction" -> Function[{r}, r^-1 \[CapitalDelta][r,a]^-s Exp[bcdir I \[Omega] rs[r,a]] Exp[I m \[Phi]Reg[r,a]] solutionFunction[r]]
      ]
     ]
-   ];
-   
-  (* Only Schwarzschild has been implemented for numerical integration
-  with hyperboloidal slicing *)
-  If[a!=0,
-    Message[TeukolskyRadial::kerr, "a" -> a];
-      Return[$Failed];
    ];
 
   (* Domain over which the numerical solution can be evaluated *)
@@ -146,8 +141,8 @@ TeukolskyRadialNumericalIntegration[s_Integer, l_Integer, m_Integer, a_, \[Omega
   (* Solution functions for the specified boundary conditions *)
   ndsolveopts = Sequence@@FilterRules[{opts}, Options[NDSolve]];
   solFuncs =
-   <|"In" :> Teukolsky`NumericalIntegration`Private`psi[s, l, m, \[Omega], "In", WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> acc, ndsolveopts],
-     "Up" :> Teukolsky`NumericalIntegration`Private`psi[s, l, m, \[Omega], "Up", WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> acc, ndsolveopts]|>;
+   <|"In" :> Teukolsky`NumericalIntegration`Private`psi[s, \[Lambda], l, m, a, \[Omega], "In", WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> acc, ndsolveopts],
+     "Up" :> Teukolsky`NumericalIntegration`Private`psi[s, \[Lambda], l, m, a, \[Omega], "Up", WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> acc, ndsolveopts]|>;
   solFuncs = Lookup[solFuncs, BCs];
 
   If[ListQ[BCs],
@@ -157,7 +152,7 @@ TeukolskyRadialNumericalIntegration[s_Integer, l_Integer, m_Integer, a_, \[Omega
 ];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Sasaki-Nakamura Method*)
 
 
@@ -226,7 +221,7 @@ TeukolskyRadialSasakiNakamura[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, BC
 ];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*MST Method*)
 
 
@@ -271,7 +266,7 @@ TeukolskyRadialMST[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, BCs_, {wp_, p
 ];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Static modes*)
 
 
@@ -321,7 +316,7 @@ TeukolskyRadialStatic[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, BCs_] :=
 ];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*TeukolskyRadial*)
 
 
@@ -412,11 +407,11 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
 ];
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*TeukolskyRadialFunction*)
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Output format*)
 
 
@@ -472,7 +467,7 @@ TeukolskyRadialFunction /:
 ];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Accessing attributes*)
 
 
@@ -480,7 +475,7 @@ TeukolskyRadialFunction[s_, l_, m_, a_, \[Omega]_, assoc_][y_String] /; !MemberQ
   assoc[y];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Numerical evaluation*)
 
 
