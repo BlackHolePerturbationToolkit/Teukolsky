@@ -270,7 +270,7 @@ TeukolskyRadialMST[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, BCs_, {wp_, p
 
 
 TeukolskyRadialStatic[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, BCs_] :=
- Module[{\[Lambda], norms, solFuncs, TRF},
+ Module[{\[Lambda], norms, normIn, normUp, solFuncs, TRF},
   (* Compute the eigenvalue *)
   \[Lambda] = SpinWeightedSpheroidalEigenvalue[s, l, m, a \[Omega]];
 
@@ -288,18 +288,13 @@ TeukolskyRadialStatic[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, BCs_] :=
   norms = <|"In" -> <|"Transmission" -> 1|>, "Up" -> <|"Transmission" -> 1|>|>;
 
   (* Solution functions for the specified boundary conditions *)
-  If[m == 0,
+  With[{\[Tau] = -((m a)/Sqrt[1-a^2]), \[Kappa] = Sqrt[1 - a^2]},
+    normIn = (2 \[Kappa])^(-2s) Exp[-I \[Tau]/2 \[Kappa] (1+2Log[\[Kappa]]/(1+\[Kappa]))] If[s >= 1 && \[Tau] == 0, 1, Gamma[1 - s - I \[Tau]]];
+    normUp = (2 \[Kappa])^(-s-l-1);
     solFuncs =
-      <|"In" :> Function[{r},((r-1-Sqrt[1-a^2])/(2Sqrt[1-a^2]) (1+(r-1-Sqrt[1-a^2])/(2Sqrt[1-a^2])))^(-s/2) LegendreP[l,s,3,1+2 (r-1-Sqrt[1-a^2])/(2Sqrt[1-a^2])]],
-        "Up" :> Function[{r}, (-1)^(s+1) 2s (l-s)!/(l+s)! ((r-1-Sqrt[1-a^2])/(2Sqrt[1-a^2]) (1+(r-1-Sqrt[1-a^2])/(2Sqrt[1-a^2])))^(-s/2) LegendreQ[l,s,3,1+2 (r-1-Sqrt[1-a^2])/(2Sqrt[1-a^2])]]
+      <|"In" :> Function[{r}, normIn (-(1 + \[Kappa] - r)/(2 \[Kappa]))^(-s - I \[Tau]/2) (1 - (1 + \[Kappa] - r)/(2 \[Kappa]))^(-I \[Tau]/2) Hypergeometric2F1Regularized[-l - I \[Tau], l + 1 - I \[Tau], 1 - s - I \[Tau], (1 + \[Kappa] - r)/(2 \[Kappa])]],
+      "Up" :> Function[{r}, normUp (-(1 + \[Kappa] - r)/(2 \[Kappa]))^(-s - (I \[Tau])/2) (1 - (1 + \[Kappa] - r)/(2 \[Kappa]))^((I \[Tau])/2 - l - 1) Hypergeometric2F1[l + 1 - I \[Tau], l + 1 - s, 2 l + 2, 1/(1 - (1 + \[Kappa] - r)/(2 \[Kappa]))]]
        |>;
-    ,
-    With[{\[Tau] = -((m a)/Sqrt[1-a^2])},
-      solFuncs =
-        <|"In" :> Function[{r},((r - 1 - Sqrt[1 - a^2])/(2 Sqrt[1 - a^2]))^(-s - (I \[Tau])/2) (1 + ((r - 1 - Sqrt[1 - a^2])/(2 Sqrt[1 - a^2])))^(-s + (I \[Tau])/2) Hypergeometric2F1[-l - s, 1 + l - s, 1 - s - I \[Tau], -((r - 1 - Sqrt[1 - a^2])/(2 Sqrt[1 - a^2]))]],
-          "Up" :> Function[{r},((r - 1 - Sqrt[1 - a^2])/(2 Sqrt[1 - a^2]))^((I \[Tau])/2) (1 + ((r - 1 - Sqrt[1 - a^2])/(2 Sqrt[1 - a^2])))^(-((I \[Tau])/2)) Hypergeometric2F1[-l + s, 1 + l + s, 1 + s + I \[Tau], -((r - 1 - Sqrt[1 - a^2])/(2 Sqrt[1 - a^2]))] - (((r - 1 - Sqrt[1 - a^2])/(2 Sqrt[1 - a^2]))^(-s - (I \[Tau])/2) (1 + ((r - 1 - Sqrt[1 - a^2])/(2 Sqrt[1 - a^2])))^(-s + (I \[Tau])/2) (l - s)! Hypergeometric2F1[-l - s, 1 + l - s, 1 - s - I \[Tau], -((r - 1 - Sqrt[1 - a^2])/(2 Sqrt[1 - a^2]))] Pochhammer[1 - s - I \[Tau], l + s])/((l + s)! Pochhammer[1 + s + I \[Tau], l - s])]
-         |>;
-    ];
   ];
   solFuncs = Lookup[solFuncs, BCs];
 
