@@ -86,12 +86,12 @@ TeukolskyPointParticleSourceCircular[-1, orbit_] := Module[{assoc, a, r0, E0, \[
   \[CapitalOmega] = 1/(Sqrt[r0^3]+a);
   (*END FIXME*)
   
-	(* Define source terms. *)
-	S = (4*\[Pi])/(Sqrt[2]r0);
-	B = S*\[CapitalDelta]((r0^2+a^2)\[CapitalOmega] - a);
-	Am = S r0(r0((r0^2+a^2)\[CapitalOmega]^2-1)+2 (1-a \[CapitalOmega])^2);
-	Ai = S(a^2 (2-r0) \[CapitalOmega]+a \[CapitalDelta]p -r0^3 \[CapitalOmega]);
-	c = -S \[CapitalDelta](1-a \[CapitalOmega]);
+  (* Define source terms. *)
+  S = (4*\[Pi])/(Sqrt[2]r0);
+  B = S*\[CapitalDelta]((r0^2+a^2)\[CapitalOmega] - a);
+  Am = S r0(r0((r0^2+a^2)\[CapitalOmega]^2-1)+2 (1-a \[CapitalOmega])^2);
+  Ai = S(a^2 (2-r0) \[CapitalOmega]+a \[CapitalDelta]p -r0^3 \[CapitalOmega]);
+  c = -S \[CapitalDelta](1-a \[CapitalOmega]);
 
   assoc = <| "s" -> -1, 
          "SourceType" -> "PointParticle",
