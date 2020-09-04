@@ -9,6 +9,7 @@ BeginPackage["Teukolsky`", {
   "Teukolsky`SasakiNakamura`",
   "Teukolsky`TeukolskyRadial`",
   "Teukolsky`TeukolskySource`",
-  "Teukolsky`TeukolskyMode`"}];
+  "Teukolsky`TeukolskyMode`",
+  "Teukolsky`NumericalIntegration`"}];
 
 EndPackage[];

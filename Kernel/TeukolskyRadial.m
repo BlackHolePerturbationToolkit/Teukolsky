@@ -15,6 +15,7 @@
 BeginPackage["Teukolsky`TeukolskyRadial`",
   {
   "Teukolsky`SasakiNakamura`",
+   "Teukolsky`NumericalIntegration`",
    "Teukolsky`MST`RenormalizedAngularMomentum`",
    "Teukolsky`MST`MST`",
    "SpinWeightedSpheroidalHarmonics`"
@@ -67,8 +68,87 @@ rp[a_,M_] := M+Sqrt[M^2-a^2];
 rm[a_,M_] := M-Sqrt[M^2-a^2];
 
 
+(* ::Subsection::Closed:: *)
+(*Hyperboloidal Transformation Functions*)
+
+
+f[r_] := 1-2/r;
+rs[r_,a_]:=r+2/(rp[a,1]-rm[a,1]) (rp[a,1] Log[(r-rp[a,1])/2]-rm[a,1] Log[(r-rm[a,1])/2]);
+\[CapitalDelta][r_,a_]:=r^2+a^2-2r;
+\[Phi]Reg[r_,a_]:=a /(rp[a,1]-rm[a,1]) Log[(r-rp[a,1])/(r-rm[a,1])];
+
+
 (* ::Section::Closed:: *)
 (*TeukolskyRadial*)
+
+
+(* ::Subsection::Closed:: *)
+(*Numerical Integration Method*)
+
+
+Options[TeukolskyRadialNumericalIntegration] = Join[
+  {"Domain" -> None},
+  FilterRules[Options[NDSolve], Except[WorkingPrecision|AccuracyGoal|PrecisionGoal]]];
+
+
+domainQ[domain_] := MatchQ[domain, {_?NumericQ, _?NumericQ} | (_?NumericQ) | All];
+
+
+TeukolskyRadialNumericalIntegration[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, BCs_, {wp_, prec_, acc_}, opts:OptionsPattern[]] :=
+ Module[{\[Lambda], TRF, norms, ndsolveopts, solFuncs, domains},
+  (* Compute the eigenvalue *)
+  \[Lambda] = SpinWeightedSpheroidalEigenvalue[s, l, m, a \[Omega]];
+  
+  (* Function to construct a single TeukolskyRadialFunction *)
+  TRF[bc_, ns_, sf_, domain_, ndsolveopts___] :=
+   Module[{solutionFunction, bcdir},
+    solutionFunction = sf[domain];
+    bcdir = bc /. {"In" -> -1, "Up" -> +1};
+    TeukolskyRadialFunction[s, l, m, a, \[Omega],
+     Association["s" -> s, "l" -> l, "m" -> m, "a" -> a, "\[Omega]" -> \[Omega], "Eigenvalue" -> \[Lambda],
+      "Method" -> {"NumericalIntegration", ndsolveopts},
+      "BoundaryConditions" -> bc, "Amplitudes" -> ns,
+      "Domain" -> If[domain === All, {rp[a, 1], \[Infinity]}, First[solutionFunction["Domain"]]],
+      "RadialFunction" -> Function[{r}, r^-1 \[CapitalDelta][r,a]^-s Exp[bcdir I \[Omega] rs[r,a]] Exp[I m \[Phi]Reg[r,a]] solutionFunction[r]]
+     ]
+    ]
+   ];
+
+  (* Domain over which the numerical solution can be evaluated *)
+  domains = OptionValue["Domain"];
+  If[ListQ[BCs],
+    If[!MatchQ[domains, (List|Association)[Rule["In"|"Up",_?domainQ]..]],
+      Message[TeukolskyRadial::dm, "Domain" -> domains, BCs];
+      Return[$Failed];
+    ];
+    domains = Lookup[domains, BCs, None]; 
+    If[!AllTrue[domains, domainQ],
+      Message[TeukolskyRadial::dm, "Domain" -> OptionValue["Domain"], BCs];
+      Return[$Failed];
+    ];
+  ,
+    If[!domainQ[domains],
+      Message[TeukolskyRadial::dm, "Domain" -> domains, BCs];
+      Return[$Failed];
+    ];
+  ];
+
+  (* Asymptotic normalizations such that we have unit transmission coefficient *)
+  norms = <|"In" -> <|"Transmission" -> 1|>, "Up" -> <|"Transmission" -> 1|>|>;
+  norms = Lookup[norms, BCs];
+  
+  (* Solution functions for the specified boundary conditions *)
+  ndsolveopts = Sequence@@FilterRules[{opts}, Options[NDSolve]];
+  solFuncs =
+   <|"In" :> Teukolsky`NumericalIntegration`Private`psi[s, \[Lambda], l, m, a, \[Omega], "In", WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> acc, ndsolveopts],
+     "Up" :> Teukolsky`NumericalIntegration`Private`psi[s, \[Lambda], l, m, a, \[Omega], "Up", WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> acc, ndsolveopts]|>;
+  solFuncs = Lookup[solFuncs, BCs];
+
+  If[ListQ[BCs],
+    Return[Association[MapThread[#1 -> TRF[#1, #2, #3, #4, ndsolveopts]&, {BCs, norms, solFuncs, domains}]]],
+    Return[TRF[BCs, norms, solFuncs, domains, ndsolveopts]]
+  ];
+];
 
 
 (* ::Subsection::Closed:: *)
@@ -276,7 +356,7 @@ TeukolskyRadial[s_Integer, l_Integer, m_, a_, \[Omega]_, opts:OptionsPattern[]] 
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Non-static modes*)
 
 
@@ -309,6 +389,8 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
       TRF = TeukolskyRadialMST,
     "MST" | {"MST", OptionsPattern[TeukolskyRadialMST]},
       TRF = TeukolskyRadialMST,
+    "NumericalIntegration" | {"NumericalIntegration", OptionsPattern[TeukolskyRadialNumericalIntegration]},
+      TRF = TeukolskyRadialNumericalIntegration;,
     _,
       Message[TeukolskyRadial::optx, Method -> OptionValue[Method]];
       Return[$Failed];
