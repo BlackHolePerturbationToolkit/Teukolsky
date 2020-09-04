@@ -57,11 +57,11 @@ TeukolskyRadialFunction::dmval = "Radius `1` lies outside the computational doma
 Begin["`Private`"];
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Utility Functions*)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Horizon Locations*)
 
 
@@ -69,7 +69,7 @@ rp[a_,M_] := M+Sqrt[M^2-a^2];
 rm[a_,M_] := M-Sqrt[M^2-a^2];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Hyperboloidal Transformation Functions*)
 
 
@@ -79,11 +79,11 @@ rs[r_,a_]:=r+2/(rp[a,1]-rm[a,1]) (rp[a,1] Log[(r-rp[a,1])/2]-rm[a,1] Log[(r-rm[a
 \[Phi]Reg[r_,a_]:=a /(rp[a,1]-rm[a,1]) Log[(r-rp[a,1])/(r-rm[a,1])];
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*TeukolskyRadial*)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Numerical Integration Method*)
 
 
@@ -152,7 +152,7 @@ TeukolskyRadialNumericalIntegration[s_Integer, l_Integer, m_Integer, a_, \[Omega
 ];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Sasaki-Nakamura Method*)
 
 
@@ -221,7 +221,7 @@ TeukolskyRadialSasakiNakamura[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, BC
 ];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*MST Method*)
 
 
@@ -266,7 +266,7 @@ TeukolskyRadialMST[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, BCs_, {wp_, p
 ];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Static modes*)
 
 
@@ -316,7 +316,7 @@ TeukolskyRadialStatic[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, BCs_] :=
 ];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*TeukolskyRadial*)
 
 
@@ -407,11 +407,11 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
 ];
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*TeukolskyRadialFunction*)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Output format*)
 
 
@@ -467,7 +467,7 @@ TeukolskyRadialFunction /:
 ];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Accessing attributes*)
 
 
@@ -475,7 +475,7 @@ TeukolskyRadialFunction[s_, l_, m_, a_, \[Omega]_, assoc_][y_String] /; !MemberQ
   assoc[y];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Numerical evaluation*)
 
 

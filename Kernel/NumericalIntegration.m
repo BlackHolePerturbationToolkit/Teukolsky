@@ -22,7 +22,7 @@ BeginPackage["Teukolsky`NumericalIntegration`"];
 Begin["`Private`"];
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Radial Solutions with HPS*)
 
 
@@ -35,7 +35,7 @@ rs[r_]:=r+2 Log[r/2-1];
 fr[r_]=1-2/r;
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Radial Bardeen-Press-Teukolsky Equation*)
 
 
@@ -103,7 +103,7 @@ Derivative[n_][AllIntegrator[s_,\[Lambda]_,m_,a_,\[Omega]_,y1BC_,y2BC_,rBC_,pote
 	];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Boundary Conditions*)
 
 
