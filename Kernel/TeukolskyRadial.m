@@ -46,7 +46,6 @@ TeukolskyRadial::precw = "The precision of `1`=`2` is less than WorkingPrecision
 TeukolskyRadial::optx = "Unknown options in `1`";
 TeukolskyRadial::dm = "Option `1` is not valid with BoundaryConditions \[RightArrow] `2`.";
 TeukolskyRadial::sopt = "Option `1` not supported for static (\[Omega]=0) modes.";
-TeukolskyRadial::kerr = "Option `1` not supported for Kerr (a>0) spacetime.";
 TeukolskyRadialFunction::dmval = "Radius `1` lies outside the computational domain. Results may be incorrect.";
 
 
