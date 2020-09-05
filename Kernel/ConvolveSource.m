@@ -99,24 +99,17 @@ ConvolveSourcePointParticleCircular[-2, R_, SH_, TS_] :=
 
 
 ConvolveSourcePointParticleCircular[-1, R_, SH_, TS_] :=
- Module[{a, r0, m, l, \[Omega], rp, rm, f, r, \[CapitalDelta], \[CapitalDelta]p, Wm, Wp, A0,A0p,B0p, B0, Abar, Bbar, Rtransfo, dRtransfo, kk,Kp, w, q, Q, Cdown, Cout, Am, Bm, Ap, Bp, \[Lambda], \[ScriptCapitalB], RIn, ROut,RpIn,RpOut,dRpIn,dRpOut, dRIn, dROut,ddRIn,ddROut, CIn, COut, ZIn, ZOut,dSp, Sp, Sm, dSm, d2S, K},
+ Module[{a, r0, \[Theta], m, \[Omega], \[CapitalDelta], \[CapitalDelta]p, W, A, B, RIn, ROut, dRIn, dROut, CIn, COut, ZIn, ZOut, dS, S},
   a  = TS["Orbit"]["a"];
   r0 = TS["Orbit"]["p"];
   m  = R["In"]["m"];
-  l = R["In"]["l"];
   \[Omega]  = R["In"]["\[Omega]"];
-  \[Lambda] = R["In"]["Eigenvalue"];
-  \[ScriptCapitalB] = Sqrt[\[Lambda]^2 + 4*a*\[Omega]*(m - a*\[Omega])];
 
   \[CapitalDelta] = r0^2 - 2r0 + a^2;
   \[CapitalDelta]p = 2r0 - 2;
-  K = (r0^2 + a^2)\[Omega] - m a;
-  Kp = 2r0*\[Omega];
 
-  Sm = SH[\[Pi]/2, 0];
-  dSm = D[SH[\[Theta],0],\[Theta]]/.\[Theta]->\[Pi]/2;
-  Sp = (-1)^(l+m)*Sm;
-  dSp = -(-1)^(l+m)dSm;
+  S = SH[\[Pi]/2, 0];
+  dS = D[SH[\[Theta],0],\[Theta]]/.\[Theta]->\[Pi]/2;
 
   (* s = -1 radial functions *)
   RIn = R["In"][r0];
@@ -125,49 +118,19 @@ ConvolveSourcePointParticleCircular[-1, R_, SH_, TS_] :=
   dRIn = R["In"]'[r0];
   dROut = R["Up"]'[r0];
 
-  ddRIn = R["In"]''[r0];
-  ddROut = R["Up"]''[r0];
-
-  (* Construct s = +1 radial function using the Teukolsky-Starobinsky identities from https://arxiv.org/pdf/gr-qc/0207045.pdf *)
-  (* Define quantities for the Teukolsky-Starobinksy identites*)
-  A0 = -2*I*K;
-  B0 = \[Lambda] + 2*I*\[Omega]*r0;
-
-  rp = 1 + Sqrt[1-a^2];
-  rm = 1 - Sqrt[1-a^2];
-  kk= \[Omega] - m*a/(2*rp);
-  w = 4*kk*rp;
-  q = rp - rm;
-  Q = w*(w+I*q);
-  Cdown = 1/Q;
-  Cout =(4*\[Omega]^2)/\[ScriptCapitalB]^2; 
-
-  Rtransfo = ((-2*I*((r^2 + a^2)\[Omega] - m a))/(r^2 - 2r + a^2) (f'[r]-(I ((r^2 + a^2)\[Omega] - m a))/(r^2 - 2r + a^2) f[r])+(\[Lambda] + 2*I*\[Omega]*r)/(r^2 - 2r + a^2) f[r]);
-  dRtransfo = D[Rtransfo,r];
-
-  (* Actual Teukolsky-Starobinsky identities *)
-  RpIn = -Cdown*(A0 /\[CapitalDelta] (dRIn-(I*K)/\[CapitalDelta]*RIn)+B0/\[CapitalDelta] RIn);
-  RpOut = -Cout*(A0 /\[CapitalDelta] (dROut-(I*K)/\[CapitalDelta]*ROut)+B0/\[CapitalDelta] ROut);
-
-  dRpIn = -(Cdown*dRtransfo)/.{r->r0,f[r]->RIn,f'[r]->dRIn,f''[r]->ddRIn};
-  dRpOut = -(Cout*dRtransfo)/.{r->r0,f[r]->ROut,f'[r]->dROut,f''[r]->ddROut};
-
   (* Wronskian *)
-  Wm = (RIn dROut - ROut dRIn);
-  Wp = (RpIn dRpOut - RpOut dRpIn);
+  W = (RIn dROut - ROut dRIn);
 
   (* Define source terms. The source is A*\[Delta](r-r0) + B*\[Delta]'(r-r0) *)
-  Ap = ((m*TS["Am"]+I*TS["Ai"])Sp + TS["C"]dSp);
-  Bp = I*TS["B"]*Sp;
-  Am = ((m*TS["Am"]-I*TS["Ai"])Sm - TS["C"]dSm);
-  Bm = -I*TS["B"]*Sm;
+  A = ((m*TS["Am"]-I*TS["Ai"])S - TS["C"]dS);
+  B = -I*TS["B"]*S;
 
   (*FIXME, this is slow to compute the second derivative given we've already computed the R and dR*)
-  CIn = RIn(\[CapitalDelta]p/\[CapitalDelta]*Bm + Am) - dRIn(Bm);
-  COut = RpOut*Ap - Bp*dRpOut; (*Change this to (-dRpinf0*Bp1 + Rpinf0*Ap1); --- Use T-S identities to get Rp, dRp *);
+  CIn  = RIn(\[CapitalDelta]p/\[CapitalDelta]*B + A) - dRIn(B);
+  COut = ROut(\[CapitalDelta]p/\[CapitalDelta]*B + A) - dROut(B);
 
-  ZIn =  COut/(\[CapitalDelta]^2*Wp);
-  ZOut = CIn/(Sqrt[2]*\[CapitalDelta]*Wm);
+  ZIn  = COut/(Sqrt[2]*\[CapitalDelta]*W);
+  ZOut = CIn/(Sqrt[2]*\[CapitalDelta]*W);
 
   <| "\[ScriptCapitalI]" -> ZOut, "\[ScriptCapitalH]" -> ZIn |>
 ]
