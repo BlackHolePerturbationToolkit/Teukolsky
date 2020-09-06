@@ -95,6 +95,48 @@ ConvolveSourcePointParticleCircular[-2, R_, SH_, TS_] :=
 
 
 (* ::Subsection::Closed:: *)
+(*s=-1 point particle on a circular orbit*)
+
+
+ConvolveSourcePointParticleCircular[-1, R_, SH_, TS_] :=
+ Module[{a, r0, \[Theta], m, \[Omega], \[CapitalDelta], \[CapitalDelta]p, W, A, B, RIn, ROut, dRIn, dROut, CIn, COut, ZIn, ZOut, dS, S},
+  a  = TS["Orbit"]["a"];
+  r0 = TS["Orbit"]["p"];
+  m  = R["In"]["m"];
+  \[Omega]  = R["In"]["\[Omega]"];
+
+  \[CapitalDelta] = r0^2 - 2r0 + a^2;
+  \[CapitalDelta]p = 2r0 - 2;
+
+  S = SH[\[Pi]/2, 0];
+  dS = D[SH[\[Theta],0],\[Theta]]/.\[Theta]->\[Pi]/2;
+
+  (* s = -1 radial functions *)
+  RIn = R["In"][r0];
+  ROut = R["Up"][r0];
+
+  dRIn = R["In"]'[r0];
+  dROut = R["Up"]'[r0];
+
+  (* Wronskian *)
+  W = (RIn dROut - ROut dRIn);
+
+  (* Define source terms. The source is A*\[Delta](r-r0) + B*\[Delta]'(r-r0) *)
+  A = ((m*TS["Am"]-I*TS["Ai"])S - TS["C"]dS);
+  B = -I*TS["B"]*S;
+
+  (*FIXME, this is slow to compute the second derivative given we've already computed the R and dR*)
+  CIn  = RIn(\[CapitalDelta]p/\[CapitalDelta]*B + A) - dRIn(B);
+  COut = ROut(\[CapitalDelta]p/\[CapitalDelta]*B + A) - dROut(B);
+
+  ZIn  = COut/(Sqrt[2]*\[CapitalDelta]*W);
+  ZOut = CIn/(Sqrt[2]*\[CapitalDelta]*W);
+
+  <| "\[ScriptCapitalI]" -> ZOut, "\[ScriptCapitalH]" -> ZIn |>
+]
+
+
+(* ::Subsection::Closed:: *)
 (*s=0 point particle on a circular orbit*)
 
 
