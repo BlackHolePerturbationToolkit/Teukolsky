@@ -1,15 +1,17 @@
 (* ::Package:: *)
 
+BeginPackage["Teukolsky`"];
+
+EndPackage[];
+
 Block[{MST`$MasterFunction = "Teukolsky"},
   Get["Teukolsky`MST`RenormalizedAngularMomentum`"];
   Get["Teukolsky`MST`MST`"];
 ];
 
-BeginPackage["Teukolsky`", {
-  "Teukolsky`SasakiNakamura`",
-  "Teukolsky`TeukolskyRadial`",
-  "Teukolsky`TeukolskySource`",
-  "Teukolsky`TeukolskyMode`",
-  "Teukolsky`NumericalIntegration`"}];
+Get["Teukolsky`SasakiNakamura`"];
+Get["Teukolsky`TeukolskyRadial`"];
+Get["Teukolsky`TeukolskySource`"];
+Get["Teukolsky`TeukolskyMode`"];
+Get["Teukolsky`NumericalIntegration`"];
 
-EndPackage[];
