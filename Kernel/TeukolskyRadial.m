@@ -173,6 +173,7 @@ TeukolskyRadialSasakiNakamura[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, BC
   (* Function to construct a single TeukolskyRadialFunction *)
   TRF[bc_, ns_, sf_, domain_, ndsolveopts___] :=
    Module[{solutionFunction},
+    If[sf === $Failed, Return[$Failed]];
     solutionFunction = sf[domain];
     TeukolskyRadialFunction[s, l, m, a, \[Omega],
      Association["s" -> s, "l" -> l, "m" -> m, "a" -> a, "\[Omega]" -> \[Omega], "Eigenvalue" -> \[Lambda],
