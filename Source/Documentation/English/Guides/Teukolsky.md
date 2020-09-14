@@ -17,13 +17,13 @@
     "DetailedFunctions" -> {
       {"TeukolskyRadial", "compute homogeneous solutions of the Teukolsky equation"},
       {"TeukolskyRadialFunction", "object representing a solution of the Teukolsky equation"},
-      {"RenormalizedAngularMomentum", "parameter used in MST method"},
-      {"TeukolskyMode", "object representing a single mode of a solution of the Teukolsky equation"}
+      {"RenormalizedAngularMomentum", "parameter used in MST method"}
     }
    },
    {"Title" -> "Sources",
     "DetailedFunctions" -> {
-      {"TeukolskyPointParticleMode", "object representing a single mode of a solution of the Teukolsky equation with point particle source"}
+      {"TeukolskyPointParticleMode", "object representing a single mode of a solution of the Teukolsky equation with point particle source"},
+      {"TeukolskyMode", "object representing a single mode of a solution of the Teukolsky equation"}
     }
    }
  },

@@ -7,7 +7,7 @@
     "R[\"In\"][10.0]"
     },
   "Option Descriptions" -> {
-    Method -> "Method to use. Possible choices include \"MST\" and \"SasakiNakamura\".",
+    Method -> "Method to use. Possible choices include \"MST\", \"NumericalIntegration\" and \"HeunC".",
     "BoundaryConditions" -> "Boundary conditions that the solution(s) should satisfiy. Current possibilities are \"In\" or \"Up\".",
     WorkingPrecision -> "Specifies how many digits of precision should be maintained in internal computations.",
     PrecisionGoal -> "Specifies how many effective digits of precision should be sought in the final result.",
