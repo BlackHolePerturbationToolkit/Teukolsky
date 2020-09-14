@@ -46,6 +46,8 @@ TeukolskyRadial::precw = "The precision of `1`=`2` is less than WorkingPrecision
 TeukolskyRadial::optx = "Unknown options in `1`";
 TeukolskyRadial::dm = "Option `1` is not valid with BoundaryConditions \[RightArrow] `2`.";
 TeukolskyRadial::sopt = "Option `1` not supported for static (\[Omega]=0) modes.";
+TeukolskyRadial::hc = "Method HeunC is only supported with Mathematica version 12.1 and later.";
+TeukolskyRadial::hcopt = "Option `1` not supported for HeunC method.";
 TeukolskyRadialFunction::dmval = "Radius `1` lies outside the computational domain. Results may be incorrect.";
 
 
@@ -266,6 +268,57 @@ TeukolskyRadialMST[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, BCs_, {wp_, p
 
 
 (* ::Subsection::Closed:: *)
+(*HeunC*)
+
+
+Options[TeukolskyRadialHeunC] = {};
+
+
+TeukolskyRadialHeunC[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, BCs_, {wp_, prec_, acc_}, opts:OptionsPattern[]] :=
+ Module[{\[Lambda], \[Nu], norms, solFuncs, TRF},
+  (* The HeunC method is only supported on version 12.1 and newer *)
+  If[$VersionNumber < 12.1,
+    Message[TeukolskyRadial::hc];
+    Return[$Failed]
+  ];
+ 
+  (* Compute the eigenvalue and renormalized angular momentum *)
+  \[Lambda] = SpinWeightedSpheroidalEigenvalue[s, l, m, a \[Omega]];
+
+  (* Function to construct a TeukolskyRadialFunction *)
+  TRF[bc_, ns_, sf_] :=
+    If[sf === $Failed, $Failed,
+      TeukolskyRadialFunction[s, l, m, a, \[Omega],
+        Association["s" -> s, "l" -> l, "m" -> m, "a" -> a, "\[Omega]" -> \[Omega], "Eigenvalue" -> \[Lambda],
+          "Method" -> {"HeunC"},
+          "BoundaryConditions" -> bc, "Amplitudes" -> ns,
+          "Domain" -> {rp[a, 1], \[Infinity]}, "RadialFunction" -> sf
+        ]
+      ]
+    ];
+
+  (* Compute the asymptotic normalisations *)
+  norms = <|"In" -> <|"Transmission" -> 1|>, "Up" -> <|"Transmission" -> 1|>|>;
+
+  (* Solution functions for the specified boundary conditions *)
+  solFuncs =
+    <|"In" :> Function[{r}, 2^((-I a m-Sqrt[1-a^2] s+2 I \[Omega])/Sqrt[1-a^2]) (1-a^2)^((I a m)/(2 (1+Sqrt[1-a^2]))-s-I \[Omega]) E^(1/2 I (a m-2 r \[Omega])) ((-1-Sqrt[1-a^2]+r)/Sqrt[1-a^2])^((I a m)/(2 Sqrt[1-a^2])-s-I (1+1/Sqrt[1-a^2]) \[Omega]) ((-1+Sqrt[1-a^2]+r)/Sqrt[1-a^2])^((I (a m+2 (-1+Sqrt[1-a^2]) \[Omega]))/(2 Sqrt[1-a^2])) HeunC[s+s^2+\[Lambda]-(a m-2 \[Omega])^2/(-1+a^2)-4 \[Omega]^2+(I (-a m-4 (-1+s) \[Omega]+2 a^2 (-1+2 s) \[Omega]))/Sqrt[1-a^2],-4 \[Omega] (-I Sqrt[1-a^2]+a m+I Sqrt[1-a^2] s-2 \[Omega]+2 Sqrt[1-a^2] \[Omega]),1-s+(I (a m-2 \[Omega]))/Sqrt[1-a^2]-2 I \[Omega],1+s+(I (a m-2 \[Omega]))/Sqrt[1-a^2]+2 I \[Omega],4 I Sqrt[1-a^2] \[Omega],(1+Sqrt[1-a^2]-r)/(2 Sqrt[1-a^2])]],
+      "Up" :> $Failed |>;
+  solFuncs = Lookup[solFuncs, BCs];
+
+  (* Select normalisation coefficients for the specified boundary conditions and rescale
+     to give unit transmission coefficient. *)
+  norms = norms[[All, {"Transmission"}]]/norms[[All, "Transmission"]];
+  norms = Lookup[norms, BCs];
+
+  If[ListQ[BCs],
+    Return[Association[MapThread[#1 -> TRF[#1, #2, #3]&, {BCs, norms, solFuncs}]]],
+    Return[TRF[BCs, norms, solFuncs]]
+  ];
+];
+
+
+(* ::Subsection::Closed:: *)
 (*Static modes*)
 
 
@@ -386,6 +439,13 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
       TRF = TeukolskyRadialMST,
     "NumericalIntegration" | {"NumericalIntegration", OptionsPattern[TeukolskyRadialNumericalIntegration]},
       TRF = TeukolskyRadialNumericalIntegration;,
+    "HeunC",
+      (* Some options are not supported for the HeunC method modes *)
+      Do[
+        If[OptionValue[opt] =!= Automatic, Message[TeukolskyRadial::hcopt, opt]];,
+        {opt, {WorkingPrecision, PrecisionGoal, AccuracyGoal}}
+      ];
+      TRF = TeukolskyRadialHeunC;,
     _,
       Message[TeukolskyRadial::optx, Method -> OptionValue[Method]];
       Return[$Failed];

@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
  - Support for solving for a point particle with electric charge on a circular orbit in Kerr.
  - Support for computing solutions using numerical integration on a hyperbolical slice.
+ - Support for computin "In" solutions using Mathematica's HeunC function (available since version 12.1).
  - All asymptotic amplitudes (incidence, transmission and reflection) are now computed and available in a TeukolskyRadialFunction.
 
 ### Fixed
