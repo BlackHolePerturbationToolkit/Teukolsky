@@ -412,40 +412,8 @@ cases.\
 \>", "Text",ExpressionUUID->"c1e296c9-3753-432e-9f5d-f6978c6ed7b0"],
 
 Cell["\<\
-In most cases, all three methods produce consistent numerical results:\
+In most cases, all three methods produce consistent numerical results.\
 \>", "Text",ExpressionUUID->"144df0aa-25fc-46e7-b1cd-94313a27ad2f"],
-
-Cell[BoxData[
- RowBox[{
-  RowBox[{"TeukolskyRadial", "[", 
-   RowBox[{"s", ",", "l", ",", "m", ",", "a", ",", "\[Omega]", ",", 
-    RowBox[{"\"\<BoundaryConditions\>\"", "\[Rule]", "\"\<In\>\""}], ",", 
-    RowBox[{"Method", "\[Rule]", "\"\<MST\>\""}]}], "]"}], "[", "10", 
-  "]"}]], "Input",
- CellLabel->"In[34]:=",ExpressionUUID->"1aaae077-6a74-43c0-84f9-dcb41d0bf16e"],
-
-Cell[BoxData[
- RowBox[{
-  RowBox[{"TeukolskyRadial", "[", 
-   RowBox[{"s", ",", "l", ",", "m", ",", "a", ",", "\[Omega]", ",", 
-    RowBox[{"\"\<BoundaryConditions\>\"", "\[Rule]", "\"\<In\>\""}], ",", 
-    RowBox[{"Method", "\[Rule]", "\"\<HeunC\>\""}]}], "]"}], "[", "10", 
-  "]"}]], "Input",
- CellLabel->"In[35]:=",ExpressionUUID->"69dfd9b3-0be5-4adf-8865-5ed2ea00eb7b"],
-
-Cell[BoxData[
- RowBox[{
-  RowBox[{"TeukolskyRadial", "[", 
-   RowBox[{"s", ",", "l", ",", "m", ",", "a", ",", "\[Omega]", ",", 
-    RowBox[{"\"\<BoundaryConditions\>\"", "\[Rule]", "\"\<In\>\""}], ",", 
-    RowBox[{"Method", "\[Rule]", 
-     RowBox[{"{", 
-      RowBox[{"\"\<NumericalIntegration\>\"", ",", 
-       RowBox[{"\"\<Domain\>\"", "\[Rule]", 
-        RowBox[{"{", 
-         RowBox[{"3", ",", "20"}], "}"}]}]}], "}"}]}]}], "]"}], "[", "10", 
-  "]"}]], "Input",
- CellLabel->"In[36]:=",ExpressionUUID->"4ad8d5c2-00a2-4762-834d-7b8c503f4f64"],
 
 Cell[CellGroupData[{
 
@@ -584,16 +552,15 @@ Cell[BoxData[
     RowBox[{"{", 
      RowBox[{"\"\<NumericalIntegration\>\"", ",", 
       RowBox[{"\"\<Domain\>\"", "\[Rule]", 
-       RowBox[{"<|", 
+       RowBox[{"{", 
         RowBox[{
          RowBox[{"\"\<In\>\"", "\[Rule]", 
           RowBox[{"{", 
            RowBox[{"3", ",", "20"}], "}"}]}], ",", 
          RowBox[{"\"\<Up\>\"", "\[Rule]", 
           RowBox[{"{", 
-           RowBox[{"4", ",", "16"}], "}"}]}]}], "|>"}]}]}], "}"}]}]}], 
-  "]"}]], "Input",
- CellLabel->"In[41]:=",ExpressionUUID->"042bb969-a920-4423-b7d4-5a1bc178b9a2"],
+           RowBox[{"4", ",", "16"}], "}"}]}]}], "}"}]}]}], "}"}]}]}], 
+  "]"}]], "Input",ExpressionUUID->"042bb969-a920-4423-b7d4-5a1bc178b9a2"],
 
 Cell[BoxData[
  RowBox[{"R", "=", 
@@ -640,21 +607,12 @@ HeunC directly maps onto a solution satisfying \[OpenCurlyDoubleQuote]Up\
 \>", "Text",ExpressionUUID->"36a2c230-7524-4864-aa29-cf3422cd3c5c"],
 
 Cell[BoxData[
- RowBox[{"R", "=", 
-  RowBox[{"TeukolskyRadial", "[", 
-   RowBox[{"s", ",", "l", ",", "m", ",", "a", ",", "\[Omega]", ",", 
-    RowBox[{"Method", "\[Rule]", "\"\<HeunC\>\""}]}], "]"}]}]], "Input",
- CellLabel->"In[44]:=",ExpressionUUID->"407eec7d-3d5a-49db-8e45-cdfb1a16b357"],
-
-Cell[BoxData[
- RowBox[{"Table", "[", 
-  RowBox[{
-   RowBox[{
-    RowBox[{"R", "[", "\"\<In\>\"", "]"}], "[", "r", "]"}], ",", 
-   RowBox[{"{", 
-    RowBox[{"r", ",", "3", ",", "20"}], "}"}]}], "]"}]], "Input",
- CellLabel->
-  "In[45]:=",ExpressionUUID->"d017fb68-ed18-4dac-b9f2-0333078059ad"]
+ RowBox[{
+  RowBox[{"R", "=", 
+   RowBox[{"TeukolskyRadial", "[", 
+    RowBox[{"s", ",", "l", ",", "m", ",", "a", ",", "\[Omega]", ",", 
+     RowBox[{"Method", "\[Rule]", "\"\<HeunC\>\""}]}], "]"}]}], 
+  ";"}]], "Input",ExpressionUUID->"407eec7d-3d5a-49db-8e45-cdfb1a16b357"]
 }, Open  ]]
 }, Open  ]],
 
