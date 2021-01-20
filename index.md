@@ -52,3 +52,7 @@ Under the hood the Teukolsky package defaults to using the MST method for comput
 
 Example notebooks can be found in the [Mathematica Toolkit Examples](https://github.com/BlackHolePerturbationToolkit/MathematicaToolkitExamples) repository.
 
+
+## Authors and contributors
+
+Barry Wardell, Niels Warburton, Marc Casals, Adrian Ottewill, Chris Kavanagh, Leanne Durkan, Ben Leather, Theo Torres
