@@ -65,7 +65,7 @@ Options[TeukolskyPointParticleMode] = {};
 
 TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer, orbit_KerrGeoOrbitFunction, opts:OptionsPattern[]] /; AllTrue[orbit["Frequencies"], InexactNumberQ] :=
  Module[{source, assoc, R, S, \[Omega], \[CapitalOmega]r, \[CapitalOmega]\[Phi], \[CapitalOmega]\[Theta], Z, a, \[Lambda]},
-  If[(s != -2  && s != -1 && s != 0) || orbit["e"] != 0 || Abs[orbit["x"]] != 1,
+  If[(s != -2  && s != -1 && s != +1 && s != 0) || orbit["e"] != 0 || Abs[orbit["x"]] != 1,
     Message[TeukolskyPointParticleMode::params, s, orbit["e"], orbit["Inclination"]];
     Return[$Failed];
   ];

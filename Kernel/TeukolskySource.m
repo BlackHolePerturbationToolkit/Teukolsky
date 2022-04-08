@@ -31,7 +31,7 @@ Begin["`Private`"];
 
 
 TeukolskyPointParticleSource[s_, orbit_] :=
-  If[(s==-2 || s==-1|| s==0) && orbit["e"] == 0 && Abs[orbit["Inclination"]] == 1,
+  If[(s==-2 || s==-1 || s==+1 || s==0) && orbit["e"] == 0 && Abs[orbit["Inclination"]] == 1,
     Return[TeukolskyPointParticleSourceCircular[s,orbit]],
     Return[$Failed];
   ]
@@ -66,7 +66,7 @@ TeukolskyPointParticleSourceCircular[0, orbit_] := Module[{assoc, \[Alpha], gtt,
 ]
 
 
-TeukolskyPointParticleSourceCircular[-1, orbit_] := Module[{assoc, a, r0, E0, \[CapitalOmega], Lz, \[CapitalSigma], c, S, B, Am, Ai, ut, \[Rho], \[CapitalDelta], \[CapitalDelta]p, gtt, gt\[Phi]},
+TeukolskyPointParticleSourceCircular[s:(-1|+1), orbit_] := Module[{assoc, a, r0, E0, \[CapitalOmega], Lz, \[CapitalSigma], c, S, B, Ar, Ai, ut, \[Rho], \[CapitalDelta], \[CapitalDelta]p, gtt, gt\[Phi]},
   a = orbit["a"];
   r0 = orbit["p"];
 
@@ -86,19 +86,20 @@ TeukolskyPointParticleSourceCircular[-1, orbit_] := Module[{assoc, a, r0, E0, \[
   \[CapitalOmega] = 1/(Sqrt[r0^3]+a);
   (*END FIXME*)
   
-  (* Define source terms. *)
+  (* Define source terms: arXiv:2008.12703 Eq. (45) *)
   S = (4*\[Pi])/(Sqrt[2]r0);
-  B = S*\[CapitalDelta]((r0^2+a^2)\[CapitalOmega] - a);
-  Am = S r0(r0((r0^2+a^2)\[CapitalOmega]^2-1)+2 (1-a \[CapitalOmega])^2);
-  Ai = S(a^2 (2-r0) \[CapitalOmega]+a \[CapitalDelta]p -r0^3 \[CapitalOmega]);
-  c = -S \[CapitalDelta](1-a \[CapitalOmega]);
+  B = \[CapitalDelta]((r0^2+a^2)\[CapitalOmega] - a);
+  Ar = r0(r0((r0^2+a^2)\[CapitalOmega]^2-1)+2 (1-a \[CapitalOmega])^2);
+  Ai = a^2 (2-r0)\[CapitalOmega]+a \[CapitalDelta]p -r0^3 \[CapitalOmega];
+  c = - \[CapitalDelta](1-a \[CapitalOmega]);
 
-  assoc = <| "s" -> -1, 
+  assoc = <| "s" -> s, 
          "SourceType" -> "PointParticle",
          "Orbit" -> orbit,
+         "\[ScriptCapitalS]" -> S,
          "B" -> B,
-         "Am" -> Am,
-         "Ai" -> Ai,
+         "\!\(\*SuperscriptBox[\(A\), \((r)\)]\)" -> Ar,
+         "\!\(\*SuperscriptBox[\(A\), \((i)\)]\)" -> Ai,
          "C" -> c 
          |>;
 
