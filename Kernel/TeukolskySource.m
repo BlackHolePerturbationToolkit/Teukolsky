@@ -87,7 +87,7 @@ TeukolskyPointParticleSourceCircular[s:(-1|+1), orbit_] := Module[{assoc, a, r0,
   (*END FIXME*)
   
   (* Define source terms: arXiv:2008.12703 Eq. (45) *)
-  S = (4*\[Pi])/(Sqrt[2]r0);
+  S = (4*\[Pi])/(Sqrt[2]r0)*Which[s==-1, 1/2, s==+1, 1];
   B = \[CapitalDelta]((r0^2+a^2)\[CapitalOmega] - a);
   Ar = r0(r0((r0^2+a^2)\[CapitalOmega]^2-1)+2 (1-a \[CapitalOmega])^2);
   Ai = a^2 (2-r0)\[CapitalOmega]+a \[CapitalDelta]p -r0^3 \[CapitalOmega];
