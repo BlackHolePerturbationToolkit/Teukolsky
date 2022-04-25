@@ -12,7 +12,7 @@
 (*BeginPackage*)
 
 
-BeginPackage["Teukolsky`ConvolveSource`"];
+BeginPackage["Teukolsky`ConvolveSource`",{"KerrGeodesics`OrbitalFrequencies`"}];
 
 
 (* ::Subsection::Closed:: *)
@@ -37,6 +37,9 @@ ConvolveSource[R_, S_, TS_] :=
 
   If[TS["SourceType"] == "PointParticle" && orbit["e"] == 0 && Abs[orbit["Inclination"]] == 1,
     Return[ConvolveSourcePointParticleCircular[s,R,S,TS]]
+  ];
+  If[TS["SourceType"] == "PointParticle" && orbit["e"] == 0 && Abs[orbit["Inclination"]] != 1,
+    Return[ConvolveSourcePointParticleSpherical[s,R,S,TS]]
   ];
 
   $Failed
@@ -153,14 +156,50 @@ ConvolveSourcePointParticleCircular[0, R_, SH_, TS_] :=
   d\[Psi]Out = R["Up"][r0] + r0 R["Up"]'[r0];
 
   W = \[Psi]In d\[Psi]Out - \[Psi]Out d\[Psi]In;
+ 
 
-  S = SH[\[Pi]/2, 0];
+  S = SH[\[Pi]/2,0];
     
   \[Alpha] = TS["\[Alpha]"] S;
 
   ZIn = \[Alpha] \[Psi]Out/W;
   ZOut = \[Alpha] \[Psi]In/W;
 
+  <| "\[ScriptCapitalI]" -> ZOut, "\[ScriptCapitalH]" -> ZIn |>
+]
+
+
+(* ::Subsection::Closed:: *)
+(*s=0 point particle on a spherical orbit*)
+
+
+ConvolveSourcePointParticleSpherical[0, R_, SH_, TS_] :=
+ Module[{a, r0, x, \[Psi]In, \[Psi]Out, d\[Psi]In, d\[Psi]Out, W, \[Alpha], ZIn, ZOut, S, tp, rp, \[Theta]p, \[Phi]p, l, m, k, \[Omega]mk,\[CapitalUpsilon]r,\[CapitalUpsilon]\[Theta],\[CapitalUpsilon]\[Phi],\[CapitalOmega]r,\[CapitalOmega]\[Theta],\[CapitalOmega]\[Phi]},
+  a  = TS["Orbit"]["a"];
+  r0 = TS["Orbit"]["p"];
+  x = TS["Orbit"]["Inclination"];
+  {\[CapitalUpsilon]r,\[CapitalUpsilon]\[Theta],\[CapitalUpsilon]\[Phi]} = Values[TS["Orbit"]["Frequencies"]];
+  {\[CapitalOmega]r,\[CapitalOmega]\[Theta],\[CapitalOmega]\[Phi]} = Values[KerrGeoFrequencies[TS["Orbit"]["a"],TS["Orbit"]["p"],0,TS["Orbit"]["Inclination"]]];
+  {tp,rp,\[Theta]p,\[Phi]p} = TS["Orbit"]["Trajectory"];
+  
+  \[Omega]mk = R["In"]["\[Omega]"];
+  l = R["In"]["l"];
+  m = R["In"]["m"];
+  k = Round[(\[Omega]mk - m \[CapitalOmega]\[Phi])/\[CapitalOmega]\[Theta]];
+  (*\[Psi][r] = r R[r] *)
+  \[Psi]In = R["In"][r0] r0;
+  \[Psi]Out = R["Up"][r0] r0;
+
+  d\[Psi]In = R["In"][r0] + r0 R["In"]'[r0];
+  d\[Psi]Out = R["Up"][r0] + r0 R["Up"]'[r0];
+
+  W = \[Psi]In d\[Psi]Out - \[Psi]Out d\[Psi]In;
+  
+  \[Alpha] = If[MatchQ[l+m+k,_?OddQ],0,Quiet[NIntegrate[TS["\[Alpha]"][\[Theta]p[\[Lambda]]]SH[\[Theta]p[\[Lambda]],0] Cos[\[Omega]mk tp[\[Lambda]] - m \[Phi]p[\[Lambda]]],{\[Lambda],0,\[Pi]/(2\[CapitalUpsilon]\[Theta])},Method->"Trapezoidal",MaxRecursion->Infinity,WorkingPrecision->Precision[\[Omega]mk]]]];
+
+  ZIn = \[Alpha] \[Psi]Out/W;
+  ZOut = \[Alpha] \[Psi]In/W;
+	(*Print[\[Alpha]];*)
   <| "\[ScriptCapitalI]" -> ZOut, "\[ScriptCapitalH]" -> ZIn |>
 ]
 
