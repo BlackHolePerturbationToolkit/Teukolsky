@@ -12,7 +12,7 @@
 (*BeginPackage*)
 
 
-BeginPackage["Teukolsky`TeukolskySource`"];
+BeginPackage["Teukolsky`TeukolskySource`",{"KerrGeodesics`OrbitalFrequencies`"}];
 
 
 (* ::Subsection:: *)
@@ -31,10 +31,15 @@ Begin["`Private`"];
 
 
 TeukolskyPointParticleSource[s_, orbit_] :=
+Module[{},
   If[(s==-2 || s==-1|| s==0) && orbit["e"] == 0 && Abs[orbit["Inclination"]] == 1,
-    Return[TeukolskyPointParticleSourceCircular[s,orbit]],
-    Return[$Failed];
-  ]
+    Return[TeukolskyPointParticleSourceCircular[s,orbit]]];
+  If[s==0 && orbit["e"] == 0 && Abs[orbit["Inclination"]] != 1,
+    Return[TeukolskyPointParticleSourceSpherical[s,orbit]]];
+    
+    $Failed
+    ]
+    
 
 
 TeukolskyPointParticleSourceCircular[0, orbit_] := Module[{assoc, \[Alpha], gtt, gt\[Phi], \[CapitalDelta], ut, a, r0, E0, Lz, \[CapitalSigma], \[Rho]},
@@ -55,6 +60,35 @@ TeukolskyPointParticleSourceCircular[0, orbit_] := Module[{assoc, \[Alpha], gtt,
   (*END FIXME*)
 
   \[Alpha] = -((4 \[Pi] r0)/(ut \[CapitalDelta]));
+
+  assoc = <|  "s" -> 0,
+        "SourceType" -> "PointParticle",
+        "Orbit" -> orbit,
+        "\[Alpha]" -> \[Alpha]
+      |>;
+
+  TeukolskySourceObject[assoc]
+]
+
+
+TeukolskyPointParticleSourceSpherical[0, orbit_] := Module[{assoc, \[Alpha], gtt, gt\[Phi], \[CapitalDelta], ut, dtd\[Lambda], a, r0, e, x, \[ScriptCapitalE], \[ScriptCapitalL], \[CapitalUpsilon], \[CapitalSigma], \[Rho],\[CapitalOmega]r,\[CapitalOmega]\[Theta],\[CapitalOmega]\[Phi]},
+	r0 =orbit["p"];
+	a= orbit["a"];
+	x = orbit["Inclination"];
+	e = orbit["e"];
+	{\[CapitalOmega]r,\[CapitalOmega]\[Theta],\[CapitalOmega]\[Phi]} = Values[Evaluate[KerrGeoFrequencies[a,r0,e,x]]];
+	\[ScriptCapitalE]=orbit["Energy"];
+	\[ScriptCapitalL]=orbit["AngularMomentum"];
+	
+	\[CapitalSigma] = Function[\[Theta],r0^2+a^2 Cos[\[Theta]]^2];
+	\[CapitalDelta] = r0^2-2 r0 + a^2;	
+
+  gtt = Function[\[Theta], -((a^4+2 r0^4+a^2 r0 (2 +3 r0)+a^2 (a^2+r0 (-2 +r0)) Cos[2 \[Theta]])/((a^2+r0 (-2 +r0)) (a^2+2 r0^2+a^2 Cos[2 \[Theta]])))];
+  gt\[Phi] = Function[\[Theta], -((4 a  r0)/((a^2+r0 (-2 +r0)) (a^2+2 r0^2+a^2 Cos[2 \[Theta]])))];
+  ut = Function[\[Theta],gt\[Phi][\[Theta]]\[ScriptCapitalL] - gtt[\[Theta]]\[ScriptCapitalE]];
+  dtd\[Lambda] = Function[\[Theta],(\[ScriptCapitalE]((r0^2+a^2)^2/\[CapitalDelta] - a^2 Sin[\[Theta]]^2)+a \[ScriptCapitalL](1-(r0^2+a^2)/\[CapitalDelta]))];
+  
+  \[Alpha] = Function[\[Theta],-(8 \[CapitalOmega]\[Theta] r0 dtd\[Lambda][\[Theta]])/(\[CapitalDelta] ut[\[Theta]])];
 
   assoc = <|  "s" -> 0,
         "SourceType" -> "PointParticle",
