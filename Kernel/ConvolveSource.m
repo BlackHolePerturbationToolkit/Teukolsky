@@ -30,7 +30,7 @@ Begin["`Private`"];
 (*ConvolveSource*)
 
 
-ConvolveSource[R_, S_, TS_] :=
+ConvolveSource[l_Integer, m_Integer, n_Integer, k_Integer, R_, S_, TS_] :=
  Module[{s, orbit},
   orbit = TS["Orbit"];
   s = TS["s"];
@@ -39,7 +39,7 @@ ConvolveSource[R_, S_, TS_] :=
     Return[ConvolveSourcePointParticleCircular[s,R,S,TS]]
   ];
   If[TS["SourceType"] == "PointParticle" && orbit["e"] == 0 && Abs[orbit["Inclination"]] != 1,
-    Return[ConvolveSourcePointParticleSpherical[s,R,S,TS]]
+    Return[ConvolveSourcePointParticleSpherical[s,k,R,S,TS]]
   ];
 
   $Failed
@@ -185,7 +185,7 @@ ConvolveSourcePointParticleSpherical[0, R_, SH_, TS_] :=
   \[Omega]mk = R["In"]["\[Omega]"];
   l = R["In"]["l"];
   m = R["In"]["m"];
-  k = Round[(\[Omega]mk - m \[CapitalOmega]\[Phi])/\[CapitalOmega]\[Theta]];
+  
   (*\[Psi][r] = r R[r] *)
   \[Psi]In = R["In"][r0] r0;
   \[Psi]Out = R["Up"][r0] r0;
