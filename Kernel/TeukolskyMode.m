@@ -79,7 +79,7 @@ TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer
 
   R = TeukolskyRadial[s, l, m, a, \[Omega]];  
   S = SpinWeightedSpheroidalHarmonicS[s, l, m, a \[Omega]];
-  Z = Teukolsky`ConvolveSource`Private`ConvolveSource[R, S, source];
+  Z = Teukolsky`ConvolveSource`Private`ConvolveSource[l,m,n,k,R, S, source];
 
   assoc = <| "s" -> s, 
 		     "l" -> l,
