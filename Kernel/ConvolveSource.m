@@ -173,8 +173,8 @@ ConvolveSourcePointParticleCircular[0, R_, SH_, TS_] :=
 (*s=0 point particle on a spherical orbit*)
 
 
-ConvolveSourcePointParticleSpherical[0,k_Integer, R_, SH_, TS_] :=
- Module[{a, r0, x, \[Psi]In, \[Psi]Out, d\[Psi]In, d\[Psi]Out, W, \[Alpha], ZIn, ZOut, S, tp, rp, \[Theta]p, \[Phi]p, l, m, k, \[Omega]mk,\[CapitalUpsilon]r,\[CapitalUpsilon]\[Theta],\[CapitalUpsilon]\[Phi],\[CapitalOmega]r,\[CapitalOmega]\[Theta],\[CapitalOmega]\[Phi]},
+ConvolveSourcePointParticleSpherical[0, k1_Integer, R_, SH_, TS_] :=
+ Module[{a, r0, x, \[Psi]In, \[Psi]Out, d\[Psi]In, d\[Psi]Out, W, \[Alpha], ZIn, ZOut, S, tp, rp, \[Theta]p, \[Phi]p, l, m, k=k1, \[Omega]mk,\[CapitalUpsilon]r,\[CapitalUpsilon]\[Theta],\[CapitalUpsilon]\[Phi],\[CapitalOmega]r,\[CapitalOmega]\[Theta],\[CapitalOmega]\[Phi]},
   a  = TS["Orbit"]["a"];
   r0 = TS["Orbit"]["p"];
   x = TS["Orbit"]["Inclination"];
