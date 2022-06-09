@@ -192,7 +192,7 @@ EnergyFlux[mode_TeukolskyMode] :=
 (*Angular Momentum Flux*)
 
 
-AngularMomentumFlux[mode_TeukolskyMode] := EnergyFlux[mode] mode["m"]/mode["\[Omega]"];
+AngularMomentumFlux[mode_TeukolskyMode] := If[mode["\[Omega]"]!=0,EnergyFlux[mode] mode["m"]/mode["\[Omega]"],0];
 
 
 (* ::Section::Closed:: *)
