@@ -195,8 +195,10 @@ ConvolveSourcePointParticleSpherical[0, k1_Integer, R_, SH_, TS_] :=
 
   W = \[Psi]In d\[Psi]Out - \[Psi]Out d\[Psi]In;
   
-  \[Alpha] = If[MatchQ[l+m+k,_?OddQ],0,Quiet[NIntegrate[TS["\[Alpha]"][\[Theta]p[\[Lambda]]]SH[\[Theta]p[\[Lambda]],0] Cos[\[Omega]mk tp[\[Lambda]] - m \[Phi]p[\[Lambda]]],{\[Lambda],0,\[Pi]/(2\[CapitalUpsilon]\[Theta])},Method->"Trapezoidal",MaxRecursion->Infinity,WorkingPrecision->Precision[\[Omega]mk]]]];
-
+If[a!=0,
+  \[Alpha] = If[MatchQ[l+m+k,_?OddQ],0,Quiet[NIntegrate[TS["\[Alpha]"][\[Theta]p[\[Lambda]]]SH[\[Theta]p[\[Lambda]],0] Cos[\[Omega]mk tp[\[Lambda]] - m \[Phi]p[\[Lambda]]],{\[Lambda],0,\[Pi]/(2\[CapitalUpsilon]\[Theta])},Method->"Trapezoidal",MaxRecursion->20,WorkingPrecision->Precision[\[CapitalOmega]\[Phi]]]]],
+  \[Alpha] = If[MatchQ[l+m+k,_?OddQ]||(Abs[m+k]>l),0,Quiet[NIntegrate[((-8 \[CapitalOmega]\[Theta] r0^2)/(r0-2))SphericalHarmonicY[l,m,\[Theta]p[\[Lambda]],0] Cos[\[Omega]mk tp[\[Lambda]] - m \[Phi]p[\[Lambda]]],{\[Lambda],0,\[Pi]/(2\[CapitalUpsilon]\[Theta])},Method->"Trapezoidal",MaxRecursion->20,WorkingPrecision->Precision[\[CapitalOmega]\[Phi]]]]]];
+  
   ZIn = \[Alpha] \[Psi]Out/W;
   ZOut = \[Alpha] \[Psi]In/W;
 	(*Print[\[Alpha]];*)
