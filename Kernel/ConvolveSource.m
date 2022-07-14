@@ -143,8 +143,8 @@ ConvolveSourcePointParticleCircular[s:(-1|+1), R_, SH_, TS_] :=
   CIn  = PIn*A - dPIn*B;
   COut = POut*A - dPOut*B;
 
-  ZIn  = COut/(Sqrt[2]*\[CapitalDelta]*W);
-  ZOut = CIn/(Sqrt[2]*\[CapitalDelta]*W);
+  ZIn  = COut/(\[CapitalDelta]*W);
+  ZOut = CIn/(\[CapitalDelta]*W);
 
   <| "\[ScriptCapitalI]" -> ZOut, "\[ScriptCapitalH]" -> ZIn |>
 ]
