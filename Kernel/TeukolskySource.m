@@ -66,7 +66,7 @@ TeukolskyPointParticleSourceCircular[0, orbit_] := Module[{assoc, \[Alpha], gtt,
 ]
 
 
-TeukolskyPointParticleSourceCircular[s:(-1|+1), orbit_] := Module[{assoc, a, r0, E0, \[CapitalOmega], Lz, \[CapitalSigma], c, S, B, Ar, Ai, ut, \[Rho], \[CapitalDelta], \[CapitalDelta]p, gtt, gt\[Phi]},
+TeukolskyPointParticleSourceCircular[s:(-1|+1), orbit_] := Module[{assoc, a, r0, E0, \[CapitalOmega], Lz, \[CapitalSigma], c, S, B, Ar, Ati, ut, \[Rho], \[CapitalDelta], \[CapitalDelta]p, gtt, gt\[Phi]},
   a = orbit["a"];
   r0 = orbit["p"];
 
@@ -90,7 +90,7 @@ TeukolskyPointParticleSourceCircular[s:(-1|+1), orbit_] := Module[{assoc, a, r0,
   S = (4*\[Pi])/(Sqrt[2]r0)*Which[s==-1, 1/2, s==+1, 1];
   B = \[CapitalDelta]((r0^2+a^2)\[CapitalOmega] - a);
   Ar = r0(r0((r0^2+a^2)\[CapitalOmega]^2-1)+2 (1-a \[CapitalOmega])^2);
-  Ai = a^2 (2-r0)\[CapitalOmega]+a \[CapitalDelta]p -r0^3 \[CapitalOmega];
+  Ati = r0 \[CapitalDelta] \[CapitalOmega];
   c = - \[CapitalDelta](1-a \[CapitalOmega]);
 
   assoc = <| "s" -> s, 
@@ -99,7 +99,7 @@ TeukolskyPointParticleSourceCircular[s:(-1|+1), orbit_] := Module[{assoc, a, r0,
          "\[ScriptCapitalS]" -> S,
          "B" -> B,
          "\!\(\*SuperscriptBox[\(A\), \((r)\)]\)" -> Ar,
-         "\!\(\*SuperscriptBox[\(A\), \((i)\)]\)" -> Ai,
+         "\!\(\*SuperscriptBox[OverscriptBox[\(A\), \(~\)], \((i)\)]\)" -> Ati,
          "C" -> c 
          |>;
 

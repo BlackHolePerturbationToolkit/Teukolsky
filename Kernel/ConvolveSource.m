@@ -136,12 +136,12 @@ ConvolveSourcePointParticleCircular[s:(-1|+1), R_, SH_, TS_] :=
   W = (PIn dPOut - POut dPIn);
 
   (* Define source terms: arXiv:2008.12703 Eq. (48) *)
-  A = TS["\[ScriptCapitalS]"] ((m*TS["\!\(\*SuperscriptBox[\(A\), \((r)\)]\)"] + s I TS["\!\(\*SuperscriptBox[\(A\), \((i)\)]\)"])S + s TS["C"]dS);
+  A = TS["\[ScriptCapitalS]"] ((m*TS["\!\(\*SuperscriptBox[\(A\), \((r)\)]\)"] + s I TS["\!\(\*SuperscriptBox[OverscriptBox[\(A\), \(~\)], \((i)\)]\)"])S + s TS["C"]dS);
   B = s I TS["\[ScriptCapitalS]"]TS["B"]*S;
 
   (*FIXME, this is slow to compute the second derivative given we've already computed the R and dR*)
-  CIn  = PIn(\[CapitalDelta]p/\[CapitalDelta]*B + A) - dPIn(B);
-  COut = POut(\[CapitalDelta]p/\[CapitalDelta]*B + A) - dPOut(B);
+  CIn  = PIn*A - dPIn*B;
+  COut = POut*A - dPOut*B;
 
   ZIn  = COut/(Sqrt[2]*\[CapitalDelta]*W);
   ZOut = CIn/(Sqrt[2]*\[CapitalDelta]*W);
