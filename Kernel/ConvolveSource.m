@@ -99,7 +99,7 @@ ConvolveSourcePointParticleCircular[-2, R_, SH_, TS_] :=
 
 
 ConvolveSourcePointParticleCircular[s:(-1|+1), R_, SH_, TS_] :=
- Module[{a, r0, \[Theta], m, \[Omega], \[CapitalDelta], \[CapitalDelta]p, W, A, B, RIn, ROut, dRIn, dROut, CIn, COut, ZIn, ZOut, dS, S, PIn, POut, dPIn, dPOut},
+ Module[{a, r0, \[Theta], m, \[Omega], \[CapitalDelta], \[CapitalDelta]p, W, A, B, RIn, ROut, dRIn, dROut, ZIn, ZOut, dS, S, PIn, POut, dPIn, dPOut},
   a  = TS["Orbit"]["a"];
   r0 = TS["Orbit"]["p"];
   m  = R["In"]["m"];
@@ -139,12 +139,8 @@ ConvolveSourcePointParticleCircular[s:(-1|+1), R_, SH_, TS_] :=
   A = TS["\[ScriptCapitalS]"] ((m*TS["\!\(\*SuperscriptBox[\(A\), \((r)\)]\)"] + s I TS["\!\(\*SuperscriptBox[OverscriptBox[\(A\), \(~\)], \((i)\)]\)"])S + s TS["C"]dS);
   B = s I TS["\[ScriptCapitalS]"]TS["B"]*S;
 
-  (*FIXME, this is slow to compute the second derivative given we've already computed the R and dR*)
-  CIn  = PIn*A - dPIn*B;
-  COut = POut*A - dPOut*B;
-
-  ZIn  = COut/(\[CapitalDelta]*W);
-  ZOut = CIn/(\[CapitalDelta]*W);
+  ZIn  = (POut*A - dPOut*B)/(\[CapitalDelta]*W);
+  ZOut = (PIn*A - dPIn*B)/(\[CapitalDelta]*W);
 
   <| "\[ScriptCapitalI]" -> ZOut, "\[ScriptCapitalH]" -> ZIn |>
 ]
