@@ -206,9 +206,9 @@ IInPlus=Rin[r0](Ann0Plus + Anm0Plus + Amm0Plus)-Rin'[r0](Anm1Plus+Amm1Plus)+Rin'
 IInMinus=Rin[r0](Ann0Minus + Anm0Minus + Amm0Minus)-Rin'[r0](Anm1Minus+Amm1Minus)+Rin''[r0]Amm2Minus;
 
 (*Print["Integrating"];*)
-Zin = Quiet[((2\[Pi])/(T\[Theta] Const)) NIntegrate[((\[Gamma]+a^2 \[ScriptCapitalE] z)/Sqrt[\[Beta](zp-z)] (E^(I(\[Omega] t0-m \[Phi]0)) IInPlus+E^(-I(\[Omega] t0-m \[Phi]0)) IInMinus))/.{\[Chi]->\[Chi]0},{\[Chi]0,0,\[Pi]},WorkingPrecision->\[Sigma]]];
+Zin = ((2\[Pi])/(T\[Theta] Const)) NIntegrate[((\[Gamma]+a^2 \[ScriptCapitalE] z)/Sqrt[\[Beta](zp-z)] (E^(I(\[Omega] t0-m \[Phi]0)) IInPlus+E^(-I(\[Omega] t0-m \[Phi]0)) IInMinus))/.{\[Chi]->\[Chi]0},{\[Chi]0,0,\[Pi]},WorkingPrecision->\[Sigma]];
 
-Zup = Quiet[((2\[Pi])/(T\[Theta] Const)) NIntegrate[((\[Gamma]+a^2 \[ScriptCapitalE] z)/Sqrt[\[Beta](zp-z)] (E^(I(\[Omega] t0-m \[Phi]0)) IUpPlus+E^(-I(\[Omega] t0-m \[Phi]0)) IUpMinus))/.{\[Chi]->\[Chi]0},{\[Chi]0,0,\[Pi]},WorkingPrecision->\[Sigma]]];
+Zup = ((2\[Pi])/(T\[Theta] Const)) NIntegrate[((\[Gamma]+a^2 \[ScriptCapitalE] z)/Sqrt[\[Beta](zp-z)] (E^(I(\[Omega] t0-m \[Phi]0)) IUpPlus+E^(-I(\[Omega] t0-m \[Phi]0)) IUpMinus))/.{\[Chi]->\[Chi]0},{\[Chi]0,0,\[Pi]},WorkingPrecision->\[Sigma]];
 amplitudes = <|"\[ScriptCapitalI]"->Zin,"\[ScriptCapitalH]"->Zup|>
 (*The in/up look backwards, but I'm following the naming convention from Hughes: 	arXiv:gr-qc/9910091*)
 (*assoc = <|"l"->l,"m"->m,"k"->k,"\[Omega]"->\[Omega],"Eigenvalue"->eval, "Orbit"->orbit, "Amplitudes"->amplitudes|>*)
@@ -325,8 +325,8 @@ ConvolveSourcePointParticleSpherical[0, k1_Integer, R_, SH_, TS_] :=
   W = \[Psi]In d\[Psi]Out - \[Psi]Out d\[Psi]In;
   
 If[a!=0,
-  \[Alpha] = If[MatchQ[l+m+k,_?OddQ],0,Quiet[NIntegrate[TS["\[Alpha]"][\[Theta]p[\[Lambda]]]SH[\[Theta]p[\[Lambda]],0] Cos[\[Omega]mk tp[\[Lambda]] - m \[Phi]p[\[Lambda]]],{\[Lambda],0,\[Pi]/(2\[CapitalUpsilon]\[Theta])},Method->"Trapezoidal",MaxRecursion->20,WorkingPrecision->Precision[\[CapitalOmega]\[Phi]]]]],
-  \[Alpha] = If[MatchQ[l+m+k,_?OddQ]||(Abs[m+k]>l),0,Quiet[NIntegrate[((-8 \[CapitalOmega]\[Theta] r0^2)/(r0-2))SphericalHarmonicY[l,m,\[Theta]p[\[Lambda]],0] Cos[\[Omega]mk tp[\[Lambda]] - m \[Phi]p[\[Lambda]]],{\[Lambda],0,\[Pi]/(2\[CapitalUpsilon]\[Theta])},Method->"Trapezoidal",MaxRecursion->20,WorkingPrecision->Precision[\[CapitalOmega]\[Phi]]]]]];
+  \[Alpha] = If[MatchQ[l+m+k,_?OddQ],0,NIntegrate[TS["\[Alpha]"][\[Theta]p[\[Lambda]]]SH[\[Theta]p[\[Lambda]],0] Cos[\[Omega]mk tp[\[Lambda]] - m \[Phi]p[\[Lambda]]],{\[Lambda],0,\[Pi]/(2\[CapitalUpsilon]\[Theta])},Method->"Trapezoidal",MaxRecursion->20,WorkingPrecision->Precision[\[CapitalOmega]\[Phi]]]],
+  \[Alpha] = If[MatchQ[l+m+k,_?OddQ]||(Abs[m+k]>l),0,NIntegrate[((-8 \[CapitalOmega]\[Theta] r0^2)/(r0-2))SphericalHarmonicY[l,m,\[Theta]p[\[Lambda]],0] Cos[\[Omega]mk tp[\[Lambda]] - m \[Phi]p[\[Lambda]]],{\[Lambda],0,\[Pi]/(2\[CapitalUpsilon]\[Theta])},Method->"Trapezoidal",MaxRecursion->20,WorkingPrecision->Precision[\[CapitalOmega]\[Phi]]]]];
   
   ZIn = \[Alpha] \[Psi]Out/W;
   ZOut = \[Alpha] \[Psi]In/W;
