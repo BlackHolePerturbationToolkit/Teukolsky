@@ -125,7 +125,7 @@ x   = orbit["Inclination"];
 
 
 (*Print["Calculating Frequencies"];*)
-{\[CapitalOmega]\[Theta],\[CapitalOmega]\[Phi]}=Values[KerrGeoFrequencies[a,r0,e,x]][[2;;3]];
+{\[CapitalOmega]\[Theta],\[CapitalOmega]\[Phi]} = {"\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Theta]\)]\)","\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"} /. KerrGeoFrequencies[a,r0,e,x];
 T\[Theta] = (2\[Pi])/\[CapitalOmega]\[Theta];
 \[Omega] = m \[CapitalOmega]\[Phi] + k \[CapitalOmega]\[Theta];
 \[Sigma] =.7 Precision[\[Omega]];
@@ -307,8 +307,8 @@ ConvolveSourcePointParticleSpherical[0, k1_Integer, R_, SH_, TS_] :=
   a  = TS["Orbit"]["a"];
   r0 = TS["Orbit"]["p"];
   x = TS["Orbit"]["Inclination"];
-  {\[CapitalUpsilon]r,\[CapitalUpsilon]\[Theta],\[CapitalUpsilon]\[Phi]} = Values[TS["Orbit"]["Frequencies"]];
-  {\[CapitalOmega]r,\[CapitalOmega]\[Theta],\[CapitalOmega]\[Phi]} = Values[KerrGeoFrequencies[TS["Orbit"]["a"],TS["Orbit"]["p"],0,TS["Orbit"]["Inclination"]]];
+  {\[CapitalUpsilon]r,\[CapitalUpsilon]\[Theta],\[CapitalUpsilon]\[Phi]} = {"\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(r\)]\)", "\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(\[Theta]\)]\)", "\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(\[Phi]\)]\)"} /. TS["Orbit"]["Frequencies"];
+  {\[CapitalOmega]r,\[CapitalOmega]\[Theta],\[CapitalOmega]\[Phi]} = {"\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(r\)]\)", "\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Theta]\)]\)", "\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"} /. KerrGeoFrequencies[TS["Orbit"]["a"],TS["Orbit"]["p"],0,TS["Orbit"]["Inclination"]];
   {tp,rp,\[Theta]p,\[Phi]p} = TS["Orbit"]["Trajectory"];
   
   \[Omega]mk = R["In"]["\[Omega]"];

@@ -76,7 +76,7 @@ TeukolskyPointParticleSourceSpherical[0, orbit_] := Module[{assoc, \[Alpha], gtt
 	a= orbit["a"];
 	x = orbit["Inclination"];
 	e = orbit["e"];
-	{\[CapitalOmega]r,\[CapitalOmega]\[Theta],\[CapitalOmega]\[Phi]} = Values[Evaluate[KerrGeoFrequencies[a,r0,e,x]]];
+	{\[CapitalOmega]r,\[CapitalOmega]\[Theta],\[CapitalOmega]\[Phi]} = {"\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(r\)]\)", "\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Theta]\)]\)", "\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"} /. KerrGeoFrequencies[a,r0,e,x];
 	\[ScriptCapitalE]=orbit["Energy"];
 	\[ScriptCapitalL]=orbit["AngularMomentum"];
 	
