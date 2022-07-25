@@ -217,11 +217,11 @@ amplitudes = <|"\[ScriptCapitalI]"->Zin,"\[ScriptCapitalH]"->Zup|>
 
 
 (* ::Subsection::Closed:: *)
-(*s=-1 point particle on a circular orbit*)
+(*s=\[PlusMinus]1 point particle on a circular orbit*)
 
 
-ConvolveSourcePointParticleCircular[-1, R_, SH_, TS_] :=
- Module[{a, r0, \[Theta], m, \[Omega], \[CapitalDelta], \[CapitalDelta]p, W, A, B, RIn, ROut, dRIn, dROut, CIn, COut, ZIn, ZOut, dS, S},
+ConvolveSourcePointParticleCircular[s:(-1|+1), R_, SH_, TS_] :=
+ Module[{a, r0, \[Theta], m, \[Omega], \[CapitalDelta], \[CapitalDelta]p, W, A, B, RIn, ROut, dRIn, dROut, ZIn, ZOut, dS, S, PIn, POut, dPIn, dPOut},
   a  = TS["Orbit"]["a"];
   r0 = TS["Orbit"]["p"];
   m  = R["In"]["m"];
@@ -231,7 +231,7 @@ ConvolveSourcePointParticleCircular[-1, R_, SH_, TS_] :=
   \[CapitalDelta]p = 2r0 - 2;
 
   S = SH[\[Pi]/2, 0];
-  dS = D[SH[\[Theta],0],\[Theta]]/.\[Theta]->\[Pi]/2;
+  dS = Derivative[1,0][SH][\[Pi]/2,0];
 
   (* s = -1 radial functions *)
   RIn = R["In"][r0];
@@ -240,19 +240,29 @@ ConvolveSourcePointParticleCircular[-1, R_, SH_, TS_] :=
   dRIn = R["In"]'[r0];
   dROut = R["Up"]'[r0];
 
+  (* Convert R -> P: P+1 = \[CapitalDelta] R+1 and P-1 = R-1 *)
+  Which[
+    s == -1,
+      PIn = RIn;
+      POut = ROut;
+      dPIn = dRIn;
+      dPOut = dROut;,
+    s == +1,
+      PIn = \[CapitalDelta] RIn;
+      POut = \[CapitalDelta] ROut;
+      dPIn = \[CapitalDelta] dRIn + \[CapitalDelta]p RIn;
+      dPOut = \[CapitalDelta] dROut + \[CapitalDelta]p ROut;
+  ];
+
   (* Wronskian *)
-  W = (RIn dROut - ROut dRIn);
+  W = (PIn dPOut - POut dPIn);
 
-  (* Define source terms. The source is A*\[Delta](r-r0) + B*\[Delta]'(r-r0) *)
-  A = ((m*TS["Am"]-I*TS["Ai"])S - TS["C"]dS);
-  B = -I*TS["B"]*S;
+  (* Define source terms: arXiv:2008.12703 Eq. (48) *)
+  A = TS["\[ScriptCapitalS]"] ((m*TS["\!\(\*SuperscriptBox[\(A\), \((r)\)]\)"] + s I TS["\!\(\*SuperscriptBox[OverscriptBox[\(A\), \(~\)], \((i)\)]\)"])S + s TS["C"]dS);
+  B = s I TS["\[ScriptCapitalS]"]TS["B"]*S;
 
-  (*FIXME, this is slow to compute the second derivative given we've already computed the R and dR*)
-  CIn  = RIn(\[CapitalDelta]p/\[CapitalDelta]*B + A) - dRIn(B);
-  COut = ROut(\[CapitalDelta]p/\[CapitalDelta]*B + A) - dROut(B);
-
-  ZIn  = COut/(Sqrt[2]*\[CapitalDelta]*W);
-  ZOut = CIn/(Sqrt[2]*\[CapitalDelta]*W);
+  ZIn  = (POut*A - dPOut*B)/(\[CapitalDelta]*W);
+  ZOut = (PIn*A - dPIn*B)/(\[CapitalDelta]*W);
 
   <| "\[ScriptCapitalI]" -> ZOut, "\[ScriptCapitalH]" -> ZIn |>
 ]
