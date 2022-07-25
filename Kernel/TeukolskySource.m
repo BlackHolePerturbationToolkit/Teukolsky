@@ -34,7 +34,7 @@ TeukolskyPointParticleSource[s_, orbit_] :=
 Module[{},
   If[(s==-2 || s==-1|| s==0) && orbit["e"] == 0 && Abs[orbit["Inclination"]] == 1,
     Return[TeukolskyPointParticleSourceCircular[s,orbit]]];
-  If[(s==0||s=-2) && orbit["e"] == 0 && Abs[orbit["Inclination"]] != 1,
+  If[(s==0||s==-2) && orbit["e"] == 0 && Abs[orbit["Inclination"]] != 1,
     Return[TeukolskyPointParticleSourceSpherical[s,orbit]]];
     
     $Failed
