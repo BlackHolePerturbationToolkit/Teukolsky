@@ -145,12 +145,6 @@ z=zm Cos[\[Chi]]^2;
 (*t0[\[Chi]]/\[Phi]0[\[Chi]]*)
 t0=Sqrt[(zm-2 zp+zm Cos[2 \[Chi]])/(zm-zp)] (a^2 (zm-zp) \[ScriptCapitalE] EllipticE[\[Chi],zm/(zm-zp)]+(a^2 zp \[ScriptCapitalE]+\[Gamma]) EllipticF[\[Chi],zm/(zm-zp)])/(Sqrt[-\[Beta] (zm-2 zp+zm Cos[2 \[Chi]])]);
 \[Phi]0=(Sqrt[(zm-2 zp+zm Cos[2 \[Chi]])/(zm-zp)] ((-1+zm) \[Delta] EllipticF[\[Chi],zm/(zm-zp)]-\[ScriptCapitalL] EllipticPi[zm/(-1+zm),\[Chi],zm/(zm-zp)]))/((-1+zm) Sqrt[-\[Beta] (zm-2 zp+zm Cos[2 \[Chi]])]);
-(*t0[\[Pi]/2]/\[Phi]0[\[Pi]/2]*)
-t0\[Pi]2=(Sqrt[-(zp/(zm-zp))] (a^2 (zm-zp) \[ScriptCapitalE] EllipticE[zm/(zm-zp)]+(a^2 zp \[ScriptCapitalE]+\[Gamma]) EllipticK[zm/(zm-zp)]))/Sqrt[zp \[Beta]];
-\[Phi]0\[Pi]2=(Sqrt[-(zp/(zm-zp))] ((-1+zm) \[Delta] EllipticK[zm/(zm-zp)]-\[ScriptCapitalL] EllipticPi[zm/(-1+zm),zm/(zm-zp)]))/((-1+zm) Sqrt[zp \[Beta]]);
-(*t0[\[Chi]-\[Pi]/2]/\[Phi]0[\[Chi]-\[Pi]/2]*)
-t0\[Chi]m\[Pi]2=(Sqrt[(zm-2 zp+zm Cos[2 (-(\[Pi]/2)+\[Chi])])/(zm-zp)] (-a^2 (zm-zp) \[ScriptCapitalE] EllipticE[\[Pi]/2-\[Chi],zm/(zm-zp)]-(a^2 zp \[ScriptCapitalE]+\[Gamma]) EllipticF[\[Pi]/2-\[Chi],zm/(zm-zp)]))/(Sqrt[-\[Beta] (zm-2 zp+zm Cos[2 (-(\[Pi]/2)+\[Chi])])]);
-\[Phi]0\[Chi]m\[Pi]2=(Sqrt[(zm-2 zp+zm Cos[2 (-(\[Pi]/2)+\[Chi])])/(zm-zp)] (-((-1+zm) \[Delta] EllipticF[\[Pi]/2-\[Chi],zm/(zm-zp)])+\[ScriptCapitalL] EllipticPi[zm/(-1+zm),\[Pi]/2-\[Chi],zm/(zm-zp)]))/((-1+zm) Sqrt[-\[Beta] (zm-2 zp+zm Cos[2 (-(\[Pi]/2)+\[Chi])])]);
 
 (*Print["Calculating Homogeneous Radial Solution, and SWSH"];*)
 Rup = R["Up"];
