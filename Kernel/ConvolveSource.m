@@ -22,7 +22,7 @@ BeginPackage["Teukolsky`ConvolveSource`",{"KerrGeodesics`OrbitalFrequencies`"}];
 Begin["`Private`"];
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*ConvolveSource*)
 
 
@@ -95,7 +95,7 @@ ConvolveSourcePointParticleCircular[-2, R_, SH_, TS_] :=
 ]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*s=-2 point particle on a spherical orbit*)
 
 
@@ -198,9 +198,9 @@ IInPlus=Rin[r0](Ann0Plus + Anm0Plus + Amm0Plus)-Rin'[r0](Anm1Plus+Amm1Plus)+Rin'
 IInMinus=Rin[r0](Ann0Minus + Anm0Minus + Amm0Minus)-Rin'[r0](Anm1Minus+Amm1Minus)+Rin''[r0]Amm2Minus;
 
 (*Print["Integrating"];*)
-Zin = ((2\[Pi])/(T\[Theta] Const)) NIntegrate[((\[Gamma]+a^2 \[ScriptCapitalE] z)/Sqrt[\[Beta](zp-z)] (E^(I(\[Omega] t0-m \[Phi]0)) IInPlus+E^(-I(\[Omega] t0-m \[Phi]0)) IInMinus))/.{\[Chi]->\[Chi]0},{\[Chi]0,0,\[Pi]},WorkingPrecision->\[Sigma]];
+Zin = ((2\[Pi])/(T\[Theta] Const)) NIntegrate[((\[Gamma]+a^2 \[ScriptCapitalE] z)/Sqrt[\[Beta](zp-z)] (E^(I(\[Omega] t0-m \[Phi]0)) IInPlus+E^(-I(\[Omega] t0-m \[Phi]0)) IInMinus))/.{\[Chi]->\[Chi]0},{\[Chi]0,0,\[Pi]},WorkingPrecision->\[Sigma],Method->"Trapezoidal"];
 
-Zup = ((2\[Pi])/(T\[Theta] Const)) NIntegrate[((\[Gamma]+a^2 \[ScriptCapitalE] z)/Sqrt[\[Beta](zp-z)] (E^(I(\[Omega] t0-m \[Phi]0)) IUpPlus+E^(-I(\[Omega] t0-m \[Phi]0)) IUpMinus))/.{\[Chi]->\[Chi]0},{\[Chi]0,0,\[Pi]},WorkingPrecision->\[Sigma]];
+Zup = ((2\[Pi])/(T\[Theta] Const)) NIntegrate[((\[Gamma]+a^2 \[ScriptCapitalE] z)/Sqrt[\[Beta](zp-z)] (E^(I(\[Omega] t0-m \[Phi]0)) IUpPlus+E^(-I(\[Omega] t0-m \[Phi]0)) IUpMinus))/.{\[Chi]->\[Chi]0},{\[Chi]0,0,\[Pi]},WorkingPrecision->\[Sigma],Method->"Trapezoidal"];
 amplitudes = <|"\[ScriptCapitalI]"->Zin,"\[ScriptCapitalH]"->Zup|>
 (*The in/up look backwards, but I'm following the naming convention from Hughes: 	arXiv:gr-qc/9910091*)
 (*assoc = <|"l"->l,"m"->m,"k"->k,"\[Omega]"->\[Omega],"Eigenvalue"->eval, "Orbit"->orbit, "Amplitudes"->amplitudes|>*)
