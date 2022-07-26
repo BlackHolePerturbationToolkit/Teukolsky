@@ -89,7 +89,7 @@ TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer
 		     "a" -> a,
   		   "\[Omega]" -> \[Omega],
 		     "Eigenvalue" -> R["In"]["Eigenvalue"],
- 		    "Type" -> If[orbit["Inclination"]==1,{"PointParticleCircular", "Radius" -> orbit["p"]},{"PointParticleSpherical", "Radius" -> orbit["p"], "Inclination"->orbit["Inclination"]}],
+ 		    "Type" -> Switch[{orbit["e"],orbit["Inclination"]},{0,1},{"PointParticleCircular", "Radius" -> orbit["p"]},{0,x_},{"PointParticleSpherical", "Radius" -> orbit["p"], "Inclination"->orbit["Inclination"]},{e_,1},{"PointParticleEccentric", "Peri Latus Rectum" -> orbit["p"], "Eccentricity"->orbit["e"]},{e_,x_},{"PointParticleGeneric", "Peri Latus Rectum" -> orbit["p"], "Eccentricity"->orbit["e"],"Inclination"->orbit["Inclination"]}], 
 		     "RadialFunctions" -> R,
 		     "AngularFunction" -> S,
 		     "Amplitudes" -> Z
