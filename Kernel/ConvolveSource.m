@@ -34,12 +34,10 @@ ConvolveSource[l_Integer, m_Integer, n_Integer, k_Integer, R_, S_, TS_] :=
  Module[{s, orbit},
   orbit = TS["Orbit"];
   s = TS["s"];
-
-  If[TS["SourceType"] == "PointParticle" && orbit["e"] == 0 && Abs[orbit["Inclination"]] == 1,
-    Return[ConvolveSourcePointParticleCircular[s,R,S,TS]]
-  ];
-  If[TS["SourceType"] == "PointParticle" && orbit["e"] == 0 && Abs[orbit["Inclination"]] != 1,
-    Return[ConvolveSourcePointParticleSpherical[s,k,R,S,TS]]
+  
+  If[
+  TS["SourceType"] == "PointParticle",
+  Switch[{orbit["e"],Abs[orbit["Inclination"]]},{0,1},Return[ConvolveSourcePointParticleCircular[s,R,S,TS]],{0,x_},Return[ConvolveSourcePointParticleSpherical[s,k,R,S,TS]],{e_,1},Return[ConvolveSourcePointParticleEccentric[s,n,R,S,TS]],{e_,x_},Return[ConvolveSourcePointParticleGeneric[s,n,k,R,S,TS]]]
   ];
 
   $Failed
