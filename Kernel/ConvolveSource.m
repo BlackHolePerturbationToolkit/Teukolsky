@@ -22,7 +22,7 @@ BeginPackage["Teukolsky`ConvolveSource`",{"KerrGeodesics`OrbitalFrequencies`"}];
 Begin["`Private`"];
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*ConvolveSource*)
 
 
@@ -95,7 +95,7 @@ ConvolveSourcePointParticleCircular[-2, R_, SH_, TS_] :=
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*s=-2 point particle on a spherical orbit*)
 
 
