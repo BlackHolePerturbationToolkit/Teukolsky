@@ -99,8 +99,8 @@ ConvolveSourcePointParticleCircular[-2, R_, SH_, TS_] :=
 (*s=-2 point particle on a spherical orbit*)
 
 
-ConvolveSourcePointParticleSpherical[-2, k_Integer, R_, SH_, TS_] :=
- Module[{l, m, orbit, a, r0, e, x, \[ScriptCapitalE], \[ScriptCapitalL], \[ScriptCapitalQ], \[CapitalOmega]\[Theta], \[CapitalOmega]\[Phi], T\[Theta], \[Omega], \[CapitalDelta], Kf, dK\[CapitalDelta], \[Beta], \[Gamma], \[Delta], zm, zp, Const, eval, Rupr0, Rinr0, dRupr0, dRinr0, d2Rupr0, d2Rinr0, integrand, Zin, Zup},
+ConvolveSourcePointParticleSpherical[s:-2, k_Integer, R_, SH_, TS_] :=
+ Module[{l, m, orbit, a, r0, e, x, \[ScriptCapitalE], \[ScriptCapitalL], \[ScriptCapitalQ], \[CapitalOmega]\[Theta], \[CapitalOmega]\[Phi], T\[Theta], \[Omega], \[CapitalDelta], Kf, dK\[CapitalDelta], \[Beta], \[Gamma], \[Delta], zm, zp, Const, \[Lambda], Rupr0, Rinr0, dRupr0, dRinr0, d2Rupr0, d2Rinr0, integrand, Zin, Zup},
   l = R["In"]["l"];
   m = R["In"]["m"];
 
@@ -128,15 +128,15 @@ ConvolveSourcePointParticleSpherical[-2, k_Integer, R_, SH_, TS_] :=
   zm = (\[ScriptCapitalL]^2+\[ScriptCapitalQ]+\[Beta]-\[Beta] Sqrt[(\[ScriptCapitalL]^4+(\[ScriptCapitalQ]-\[Beta])^2+2 \[ScriptCapitalL]^2 (\[ScriptCapitalQ]+\[Beta]))/\[Beta]^2])/(2 \[Beta]);
   zp = (\[ScriptCapitalL]^2+\[ScriptCapitalQ]+\[Beta]+\[Beta] Sqrt[(\[ScriptCapitalL]^4+(\[ScriptCapitalQ]-\[Beta])^2+2 \[ScriptCapitalL]^2 (\[ScriptCapitalQ]+\[Beta]))/\[Beta]^2])/(2 \[Beta]);
 
-  Const =2 I \[Omega] R["In"]["Amplitudes"]["Incidence"](* (Rin[r0]Rup'[r0] - Rin'[r0]Rup'[r0])/\[CapitalDelta]*);
-  eval = R["Up"]["Eigenvalue"];
+  Const = 2 I \[Omega] R["In"]["Amplitudes"]["Incidence"](* (Rin[r0]Rup'[r0] - Rin'[r0]Rup'[r0])/\[CapitalDelta]*);
+  \[Lambda] = R["Up"]["Eigenvalue"];
 
   Rupr0 = R["Up"][r0];
   Rinr0 = R["In"][r0];
   dRupr0 = R["Up"]'[r0];
   dRinr0 = R["In"]'[r0];
-  d2Rupr0 = R["Up"]''[r0];
-  d2Rinr0 = R["In"]''[r0];
+  d2Rupr0 = (-(-\[Lambda] + 2 I r0 s 2 \[Omega] + (-2 I (-1 + r0) s (-a m + (a^2 + r0^2) \[Omega]) + (-a m + (a^2 + r0^2) \[Omega])^2)/(a^2 - 2 r0 + r0^2)) Rupr0 - (-2 + 2 r0) (1 + s) dRupr0)/(a^2 - 2 r0 + r0^2);
+  d2Rinr0 = (-(-\[Lambda] + 2 I r0 s 2 \[Omega] + (-2 I (-1 + r0) s (-a m + (a^2 + r0^2) \[Omega]) + (-a m + (a^2 + r0^2) \[Omega])^2)/(a^2 - 2 r0 + r0^2)) Rinr0 - (-2 + 2 r0) (1 + s) dRinr0)/(a^2 - 2 r0 + r0^2);
 
   integrand[\[Chi]_?NumericQ, comp_]:=
    Module[{SH\[Theta], dSH\[Theta], d2SH\[Theta], \[Theta], z, \[CapitalSigma], \[Rho], \[Rho]b, Ld2S, Ld1Ld2S, \[CapitalTheta], t0, \[Phi]0, CnnPlus, CnnMinus, CnmPlus, CnmMinus, CmmPlus, CmmMinus, Ann0Plus, Anm0Plus, Amm0Plus, Anm1Plus, Amm1Plus, Amm2Plus, Ann0Minus, Anm0Minus, Amm0Minus, Anm1Minus, Amm1Minus, Amm2Minus, IUpPlus, IUpMinus, IInPlus, IInMinus},
