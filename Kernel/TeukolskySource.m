@@ -244,17 +244,17 @@ ut=1/\[CapitalSigma] (\[ScriptCapitalE]((r0^2+a^2)^2/\[CapitalDelta]-a^2 Sin[\[T
 \[CapitalTheta]=Sqrt[\[ScriptCapitalQ]-Cot[\[Theta]]^2 \[ScriptCapitalL]^2-a^2 Cos[\[Theta]]^2 (1-\[ScriptCapitalE]^2)];
 
 (*Stress energy projected onto tetrad (\[PlusMinus]\[CapitalTheta] for travelling up or down)*)
-CnnPlus=1/(4 \[CapitalSigma]^3 ut) (\[ScriptCapitalE](r0^2+a^2)-a \[ScriptCapitalL])^2;
-CnmPlus=\[Rho]/(2Sqrt[2] \[CapitalSigma]^2 ut) (\[ScriptCapitalE](r0^2+a^2)-a \[ScriptCapitalL])(I Sin[\[Theta]](a \[ScriptCapitalE]-\[ScriptCapitalL]/Sin[\[Theta]]^2)+ \[CapitalTheta]);
-CmmPlus=\[Rho]^2/(2\[CapitalSigma] ut) (I Sin[\[Theta]](a \[ScriptCapitalE]-\[ScriptCapitalL]/Sin[\[Theta]]^2)+ \[CapitalTheta])^2;
+CnnPlus=Function[{\[Chi]0},Evaluate[1/(4 \[CapitalSigma]^3 ut) (\[ScriptCapitalE](r0^2+a^2)-a \[ScriptCapitalL])^2/.\[Chi]->\[Chi]0]];
+CnmPlus=Function[{\[Chi]0},Evaluate[\[Rho]/(2Sqrt[2] \[CapitalSigma]^2 ut) (\[ScriptCapitalE](r0^2+a^2)-a \[ScriptCapitalL])(I Sin[\[Theta]](a \[ScriptCapitalE]-\[ScriptCapitalL]/Sin[\[Theta]]^2)+ \[CapitalTheta])/.\[Chi]->\[Chi]0]];
+CmmPlus=Function[{\[Chi]0},Evaluate[\[Rho]^2/(2\[CapitalSigma] ut) (I Sin[\[Theta]](a \[ScriptCapitalE]-\[ScriptCapitalL]/Sin[\[Theta]]^2)+ \[CapitalTheta])^2/.\[Chi]->\[Chi]0]];
 
-CnnMinus=1/(4 \[CapitalSigma]^3 ut) (\[ScriptCapitalE](r0^2+a^2)-a \[ScriptCapitalL])^2;
-CnmMinus=\[Rho]/(2Sqrt[2] \[CapitalSigma]^2 ut) (\[ScriptCapitalE](r0^2+a^2)-a \[ScriptCapitalL])(I Sin[\[Theta]](a \[ScriptCapitalE]-\[ScriptCapitalL]/Sin[\[Theta]]^2)- \[CapitalTheta]);
-CmmMinus=\[Rho]^2/(2\[CapitalSigma] ut) (I Sin[\[Theta]](a \[ScriptCapitalE]-\[ScriptCapitalL]/Sin[\[Theta]]^2)- \[CapitalTheta])^2;
+CnnMinus=Function[{\[Chi]0},Evaluate[1/(4 \[CapitalSigma]^3 ut) (\[ScriptCapitalE](r0^2+a^2)-a \[ScriptCapitalL])^2/.\[Chi]->\[Chi]0]];
+CnmMinus=Function[{\[Chi]0},Evaluate[\[Rho]/(2Sqrt[2] \[CapitalSigma]^2 ut) (\[ScriptCapitalE](r0^2+a^2)-a \[ScriptCapitalL])(I Sin[\[Theta]](a \[ScriptCapitalE]-\[ScriptCapitalL]/Sin[\[Theta]]^2)- \[CapitalTheta])/.\[Chi]->\[Chi]0]];
+CmmMinus=Function[{\[Chi]0},Evaluate[\[Rho]^2/(2\[CapitalSigma] ut) (I Sin[\[Theta]](a \[ScriptCapitalE]-\[ScriptCapitalL]/Sin[\[Theta]]^2)- \[CapitalTheta])^2/.\[Chi]->\[Chi]0]];
 (*Rewriting source*)
 
 
-assoc = <|"s"->-2, "SourceType"->"PointParticle","Orbit"->orbit,"Cnn+"->CnnPlus,"Cnn-"->CnnMinus,"Cnm+"->CnmPlus,"Cnm-"->CnmMinus,"Cmm+"->CmmPlus,"Cmm-"->CmmMinus,"\[Chi]"->\[Chi]|>
+assoc = <|"s"->-2, "SourceType"->"PointParticle","Orbit"->orbit,"Cnn+"->CnnPlus,"Cnn-"->CnnMinus,"Cnm+"->CnmPlus,"Cnm-"->CnmMinus,"Cmm+"->CmmPlus,"Cmm-"->CmmMinus|>
 ]
 
 

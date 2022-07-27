@@ -100,111 +100,95 @@ ConvolveSourcePointParticleCircular[-2, R_, SH_, TS_] :=
 
 
 ConvolveSourcePointParticleSpherical[-2, k_Integer, R_, SH_, TS_] :=
-Module[
-{l,m,orbit,a,r0,e,x,\[ScriptCapitalE],\[ScriptCapitalL],\[ScriptCapitalQ],\[Beta],\[Gamma],\[Delta],zm,zp,\[Theta],z,\[CapitalDelta],\[CapitalSigma],\[Rho],\[Rho]b,\[CapitalOmega]\[Theta],\[CapitalOmega]\[Phi],T\[Theta],\[Omega],Ld2S,Ld1Ld2S,Kf,dK\[CapitalDelta],ut,\[CapitalTheta],\[Chi],t0,t0\[Pi]2,t0\[Chi]m\[Pi]2,\[Phi]0,\[Phi]0\[Pi]2,\[Phi]0\[Chi]m\[Pi]2,CnnPlus,CnnMinus,CnmPlus,CnmMinus,CmmPlus,CmmMinus,Ann0Plus,Anm0Plus,Amm0Plus,Anm1Plus,Amm1Plus,Amm2Plus,Ann0Minus,Anm0Minus,Amm0Minus,Anm1Minus,Amm1Minus,Amm2Minus,Rin,Rup,Const,IUpPlus,IUpMinus,IInPlus,IInMinus,Zin,Zup,assoc, amplitudes,eval,\[Sigma]},
+ Module[{l, m, orbit, a, r0, e, x, \[ScriptCapitalE], \[ScriptCapitalL], \[ScriptCapitalQ], \[CapitalOmega]\[Theta], \[CapitalOmega]\[Phi], T\[Theta], \[Omega], \[CapitalDelta], Kf, dK\[CapitalDelta], \[Beta], \[Gamma], \[Delta], zm, zp, Const, eval, Rupr0, Rinr0, dRupr0, dRinr0, d2Rupr0, d2Rinr0, integrand, Zin, Zup},
+  l = R["In"]["l"];
+  m = R["In"]["m"];
 
-(*Print["Getting l, m, k, orbital params, constants"];*)
-l = R["In"]["l"];
-m = R["In"]["m"];
+  orbit = TS["Orbit"];
+  a  = orbit["a"];
+  r0 = orbit["p"];
+  e  = orbit["e"];
+  x  = orbit["Inclination"];
 
-orbit = TS["Orbit"];
-\[Chi] = TS["\[Chi]"];
+  \[ScriptCapitalE] = orbit["Energy"];
+  \[ScriptCapitalL] = orbit["AngularMomentum"];
+  \[ScriptCapitalQ] = orbit["CarterConstant"];
 
-a   = orbit["a"];
-r0 = orbit["p"];
-e   = orbit["e"];
-x   = orbit["Inclination"];
-(*Print[StringJoin["a = ",ToString[a],", r0 = ",ToString[r0],", e = ",ToString[e],", x = ",ToString[x]]];*)
-(*Constants of motion & Frequencies*)
-\[ScriptCapitalE] = orbit["Energy"];
-\[ScriptCapitalL] = orbit["AngularMomentum"];
-\[ScriptCapitalQ] = orbit["CarterConstant"];
-(*Print[StringJoin["Energy = ",ToString[\[ScriptCapitalE]],", Angular Momentum = ",ToString[\[ScriptCapitalL]],", Carter constant = ",ToString[\[ScriptCapitalQ]]]];*)
+  {\[CapitalOmega]\[Theta], \[CapitalOmega]\[Phi]} = {"\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Theta]\)]\)","\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"} /. KerrGeoFrequencies[a,r0,e,x];
+  T\[Theta] = (2\[Pi])/\[CapitalOmega]\[Theta];
+  \[Omega] = m \[CapitalOmega]\[Phi] + k \[CapitalOmega]\[Theta];
 
+  \[CapitalDelta] = r0^2-2r0+a^2;
+  Kf=(r0^2+a^2)\[Omega]-m a;
+  dK\[CapitalDelta]=(2 (a m (-1+r0)+a^2 \[Omega]-r0^2 \[Omega]))/\[CapitalDelta]^2;
+  
+  \[Beta] = a^2 (1-\[ScriptCapitalE]^2);
+  \[Gamma] = \[ScriptCapitalE] ((r0^2+a^2)^2/\[CapitalDelta]-a^2)+a \[ScriptCapitalL] (1-(r0^2+a^2)/\[CapitalDelta]);
+  \[Delta] = a \[ScriptCapitalE]((r0^2+a^2)/\[CapitalDelta]-1)-(a^2 \[ScriptCapitalL])/\[CapitalDelta];
+  zm = (\[ScriptCapitalL]^2+\[ScriptCapitalQ]+\[Beta]-\[Beta] Sqrt[(\[ScriptCapitalL]^4+(\[ScriptCapitalQ]-\[Beta])^2+2 \[ScriptCapitalL]^2 (\[ScriptCapitalQ]+\[Beta]))/\[Beta]^2])/(2 \[Beta]);
+  zp = (\[ScriptCapitalL]^2+\[ScriptCapitalQ]+\[Beta]+\[Beta] Sqrt[(\[ScriptCapitalL]^4+(\[ScriptCapitalQ]-\[Beta])^2+2 \[ScriptCapitalL]^2 (\[ScriptCapitalQ]+\[Beta]))/\[Beta]^2])/(2 \[Beta]);
 
-(*Print["Calculating Frequencies"];*)
-{\[CapitalOmega]\[Theta],\[CapitalOmega]\[Phi]} = {"\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Theta]\)]\)","\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"} /. KerrGeoFrequencies[a,r0,e,x];
-T\[Theta] = (2\[Pi])/\[CapitalOmega]\[Theta];
-\[Omega] = m \[CapitalOmega]\[Phi] + k \[CapitalOmega]\[Theta];
-\[Sigma] =.7 Precision[\[Omega]];
-(*Print[StringJoin["\[CapitalOmega]\[Theta] = ",ToString[\[CapitalOmega]\[Theta]],", \[CapitalOmega]\[Phi] = ",ToString[\[CapitalOmega]\[Phi]],", \[Omega] = ",ToString[\[Omega]]]];*)
+  Const =2 I \[Omega] R["In"]["Amplitudes"]["Incidence"](* (Rin[r0]Rup'[r0] - Rin'[r0]Rup'[r0])/\[CapitalDelta]*);
+  eval = R["Up"]["Eigenvalue"];
 
+  Rupr0 = R["Up"][r0];
+  Rinr0 = R["In"][r0];
+  dRupr0 = R["Up"]'[r0];
+  dRinr0 = R["In"]'[r0];
+  d2Rupr0 = R["Up"]''[r0];
+  d2Rinr0 = R["In"]''[r0];
 
-\[CapitalDelta]=r0^2-2r0+a^2;
-\[CapitalSigma]=r0^2+a^2 Cos[\[Theta]]^2;
-\[Rho]=-1/(r0-I a Cos[\[Theta]]);
-\[Rho]b=-1/(r0+I a Cos[\[Theta]]);
-\[Beta]=a^2 (1-\[ScriptCapitalE]^2);
-\[Gamma] = \[ScriptCapitalE] ((r0^2+a^2)^2/\[CapitalDelta]-a^2)+a \[ScriptCapitalL] (1-(r0^2+a^2)/\[CapitalDelta]);
-\[Delta] = a \[ScriptCapitalE]((r0^2+a^2)/\[CapitalDelta]-1)-(a^2 \[ScriptCapitalL])/\[CapitalDelta];
-{zm,zp}={(\[ScriptCapitalL]^2+\[ScriptCapitalQ]+\[Beta]-\[Beta] Sqrt[(\[ScriptCapitalL]^4+(\[ScriptCapitalQ]-\[Beta])^2+2 \[ScriptCapitalL]^2 (\[ScriptCapitalQ]+\[Beta]))/\[Beta]^2])/(2 \[Beta]),(\[ScriptCapitalL]^2+\[ScriptCapitalQ]+\[Beta]+\[Beta] Sqrt[(\[ScriptCapitalL]^4+(\[ScriptCapitalQ]-\[Beta])^2+2 \[ScriptCapitalL]^2 (\[ScriptCapitalQ]+\[Beta]))/\[Beta]^2])/(2 \[Beta])};
-z=zm Cos[\[Chi]]^2;
-\[Theta]=ArcCos[Sqrt[zm] Cos[\[Chi]]];
-(*t0[\[Chi]]/\[Phi]0[\[Chi]]*)
-t0=Sqrt[(zm-2 zp+zm Cos[2 \[Chi]])/(zm-zp)] (a^2 (zm-zp) \[ScriptCapitalE] EllipticE[\[Chi],zm/(zm-zp)]+(a^2 zp \[ScriptCapitalE]+\[Gamma]) EllipticF[\[Chi],zm/(zm-zp)])/(Sqrt[-\[Beta] (zm-2 zp+zm Cos[2 \[Chi]])]);
-\[Phi]0=(Sqrt[(zm-2 zp+zm Cos[2 \[Chi]])/(zm-zp)] ((-1+zm) \[Delta] EllipticF[\[Chi],zm/(zm-zp)]-\[ScriptCapitalL] EllipticPi[zm/(-1+zm),\[Chi],zm/(zm-zp)]))/((-1+zm) Sqrt[-\[Beta] (zm-2 zp+zm Cos[2 \[Chi]])]);
+  integrand[\[Chi]_?NumericQ, comp_]:=
+   Module[{SH\[Theta], dSH\[Theta], d2SH\[Theta], \[Theta], z, \[CapitalSigma], \[Rho], \[Rho]b, Ld2S, Ld1Ld2S, \[CapitalTheta], t0, \[Phi]0, CnnPlus, CnnMinus, CnmPlus, CnmMinus, CmmPlus, CmmMinus, Ann0Plus, Anm0Plus, Amm0Plus, Anm1Plus, Amm1Plus, Amm2Plus, Ann0Minus, Anm0Minus, Amm0Minus, Anm1Minus, Amm1Minus, Amm2Minus, IUpPlus, IUpMinus, IInPlus, IInMinus},
+    \[CapitalSigma] = r0^2+a^2 Cos[\[Theta]]^2;
+    \[Rho] = -1/(r0-I a Cos[\[Theta]]);
+    \[Rho]b = -1/(r0+I a Cos[\[Theta]]);
+    z = zm Cos[\[Chi]]^2;
+    \[Theta] = ArcCos[Sqrt[zm] Cos[\[Chi]]];
+    t0 = Sqrt[(zm-2 zp+zm Cos[2 \[Chi]])/(zm-zp)] (a^2 (zm-zp) \[ScriptCapitalE] EllipticE[\[Chi],zm/(zm-zp)]+(a^2 zp \[ScriptCapitalE]+\[Gamma]) EllipticF[\[Chi],zm/(zm-zp)])/(Sqrt[-\[Beta] (zm-2 zp+zm Cos[2 \[Chi]])]);
+    \[Phi]0 = (Sqrt[(zm-2 zp+zm Cos[2 \[Chi]])/(zm-zp)] ((-1+zm) \[Delta] EllipticF[\[Chi],zm/(zm-zp)]-\[ScriptCapitalL] EllipticPi[zm/(-1+zm),\[Chi],zm/(zm-zp)]))/((-1+zm) Sqrt[-\[Beta] (zm-2 zp+zm Cos[2 \[Chi]])]);
 
-(*Print["Calculating Homogeneous Radial Solution, and SWSH"];*)
-Rup = R["Up"];
-Rin = R["In"];
-Const =2 I \[Omega] Rin["Amplitudes"]["Incidence"](* (Rin[r0]Rup'[r0] - Rin'[r0]Rup'[r0])/\[CapitalDelta]*);
-eval = Rup["Eigenvalue"];
+    SH\[Theta] = SH[\[Theta],0];
+    dSH\[Theta] = Derivative[1,0][SH][\[Theta],0];
+    d2SH\[Theta] = Derivative[2,0][SH][\[Theta],0];
+    Ld2S = dSH\[Theta]+(- m Csc[\[Theta]]+a \[Omega] Sin[\[Theta]]+2 Cot[\[Theta]])SH\[Theta];
+    Ld1Ld2S = d2SH\[Theta] +(- m Csc[\[Theta]]+a \[Omega] Sin[\[Theta]]+2 Cot[\[Theta]])dSH\[Theta]+(a \[Omega] Cos[\[Theta]]+ m Cot[\[Theta]]Csc[\[Theta]]-2Csc[\[Theta]]^2)SH\[Theta]+(- m Csc[\[Theta]]+a \[Omega] Sin[\[Theta]]+ Cot[\[Theta]])Ld2S;
 
+    CnnPlus = TS["Cnn+"][\[Chi]];
+    CnmPlus = TS["Cnm+"][\[Chi]];
+    CmmPlus = TS["Cmm+"][\[Chi]];
 
-Ld2S=Derivative[1,0][SH][\[Theta],0]+(- m Csc[\[Theta]]+a \[Omega] Sin[\[Theta]]+2 Cot[\[Theta]])SH[\[Theta],0];
-Ld1Ld2S=Derivative[2,0][SH][\[Theta],0] +(- m Csc[\[Theta]]+a \[Omega] Sin[\[Theta]]+2 Cot[\[Theta]])Derivative[1,0][SH][\[Theta],0]+(a \[Omega] Cos[\[Theta]]+ m Cot[\[Theta]]Csc[\[Theta]]-2Csc[\[Theta]]^2)SH[\[Theta],0]+(- m Csc[\[Theta]]+a \[Omega] Sin[\[Theta]]+ Cot[\[Theta]])Ld2S;
+    CnnMinus = TS["Cnn-"][\[Chi]];
+    CnmMinus = TS["Cnm-"][\[Chi]];
+    CmmMinus = TS["Cmm-"][\[Chi]];
 
-Kf=(r0^2+a^2)\[Omega]-m a;
-dK\[CapitalDelta]=(2 (a m (-1+r0)+a^2 \[Omega]-r0^2 \[Omega]))/\[CapitalDelta]^2;
-(*Print["Retrieving Stress-energy information"];*)
-CnnPlus=TS["Cnn+"];
-CnmPlus=TS["Cnm+"];
-CmmPlus=TS["Cmm+"];
+    Ann0Plus = (-2 \[Rho]^-3 \[Rho]b^-1 CnnPlus)/\[CapitalDelta]^2 (Ld1Ld2S+2I a \[Rho] Sin[\[Theta]]Ld2S);
+    Anm0Plus = -((2Sqrt[2] \[Rho]^-3 CnmPlus)/\[CapitalDelta])(((I Kf)/\[CapitalDelta]-\[Rho]-\[Rho]b)Ld2S- Kf/\[CapitalDelta] a Sin[\[Theta]]SH\[Theta](\[Rho]-\[Rho]b));
+    Amm0Plus = SH\[Theta] \[Rho]^-3 \[Rho]b CmmPlus((Kf/\[CapitalDelta])^2+2I \[Rho] Kf/\[CapitalDelta]+I dK\[CapitalDelta]);
+    Anm1Plus = -((2Sqrt[2] \[Rho]^-3 CnmPlus)/\[CapitalDelta])(Ld2S+I a Sin[\[Theta]](\[Rho]-\[Rho]b)SH\[Theta]);
+    Amm1Plus = 2SH\[Theta] \[Rho]^-3 \[Rho]b CmmPlus(\[Rho]-(I Kf)/\[CapitalDelta]);
+    Amm2Plus = -SH\[Theta] \[Rho]^-3 \[Rho]b CmmPlus;
+    Ann0Minus = (-2 \[Rho]^-3 \[Rho]b^-1 CnnMinus)/\[CapitalDelta]^2 (Ld1Ld2S+2I a \[Rho] Sin[\[Theta]]Ld2S);
+    Anm0Minus = -((2Sqrt[2] \[Rho]^-3 CnmMinus)/\[CapitalDelta])(((I Kf)/\[CapitalDelta]-\[Rho]-\[Rho]b)Ld2S- Kf/\[CapitalDelta] a Sin[\[Theta]]SH\[Theta](\[Rho]-\[Rho]b));
+    Amm0Minus = SH\[Theta] \[Rho]^-3 \[Rho]b CmmMinus((Kf/\[CapitalDelta])^2+2I \[Rho] Kf/\[CapitalDelta]+I dK\[CapitalDelta]);
+    Anm1Minus = -((2Sqrt[2] \[Rho]^-3 CnmMinus)/\[CapitalDelta])(Ld2S+I a Sin[\[Theta]](\[Rho]-\[Rho]b)SH\[Theta]);
+    Amm1Minus = 2SH\[Theta] \[Rho]^-3 \[Rho]b CmmMinus(\[Rho]-(I Kf)/\[CapitalDelta]);
+    Amm2Minus = -SH\[Theta]  \[Rho]^-3 \[Rho]b CmmMinus;
 
-CnnMinus=TS["Cnn-"];
-CnmMinus=TS["Cnm-"];
-CmmMinus=TS["Cmm-"];
+    IUpPlus=Rupr0(Ann0Plus + Anm0Plus + Amm0Plus)-dRupr0(Anm1Plus+Amm1Plus)+d2Rupr0 Amm2Plus;
+    IUpMinus=Rupr0(Ann0Minus + Anm0Minus + Amm0Minus)-dRupr0(Anm1Minus+Amm1Minus)+d2Rupr0 Amm2Minus;
 
-(*Print["Calculating Subscript[A, abi] terms"];*)
-Ann0Plus= (-2 \[Rho]^-3 \[Rho]b^-1 CnnPlus)/\[CapitalDelta]^2 (Ld1Ld2S+2I a \[Rho] Sin[\[Theta]]Ld2S);
+    IInPlus=Rinr0(Ann0Plus + Anm0Plus + Amm0Plus)-dRinr0(Anm1Plus+Amm1Plus)+d2Rinr0 Amm2Plus;
+    IInMinus=Rinr0(Ann0Minus + Anm0Minus + Amm0Minus)-dRinr0(Anm1Minus+Amm1Minus)+d2Rinr0 Amm2Minus;
 
-Anm0Plus=-((2Sqrt[2] \[Rho]^-3 CnmPlus)/\[CapitalDelta])(((I Kf)/\[CapitalDelta]-\[Rho]-\[Rho]b)Ld2S- Kf/\[CapitalDelta] a Sin[\[Theta]]SH[\[Theta],0](\[Rho]-\[Rho]b));
+    {(\[Gamma]+a^2 \[ScriptCapitalE] z)/Sqrt[\[Beta](zp-z)](E^(I(\[Omega] t0-m \[Phi]0)) IInPlus+E^(-I(\[Omega] t0-m \[Phi]0)) IInMinus),
+     (\[Gamma]+a^2 \[ScriptCapitalE] z)/Sqrt[\[Beta](zp-z)](E^(I(\[Omega] t0-m \[Phi]0)) IUpPlus+E^(-I(\[Omega] t0-m \[Phi]0)) IUpMinus)}[[comp]]
+  ];
 
-Amm0Plus=SH[\[Theta],0]\[Rho]^-3 \[Rho]b CmmPlus((Kf/\[CapitalDelta])^2+2I \[Rho] Kf/\[CapitalDelta]+I dK\[CapitalDelta]);
+  Zin = ((2\[Pi])/(T\[Theta] Const)) NIntegrate[integrand[\[Chi]0,1], {\[Chi]0, 0, \[Pi]}, WorkingPrecision -> 0.7 Precision[R["In"]["\[Omega]"]], Method -> "Trapezoidal"];
+  Zup = ((2\[Pi])/(T\[Theta] Const)) NIntegrate[integrand[\[Chi]0,2], {\[Chi]0, 0, \[Pi]}, WorkingPrecision -> 0.7 Precision[R["In"]["\[Omega]"]], Method -> "Trapezoidal"];
 
-Anm1Plus=-((2Sqrt[2] \[Rho]^-3 CnmPlus)/\[CapitalDelta])(Ld2S+I a Sin[\[Theta]](\[Rho]-\[Rho]b)SH[\[Theta],0]);
-
-Amm1Plus=2SH[\[Theta],0]\[Rho]^-3 \[Rho]b CmmPlus(\[Rho]-(I Kf)/\[CapitalDelta]);
-
-Amm2Plus=-SH[\[Theta],0] \[Rho]^-3 \[Rho]b CmmPlus;
-
-Ann0Minus= (-2 \[Rho]^-3 \[Rho]b^-1 CnnMinus)/\[CapitalDelta]^2 (Ld1Ld2S+2I a \[Rho] Sin[\[Theta]]Ld2S);
-
-Anm0Minus=-((2Sqrt[2] \[Rho]^-3 CnmMinus)/\[CapitalDelta])(((I Kf)/\[CapitalDelta]-\[Rho]-\[Rho]b)Ld2S- Kf/\[CapitalDelta] a Sin[\[Theta]]SH[\[Theta],0](\[Rho]-\[Rho]b));
-
-Amm0Minus=SH[\[Theta],0]\[Rho]^-3 \[Rho]b CmmMinus((Kf/\[CapitalDelta])^2+2I \[Rho] Kf/\[CapitalDelta]+I dK\[CapitalDelta]);
-
-Anm1Minus=-((2Sqrt[2] \[Rho]^-3 CnmMinus)/\[CapitalDelta])(Ld2S+I a Sin[\[Theta]](\[Rho]-\[Rho]b)SH[\[Theta],0]);
-
-Amm1Minus=2SH[\[Theta],0]\[Rho]^-3 \[Rho]b CmmMinus(\[Rho]-(I Kf)/\[CapitalDelta]);
-
-Amm2Minus=-SH[\[Theta],0] \[Rho]^-3 \[Rho]b CmmMinus;
-
-(*Print["Preparing integrand"];*)
-IUpPlus=Rup[r0](Ann0Plus + Anm0Plus + Amm0Plus)-Rup'[r0](Anm1Plus+Amm1Plus)+Rup''[r0]Amm2Plus;
-IUpMinus=Rup[r0](Ann0Minus + Anm0Minus + Amm0Minus)-Rup'[r0](Anm1Minus+Amm1Minus)+Rup''[r0]Amm2Minus;
-
-IInPlus=Rin[r0](Ann0Plus + Anm0Plus + Amm0Plus)-Rin'[r0](Anm1Plus+Amm1Plus)+Rin''[r0]Amm2Plus;
-IInMinus=Rin[r0](Ann0Minus + Anm0Minus + Amm0Minus)-Rin'[r0](Anm1Minus+Amm1Minus)+Rin''[r0]Amm2Minus;
-
-(*Print["Integrating"];*)
-Zin = ((2\[Pi])/(T\[Theta] Const)) NIntegrate[((\[Gamma]+a^2 \[ScriptCapitalE] z)/Sqrt[\[Beta](zp-z)] (E^(I(\[Omega] t0-m \[Phi]0)) IInPlus+E^(-I(\[Omega] t0-m \[Phi]0)) IInMinus))/.{\[Chi]->\[Chi]0},{\[Chi]0,0,\[Pi]},WorkingPrecision->\[Sigma],Method->"Trapezoidal"];
-
-Zup = ((2\[Pi])/(T\[Theta] Const)) NIntegrate[((\[Gamma]+a^2 \[ScriptCapitalE] z)/Sqrt[\[Beta](zp-z)] (E^(I(\[Omega] t0-m \[Phi]0)) IUpPlus+E^(-I(\[Omega] t0-m \[Phi]0)) IUpMinus))/.{\[Chi]->\[Chi]0},{\[Chi]0,0,\[Pi]},WorkingPrecision->\[Sigma],Method->"Trapezoidal"];
-amplitudes = <|"\[ScriptCapitalI]"->Zin,"\[ScriptCapitalH]"->Zup|>
-(*The in/up look backwards, but I'm following the naming convention from Hughes: 	arXiv:gr-qc/9910091*)
-(*assoc = <|"l"->l,"m"->m,"k"->k,"\[Omega]"->\[Omega],"Eigenvalue"->eval, "Orbit"->orbit, "Amplitudes"->amplitudes|>*)
-
+  <|"\[ScriptCapitalI]" -> Zin, "\[ScriptCapitalH]" -> Zup|>
 ]
 
 
