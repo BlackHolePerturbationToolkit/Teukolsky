@@ -16,8 +16,9 @@ BeginPackage["Teukolsky`TeukolskyMode`",
 	{"Teukolsky`TeukolskySource`",
 	 "Teukolsky`TeukolskyRadial`",
 	 "Teukolsky`ConvolveSource`",
+	 "KerrGeodesics`",
 	 "KerrGeodesics`KerrGeoOrbit`",
-	 "KerrGeodesics`OrbitalFrequencies`",
+     "KerrGeodesics`OrbitalFrequencies`",
 	 "SpinWeightedSpheroidalHarmonics`"}
 ];
 
@@ -65,13 +66,13 @@ Options[TeukolskyPointParticleMode] = {};
 
 TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer, orbit_KerrGeoOrbitFunction, opts:OptionsPattern[]] /; AllTrue[orbit["Frequencies"], InexactNumberQ] :=
  Module[{source, assoc, R, S, \[Omega], \[CapitalOmega]r, \[CapitalOmega]\[Phi], \[CapitalOmega]\[Theta], Z, a, \[Lambda]},
-  If[(s != -2  && s != -1 && s != +1 && s != 0) || orbit["e"] != 0 || Abs[orbit["x"]] != 1,
+  If[(s != -2  && s != -1 && s != +1 && s != 0) || orbit["e"] != 0,
     Message[TeukolskyPointParticleMode::params, s, orbit["e"], orbit["Inclination"]];
     Return[$Failed];
   ];
 
   (*{\[CapitalOmega]r, \[CapitalOmega]\[Theta], \[CapitalOmega]\[Phi]} = orbit["Frequencies"];*) (*This gives Mino frequencies, need BL frequencies*)
-  {\[CapitalOmega]r, \[CapitalOmega]\[Theta], \[CapitalOmega]\[Phi]} = Values[KerrGeoFrequencies[orbit["a"], orbit["p"], orbit["e"], orbit["Inclination"]]];
+  {\[CapitalOmega]r, \[CapitalOmega]\[Theta], \[CapitalOmega]\[Phi]} = {"\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(r\)]\)","\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Theta]\)]\)","\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"}/.KerrGeoFrequencies[orbit["a"], orbit["p"], orbit["e"], orbit["Inclination"]];
   \[Omega] = m \[CapitalOmega]\[Phi] + n \[CapitalOmega]r + k \[CapitalOmega]\[Theta];
   a = orbit["a"];
 
@@ -79,15 +80,17 @@ TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer
 
   R = TeukolskyRadial[s, l, m, a, \[Omega]];  
   S = SpinWeightedSpheroidalHarmonicS[s, l, m, a \[Omega]];
-  Z = Teukolsky`ConvolveSource`Private`ConvolveSource[R, S, source];
+  Z = Teukolsky`ConvolveSource`Private`ConvolveSource[l, m, n, k, R, S, source];
 
   assoc = <| "s" -> s, 
 		     "l" -> l,
 		     "m" -> m,
+		     "n"->n,
+		     "k"->k,
 		     "a" -> a,
   		   "\[Omega]" -> \[Omega],
 		     "Eigenvalue" -> R["In"]["Eigenvalue"],
- 		    "Type" -> {"PointParticleCircular", "Radius" -> orbit["p"]},
+ 		    "Type" -> Switch[{orbit["e"],Abs[orbit["Inclination"]]},{0,1},{"PointParticleCircular", "Radius" -> orbit["p"]},{0,x_},{"PointParticleSpherical", "Radius" -> orbit["p"], "Inclination"->orbit["Inclination"]},{e_,1},{"PointParticleEccentric", "Peri Latus Rectum" -> orbit["p"], "Eccentricity"->orbit["e"]},{e_,x_},{"PointParticleGeneric", "Peri Latus Rectum" -> orbit["p"], "Eccentricity"->orbit["e"],"Inclination"->orbit["Inclination"]}], 
 		     "RadialFunctions" -> R,
 		     "AngularFunction" -> S,
 		     "Amplitudes" -> Z
@@ -190,7 +193,7 @@ EnergyFlux[mode_TeukolskyMode] :=
 (*Angular Momentum Flux*)
 
 
-AngularMomentumFlux[mode_TeukolskyMode] := EnergyFlux[mode] mode["m"]/mode["\[Omega]"];
+AngularMomentumFlux[mode_TeukolskyMode] := If[mode["\[Omega]"]!=0,EnergyFlux[mode] mode["m"]/mode["\[Omega]"],0];
 
 
 (* ::Section::Closed:: *)

@@ -291,3 +291,29 @@ VerificationTest[
     ,
     TestID->"Fluxes"
 ]
+
+VerificationTest[
+    Module[{orbit = KerrGeoOrbit[0.1`32, 10.0`32, 0, Cos[\[Pi]/4.0`32]]},
+      TeukolskyPointParticleMode[0, 2, 2, 0, 2, orbit]["Amplitudes"]
+    ]
+    ,
+    <|"\[ScriptCapitalI]" -> 
+      2.817674016780767525*10^-6 - 1.506523056130186854*10^-6 I, 
+     "\[ScriptCapitalH]" -> -9.033598925366890723*10^-9 + 
+       2.194950369301104043*10^-9 I|>
+    ,
+    TestID->"Spherical orbit amplitudes (s=0)"
+]
+
+VerificationTest[
+    Module[{orbit = KerrGeoOrbit[0.1`32, 10.0`32, 0, Cos[\[Pi]/4.0`32]]},
+      TeukolskyPointParticleMode[-2, 2, 2, 0, 2, orbit]["Amplitudes"]
+    ]
+    ,
+    <|"\[ScriptCapitalI]" -> -1.8309226927938716044*10^-7 + 
+       6.205049783174921652*10^-8 I, 
+     "\[ScriptCapitalH]" -> -1.0285026158488608204*10^-7 - 
+       5.1283020173720577187*10^-8 I|>
+    ,
+    TestID->"Spherical orbit amplitudes (s=-2)"
+]
