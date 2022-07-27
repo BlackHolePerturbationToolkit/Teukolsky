@@ -12,7 +12,7 @@
 (*BeginPackage*)
 
 
-BeginPackage["Teukolsky`TeukolskySource`",{"KerrGeodesics`OrbitalFrequencies`"}];
+BeginPackage["Teukolsky`TeukolskySource`", {"KerrGeodesics`", "KerrGeodesics`OrbitalFrequencies`"}];
 
 
 (* ::Subsection:: *)

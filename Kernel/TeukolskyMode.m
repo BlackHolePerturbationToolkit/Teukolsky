@@ -16,8 +16,9 @@ BeginPackage["Teukolsky`TeukolskyMode`",
 	{"Teukolsky`TeukolskySource`",
 	 "Teukolsky`TeukolskyRadial`",
 	 "Teukolsky`ConvolveSource`",
+	 "KerrGeodesics`",
 	 "KerrGeodesics`KerrGeoOrbit`",
-	 "KerrGeodesics`OrbitalFrequencies`",
+     "KerrGeodesics`OrbitalFrequencies`",
 	 "SpinWeightedSpheroidalHarmonics`"}
 ];
 
