@@ -172,7 +172,7 @@ VerificationTest[
 VerificationTest[
     TeukolskyRadial[2, 2, 0, 1/3, 0]["In"][10]
     ,
-    243/256
+    (243*(-9 + (2*Sqrt[2])/3)^2)/(256*(9 - (2*Sqrt[2])/3)^2)
     ,
     TestID->"Static m=0 \"in\" mode"
 ]
@@ -180,7 +180,7 @@ VerificationTest[
 VerificationTest[
     TeukolskyRadial[2, 2, 0, 1/3, 0.0]["In"][10]
     ,
-    243/256
+    (243*(-9 + (2*Sqrt[2])/3)^2)/(256*(9 - (2*Sqrt[2])/3)^2)
     ,
     TestID->"Static m=0 \"in\" mode (machine-precision omega)"
 ]
@@ -188,7 +188,7 @@ VerificationTest[
 VerificationTest[
     TeukolskyRadial[2, 2, 0, 1/3, 0.0``32]["In"][10]
     ,
-    243/256
+    (243*(-9 + (2*Sqrt[2])/3)^2)/(256*(9 - (2*Sqrt[2])/3)^2)
     ,
     TestID->"Static m=0 \"in\" mode (high-accuracy omega)"
 ]
@@ -242,11 +242,7 @@ VerificationTest[
 VerificationTest[
     TeukolskyRadial[2, 2, 0, 1/3, 0]["Up"][10]
     ,
-    -((405 (4 + 27 Sqrt[2]) (77292 Sqrt[2] + 
-        519841 Log[1 - 1/(1 - (3 (-9 + (2 Sqrt[2])/3))/(4 Sqrt[2]))]))/(
-     524288 Sqrt[
-      2] (-9 + (2 Sqrt[2])/3)^2 (1 - (3 (-9 + (2 Sqrt[2])/3))/(
-        4 Sqrt[2]))^3))
+    (-405*(4 + 27*Sqrt[2])*(77292*Sqrt[2] + 519841*Log[1 - (1 - (3*(-9 + (2*Sqrt[2])/3))/(4*Sqrt[2]))^(-1)]))/(524288*Sqrt[2]*(9 - (2*Sqrt[2])/3)^2*(1 - (3*(-9 + (2*Sqrt[2])/3))/(4*Sqrt[2]))^3)
     ,
     TestID->"Static m=0 \"up\" mode"
 ]
@@ -254,11 +250,7 @@ VerificationTest[
 VerificationTest[
     TeukolskyRadial[2, 2, 0, 1/3, 0.0]["Up"][10]
     ,
-    -((405 (4 + 27 Sqrt[2]) (77292 Sqrt[2] + 
-        519841 Log[1 - 1/(1 - (3 (-9 + (2 Sqrt[2])/3))/(4 Sqrt[2]))]))/(
-     524288 Sqrt[
-      2] (-9 + (2 Sqrt[2])/3)^2 (1 - (3 (-9 + (2 Sqrt[2])/3))/(
-        4 Sqrt[2]))^3))
+    (-405*(4 + 27*Sqrt[2])*(77292*Sqrt[2] + 519841*Log[1 - (1 - (3*(-9 + (2*Sqrt[2])/3))/(4*Sqrt[2]))^(-1)]))/(524288*Sqrt[2]*(9 - (2*Sqrt[2])/3)^2*(1 - (3*(-9 + (2*Sqrt[2])/3))/(4*Sqrt[2]))^3)
     ,
     TestID->"Static m=0 \"up\" mode (machine-precision omega)"
 ]
@@ -266,11 +258,7 @@ VerificationTest[
 VerificationTest[
     TeukolskyRadial[2, 2, 0, 1/3, 0.0``32]["Up"][10]
     ,
-    -((405 (4 + 27 Sqrt[2]) (77292 Sqrt[2] + 
-        519841 Log[1 - 1/(1 - (3 (-9 + (2 Sqrt[2])/3))/(4 Sqrt[2]))]))/(
-     524288 Sqrt[
-      2] (-9 + (2 Sqrt[2])/3)^2 (1 - (3 (-9 + (2 Sqrt[2])/3))/(
-        4 Sqrt[2]))^3))
+   (-405*(4 + 27*Sqrt[2])*(77292*Sqrt[2] + 519841*Log[1 - (1 - (3*(-9 + (2*Sqrt[2])/3))/(4*Sqrt[2]))^(-1)]))/(524288*Sqrt[2]*(9 - (2*Sqrt[2])/3)^2*(1 - (3*(-9 + (2*Sqrt[2])/3))/(4*Sqrt[2]))^3)
     ,
     TestID->"Static m=0 \"up\" mode (high-accuracy omega)"
 ]
@@ -309,11 +297,9 @@ VerificationTest[
     Module[{orbit = KerrGeoOrbit[0.1`32, 10.0`32, 0, Cos[\[Pi]/4.0`32]]},
       TeukolskyPointParticleMode[-2, 2, 2, 0, 2, orbit]["Amplitudes"]
     ]
-    ,
-    <|"\[ScriptCapitalI]" -> -1.8309226927938716044*10^-7 + 
-       6.205049783174921652*10^-8 I, 
-     "\[ScriptCapitalH]" -> -1.0285026158488608204*10^-7 - 
-       5.1283020173720577187*10^-8 I|>
+    ,<|"ℐ" -> , "ℋ" -> |>
+    <|"\[ScriptCapitalI]" -> -1.830922692793925658154841194038`19.860474179811195*10^-7 + 6.205049783176476429478414886579`19.400330311612727*10^-8 I, 
+     "\[ScriptCapitalH]" -> -1.0285026158488625877011240877191`19.836131477231444*10^-7 - 5.128302017372319782302308898876`19.540942944235*10^-8 I|>
     ,
     TestID->"Spherical orbit amplitudes (s=-2)"
 ]
