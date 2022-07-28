@@ -148,6 +148,9 @@ TeukolskyMode[assoc_]["AngularMomentumFlux"] := AngularMomentumFlux[TeukolskyMod
 TeukolskyMode[assoc_][string_] := assoc[string];
 
 
+Keys[m_TeukolskyMode[assoc_]] ^:= Keys[assoc];
+
+
 (* ::Section::Closed:: *)
 (*Fluxes*)
 
