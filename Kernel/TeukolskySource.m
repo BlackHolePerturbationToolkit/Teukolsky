@@ -217,7 +217,7 @@ TeukolskyPointParticleSourceCircular[-2, orbit_] := Module[{assoc, a,r0, E0, Lz,
 
 
 TeukolskyPointParticleSourceSpherical[-2, orbit_]:=Module[
-{a,r0,e,x,\[ScriptCapitalE],\[ScriptCapitalL],\[ScriptCapitalQ],\[Beta],zm,zp,\[Theta],z,\[CapitalDelta],\[CapitalSigma],\[Rho],\[Rho]b,ut,\[CapitalTheta],\[Chi],CnnPlus,CnnMinus,CnmPlus,CnmMinus,CmmPlus,CmmMinus,assoc},
+{a,r0,e,x,\[ScriptCapitalE],\[ScriptCapitalL],\[ScriptCapitalQ],\[Theta],\[CapitalDelta],\[CapitalSigma],\[Rho],\[Rho]b,ut,\[CapitalTheta],\[Lambda],CnnPlus,CnmPlus,CmmPlus,assoc},
 (*Orbital Params*)
 a   = orbit["a"];
 r0  = orbit["p"];
@@ -230,10 +230,8 @@ x   = orbit["Inclination"];
 \[ScriptCapitalQ] = orbit["CarterConstant"];
 
 (*Definitions and reparameterisation*)
-\[Beta]=a^2 (1-\[ScriptCapitalE]^2);
-{zm,zp}={(\[ScriptCapitalL]^2+\[ScriptCapitalQ]+\[Beta]-\[Beta] Sqrt[(\[ScriptCapitalL]^4+(\[ScriptCapitalQ]-\[Beta])^2+2 \[ScriptCapitalL]^2 (\[ScriptCapitalQ]+\[Beta]))/\[Beta]^2])/(2 \[Beta]),(\[ScriptCapitalL]^2+\[ScriptCapitalQ]+\[Beta]+\[Beta] Sqrt[(\[ScriptCapitalL]^4+(\[ScriptCapitalQ]-\[Beta])^2+2 \[ScriptCapitalL]^2 (\[ScriptCapitalQ]+\[Beta]))/\[Beta]^2])/(2 \[Beta])};
-
-\[Theta]=ArcCos[Sqrt[zm] Cos[\[Chi]]];
+\[Theta]=orbit["Trajectory"][[3]][\[Lambda]];
+\[CapitalTheta] = D[\[Theta],\[Lambda]];
 
 \[CapitalDelta]=r0^2-2r0+a^2;
 \[CapitalSigma]=r0^2+a^2 Cos[\[Theta]]^2;
@@ -241,20 +239,15 @@ x   = orbit["Inclination"];
 \[Rho]b=-1/(r0+I a Cos[\[Theta]]);
 
 ut=1/\[CapitalSigma] (\[ScriptCapitalE]((r0^2+a^2)^2/\[CapitalDelta]-a^2 Sin[\[Theta]]^2)+a \[ScriptCapitalL](1-(r0^2+a^2)/\[CapitalDelta]));
-\[CapitalTheta]=Sqrt[\[ScriptCapitalQ]-Cot[\[Theta]]^2 \[ScriptCapitalL]^2-a^2 Cos[\[Theta]]^2 (1-\[ScriptCapitalE]^2)];
 
 (*Stress energy projected onto tetrad (\[PlusMinus]\[CapitalTheta] for travelling up or down)*)
-CnnPlus=Function[{\[Chi]0},Evaluate[1/(4 \[CapitalSigma]^3 ut) (\[ScriptCapitalE](r0^2+a^2)-a \[ScriptCapitalL])^2/.\[Chi]->\[Chi]0]];
-CnmPlus=Function[{\[Chi]0},Evaluate[\[Rho]/(2Sqrt[2] \[CapitalSigma]^2 ut) (\[ScriptCapitalE](r0^2+a^2)-a \[ScriptCapitalL])(I Sin[\[Theta]](a \[ScriptCapitalE]-\[ScriptCapitalL]/Sin[\[Theta]]^2)+ \[CapitalTheta])/.\[Chi]->\[Chi]0]];
-CmmPlus=Function[{\[Chi]0},Evaluate[\[Rho]^2/(2\[CapitalSigma] ut) (I Sin[\[Theta]](a \[ScriptCapitalE]-\[ScriptCapitalL]/Sin[\[Theta]]^2)+ \[CapitalTheta])^2/.\[Chi]->\[Chi]0]];
-
-CnnMinus=Function[{\[Chi]0},Evaluate[1/(4 \[CapitalSigma]^3 ut) (\[ScriptCapitalE](r0^2+a^2)-a \[ScriptCapitalL])^2/.\[Chi]->\[Chi]0]];
-CnmMinus=Function[{\[Chi]0},Evaluate[\[Rho]/(2Sqrt[2] \[CapitalSigma]^2 ut) (\[ScriptCapitalE](r0^2+a^2)-a \[ScriptCapitalL])(I Sin[\[Theta]](a \[ScriptCapitalE]-\[ScriptCapitalL]/Sin[\[Theta]]^2)- \[CapitalTheta])/.\[Chi]->\[Chi]0]];
-CmmMinus=Function[{\[Chi]0},Evaluate[\[Rho]^2/(2\[CapitalSigma] ut) (I Sin[\[Theta]](a \[ScriptCapitalE]-\[ScriptCapitalL]/Sin[\[Theta]]^2)- \[CapitalTheta])^2/.\[Chi]->\[Chi]0]];
+CnnPlus=Function[{\[Lambda]0},Evaluate[1/(4 \[CapitalSigma]^3 ut) (\[ScriptCapitalE](r0^2+a^2)-a \[ScriptCapitalL])^2/.\[Lambda]->\[Lambda]0]];
+CnmPlus=Function[{\[Lambda]0},Evaluate[\[Rho]/(2Sqrt[2] \[CapitalSigma]^2 ut) (\[ScriptCapitalE](r0^2+a^2)-a \[ScriptCapitalL])(I Sin[\[Theta]](a \[ScriptCapitalE]-\[ScriptCapitalL]/Sin[\[Theta]]^2)+ \[CapitalTheta])/.\[Lambda]->\[Lambda]0]];
+CmmPlus=Function[{\[Lambda]0},Evaluate[\[Rho]^2/(2\[CapitalSigma] ut) (I Sin[\[Theta]](a \[ScriptCapitalE]-\[ScriptCapitalL]/Sin[\[Theta]]^2)+ \[CapitalTheta])^2/.\[Lambda]->\[Lambda]0]];
 (*Rewriting source*)
 
 
-assoc = <|"s"->-2, "SourceType"->"PointParticle","Orbit"->orbit,"Cnn+"->CnnPlus,"Cnn-"->CnnMinus,"Cnm+"->CnmPlus,"Cnm-"->CnmMinus,"Cmm+"->CmmPlus,"Cmm-"->CmmMinus|>
+assoc = <|"s"->-2, "SourceType"->"PointParticle","Orbit"->orbit,"Cnn+"->CnnPlus,"Cnm+"->CnmPlus,"Cmm+"->CmmPlus|>
 ]
 
 
