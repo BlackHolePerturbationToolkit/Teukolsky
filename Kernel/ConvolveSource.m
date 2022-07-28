@@ -91,6 +91,8 @@ ConvolveSourcePointParticleCircular[-2, R_, SH_, TS_] :=
   ZIn = 2 \[Pi] COut/W;
   ZOut = 2 \[Pi] CIn/W;
 
+  Clear[a, r0, m, \[Omega], \[CapitalDelta], W, Ann0, Anmb0, Ambmb0, Anmb1, Ambmb1, Ambmb2, RIn, ROut, dRIn, dROut, CIn, COut, S, dS, d2S, L2dagS, L1dagL2dagS, \[Rho], \[Rho]b, K];
+
   <| "\[ScriptCapitalI]" -> ZOut, "\[ScriptCapitalH]" -> ZIn |>
 ]
 
@@ -139,7 +141,7 @@ ConvolveSourcePointParticleSpherical[s:-2, k_Integer, R_, SH_, TS_] :=
   d2Rinr0 = (-(-\[Lambda] + 2 I r0 s 2 \[Omega] + (-2 I (-1 + r0) s (-a m + (a^2 + r0^2) \[Omega]) + (-a m + (a^2 + r0^2) \[Omega])^2)/(a^2 - 2 r0 + r0^2)) Rinr0 - (-2 + 2 r0) (1 + s) dRinr0)/(a^2 - 2 r0 + r0^2);
 
   integrand[\[Chi]_?NumericQ, comp_]:=
-   Module[{SH\[Theta], dSH\[Theta], d2SH\[Theta], \[Theta], z, \[CapitalSigma], \[Rho], \[Rho]b, Ld2S, Ld1Ld2S, \[CapitalTheta], t0, \[Phi]0, CnnPlus, CnnMinus, CnmPlus, CnmMinus, CmmPlus, CmmMinus, Ann0Plus, Anm0Plus, Amm0Plus, Anm1Plus, Amm1Plus, Amm2Plus, Ann0Minus, Anm0Minus, Amm0Minus, Anm1Minus, Amm1Minus, Amm2Minus, IUpPlus, IUpMinus, IInPlus, IInMinus},
+   Module[{SH\[Theta], dSH\[Theta], d2SH\[Theta], \[Theta], z, \[CapitalSigma], \[Rho], \[Rho]b, Ld2S, Ld1Ld2S, \[CapitalTheta], t0, \[Phi]0, CnnPlus, CnnMinus, CnmPlus, CnmMinus, CmmPlus, CmmMinus, Ann0Plus, Anm0Plus, Amm0Plus, Anm1Plus, Amm1Plus, Amm2Plus, Ann0Minus, Anm0Minus, Amm0Minus, Anm1Minus, Amm1Minus, Amm2Minus, IUpPlus, IUpMinus, IInPlus, IInMinus, res},
     \[CapitalSigma] = r0^2+a^2 Cos[\[Theta]]^2;
     \[Rho] = -1/(r0-I a Cos[\[Theta]]);
     \[Rho]b = -1/(r0+I a Cos[\[Theta]]);
@@ -181,12 +183,16 @@ ConvolveSourcePointParticleSpherical[s:-2, k_Integer, R_, SH_, TS_] :=
     IInPlus=Rinr0(Ann0Plus + Anm0Plus + Amm0Plus)-dRinr0(Anm1Plus+Amm1Plus)+d2Rinr0 Amm2Plus;
     IInMinus=Rinr0(Ann0Minus + Anm0Minus + Amm0Minus)-dRinr0(Anm1Minus+Amm1Minus)+d2Rinr0 Amm2Minus;
 
-    {(\[Gamma]+a^2 \[ScriptCapitalE] z)/Sqrt[\[Beta](zp-z)](E^(I(\[Omega] t0-m \[Phi]0)) IInPlus+E^(-I(\[Omega] t0-m \[Phi]0)) IInMinus),
+    Clear[SH\[Theta], dSH\[Theta], d2SH\[Theta], \[Theta], z, \[CapitalSigma], \[Rho], \[Rho]b, Ld2S, Ld1Ld2S, \[CapitalTheta], t0, \[Phi]0, CnnPlus, CnnMinus, CnmPlus, CnmMinus, CmmPlus, CmmMinus, Ann0Plus, Anm0Plus, Amm0Plus, Anm1Plus, Amm1Plus, Amm2Plus, Ann0Minus, Anm0Minus, Amm0Minus, Anm1Minus, Amm1Minus, Amm2Minus, IUpPlus, IUpMinus, IInPlus, IInMinus];
+    
+    res = {(\[Gamma]+a^2 \[ScriptCapitalE] z)/Sqrt[\[Beta](zp-z)](E^(I(\[Omega] t0-m \[Phi]0)) IInPlus+E^(-I(\[Omega] t0-m \[Phi]0)) IInMinus),
      (\[Gamma]+a^2 \[ScriptCapitalE] z)/Sqrt[\[Beta](zp-z)](E^(I(\[Omega] t0-m \[Phi]0)) IUpPlus+E^(-I(\[Omega] t0-m \[Phi]0)) IUpMinus)}[[comp]]
   ];
 
   Zin = ((2\[Pi])/(T\[Theta] Const)) NIntegrate[integrand[\[Chi]0,1], {\[Chi]0, 0, \[Pi]}, WorkingPrecision -> 0.7 Precision[R["In"]["\[Omega]"]], Method -> "Trapezoidal"];
   Zup = ((2\[Pi])/(T\[Theta] Const)) NIntegrate[integrand[\[Chi]0,2], {\[Chi]0, 0, \[Pi]}, WorkingPrecision -> 0.7 Precision[R["In"]["\[Omega]"]], Method -> "Trapezoidal"];
+
+  Clear[l, m, orbit, a, r0, e, x, \[ScriptCapitalE], \[ScriptCapitalL], \[ScriptCapitalQ], \[CapitalOmega]\[Theta], \[CapitalOmega]\[Phi], T\[Theta], \[Omega], \[CapitalDelta], Kf, dK\[CapitalDelta], \[Beta], \[Gamma], \[Delta], zm, zp, Const, \[Lambda], Rupr0, Rinr0, dRupr0, dRinr0, d2Rupr0, d2Rinr0, integrand];
 
   <|"\[ScriptCapitalI]" -> Zin, "\[ScriptCapitalH]" -> Zup|>
 ]
@@ -240,6 +246,8 @@ ConvolveSourcePointParticleCircular[s:(-1|+1), R_, SH_, TS_] :=
   ZIn  = (POut*A - dPOut*B)/(\[CapitalDelta]*W);
   ZOut = (PIn*A - dPIn*B)/(\[CapitalDelta]*W);
 
+  Clear[a, r0, \[Theta], m, \[Omega], \[CapitalDelta], \[CapitalDelta]p, W, A, B, RIn, ROut, dRIn, dROut, dS, S, PIn, POut, dPIn, dPOut];
+
   <| "\[ScriptCapitalI]" -> ZOut, "\[ScriptCapitalH]" -> ZIn |>
 ]
 
@@ -269,6 +277,8 @@ ConvolveSourcePointParticleCircular[0, R_, SH_, TS_] :=
 
   ZIn = \[Alpha] \[Psi]Out/W;
   ZOut = \[Alpha] \[Psi]In/W;
+
+  Clear[a, r0, \[Psi]In, \[Psi]Out, d\[Psi]In, d\[Psi]Out, W, \[Alpha], ZIn, ZOut, S];
 
   <| "\[ScriptCapitalI]" -> ZOut, "\[ScriptCapitalH]" -> ZIn |>
 ]
@@ -306,7 +316,9 @@ If[a!=0,
   
   ZIn = \[Alpha] \[Psi]Out/W;
   ZOut = \[Alpha] \[Psi]In/W;
-	(*Print[\[Alpha]];*)
+
+  Clear[a, r0, x, \[Psi]In, \[Psi]Out, d\[Psi]In, d\[Psi]Out, W, \[Alpha], S, tp, rp, \[Theta]p, \[Phi]p, l, m, k, \[Omega]mk,\[CapitalUpsilon]r,\[CapitalUpsilon]\[Theta],\[CapitalUpsilon]\[Phi],\[CapitalOmega]r,\[CapitalOmega]\[Theta],\[CapitalOmega]\[Phi]];
+  
   <| "\[ScriptCapitalI]" -> ZOut, "\[ScriptCapitalH]" -> ZIn |>
 ]
 
