@@ -194,7 +194,7 @@ ConvolveSourcePointParticleSpherical[s:-2, k_Integer, R_, SH_, TS_] :=
   Zup = ((2\[Pi])/(T\[Theta] Const)) NIntegrate[integrand[\[Chi]0,2], {\[Chi]0, 0, \[Pi]}, WorkingPrecision -> 0.7 Precision[R["In"]["\[Omega]"]], Method -> "Trapezoidal"];
 
   Clear[l, m, orbit, a, r0, e, x, \[ScriptCapitalE], \[ScriptCapitalL], \[ScriptCapitalQ], \[CapitalOmega]\[Theta], \[CapitalOmega]\[Phi], T\[Theta], \[Omega], \[CapitalDelta], Kf, dK\[CapitalDelta], \[Beta], \[Gamma], \[Delta], zm, zp, Const, \[Lambda], Rupr0, Rinr0, dRupr0, dRinr0, d2Rupr0, d2Rinr0];
-  ClearAll[integrand];
+  Remove[integrand];
 
   <|"\[ScriptCapitalI]" -> Zin, "\[ScriptCapitalH]" -> Zup|>
 ]
