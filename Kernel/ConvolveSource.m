@@ -183,10 +183,11 @@ ConvolveSourcePointParticleSpherical[s:-2, k_Integer, R_, SH_, TS_] :=
     IInPlus=Rinr0(Ann0Plus + Anm0Plus + Amm0Plus)-dRinr0(Anm1Plus+Amm1Plus)+d2Rinr0 Amm2Plus;
     IInMinus=Rinr0(Ann0Minus + Anm0Minus + Amm0Minus)-dRinr0(Anm1Minus+Amm1Minus)+d2Rinr0 Amm2Minus;
 
-    Clear[SH\[Theta], dSH\[Theta], d2SH\[Theta], \[Theta], z, \[CapitalSigma], \[Rho], \[Rho]b, Ld2S, Ld1Ld2S, \[CapitalTheta], t0, \[Phi]0, CnnPlus, CnnMinus, CnmPlus, CnmMinus, CmmPlus, CmmMinus, Ann0Plus, Anm0Plus, Amm0Plus, Anm1Plus, Amm1Plus, Amm2Plus, Ann0Minus, Anm0Minus, Amm0Minus, Anm1Minus, Amm1Minus, Amm2Minus, IUpPlus, IUpMinus, IInPlus, IInMinus];
-    
     res = {(\[Gamma]+a^2 \[ScriptCapitalE] z)/Sqrt[\[Beta](zp-z)](E^(I(\[Omega] t0-m \[Phi]0)) IInPlus+E^(-I(\[Omega] t0-m \[Phi]0)) IInMinus),
-     (\[Gamma]+a^2 \[ScriptCapitalE] z)/Sqrt[\[Beta](zp-z)](E^(I(\[Omega] t0-m \[Phi]0)) IUpPlus+E^(-I(\[Omega] t0-m \[Phi]0)) IUpMinus)}[[comp]]
+     (\[Gamma]+a^2 \[ScriptCapitalE] z)/Sqrt[\[Beta](zp-z)](E^(I(\[Omega] t0-m \[Phi]0)) IUpPlus+E^(-I(\[Omega] t0-m \[Phi]0)) IUpMinus)}[[comp]];
+
+    Clear[SH\[Theta], dSH\[Theta], d2SH\[Theta], \[Theta], z, \[CapitalSigma], \[Rho], \[Rho]b, Ld2S, Ld1Ld2S, \[CapitalTheta], t0, \[Phi]0, CnnPlus, CnnMinus, CnmPlus, CnmMinus, CmmPlus, CmmMinus, Ann0Plus, Anm0Plus, Amm0Plus, Anm1Plus, Amm1Plus, Amm2Plus, Ann0Minus, Anm0Minus, Amm0Minus, Anm1Minus, Amm1Minus, Amm2Minus, IUpPlus, IUpMinus, IInPlus, IInMinus];
+    res
   ];
 
   Zin = ((2\[Pi])/(T\[Theta] Const)) NIntegrate[integrand[\[Chi]0,1], {\[Chi]0, 0, \[Pi]}, WorkingPrecision -> 0.7 Precision[R["In"]["\[Omega]"]], Method -> "Trapezoidal"];
