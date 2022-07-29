@@ -213,16 +213,18 @@ ConvolveSourcePointParticleSpherical[s:-2, k_Integer, R_, SH_, TS_] :=
 
 
 ConvolveSourcePointParticleEccentric[s_:-2, n1_Integer, R_, SH_, TS_] :=
- Module[{a, p, x, W, \[Alpha]In, \[Alpha]Up, ZIn, ZOut, S, rq, \[Theta]q, l, m, \[Omega]mkn,\[CapitalUpsilon]t,\[CapitalDelta]tr,\[CapitalDelta]t\[Theta],\[CapitalDelta]\[Phi]r,\[CapitalDelta]\[Phi]\[Theta],
+ Module[{a, p, x, W, \[Alpha]In, \[Alpha]Up, ZIn, ZOut, S, rq, \[Theta]q, \[Xi],l, m, \[Omega]mkn,qt0,qr0,q\[Theta]0,q\[Phi]0,\[CapitalUpsilon]t,\[CapitalUpsilon]r,\[CapitalUpsilon]\[Theta],\[CapitalDelta]tr,\[CapitalDelta]t\[Theta],\[CapitalDelta]\[Phi]r,\[CapitalDelta]\[Phi]\[Theta],
  integrandIn,integrandUp,pg,RinCache,RupCache,RinPCache,RupPCache,RinPPCache,RupPPCache,\[CapitalDelta]tri,\[CapitalDelta]t\[Theta]i,rpi,zpi,\[CapitalDelta]\[Phi]ri,\[CapitalDelta]\[Phi]\[Theta]i,integrand},
   a  = TS["Orbit"]["a"];
   p  = TS["Orbit"]["p"];
-  \[CapitalUpsilon]t = TS["Orbit"]["TimeFrequency"];
-  {\[CapitalDelta]tri,\[CapitalDelta]t\[Theta]i,rpi,zpi,\[CapitalDelta]\[Phi]ri,\[CapitalDelta]\[Phi]\[Theta]i}=TS["Orbit"]["TrajectoryFunctions"];
+  {\[CapitalUpsilon]t,\[CapitalUpsilon]r,\[CapitalUpsilon]\[Theta]} = {"\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(t\)]\)","\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(r\)]\)","\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(\[Theta]\)]\)"}/.TS["Orbit"]["Frequencies"];
+  rpi=TS["Orbit"]["Trajectory"][[2]];
+  {\[CapitalDelta]tri,\[CapitalDelta]t\[Theta]i,\[CapitalDelta]\[Phi]ri,\[CapitalDelta]\[Phi]\[Theta]i}=Values[TS["Orbit"]["TrajectoryDeltas"]];
+  {qt0,qr0,q\[Theta]0,q\[Phi]0}=TS["Orbit"]["InitialPhases"];
 
   \[CapitalDelta]tr[qr_]:=\[CapitalDelta]tr[qr]=\[CapitalDelta]tri[qr];
-  rq[qr_]:=rq[qr]=rpi[qr];
-  \[Theta]q=ArcCos[zpi[0]];
+  rq[qr_]:=rq[qr]=rpi[(qr-qr0)/\[CapitalUpsilon]r];
+  \[Theta]q=Pi/2;
   \[CapitalDelta]\[Phi]r[qr_]:=\[CapitalDelta]\[Phi]r[qr]=\[CapitalDelta]\[Phi]ri[qr];
   
   \[Omega]mkn = R["In"]["\[Omega]"];
@@ -285,14 +287,14 @@ ConvolveSourcePointParticleEccentric[s_:-2, n1_Integer, R_, SH_, TS_] :=
 
   \[Alpha]In = SpectralCosineIntegration1D[integrandIn, pg];
   \[Alpha]Up = SpectralCosineIntegration1D[integrandUp, pg];
-  (*\[Alpha]In = NIntegrate[integrandIn[qr,qth],{qr,0,2Pi},{qth,0,2Pi},WorkingPrecision -> 0.7 Precision[R["In"]["\[Omega]"]],PrecisionGoal\[Rule]10,Method\[Rule]"Trapezoidal"];
-  \[Alpha]Up = NIntegrate[integrandUp[qr,qth],{qr,0,2Pi},{qth,0,2Pi},WorkingPrecision -> 0.7 Precision[R["In"]["\[Omega]"]],PrecisionGoal\[Rule]10,Method\[Rule]"Trapezoidal"];
-  *)
+  
+  \[Xi]=m(\[CapitalDelta]\[Phi]r[qr0]-q\[Phi]0) - \[Omega]mkn(\[CapitalDelta]tr[qr0]-qt0) - n1 qr0;
+
   Clear[RinCache,RupCache,RinPCache,RupPCache,RinPPCache,RupPPCache];
   Clear[\[CapitalDelta]tr,\[CapitalDelta]t\[Theta],rq,\[Theta]q,\[CapitalDelta]\[Phi]r,\[CapitalDelta]\[Phi]\[Theta]];
   
-  ZIn = 8Pi \[Alpha]Up/W/\[CapitalUpsilon]t;
-  ZOut = 8Pi \[Alpha]In/W/\[CapitalUpsilon]t;
+  ZIn = 8Pi \[Alpha]Up/W/\[CapitalUpsilon]t Exp[I \[Xi]];
+  ZOut = 8Pi \[Alpha]In/W/\[CapitalUpsilon]t Exp[I \[Xi]];
   <| "\[ScriptCapitalI]" -> ZOut, "\[ScriptCapitalH]" -> ZIn |>
 ]
 
@@ -302,18 +304,20 @@ ConvolveSourcePointParticleEccentric[s_:-2, n1_Integer, R_, SH_, TS_] :=
 
 
 ConvolveSourcePointParticleGeneric[s_:-2, n1_Integer, k1_Integer, R_, SH_, TS_] :=
- Module[{a, p, x, W, \[Alpha]In, \[Alpha]Up, ZIn, ZOut, S, rq, \[Theta]q, l, m, k=k1, \[Omega]mkn,\[CapitalUpsilon]t,\[CapitalDelta]tr,\[CapitalDelta]t\[Theta],\[CapitalDelta]\[Phi]r,\[CapitalDelta]\[Phi]\[Theta],
- integrandIn,integrandUp,pg,RinCache,RupCache,RinPCache,RupPCache,RinPPCache,RupPPCache,\[CapitalDelta]tri,\[CapitalDelta]t\[Theta]i,rpi,zpi,\[CapitalDelta]\[Phi]ri,\[CapitalDelta]\[Phi]\[Theta]i,integrand},
+ Module[{a, p, x, W, \[Alpha]In, \[Alpha]Up, ZIn, ZOut, S, rq, \[Theta]q,\[Xi], l, m, k=k1,qt0,qr0,q\[Theta]0,q\[Phi]0, \[Omega]mkn,\[CapitalUpsilon]r,\[CapitalUpsilon]\[Theta],\[CapitalUpsilon]t,\[CapitalDelta]tr,\[CapitalDelta]t\[Theta],\[CapitalDelta]\[Phi]r,\[CapitalDelta]\[Phi]\[Theta],
+ integrandIn,integrandUp,pg,RinCache,RupCache,RinPCache,RupPCache,RinPPCache,RupPPCache,\[CapitalDelta]tri,\[CapitalDelta]t\[Theta]i,rpi,\[Theta]pi,\[CapitalDelta]\[Phi]ri,\[CapitalDelta]\[Phi]\[Theta]i,integrand},
   a  = TS["Orbit"]["a"];
   p = TS["Orbit"]["p"];
   x = TS["Orbit"]["Inclination"];
-  \[CapitalUpsilon]t = TS["Orbit"]["TimeFrequency"];
-  {\[CapitalDelta]tri,\[CapitalDelta]t\[Theta]i,rpi,zpi,\[CapitalDelta]\[Phi]ri,\[CapitalDelta]\[Phi]\[Theta]i}=TS["Orbit"]["TrajectoryFunctions"];
+  {\[CapitalUpsilon]t,\[CapitalUpsilon]r,\[CapitalUpsilon]\[Theta]} = {"\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(t\)]\)","\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(r\)]\)","\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(\[Theta]\)]\)"}/.TS["Orbit"]["Frequencies"];
+  {rpi,\[Theta]pi}=TS["Orbit"]["Trajectory"][[2;;3]];
+  {\[CapitalDelta]tri,\[CapitalDelta]t\[Theta]i,\[CapitalDelta]\[Phi]ri,\[CapitalDelta]\[Phi]\[Theta]i}=Values[TS["Orbit"]["TrajectoryDeltas"]];
+  {qt0,qr0,q\[Theta]0,q\[Phi]0}=TS["Orbit"]["InitialPhases"];
 
   \[CapitalDelta]tr[qr_]:=\[CapitalDelta]tr[qr]=\[CapitalDelta]tri[qr];
   \[CapitalDelta]t\[Theta][q\[Theta]_]:=\[CapitalDelta]t\[Theta][q\[Theta]]=\[CapitalDelta]t\[Theta]i[q\[Theta]];
-  rq[qr_]:=rq[qr]=rpi[qr];
-  \[Theta]q[q\[Theta]_]:=\[Theta]q[q\[Theta]]=ArcCos[zpi[q\[Theta]]];
+  rq[qr_]:=rq[qr]=rpi[(qr-qr0)/\[CapitalUpsilon]r];
+  \[Theta]q[q\[Theta]_]:=\[Theta]q[q\[Theta]]=\[Theta]pi[(q\[Theta]-q\[Theta]0)/\[CapitalUpsilon]\[Theta]];
   \[CapitalDelta]\[Phi]r[qr_]:=\[CapitalDelta]\[Phi]r[qr]=\[CapitalDelta]\[Phi]ri[qr];
   \[CapitalDelta]\[Phi]\[Theta][q\[Theta]_]:=\[CapitalDelta]\[Phi]\[Theta][q\[Theta]]=\[CapitalDelta]\[Phi]\[Theta]i[q\[Theta]];
   
@@ -382,14 +386,14 @@ ConvolveSourcePointParticleGeneric[s_:-2, n1_Integer, k1_Integer, R_, SH_, TS_] 
 
   \[Alpha]In = SpectralCosineIntegration2D[integrandIn, pg];
   \[Alpha]Up = SpectralCosineIntegration2D[integrandUp, pg];
-  (*\[Alpha]In = NIntegrate[integrandIn[qr,qth],{qr,0,2Pi},{qth,0,2Pi},WorkingPrecision -> 0.7 Precision[R["In"]["\[Omega]"]],PrecisionGoal\[Rule]10,Method\[Rule]"Trapezoidal"];
-  \[Alpha]Up = NIntegrate[integrandUp[qr,qth],{qr,0,2Pi},{qth,0,2Pi},WorkingPrecision -> 0.7 Precision[R["In"]["\[Omega]"]],PrecisionGoal\[Rule]10,Method\[Rule]"Trapezoidal"];
-  *)
+  
+  \[Xi]=m(\[CapitalDelta]\[Phi]r[qr0]+\[CapitalDelta]\[Phi]\[Theta][q\[Theta]0]-q\[Phi]0) - \[Omega]mkn(\[CapitalDelta]tr[qr0]+\[CapitalDelta]t\[Theta][q\[Theta]0]-qt0) - k1 q\[Theta]0 - n1 qr0;
+
   Clear[RinCache,RupCache,RinPCache,RupPCache,RinPPCache,RupPPCache];
   Clear[\[CapitalDelta]tr,\[CapitalDelta]t\[Theta],rq,\[Theta]q,\[CapitalDelta]\[Phi]r,\[CapitalDelta]\[Phi]\[Theta]];
   
-  ZIn = 8Pi \[Alpha]Up/W/\[CapitalUpsilon]t;
-  ZOut = 8Pi \[Alpha]In/W/\[CapitalUpsilon]t;
+  ZIn = 8Pi \[Alpha]Up/W/\[CapitalUpsilon]t Exp[I \[Xi]];
+  ZOut = 8Pi \[Alpha]In/W/\[CapitalUpsilon]t Exp[I \[Xi]];
   <| "\[ScriptCapitalI]" -> ZOut, "\[ScriptCapitalH]" -> ZIn |>
 ]
 
@@ -524,15 +528,16 @@ If[a!=0,
 
 
 ConvolveSourcePointParticleEccentric[0, n1_Integer, R_, SH_, TS_] :=
-Module[{a, p, x, \[CapitalDelta]tri,\[CapitalDelta]t\[Theta]i,rpi,zpi,\[CapitalDelta]\[Phi]ri,\[CapitalDelta]\[Phi]\[Theta]i,rq,\[Theta]q, W, \[Alpha]1In, \[Alpha]1Up, \[Alpha]2, \[Alpha]3In, \[Alpha]3Up, \[Alpha]4, ZIn, ZOut, S, tp, rp, \[Theta]p, \[Phi]p, l, m, k=k1, \[Omega]mkn,\[CapitalUpsilon]t,\[CapitalUpsilon]r,\[CapitalUpsilon]\[Theta],\[CapitalUpsilon]\[Phi],\[CapitalOmega]r,\[CapitalOmega]\[Theta],\[CapitalOmega]\[Phi],\[CapitalDelta]tr,\[CapitalDelta]t\[Theta],\[CapitalDelta]\[Phi]r,\[CapitalDelta]\[Phi]\[Theta],II1In,II1Up,II2,II3In,II3Up,II4,pg,RinCache,RupCache},
+Module[{a, p, x, \[CapitalDelta]tri,\[CapitalDelta]t\[Theta]i,rpi,zpi,\[CapitalDelta]\[Phi]ri,\[CapitalDelta]\[Phi]\[Theta]i,rq,\[Theta]q,qt0,qr0,q\[Theta]0,q\[Phi]0,\[Xi], W, \[Alpha]1In, \[Alpha]1Up, \[Alpha]2, \[Alpha]3In, \[Alpha]3Up, \[Alpha]4, ZIn, ZOut, S, tp, rp, \[Theta]p, \[Phi]p, l, m, k=k1, \[Omega]mkn,\[CapitalUpsilon]t,\[CapitalUpsilon]r,\[CapitalUpsilon]\[Theta],\[CapitalUpsilon]\[Phi],\[CapitalOmega]r,\[CapitalOmega]\[Theta],\[CapitalOmega]\[Phi],\[CapitalDelta]tr,\[CapitalDelta]t\[Theta],\[CapitalDelta]\[Phi]r,\[CapitalDelta]\[Phi]\[Theta],II1In,II1Up,II2,II3In,II3Up,II4,pg,RinCache,RupCache},
   a  = TS["Orbit"]["a"];
   p = TS["Orbit"]["p"];
-  x = TS["Orbit"]["Inclination"];
-  \[CapitalUpsilon]t = TS["Orbit"]["TimeFrequency"];
-  {\[CapitalDelta]tri,\[CapitalDelta]t\[Theta]i,rpi,zpi,\[CapitalDelta]\[Phi]ri,\[CapitalDelta]\[Phi]\[Theta]i}=TS["Orbit"]["TrajectoryFunctions"];
+  {\[CapitalUpsilon]t,\[CapitalUpsilon]r,\[CapitalUpsilon]\[Theta]} = {"\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(t\)]\)","\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(r\)]\)","\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(\[Theta]\)]\)"}/.TS["Orbit"]["Frequencies"];
+  rpi=TS["Orbit"]["Trajectory"][[2]];
+  {\[CapitalDelta]tri,\[CapitalDelta]t\[Theta]i,\[CapitalDelta]\[Phi]ri,\[CapitalDelta]\[Phi]\[Theta]i}=Values[TS["Orbit"]["TrajectoryDeltas"]];
+  {qt0,qr0,q\[Theta]0,q\[Phi]0}=TS["Orbit"]["InitialPhases"];
 
   \[CapitalDelta]tr[qr_]:=\[CapitalDelta]tr[qr]=\[CapitalDelta]tri[qr];
-  rq[qr_]:=rq[qr]=rpi[qr];
+  rq[qr_]:=rq[qr]=rpi[(qr-qr0)/\[CapitalUpsilon]r];
   \[Theta]q=Pi/2;
   \[CapitalDelta]\[Phi]r[qr_]:=\[CapitalDelta]\[Phi]r[qr]=\[CapitalDelta]\[Phi]ri[qr];
   
@@ -556,10 +561,13 @@ Module[{a, p, x, \[CapitalDelta]tri,\[CapitalDelta]t\[Theta]i,rpi,zpi,\[CapitalD
   \[Alpha]1In = SpectralCosineIntegration1D[II1In, pg];
   \[Alpha]1Up = SpectralCosineIntegration1D[II1Up, pg];
   
-  Clear[RinCache,RupCache];
+  \[Xi]=m(\[CapitalDelta]\[Phi]r[qr0]-q\[Phi]0) - \[Omega]mkn(\[CapitalDelta]tr[qr0]-qt0) - n1 qr0;
   
-  ZIn = \[Alpha]1Up/W/\[CapitalUpsilon]t;
-  ZOut = \[Alpha]1In/W/\[CapitalUpsilon]t;
+  Clear[RinCache,RupCache];
+  Clear[\[CapitalDelta]tr,\[CapitalDelta]t\[Theta],rq,\[Theta]q,\[CapitalDelta]\[Phi]r,\[CapitalDelta]\[Phi]\[Theta]];
+  
+  ZIn = \[Alpha]1In/W/\[CapitalUpsilon]t Exp[I \[Xi]];
+  ZOut = \[Alpha]1Up/W/\[CapitalUpsilon]t Exp[I \[Xi]];
   <| "\[ScriptCapitalI]" -> ZOut, "\[ScriptCapitalH]" -> ZIn |>
 ]
 
@@ -569,17 +577,18 @@ Module[{a, p, x, \[CapitalDelta]tri,\[CapitalDelta]t\[Theta]i,rpi,zpi,\[CapitalD
 
 
 ConvolveSourcePointParticleGeneric[0, n1_Integer, k1_Integer, R_, SH_, TS_] :=
-Module[{a, p, x, \[CapitalDelta]tri,\[CapitalDelta]t\[Theta]i,rpi,zpi,\[CapitalDelta]\[Phi]ri,\[CapitalDelta]\[Phi]\[Theta]i,rq,\[Theta]q, W, \[Alpha]1In, \[Alpha]1Up, \[Alpha]2, \[Alpha]3In, \[Alpha]3Up, \[Alpha]4, ZIn, ZOut, S, tp, rp, \[Theta]p, \[Phi]p, l, m, k=k1, \[Omega]mkn,\[CapitalUpsilon]t,\[CapitalUpsilon]r,\[CapitalUpsilon]\[Theta],\[CapitalUpsilon]\[Phi],\[CapitalOmega]r,\[CapitalOmega]\[Theta],\[CapitalOmega]\[Phi],\[CapitalDelta]tr,\[CapitalDelta]t\[Theta],\[CapitalDelta]\[Phi]r,\[CapitalDelta]\[Phi]\[Theta],II1In,II1Up,II2,II3In,II3Up,II4,pg,RinCache,RupCache},
+Module[{a, p, x, \[CapitalDelta]tri,\[CapitalDelta]t\[Theta]i,rpi,\[Theta]pi,\[CapitalDelta]\[Phi]ri,\[CapitalDelta]\[Phi]\[Theta]i,rq,\[Theta]q,qt0,qr0,q\[Theta]0,q\[Phi]0,\[Xi], W, \[Alpha]1In, \[Alpha]1Up, \[Alpha]2, \[Alpha]3In, \[Alpha]3Up, \[Alpha]4, ZIn, ZOut, S, tp, rp, \[Theta]p, \[Phi]p, l, m, k=k1, \[Omega]mkn,\[CapitalUpsilon]t,\[CapitalUpsilon]r,\[CapitalUpsilon]\[Theta],\[CapitalUpsilon]\[Phi],\[CapitalOmega]r,\[CapitalOmega]\[Theta],\[CapitalOmega]\[Phi],\[CapitalDelta]tr,\[CapitalDelta]t\[Theta],\[CapitalDelta]\[Phi]r,\[CapitalDelta]\[Phi]\[Theta],II1In,II1Up,II2,II3In,II3Up,II4,pg,RinCache,RupCache},
   a  = TS["Orbit"]["a"];
   p = TS["Orbit"]["p"];
-  x = TS["Orbit"]["Inclination"];
-  \[CapitalUpsilon]t = TS["Orbit"]["TimeFrequency"];
-  {\[CapitalDelta]tri,\[CapitalDelta]t\[Theta]i,rpi,zpi,\[CapitalDelta]\[Phi]ri,\[CapitalDelta]\[Phi]\[Theta]i}=TS["Orbit"]["TrajectoryFunctions"];
+  {\[CapitalUpsilon]t,\[CapitalUpsilon]r,\[CapitalUpsilon]\[Theta]} = {"\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(t\)]\)","\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(r\)]\)","\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(\[Theta]\)]\)"}/.TS["Orbit"]["Frequencies"];
+  {rpi,\[Theta]pi}=TS["Orbit"]["Trajectory"][[2;;3]];
+  {\[CapitalDelta]tri,\[CapitalDelta]t\[Theta]i,\[CapitalDelta]\[Phi]ri,\[CapitalDelta]\[Phi]\[Theta]i}=Values[TS["Orbit"]["TrajectoryDeltas"]];
+  {qt0,qr0,q\[Theta]0,q\[Phi]0}=TS["Orbit"]["InitialPhases"];
 
   \[CapitalDelta]tr[qr_]:=\[CapitalDelta]tr[qr]=\[CapitalDelta]tri[qr];
   \[CapitalDelta]t\[Theta][q\[Theta]_]:=\[CapitalDelta]t\[Theta][q\[Theta]]=\[CapitalDelta]t\[Theta]i[q\[Theta]];
-  rq[qr_]:=rq[qr]=rpi[qr];
-  \[Theta]q[q\[Theta]_]:=\[Theta]q[q\[Theta]]=ArcCos[zpi[q\[Theta]]];
+  rq[qr_]:=rq[qr]=rpi[(qr-qr0)/\[CapitalUpsilon]r];
+  \[Theta]q[q\[Theta]_]:=\[Theta]q[q\[Theta]]=\[Theta]pi[(q\[Theta]-q\[Theta]0)/\[CapitalUpsilon]\[Theta]];
   \[CapitalDelta]\[Phi]r[qr_]:=\[CapitalDelta]\[Phi]r[qr]=\[CapitalDelta]\[Phi]ri[qr];
   \[CapitalDelta]\[Phi]\[Theta][q\[Theta]_]:=\[CapitalDelta]\[Phi]\[Theta][q\[Theta]]=\[CapitalDelta]\[Phi]\[Theta]i[q\[Theta]];
   
@@ -611,10 +620,13 @@ Module[{a, p, x, \[CapitalDelta]tri,\[CapitalDelta]t\[Theta]i,rpi,zpi,\[CapitalD
   \[Alpha]3Up = SpectralCosineIntegration1D[II3Up, pg];
   \[Alpha]4 = SpectralCosineIntegration1D[II4, pg];
   
-  Clear[RinCache,RupCache];
+  \[Xi]=m(\[CapitalDelta]\[Phi]r[qr0]+\[CapitalDelta]\[Phi]\[Theta][q\[Theta]0]-q\[Phi]0) - \[Omega]mkn(\[CapitalDelta]tr[qr0]+\[CapitalDelta]t\[Theta][q\[Theta]0]-qt0) - k1 q\[Theta]0 - n1 qr0;
   
-  ZIn = (\[Alpha]1Up*\[Alpha]2 + \[Alpha]3Up*\[Alpha]4)/W/\[CapitalUpsilon]t;
-  ZOut = (\[Alpha]1In*\[Alpha]2 + \[Alpha]3In*\[Alpha]4)/W/\[CapitalUpsilon]t;
+  Clear[RinCache,RupCache];
+  Clear[\[CapitalDelta]tr,\[CapitalDelta]t\[Theta],rq,\[Theta]q,\[CapitalDelta]\[Phi]r,\[CapitalDelta]\[Phi]\[Theta]];
+  
+  ZIn = (\[Alpha]1Up*\[Alpha]2 + \[Alpha]3Up*\[Alpha]4)/W/\[CapitalUpsilon]t Exp[I \[Xi]];
+  ZOut = (\[Alpha]1In*\[Alpha]2 + \[Alpha]3In*\[Alpha]4)/W/\[CapitalUpsilon]t Exp[I \[Xi]];
   <| "\[ScriptCapitalI]" -> ZOut, "\[ScriptCapitalH]" -> ZIn |>
 ]
 
@@ -716,7 +728,7 @@ Module[{err,halfSampleInit = 2^3,pgSum,q,halfSample,sum=0,sumTerm=0,maxTerm=0,de
 (*1D DCT*)
 
 
-SpectralCosineIntegration1D[integrand_,pgTemp_,print_:False]:=
+SpectralCosineIntegration1D[integrand_,pgTemp_]:=
 Module[{err,halfSampleInit = 2^3,pgSum,q,halfSample,sum=0,sumTerm=0,maxTerm=0,deltaQ,intSum,precisionLoss,pg,pgAdjusted,intSumCompare,errOld=0},
 	q = 0;
 	sumTerm=integrand[q]/2;
@@ -755,10 +767,6 @@ Module[{err,halfSampleInit = 2^3,pgSum,q,halfSample,sum=0,sumTerm=0,maxTerm=0,de
 	err = Abs[intSum-intSumCompare];
 	If[err>0, err = Abs@RealExponent[err/intSum], err = Infinity];
 	While[err < pgAdjusted,
-		If[print,
-		Print[err];
-		Print[intSum];
-		];
 		Do[
 			q = (i+1/2)*deltaQ;
 			sumTerm=integrand[q];
@@ -782,10 +790,6 @@ Module[{err,halfSampleInit = 2^3,pgSum,q,halfSample,sum=0,sumTerm=0,maxTerm=0,de
 		err = Abs[intSum-intSumCompare];
 		If[err>0, err = Abs@RealExponent[err/intSum], err = Infinity];
 		If[(Abs[err - errOld] < 1)&&(halfSample > 2^12), err = Infinity] (*If convergence is stagnating and you've tried more than 2000 points, then stop the integration *)
-	];
-	If[print,
-	Print["Done"];
-	Print[err];
 	];
 
 	intSum
