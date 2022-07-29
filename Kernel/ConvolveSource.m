@@ -738,7 +738,7 @@ Module[{err,halfSampleInit = 2^3,pgSum,q,halfSample,sum=0,sumTerm=0,maxTerm=0,de
 	If[pgSum<pgTemp,pg=0.9pgSum,pg=pgTemp];
 	
 	halfSample = halfSampleInit;
-	deltaQ = N[Pi/halfSample,1.2pgSum];
+	deltaQ = N[Pi/halfSample,2pgSum];
 
 	q = Pi;
 	sumTerm=integrand[q]/2;
