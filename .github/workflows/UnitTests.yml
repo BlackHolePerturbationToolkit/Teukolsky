@@ -41,6 +41,7 @@ jobs:
           wolframscript -debug -verbose -script ./Tests/InstallDependencies.wls
           wolframscript -debug -verbose -script ./Tests/AllTests.wls
       - name: Produce test report
+        id: testreport
         uses: dorny/test-reporter@v1
         if: always()
         with:
