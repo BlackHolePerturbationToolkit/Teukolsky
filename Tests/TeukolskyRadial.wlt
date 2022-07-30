@@ -295,11 +295,11 @@ VerificationTest[
 
 VerificationTest[
     Module[{orbit = KerrGeoOrbit[0.1`32, 10.0`32, 0, Cos[\[Pi]/4.0`32]]},
-      TeukolskyPointParticleMode[-2, 2, 2, 0, 2, orbit]["Amplitudes"]
+      N[TeukolskyPointParticleMode[-2, 2, 2, 0, 2, orbit]["Amplitudes"], 6]
     ]
     ,
-    <|"\[ScriptCapitalI]" -> -1.830922692793925658154841194038`19.860474179811195*10^-7 + 6.205049783176476429478414886579`19.400330311612727*10^-8 I, 
-     "\[ScriptCapitalH]" -> -1.0285026158488625877011240877191`19.836131477231444*10^-7 - 5.128302017372319782302308898876`19.540942944235*10^-8 I|>
+    <|"\[ScriptCapitalI]" -> -1.8309226927939255*^-7 + 6.205049783176476*^-8*I,
+      "\[ScriptCapitalH]" -> -1.0285026158488626*^-7 - 5.12830201737232*^-8*I|>
     ,
     TestID->"Spherical orbit amplitudes (s=-2)"
 ]
