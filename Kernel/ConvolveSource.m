@@ -134,16 +134,16 @@ ConvolveSourcePointParticleSpherical[s:-2, k_Integer, R_, SH_, TS_] :=
   d2Rupr0 = (-(-\[Lambda] + 2 I r0 s 2 \[Omega] + (-2 I (-1 + r0) s (-a m + (a^2 + r0^2) \[Omega]) + (-a m + (a^2 + r0^2) \[Omega])^2)/(a^2 - 2 r0 + r0^2)) Rupr0 - (-2 + 2 r0) (1 + s) dRupr0)/(a^2 - 2 r0 + r0^2);
   d2Rinr0 = (-(-\[Lambda] + 2 I r0 s 2 \[Omega] + (-2 I (-1 + r0) s (-a m + (a^2 + r0^2) \[Omega]) + (-a m + (a^2 + r0^2) \[Omega])^2)/(a^2 - 2 r0 + r0^2)) Rinr0 - (-2 + 2 r0) (1 + s) dRinr0)/(a^2 - 2 r0 + r0^2);
 
-  integrand[\[Lambda]_?NumericQ, comp_]:=
-   Module[{SH\[Theta], dSH\[Theta], d2SH\[Theta], \[Theta], z, \[CapitalSigma], \[Rho], \[Rho]b, Ld2S, Ld1Ld2S, \[CapitalTheta], \[Lambda]x,T, t0, \[Phi]0, CnnPlus, CnnMinus, CnmPlus, CnmMinus, CmmPlus, CmmMinus, Ann0Plus, Anm0Plus, Amm0Plus, Anm1Plus, Amm1Plus, Amm2Plus, Ann0Minus, Anm0Minus, Amm0Minus, Anm1Minus, Amm1Minus, Amm2Minus, IUpPlus, IUpMinus, IInPlus, IInMinus, res},
+  integrand[\[Lambda]0_?NumericQ, comp_]:=
+   Module[{SH\[Theta], dSH\[Theta], d2SH\[Theta], \[Theta], z, \[CapitalSigma], \[Rho], \[Rho]b, Ld2S, Ld1Ld2S, \[CapitalTheta], T, t0, \[Phi]0, CnnPlus, CnnMinus, CnmPlus, CnmMinus, CmmPlus, CmmMinus, Ann0Plus, Anm0Plus, Amm0Plus, Anm1Plus, Amm1Plus, Amm2Plus, Ann0Minus, Anm0Minus, Amm0Minus, Anm1Minus, Amm1Minus, Amm2Minus, IUpPlus, IUpMinus, IInPlus, IInMinus, res},
     \[CapitalSigma] = r0^2+a^2 Cos[\[Theta]]^2;
     \[Rho] = -1/(r0-I a Cos[\[Theta]]);
     \[Rho]b = -1/(r0+I a Cos[\[Theta]]);
-    \[Theta] = orbit["Trajectory"][[3]][\[Lambda]];
-    t0 = orbit["Trajectory"][[1]][\[Lambda]];
-    \[Phi]0 = orbit["Trajectory"][[4]][\[Lambda]];
+    \[Theta] = orbit["Trajectory"][[3]][\[Lambda]0];
+    t0 = orbit["Trajectory"][[1]][\[Lambda]0];
+    \[Phi]0 = orbit["Trajectory"][[4]][\[Lambda]0];
     
-    T = D[orbit["Trajectory"][[1]][\[Lambda]x],\[Lambda]x]/.{\[Lambda]x->\[Lambda]};
+    T = Derivative[1][orbit["Trajectory"][[1]]][\[Lambda]0];
     
     SH\[Theta] = SH[\[Theta],0];
     dSH\[Theta] = Derivative[1,0][SH][\[Theta],0];
@@ -151,9 +151,9 @@ ConvolveSourcePointParticleSpherical[s:-2, k_Integer, R_, SH_, TS_] :=
     Ld2S = dSH\[Theta]+(- m Csc[\[Theta]]+a \[Omega] Sin[\[Theta]]+2 Cot[\[Theta]])SH\[Theta];
     Ld1Ld2S = d2SH\[Theta] +(- m Csc[\[Theta]]+a \[Omega] Sin[\[Theta]]+2 Cot[\[Theta]])dSH\[Theta]+(a \[Omega] Cos[\[Theta]]+ m Cot[\[Theta]]Csc[\[Theta]]-2Csc[\[Theta]]^2)SH\[Theta]+(- m Csc[\[Theta]]+a \[Omega] Sin[\[Theta]]+ Cot[\[Theta]])Ld2S;
 
-    CnnPlus = TS["Cnn+"][\[Lambda]];
-    CnmPlus = TS["Cnm+"][\[Lambda]];
-    CmmPlus = TS["Cmm+"][\[Lambda]];
+    CnnPlus = TS["Cnn+"][\[Lambda]0];
+    CnmPlus = TS["Cnm+"][\[Lambda]0];
+    CmmPlus = TS["Cmm+"][\[Lambda]0];
    
 
     Ann0Plus = (-2 \[Rho]^-3 \[Rho]b^-1 CnnPlus)/\[CapitalDelta]^2 (Ld1Ld2S+2I a \[Rho] Sin[\[Theta]]Ld2S);
@@ -175,7 +175,7 @@ ConvolveSourcePointParticleSpherical[s:-2, k_Integer, R_, SH_, TS_] :=
     
     res = {T(E^(I(\[Omega] t0-m \[Phi]0)) IInPlus), T(E^(I(\[Omega] t0-m \[Phi]0)) IUpPlus)}[[comp]];
 
-    Clear[SH\[Theta], dSH\[Theta], d2SH\[Theta], \[Theta], z, \[CapitalSigma], \[Rho], \[Rho]b, Ld2S, Ld1Ld2S, \[CapitalTheta], \[Lambda]x,T, t0, \[Phi]0, CnnPlus, CnnMinus, CnmPlus, CnmMinus, CmmPlus, CmmMinus, Ann0Plus, Anm0Plus, Amm0Plus, Anm1Plus, Amm1Plus, Amm2Plus, Ann0Minus, Anm0Minus, Amm0Minus, Anm1Minus, Amm1Minus, Amm2Minus, IUpPlus, IUpMinus, IInPlus, IInMinus];
+    Clear[SH\[Theta], dSH\[Theta], d2SH\[Theta], \[Theta], z, \[CapitalSigma], \[Rho], \[Rho]b, Ld2S, Ld1Ld2S, \[CapitalTheta], T, t0, \[Phi]0, CnnPlus, CnnMinus, CnmPlus, CnmMinus, CmmPlus, CmmMinus, Ann0Plus, Anm0Plus, Amm0Plus, Anm1Plus, Amm1Plus, Amm2Plus, Ann0Minus, Anm0Minus, Amm0Minus, Anm1Minus, Amm1Minus, Amm2Minus, IUpPlus, IUpMinus, IInPlus, IInMinus];
     res    
   ];
 
