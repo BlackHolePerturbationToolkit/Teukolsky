@@ -89,7 +89,7 @@ rs[r_,a_]:=r+2/(rp[a,1]-rm[a,1]) (rp[a,1] Log[(r-rp[a,1])/2]-rm[a,1] Log[(r-rm[a
 
 
 Options[TeukolskyRadialNumericalIntegration] = Join[
-  {"Domain" -> None},
+  {"Domain" -> All},
   FilterRules[Options[NDSolve], Except[WorkingPrecision|AccuracyGoal|PrecisionGoal]]];
 
 
@@ -119,6 +119,7 @@ TeukolskyRadialNumericalIntegration[s_Integer, l_Integer, m_Integer, a_, \[Omega
   (* Domain over which the numerical solution can be evaluated *)
   domains = OptionValue["Domain"];
   If[ListQ[BCs],
+    If[domains === All, domains = Thread[BCs -> All]];
     If[!MatchQ[domains, (List|Association)[Rule["In"|"Up",_?domainQ]..]],
       Message[TeukolskyRadial::dm, "Domain" -> domains, BCs];
       Return[$Failed];
