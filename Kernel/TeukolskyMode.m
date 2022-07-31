@@ -56,7 +56,7 @@ TeukolskyPointParticleMode::mode = "Mode with n=`1`, k=`2` not defined for `3` o
 Begin["`Private`"];
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*TeukolskyPointParticleMode*)
 
 
@@ -112,11 +112,11 @@ TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer
   		   "\[Omega]" -> \[Omega],
 		     "Eigenvalue" -> R["In"]["Eigenvalue"],
  		    "Type" ->
- 		      Which[
- 		      {e, Abs[x]} == {0, 1}, {"PointParticleCircular", "Radius" -> p},
- 		      e == 0, {"PointParticleSpherical", "Radius" -> p, "Inclination" -> x},
- 		      Abs[x] == 1, {"PointParticleEccentric", "Peri Latus Rectum" -> p, "Eccentricity" -> e},
- 		      True, {"PointParticleGeneric", "Peri Latus Rectum" -> p, "Eccentricity" -> e , "Inclination" -> x}], 
+               Which[
+               {e, Abs[x]} == {0, 1}, {"PointParticleCircular", "Radius" -> p},
+               e == 0, {"PointParticleSpherical", "Radius" -> p, "Inclination" -> x},
+               Abs[x] == 1, {"PointParticleEccentric", "Semi-latus Rectum" -> p, "Eccentricity" -> e},
+               True, {"PointParticleGeneric", "Semi-latus Rectum" -> p, "Eccentricity" -> e , "Inclination" -> x}],
 		     "RadialFunctions" -> Ruser,
 		     "AngularFunction" -> S,
 		     "Amplitudes" -> Z
