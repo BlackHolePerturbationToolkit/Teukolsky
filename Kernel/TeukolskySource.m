@@ -248,12 +248,9 @@ assoc
 ]
 
 
-TeukolskyPointParticleSourceEccentric[-2, orbit_] := Module[{assoc, a, E0, Lz, Qc, Cab},
-  a = orbit["a"];
-  E0 = orbit["Energy"];
-  Lz = orbit["AngularMomentum"];
-  Qc = orbit["CarterConstant"];
-  Cab[r_,\[Theta]_,sgnUr_,sgnU\[Theta]_] := Module[{\[CapitalSigma],\[Rho],ur,u\[Theta],rcomp,\[Theta]comp},
+TeukolskyPointParticleSourceEccentric[-2, orbit_] := Module[{assoc, Cab},
+  Cab = With[{a = orbit["a"], E0 = orbit["Energy"], Lz = orbit["AngularMomentum"], Qc = orbit["CarterConstant"]},
+    Function[{r, \[Theta], sgnUr, sgnU\[Theta]}, Module[{\[CapitalSigma],\[Rho],ur,u\[Theta],rcomp,\[Theta]comp},
 		\[CapitalSigma]=r^2+a^2Cos[\[Theta]]^2;
 		\[Rho]=-1/(r-I a Cos[\[Theta]]);
 		ur = Sqrt[-((r^2 - 2r + a^2)*(Qc + ((a*E0) - Lz)^2 + r^2)) + (a*Lz - E0*(a^2 + r^2))^2];
@@ -261,7 +258,7 @@ TeukolskyPointParticleSourceEccentric[-2, orbit_] := Module[{assoc, a, E0, Lz, Q
 		rcomp=(E0(r^2+a^2) - a Lz + sgnUr ur)/(2\[CapitalSigma]);
 		\[Theta]comp=\[Rho] (I Sin[\[Theta]](a E0 - Lz/Sin[\[Theta]]^2)+sgnU\[Theta] u\[Theta] )/Sqrt[2];
 		{rcomp^2, rcomp \[Theta]comp, \[Theta]comp^2}
-  ];
+  ]]];
 
   assoc = <|  "s" -> -2,
         "SourceType" -> "PointParticle",
@@ -273,12 +270,9 @@ TeukolskyPointParticleSourceEccentric[-2, orbit_] := Module[{assoc, a, E0, Lz, Q
 ]
 
 
-TeukolskyPointParticleSourceGeneric[-2, orbit_] := Module[{assoc, a, E0, Lz, Qc, Cab},
-  a = orbit["a"];
-  E0 = orbit["Energy"];
-  Lz = orbit["AngularMomentum"];
-  Qc = orbit["CarterConstant"];
-  Cab[r_,\[Theta]_,sgnUr_,sgnU\[Theta]_] := Module[{\[CapitalSigma],\[Rho],ur,u\[Theta],rcomp,\[Theta]comp},
+TeukolskyPointParticleSourceGeneric[-2, orbit_] := Module[{assoc, Cab},
+  Cab = With[{a = orbit["a"], E0 = orbit["Energy"], Lz = orbit["AngularMomentum"], Qc = orbit["CarterConstant"]},
+    Function[{r, \[Theta], sgnUr, sgnU\[Theta]}, Module[{\[CapitalSigma],\[Rho],ur,u\[Theta],rcomp,\[Theta]comp},
 		\[CapitalSigma]=r^2+a^2Cos[\[Theta]]^2;
 		\[Rho]=-1/(r-I a Cos[\[Theta]]);
 		ur = Sqrt[-((r^2 - 2r + a^2)*(Qc + ((a*E0) - Lz)^2 + r^2)) + (a*Lz - E0*(a^2 + r^2))^2];
@@ -286,7 +280,7 @@ TeukolskyPointParticleSourceGeneric[-2, orbit_] := Module[{assoc, a, E0, Lz, Qc,
 		rcomp=(E0(r^2+a^2) - a Lz + sgnUr ur)/(2\[CapitalSigma]);
 		\[Theta]comp=\[Rho] (I Sin[\[Theta]](a E0 - Lz/Sin[\[Theta]]^2)+sgnU\[Theta] u\[Theta] )/Sqrt[2];
 		{rcomp^2, rcomp \[Theta]comp, \[Theta]comp^2}
-  ];
+  ]]];
 
   assoc = <|  "s" -> -2,
         "SourceType" -> "PointParticle",
