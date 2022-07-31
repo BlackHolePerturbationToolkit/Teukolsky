@@ -97,21 +97,21 @@ domainQ[domain_] := MatchQ[domain, {_?NumericQ, _?NumericQ} | (_?NumericQ) | All
 
 
 TeukolskyRadialNumericalIntegration[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, BCs_, {wp_, prec_, acc_}, opts:OptionsPattern[]] :=
- Module[{\[Lambda], TRF, norms, ndsolveopts, solFuncs, domains},
+ Module[{\[Lambda], TRF, ndsolveopts, solFuncs, domains},
   (* Compute the eigenvalue *)
   \[Lambda] = SpinWeightedSpheroidalEigenvalue[s, l, m, a \[Omega]];
   
   (* Function to construct a single TeukolskyRadialFunction *)
-  TRF[bc_, ns_, sf_, domain_, ndsolveopts___] :=
+  TRF[bc_, sf_, domain_, ndsolveopts___] :=
    Module[{solutionFunction, bcdir},
     solutionFunction = sf[domain];
     bcdir = bc /. {"In" -> -1, "Up" -> +1};
     TeukolskyRadialFunction[s, l, m, a, \[Omega],
      Association["s" -> s, "l" -> l, "m" -> m, "a" -> a, "\[Omega]" -> \[Omega], "Eigenvalue" -> \[Lambda],
       "Method" -> {"NumericalIntegration", ndsolveopts},
-      "BoundaryConditions" -> bc, "Amplitudes" -> ns,
-      "Domain" -> If[domain === All, {rp[a, 1], \[Infinity]}, First[solutionFunction["Domain"]]],
-      "RadialFunction" -> Function[{r}, r^-1 \[CapitalDelta][r,a]^-s Exp[bcdir I \[Omega] rs[r,a]] Exp[I m \[Phi]Reg[r,a]] solutionFunction[r]]
+      "BoundaryConditions" -> bc, "Amplitudes" -> solutionFunction[[2]],
+      "Domain" -> If[domain === All, {rp[a, 1], \[Infinity]}, First[solutionFunction[[1]]["Domain"]]],
+      "RadialFunction" -> Function[{Global`r}, Evaluate[Global`r^-1 \[CapitalDelta][Global`r,a]^-s Exp[bcdir I \[Omega] rs[Global`r,a]] Exp[I m \[Phi]Reg[Global`r,a]] solutionFunction[[1]][Global`r]]]
      ]
     ]
    ];
@@ -134,10 +134,6 @@ TeukolskyRadialNumericalIntegration[s_Integer, l_Integer, m_Integer, a_, \[Omega
       Return[$Failed];
     ];
   ];
-
-  (* Asymptotic normalizations such that we have unit transmission coefficient *)
-  norms = <|"In" -> <|"Transmission" -> 1|>, "Up" -> <|"Transmission" -> 1|>|>;
-  norms = Lookup[norms, BCs];
   
   (* Solution functions for the specified boundary conditions *)
   ndsolveopts = Sequence@@FilterRules[{opts}, Options[NDSolve]];
@@ -147,8 +143,8 @@ TeukolskyRadialNumericalIntegration[s_Integer, l_Integer, m_Integer, a_, \[Omega
   solFuncs = Lookup[solFuncs, BCs];
 
   If[ListQ[BCs],
-    Return[Association[MapThread[#1 -> TRF[#1, #2, #3, #4, ndsolveopts]&, {BCs, norms, solFuncs, domains}]]],
-    Return[TRF[BCs, norms, solFuncs, domains, ndsolveopts]]
+    Return[Association[MapThread[#1 -> TRF[#1, #2, #3, ndsolveopts]&, {BCs, solFuncs, domains}]]],
+    Return[TRF[BCs, solFuncs, domains, ndsolveopts]]
   ];
 ];
 
