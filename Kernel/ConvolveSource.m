@@ -469,7 +469,7 @@ ConvolveSourcePointParticleCircular[0, R_, SH_, TS_] :=
   ZIn = \[Alpha] \[Psi]Out/W;
   ZOut = \[Alpha] \[Psi]In/W;
 
-  Clear[a, r0, \[Psi]In, \[Psi]Out, d\[Psi]In, d\[Psi]Out, W, \[Alpha], ZIn, ZOut, S];
+  Clear[a, r0, \[Psi]In, \[Psi]Out, d\[Psi]In, d\[Psi]Out, W, \[Alpha], S];
 
   <| "\[ScriptCapitalI]" -> ZOut, "\[ScriptCapitalH]" -> ZIn |>
 ]
