@@ -126,7 +126,7 @@ TeukolskyInBC[s_Integer, \[Lambda]_, l_Integer, m_Integer, a_, \[Omega]_, {wp_, 
 
 TeukolskyUpBC[s_Integer, \[Lambda]_, l_Integer, m_Integer, a_, \[Omega]_, {wp_, prec_, acc_}]:=
  Module[{R, amp, res, dres, r, Rr, dRr},
-		r =100\[Omega]^-1;
+		r = 1000;
         If[wp === MachinePrecision,
 		  R = Teukolsky`TeukolskyRadial`TeukolskyRadial[s, l, m, SetPrecision[a, 32], SetPrecision[\[Omega], 32], "BoundaryConditions" -> "Up", Method -> "MST", PrecisionGoal -> prec, AccuracyGoal -> acc];
   		amp = N[R["Amplitudes"]];,
