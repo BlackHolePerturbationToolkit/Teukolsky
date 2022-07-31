@@ -31,23 +31,21 @@ Begin["`Private`"];
 
 
 TeukolskyPointParticleSource[s_, orbit_] :=
-Module[{},
-  (*If[(s==-1 || s==+1) && orbit["e"] == 0 && Abs[orbit["Inclination"]] == 1,
-    Return[TeukolskyPointParticleSourceCircular[s,orbit]]];
-  If[(s==-2||s==0),
-  Switch[{orbit["e"],Abs[orbit["Inclination"]]},{0,1},Return[TeukolskyPointParticleSourceCircular[s,orbit]],{0,x_},Return[TeukolskyPointParticleSourceSpherical[s,orbit]],{e_,1},Return[TeukolskyPointParticleSourceEccentric[s,orbit]],{e_,x_},Return[TeukolskyPointParticleSourceGeneric[s,orbit]]]
-  ]; *)
-  If[orbit["e"]==0.&&Abs[orbit["Inclination"]]==1.,
-      Return[TeukolskyPointParticleSourceCircular[s,orbit]],
-      If[orbit["e"]==0.,
-        Return[TeukolskyPointParticleSourceSpherical[s,orbit]],
-        If[Abs[orbit["Inclination"]]==1.,
-          Return[TeukolskyPointParticleSourceEccentric[s,orbit]],
-          Return[TeukolskyPointParticleSourceGeneric[s,orbit]]
-        ]
-      ]
-    ];
-    $Failed
+ Module[{e, x},
+  {e, x} = {orbit["e"], orbit["Inclination"]};
+
+  Which[
+  {e, Abs[x]} == {0, 1},
+    Return[TeukolskyPointParticleSourceCircular[s,orbit]],
+  e == 0,
+    Return[TeukolskyPointParticleSourceSpherical[s,orbit]],
+  Abs[x] == 1,
+    Return[TeukolskyPointParticleSourceEccentric[s,orbit]];,
+  True,
+    Return[TeukolskyPointParticleSourceGeneric[s,orbit]];
+  ];
+
+  $Failed
 ]
     
 
