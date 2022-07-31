@@ -112,10 +112,11 @@ Derivative[n_][AllIntegrator[s_,\[Lambda]_,m_,a_,\[Omega]_,y1BC_,y2BC_,rBC_,H_?N
 TeukolskyInBC[s_Integer, \[Lambda]_, l_Integer, m_Integer, a_, \[Omega]_, {wp_, prec_, acc_}]:=
  Module[{R, amp, res, dres, r=2+10^-5, Rr, dRr},
         If[wp === MachinePrecision,
-		  R = Teukolsky`TeukolskyRadial`TeukolskyRadial[s, l, m, SetPrecision[a, 32], SetPrecision[\[Omega], 32], "BoundaryConditions" -> "In", Method -> "MST", PrecisionGoal -> prec, AccuracyGoal -> acc];,
+		  R = Teukolsky`TeukolskyRadial`TeukolskyRadial[s, l, m, SetPrecision[a, 32], SetPrecision[\[Omega], 32], "BoundaryConditions" -> "In", Method -> "MST", PrecisionGoal -> prec, AccuracyGoal -> acc];
+  		amp = N[R["Amplitudes"]];,
 		  R = Teukolsky`TeukolskyRadial`TeukolskyRadial[s, l, m, a, \[Omega], "BoundaryConditions" -> "In", Method -> "MST", WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> acc];
+  		amp = R["Amplitudes"];
 		];
-		amp = R["Amplitudes"];
 		Rr = R[r];
 		dRr = R'[r];
 		res = E^(I \[Omega] (r+((1+Sqrt[1-a^2]) Log[1/2 (-1-Sqrt[1-a^2]+r)]-(1-Sqrt[1-a^2]) Log[1/2 (-1+Sqrt[1-a^2]+r)])/Sqrt[1-a^2])) r ((-1-Sqrt[1-a^2]+r)/(-1+Sqrt[1-a^2]+r))^(-((I a m)/(2 Sqrt[1-a^2]))) (a^2-2 r+r^2)^s Rr;
@@ -127,10 +128,11 @@ TeukolskyUpBC[s_Integer, \[Lambda]_, l_Integer, m_Integer, a_, \[Omega]_, {wp_, 
  Module[{R, amp, res, dres, r, Rr, dRr},
 		r =100\[Omega]^-1;
         If[wp === MachinePrecision,
-		  R = Teukolsky`TeukolskyRadial`TeukolskyRadial[s, l, m, SetPrecision[a, 32], SetPrecision[\[Omega], 32], "BoundaryConditions" -> "Up", Method -> "MST", PrecisionGoal -> prec, AccuracyGoal -> acc];,
+		  R = Teukolsky`TeukolskyRadial`TeukolskyRadial[s, l, m, SetPrecision[a, 32], SetPrecision[\[Omega], 32], "BoundaryConditions" -> "Up", Method -> "MST", PrecisionGoal -> prec, AccuracyGoal -> acc];
+  		amp = N[R["Amplitudes"]];,
 		  R = Teukolsky`TeukolskyRadial`TeukolskyRadial[s, l, m, a, \[Omega], "BoundaryConditions" -> "Up", Method -> "MST", WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> acc];
+  		amp = R["Amplitudes"];
 		];
-		amp = R["Amplitudes"];
 		Rr = R[r];
 		dRr = R'[r];
 		res = E^(-I \[Omega] (r+((1+Sqrt[1-a^2]) Log[1/2 (-1-Sqrt[1-a^2]+r)]-(1-Sqrt[1-a^2]) Log[1/2 (-1+Sqrt[1-a^2]+r)])/Sqrt[1-a^2])) r ((-1-Sqrt[1-a^2]+r)/(-1+Sqrt[1-a^2]+r))^(-((I a m)/(2 Sqrt[1-a^2]))) (a^2-2 r+r^2)^s Rr;
