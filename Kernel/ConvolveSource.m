@@ -31,34 +31,25 @@ Begin["`Private`"];
 
 
 ConvolveSource[l_Integer, m_Integer, n_Integer, k_Integer, R_, S_, TS_] :=
- Module[{s, orbit},
-  orbit = TS["Orbit"];
-  s = TS["s"];
-  
-  If[
-    TS["SourceType"] == "PointParticle",
-    If[orbit["e"]==0.&&Abs[orbit["Inclination"]]==1.,
-      If[n!=0||k!=0,
-        Return[<| "\[ScriptCapitalI]" -> 0, "\[ScriptCapitalH]" -> 0 |>],
-        Return[ConvolveSourcePointParticleCircular[s,R,S,TS]]
-      ],
-      If[orbit["e"]==0.,
-        If[n!=0,
-          Return[<| "\[ScriptCapitalI]" -> 0, "\[ScriptCapitalH]" -> 0 |>],
-          Return[ConvolveSourcePointParticleSpherical[s,k,R,S,TS]]
-        ],
-        If[Abs[orbit["Inclination"]]==1.,
-          If[k!=0,
-            Return[<| "\[ScriptCapitalI]" -> 0, "\[ScriptCapitalH]" -> 0 |>],
-            Return[ConvolveSourcePointParticleEccentric[s,n,R,S,TS]]
-          ],
-          Return[ConvolveSourcePointParticleGeneric[s,n,k,R,S,TS]]
-        ]
-      ]
-    ]
-  ];
+ Module[{s, orbit, e, x},
+  If[TS["SourceType"] == "PointParticle",
+    orbit = TS["Orbit"];
+    s = TS["s"];
+    {e, x} = {orbit["e"], orbit["Inclination"]};
 
-  $Failed
+    Which[
+    {e, Abs[x]} == {0, 1},
+      Return[ConvolveSourcePointParticleCircular[s,R,S,TS]],
+    e == 0,
+      Return[ConvolveSourcePointParticleSpherical[s,k,R,S,TS]],
+    Abs[x] == 1,
+      Return[ConvolveSourcePointParticleEccentric[s,n,R,S,TS]];,
+    True,
+      Return[ConvolveSourcePointParticleGeneric[s,n,k,R,S,TS]];
+    ]
+  ,
+    Return[$Failed];
+  ];
 ]
 
 

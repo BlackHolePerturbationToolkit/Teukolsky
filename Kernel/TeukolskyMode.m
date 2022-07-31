@@ -46,6 +46,9 @@ TeukolskyPointParticleMode::usage = "TeukolskyPointParticleMode[s, l, m, n, k, o
 TeukolskyPointParticleMode::params = "Parameters s=`1`, e=`2`, x=`3` are not currently supported.";
 
 
+TeukolskyPointParticleMode::mode = "Mode with n=`1`, k=`2` not defined for `3` orbit.";
+
+
 (* ::Subsection::Closed:: *)
 (*Begin Private section*)
 
@@ -65,11 +68,23 @@ Options[TeukolskyPointParticleMode] = {};
 
 
 TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer, orbit_KerrGeoOrbitFunction, opts:OptionsPattern[]] /; AllTrue[orbit["Frequencies"], InexactNumberQ] :=
- Module[{source, assoc, R, Ruser, S, \[Omega], \[CapitalOmega]r, \[CapitalOmega]\[Phi], \[CapitalOmega]\[Theta], Z, a, \[Lambda],rmin,rmax},
+ Module[{source, assoc, R, Ruser, S, \[Omega], \[CapitalOmega]r, \[CapitalOmega]\[Phi], \[CapitalOmega]\[Theta], Z, a, \[Lambda], rmin, rmax, e, x},
+  {e, x} = {orbit["e"], orbit["Inclination"]};
+
   If[(s != -2  && s != -1 && s != +1 && s != 0),
-    Message[TeukolskyPointParticleMode::params, s, orbit["e"], orbit["Inclination"]];
+    Message[TeukolskyPointParticleMode::params, s, e, x];
     Return[$Failed];
   ];
+
+  If[{e, Abs[x]} == {0, 1} && (n != 0 || k != 0),
+    Message[TeukolskyPointParticleMode::mode, n, k, "circular"];
+    Return[$Failed]];
+  If[e == 0 && n != 0,
+    Message[TeukolskyPointParticleMode::mode, n, k, "spherical"];
+    Return[$Failed]];
+  If[Abs[x] == 1 && k != 0,
+    Message[TeukolskyPointParticleMode::mode, n, k, "eccentric"];
+    Return[$Failed]];
 
   (*{\[CapitalOmega]r, \[CapitalOmega]\[Theta], \[CapitalOmega]\[Phi]} = orbit["Frequencies"];*) (*This gives Mino frequencies, need BL frequencies*)
   {\[CapitalOmega]r, \[CapitalOmega]\[Theta], \[CapitalOmega]\[Phi]} = {"\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(r\)]\)","\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Theta]\)]\)","\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"}/.KerrGeoFrequencies[orbit["a"], orbit["p"], orbit["e"], orbit["Inclination"]];
