@@ -68,11 +68,11 @@ Options[TeukolskyPointParticleMode] = {};
 
 
 TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer, orbit_KerrGeoOrbitFunction, opts:OptionsPattern[]] /; AllTrue[orbit["Frequencies"], InexactNumberQ] :=
- Module[{source, assoc, R, Ruser, S, \[Omega], \[CapitalOmega]r, \[CapitalOmega]\[Phi], \[CapitalOmega]\[Theta], Z, a, \[Lambda], rmin, rmax, e, x},
-  {e, x} = {orbit["e"], orbit["Inclination"]};
+ Module[{source, assoc, Ruser, R, S, \[Omega], \[CapitalOmega]r, \[CapitalOmega]\[Phi], \[CapitalOmega]\[Theta], Z, \[Lambda], rmin, rmax, a, p, e, x},
+  {a, p, e, x} = orbit /@ {"a", "p", "e", "Inclination"};
 
   If[(s != -2  && s != -1 && s != +1 && s != 0) ||
-     (Abs[s] == 1 && {orbit["e"], orbit["Inclination"]} != {0, 1}),
+     (Abs[s] == 1 && {e, x} != {0, 1}),
     Message[TeukolskyPointParticleMode::params, s, e, x];
     Return[$Failed];
   ];
@@ -90,17 +90,14 @@ TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer
   (*{\[CapitalOmega]r, \[CapitalOmega]\[Theta], \[CapitalOmega]\[Phi]} = orbit["Frequencies"];*) (*This gives Mino frequencies, need BL frequencies*)
   {\[CapitalOmega]r, \[CapitalOmega]\[Theta], \[CapitalOmega]\[Phi]} = {"\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(r\)]\)","\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Theta]\)]\)","\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"}/.KerrGeoFrequencies[orbit["a"], orbit["p"], orbit["e"], orbit["Inclination"]];
   \[Omega] = m \[CapitalOmega]\[Phi] + n \[CapitalOmega]r + k \[CapitalOmega]\[Theta];
-  a = orbit["a"];
 
   source = Teukolsky`TeukolskySource`Private`TeukolskyPointParticleSource[s, orbit];
 
-  Ruser = TeukolskyRadial[s, l, m, a, \[Omega]]; 
-  If[orbit["e"]!=0,
-  rmin = orbit["p"]/(1+orbit["e"]);
-  rmax = orbit["p"]/(1-orbit["e"]);
-  
-  R = TeukolskyRadial[s, l, m, a, \[Omega], Method->{"NumericalIntegration","Domain"->{"In"->{rmin,rmax},"Up"->{rmin,rmax}}}],
-  R = Ruser
+  R = Ruser = TeukolskyRadial[s, l, m, a, \[Omega]];
+  If[e != 0,
+    rmin = p/(1+e);
+    rmax = p/(1-e);
+    R = TeukolskyRadial[s, l, m, a, \[Omega], Method->{"NumericalIntegration","Domain"->{"In"->{rmin,rmax},"Up"->{rmin,rmax}}}]
   ];
   
   S = SpinWeightedSpheroidalHarmonicS[s, l, m, a \[Omega]];
