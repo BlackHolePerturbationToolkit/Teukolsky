@@ -53,20 +53,9 @@ TeukolskyPointParticleSource[s_, orbit_] :=
 TeukolskyPointParticleSourceCircular[0, orbit_] := Module[{assoc, \[Alpha], gtt, gt\[Phi], \[CapitalDelta], ut, a, r0, E0, Lz, \[CapitalSigma], \[Rho]},
   a = orbit["a"];
   r0 = orbit["p"];
-
-  (*BEGIN FIXME: this should come from KerrGeoOrbit but currently we don't have code to compute the four-velocity in the KerrGeodesics package*)
-  E0 = orbit["Energy"];
-  Lz = orbit["AngularMomentum"];
-
-  \[CapitalSigma] = r0^2;
-  \[Rho] = -1/r0;
-
   \[CapitalDelta] = r0^2 - 2r0 + a^2;
-  gtt = -(1/\[CapitalSigma])((r0^2+a^2)^2/\[CapitalDelta]-a^2);
-  gt\[Phi] = -((2 r0 a)/(\[CapitalSigma] \[CapitalDelta]));
-  ut = gt\[Phi] Lz - gtt E0;
-  (*END FIXME*)
-
+  ut = orbit["FourVelocity"][[1]][0];
+  
   \[Alpha] = -((4 \[Pi] r0)/(ut \[CapitalDelta]));
 
   assoc = <|  "s" -> 0,
