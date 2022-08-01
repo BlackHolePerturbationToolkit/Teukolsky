@@ -432,7 +432,9 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
   (* Decide which implementation to use *)
   Switch[OptionValue[Method],
     Automatic,
-      TRF = TeukolskyRadialMST,
+      If[wp === MachinePrecision,
+         TRF = TeukolskyRadialNumericalIntegration,
+         TRF = TeukolskyRadialMST],
     "MST" | {"MST", OptionsPattern[TeukolskyRadialMST]},
       TRF = TeukolskyRadialMST,
     "NumericalIntegration" | {"NumericalIntegration", OptionsPattern[TeukolskyRadialNumericalIntegration]},
