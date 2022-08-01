@@ -210,7 +210,7 @@ ConvolveSourcePointParticleEccentric[s_:-2, n1_Integer, R_, SH_, TS_] :=
   p  = TS["Orbit"]["p"];
   {\[CapitalUpsilon]t,\[CapitalUpsilon]r,\[CapitalUpsilon]\[Theta]} = {"\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(t\)]\)","\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(r\)]\)","\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(\[Theta]\)]\)"}/.TS["Orbit"]["Frequencies"];
   rpi=TS["Orbit"]["Trajectory"][[2]];
-  {\[CapitalDelta]tri,\[CapitalDelta]t\[Theta]i,\[CapitalDelta]\[Phi]ri,\[CapitalDelta]\[Phi]\[Theta]i}=Values[TS["Orbit"]["TrajectoryDeltas"]];
+  {\[CapitalDelta]tri, \[CapitalDelta]t\[Theta]i, \[CapitalDelta]\[Phi]ri, \[CapitalDelta]\[Phi]\[Theta]i} = {"\[CapitalDelta]tr", "\[CapitalDelta]t\[Theta]", "\[CapitalDelta]\[Phi]r", "\[CapitalDelta]\[Phi]\[Theta]"} /. TS["Orbit"]["TrajectoryDeltas"];
   {qt0,qr0,q\[Theta]0,q\[Phi]0}=TS["Orbit"]["InitialPhases"];
 
   \[CapitalDelta]tr[qr_]:=\[CapitalDelta]tr[qr]=\[CapitalDelta]tri[qr];
@@ -525,7 +525,7 @@ Module[{a, p, x, \[CapitalDelta]tri,\[CapitalDelta]t\[Theta]i,rpi,zpi,\[CapitalD
   p = TS["Orbit"]["p"];
   {\[CapitalUpsilon]t,\[CapitalUpsilon]r,\[CapitalUpsilon]\[Theta]} = {"\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(t\)]\)","\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(r\)]\)","\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(\[Theta]\)]\)"}/.TS["Orbit"]["Frequencies"];
   rpi=TS["Orbit"]["Trajectory"][[2]];
-  {\[CapitalDelta]tri,\[CapitalDelta]t\[Theta]i,\[CapitalDelta]\[Phi]ri,\[CapitalDelta]\[Phi]\[Theta]i}=Values[TS["Orbit"]["TrajectoryDeltas"]];
+  {\[CapitalDelta]tri,\[CapitalDelta]t\[Theta]i,\[CapitalDelta]\[Phi]ri,\[CapitalDelta]\[Phi]\[Theta]i}={"\[CapitalDelta]tr", "\[CapitalDelta]t\[Theta]", "\[CapitalDelta]\[Phi]r", "\[CapitalDelta]\[Phi]\[Theta]"} /. TS["Orbit"]["TrajectoryDeltas"];
   {qt0,qr0,q\[Theta]0,q\[Phi]0}=TS["Orbit"]["InitialPhases"];
 
   \[CapitalDelta]tr[qr_]:=\[CapitalDelta]tr[qr]=\[CapitalDelta]tri[qr];
