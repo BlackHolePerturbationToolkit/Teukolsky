@@ -56,7 +56,7 @@ TeukolskyPointParticleMode::mode = "Mode with n=`1`, k=`2` not defined for `3` o
 Begin["`Private`"];
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*TeukolskyPointParticleMode*)
 
 
@@ -97,7 +97,9 @@ TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer
   If[e != 0,
     rmin = p/(1+e);
     rmax = p/(1-e);
-    R = TeukolskyRadial[s, l, m, a, \[Omega], Method->{"NumericalIntegration","Domain"->{"In"->{rmin,rmax},"Up"->{rmin,rmax}}}]
+    R = TeukolskyRadial[s, l, m, a, \[Omega], Method->{"NumericalIntegration","Domain"-> {"In"->{rmin,rmax}, "Up"->{rmin,rmax}}},
+        "Amplitudes" -> <|"In"-> R["In"]["UnscaledAmplitudes"], "Up"-> R["Up"]["UnscaledAmplitudes"]|>,
+        "RenormalizedAngularMomentum"-> R["In"]["RenormalizedAngularMomentum"], "Eigenvalue" -> R["In"]["Eigenvalue"]]
   ];
   
   S = SpinWeightedSpheroidalHarmonicS[s, l, m, a \[Omega]];
