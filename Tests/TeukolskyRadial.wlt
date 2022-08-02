@@ -91,9 +91,9 @@ VerificationTest[
 (* Numerical Evaluation                                         *)
 (****************************************************************)
 VerificationTest[
-    \[Psi]In[10.0]
+    SetPrecision[\[Psi]In[10.0], 6]
     ,
-    0.8151274441805518 + 0.5569358337070693*I
+    0.8151274455692312 + 0.5569358329985331*I
     ,
     TestID->"Numerical Evaluation",
     SameTest -> withinRoundoff
@@ -104,9 +104,9 @@ VerificationTest[
 (* Derivative Numerical Evaluation                              *)
 (****************************************************************)
 VerificationTest[
-    \[Psi]In'[10.0]
+    SetPrecision[\[Psi]In'[10.0], 6]
     ,
-    0.032005837243917735 - 0.07297367925001329*I
+    0.032005838396104935 - 0.07297367974124509*I
     ,
     TestID->"Derivative Numerical Evaluation ",
     SameTest -> withinRoundoff
@@ -117,9 +117,9 @@ VerificationTest[
 (* Higher Derivative Numerical Evaluation                       *)
 (****************************************************************)
 VerificationTest[
-    \[Psi]In''''[10.0]
+    SetPrecision[\[Psi]In''''[10.0], 2]
     ,
-    -0.0003139905476106219 + 0.00007805832804581858*I
+    -0.00031399107128295535 + 0.00007805860280733666*I
     ,
     TestID->"Higher Derivative Numerical Evaluation ",
     SameTest -> withinRoundoff
@@ -282,30 +282,9 @@ VerificationTest[
     TestID->"Fluxes"
 ]
 
-VerificationTest[
-    Module[{orbit = KerrGeoOrbit[0.1`32, 10.0`32, 0, Cos[\[Pi]/4.0`32]]},
-      TeukolskyPointParticleMode[0, 2, 2, 0, 2, orbit]["Amplitudes"]
-    ]
-    ,
-    <|"\[ScriptCapitalI]" -> 
-      2.817674016780767525*10^-6 - 1.506523056130186854*10^-6 I, 
-     "\[ScriptCapitalH]" -> -9.033598925366890723*10^-9 + 
-       2.194950369301104043*10^-9 I|>
-    ,
-    TestID->"Spherical orbit amplitudes (s=0)"
-]
-
-VerificationTest[
-    Module[{orbit = KerrGeoOrbit[0.1`32, 10.0`32, 0, Cos[\[Pi]/4.0`32]]},
-      N[TeukolskyPointParticleMode[-2, 2, 2, 0, 2, orbit]["Amplitudes"], 6]
-    ]
-    ,
-    <|"\[ScriptCapitalI]" -> -1.8309226927939255*^-7 + 6.205049783176476*^-8*I,
-      "\[ScriptCapitalH]" -> -1.0285026158488626*^-7 - 5.12830201737232*^-8*I|>
-    ,
-    TestID->"Spherical orbit amplitudes (s=-2)"
-]
-
+(****************************************************************)
+(* Amplitudes                                                   *)
+(****************************************************************)
 Module[{orbitC = KerrGeoOrbit[0, 10.0`32, 0, 1]},
   VerificationTest[
       N[TeukolskyPointParticleMode[0, 2, 2, 0, 0, orbitC]["Amplitudes"], 6]
@@ -460,6 +439,24 @@ Module[{orbitS = KerrGeoOrbit[0.1`32, 10.0`32, 0, Cos[\[Pi]/4.`32]]},
      "\[ScriptCapitalH]" -> 0.0010818095010835464640668 + 0.0001687703221397815132785 I|>
     ,
     TestID->"Spherical orbit Kerr amplitudes (s=-2)"
+  ];
+
+  VerificationTest[
+      N[TeukolskyPointParticleMode[0, 2, 2, 0, 2, orbitS]["Amplitudes"], 6]
+      ,
+      <|"\[ScriptCapitalI]" -> 2.817674016780767525*10^-6 - 1.506523056130186854*10^-6 I,
+       "\[ScriptCapitalH]" -> -9.033598925366890723*10^-9 + 2.194950369301104043*10^-9 I|>
+      ,
+      TestID->"Spherical orbit amplitudes (s=0)"
+  ];
+
+  VerificationTest[
+      N[TeukolskyPointParticleMode[-2, 2, 2, 0, 2, orbitS]["Amplitudes"], 6]
+      ,
+      <|"\[ScriptCapitalI]" -> -1.8309226927939255*^-7 + 6.205049783176476*^-8*I,
+        "\[ScriptCapitalH]" -> -1.0285026158488626*^-7 - 5.12830201737232*^-8*I|>
+      ,
+      TestID->"Spherical orbit amplitudes (s=-2)"
   ];
 ]
 
