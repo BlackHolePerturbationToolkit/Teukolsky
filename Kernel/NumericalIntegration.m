@@ -67,47 +67,41 @@ psi[s_, \[Lambda]_, l_, m_, a_, \[Omega]_, bc_, amps_, \[Nu]_, ndsolveopts___][A
 psi[s_, \[Lambda]_, l_, m_, a_, \[Omega]_, bc_, amps_, \[Nu]_, ndsolveopts___][None] := $Failed;
 
 
-Integrator[s_,\[Lambda]_,m_,a_,\[Omega]_,y1BC_,y2BC_,rBC_,rmin_?NumericQ,rmax_?NumericQ,H_?NumericQ,ndsolveopts___]:=Module[{y1,y2,r,sol},
-	sol = Quiet[NDSolveValue[
-		{y1'[r]==y2[r],(((a^2-2 r+r^2) (2 a^2-2 r (1+s)-r^2 \[Lambda])-2 a (1+H) m r^2 (a^2+r^2) \[Omega]+2 I r^2 (-(1+H) (-a^2+r^2)+(1-H) r (a^2-2 r+r^2)) s \[Omega]+(1-H^2) r^2 (a^2+r^2)^2 \[Omega]^2-2 I a r (a^2-2 r+r^2) (m+a H \[Omega])) y1[r])/r^6+((2 (-a^2+r^2) (a^2-2 r+r^2))/(r^4 (a^2+r^2))-(2 (a^2-2 r+r^2) (a^2 (a^2-2 r+r^2)+(a^2+r^2) ((-1+r) r s-I r (a m+H (a^2+r^2) \[Omega]))))/(r^5 (a^2+r^2))) y2[r]+((a^2-2 r+r^2)^2 Derivative[1][y2][r])/r^4==0,y1[rBC]==y1BC,y2[rBC]==y2BC},
-		y1,
-		{r, rmin, rmax},
+Integrator[s_,\[Lambda]_,m_,a_,\[Omega]_,y1BC_,y2BC_,rBC_,rmin_?NumericQ,rmax_?NumericQ,H_?NumericQ,ndsolveopts___]:=Module[{Global`y1,Global`y2,Global`r,sol},
+	Quiet[NDSolveValue[
+		{Global`y1'[Global`r]==Global`y2[Global`r],(((a^2-2 Global`r+Global`r^2) (2 a^2-2 Global`r (1+s)-Global`r^2 \[Lambda])-2 a (1+H) m Global`r^2 (a^2+Global`r^2) \[Omega]+2 I Global`r^2 (-(1+H) (-a^2+Global`r^2)+(1-H) Global`r (a^2-2 Global`r+Global`r^2)) s \[Omega]+(1-H^2) Global`r^2 (a^2+Global`r^2)^2 \[Omega]^2-2 I a Global`r (a^2-2 Global`r+Global`r^2) (m+a H \[Omega])) Global`y1[Global`r])/Global`r^6+((2 (-a^2+Global`r^2) (a^2-2 Global`r+Global`r^2))/(Global`r^4 (a^2+Global`r^2))-(2 (a^2-2 Global`r+Global`r^2) (a^2 (a^2-2 Global`r+Global`r^2)+(a^2+Global`r^2) ((-1+Global`r) Global`r s-I Global`r (a m+H (a^2+Global`r^2) \[Omega]))))/(Global`r^5 (a^2+Global`r^2))) Global`y2[Global`r]+((a^2-2 Global`r+Global`r^2)^2 Derivative[1][Global`y2][Global`r])/Global`r^4==0,Global`y1[rBC]==y1BC,Global`y2[rBC]==y2BC},
+		Global`y1,
+		{Global`r, rmin, rmax},
 		ndsolveopts,
 		Method->"StiffnessSwitching",
 		MaxSteps->Infinity,
 		InterpolationOrder->All
-		], NDSolveValue::precw];
-    Clear[y1,y2,r];
-    sol
+		], NDSolveValue::precw]
 	];
 
 
-AllIntegrator[s_,\[Lambda]_,m_,a_,\[Omega]_,y1BC_,y2BC_,rBC_,H_?NumericQ,ndsolveopts___][rval:(_?NumericQ | {_?NumericQ..})] := Module[{y1,y2,r,sol},
-	sol = Quiet[NDSolveValue[
-		{y1'[r]==y2[r],(((a^2-2 r+r^2) (2 a^2-2 r (1+s)-r^2 \[Lambda])-2 a (1+H) m r^2 (a^2+r^2) \[Omega]+2 I r^2 (-(1+H) (-a^2+r^2)+(1-H) r (a^2-2 r+r^2)) s \[Omega]+(1-H^2) r^2 (a^2+r^2)^2 \[Omega]^2-2 I a r (a^2-2 r+r^2) (m+a H \[Omega])) y1[r])/r^6+((2 (-a^2+r^2) (a^2-2 r+r^2))/(r^4 (a^2+r^2))-(2 (a^2-2 r+r^2) (a^2 (a^2-2 r+r^2)+(a^2+r^2) ((-1+r) r s-I r (a m+H (a^2+r^2) \[Omega]))))/(r^5 (a^2+r^2))) y2[r]+((a^2-2 r+r^2)^2 Derivative[1][y2][r])/r^4==0,y1[rBC]==y1BC,y2[rBC]==y2BC},
-		y1[rval],
-		{r, Min[rBC,rval], Max[rBC,rval]},
+AllIntegrator[s_,\[Lambda]_,m_,a_,\[Omega]_,y1BC_,y2BC_,rBC_,H_?NumericQ,ndsolveopts___][rval:(_?NumericQ | {_?NumericQ..})] := Module[{Global`y1,Global`y2,Global`r,sol},
+	Quiet[NDSolveValue[
+		{Global`y1'[Global`r]==Global`y2[Global`r],(((a^2-2 Global`r+Global`r^2) (2 a^2-2 Global`r (1+s)-Global`r^2 \[Lambda])-2 a (1+H) m Global`r^2 (a^2+Global`r^2) \[Omega]+2 I Global`r^2 (-(1+H) (-a^2+Global`r^2)+(1-H) Global`r (a^2-2 Global`r+Global`r^2)) s \[Omega]+(1-H^2) Global`r^2 (a^2+Global`r^2)^2 \[Omega]^2-2 I a Global`r (a^2-2 Global`r+Global`r^2) (m+a H \[Omega])) Global`y1[Global`r])/Global`r^6+((2 (-a^2+Global`r^2) (a^2-2 Global`r+Global`r^2))/(Global`r^4 (a^2+Global`r^2))-(2 (a^2-2 Global`r+Global`r^2) (a^2 (a^2-2 Global`r+Global`r^2)+(a^2+Global`r^2) ((-1+Global`r) Global`r s-I Global`r (a m+H (a^2+Global`r^2) \[Omega]))))/(Global`r^5 (a^2+Global`r^2))) Global`y2[Global`r]+((a^2-2 Global`r+Global`r^2)^2 Derivative[1][Global`y2][Global`r])/Global`r^4==0,Global`y1[rBC]==y1BC,Global`y2[rBC]==y2BC},
+		Global`y1[rval],
+		{Global`r, Min[rBC,rval], Max[rBC,rval]},
 		ndsolveopts,
 		Method->"StiffnessSwitching",
 		MaxSteps->Infinity,
 		InterpolationOrder->All
-		], NDSolveValue::precw];
-    Clear[y1,y2,r];
-    sol
+		], NDSolveValue::precw]
 	];
 
-Derivative[n_][AllIntegrator[s_,\[Lambda]_,m_,a_,\[Omega]_,y1BC_,y2BC_,rBC_,H_?NumericQ,ndsolveopts___]][rval:(_?NumericQ | {_?NumericQ..})] := Module[{y1,y2,r,sol},
-	sol = Quiet[NDSolveValue[
-		{y1'[r]==y2[r],(((a^2-2 r+r^2) (2 a^2-2 r (1+s)-r^2 \[Lambda])-2 a (1+H) m r^2 (a^2+r^2) \[Omega]+2 I r^2 (-(1+H) (-a^2+r^2)+(1-H) r (a^2-2 r+r^2)) s \[Omega]+(1-H^2) r^2 (a^2+r^2)^2 \[Omega]^2-2 I a r (a^2-2 r+r^2) (m+a H \[Omega])) y1[r])/r^6+((2 (-a^2+r^2) (a^2-2 r+r^2))/(r^4 (a^2+r^2))-(2 (a^2-2 r+r^2) (a^2 (a^2-2 r+r^2)+(a^2+r^2) ((-1+r) r s-I r (a m+H (a^2+r^2) \[Omega]))))/(r^5 (a^2+r^2))) y2[r]+((a^2-2 r+r^2)^2 Derivative[1][y2][r])/r^4==0,y1[rBC]==y1BC,y2[rBC]==y2BC},
-		Derivative[n][y1][rval],
-		{r, Min[rBC,rval], Max[rBC,rval]},
+Derivative[n_][AllIntegrator[s_,\[Lambda]_,m_,a_,\[Omega]_,y1BC_,y2BC_,rBC_,H_?NumericQ,ndsolveopts___]][rval:(_?NumericQ | {_?NumericQ..})] := Module[{Global`y1,Global`y2,Global`r,sol},
+	Quiet[NDSolveValue[
+		{Global`y1'[Global`r]==Global`y2[Global`r],(((a^2-2 Global`r+Global`r^2) (2 a^2-2 Global`r (1+s)-Global`r^2 \[Lambda])-2 a (1+H) m Global`r^2 (a^2+Global`r^2) \[Omega]+2 I Global`r^2 (-(1+H) (-a^2+Global`r^2)+(1-H) Global`r (a^2-2 Global`r+Global`r^2)) s \[Omega]+(1-H^2) Global`r^2 (a^2+Global`r^2)^2 \[Omega]^2-2 I a Global`r (a^2-2 Global`r+Global`r^2) (m+a H \[Omega])) Global`y1[Global`r])/Global`r^6+((2 (-a^2+Global`r^2) (a^2-2 Global`r+Global`r^2))/(Global`r^4 (a^2+Global`r^2))-(2 (a^2-2 Global`r+Global`r^2) (a^2 (a^2-2 Global`r+Global`r^2)+(a^2+Global`r^2) ((-1+Global`r) Global`r s-I Global`r (a m+H (a^2+Global`r^2) \[Omega]))))/(Global`r^5 (a^2+Global`r^2))) Global`y2[Global`r]+((a^2-2 Global`r+Global`r^2)^2 Derivative[1][Global`y2][Global`r])/Global`r^4==0,Global`y1[rBC]==y1BC,Global`y2[rBC]==y2BC},
+		Derivative[n][Global`y1][rval],
+		{Global`r, Min[rBC,rval], Max[rBC,rval]},
 		ndsolveopts,
 		Method->"StiffnessSwitching",
 		MaxSteps->Infinity,
 		InterpolationOrder->All
-		], NDSolveValue::precw];
-    Clear[y1,y2,r];
-    sol
+		], NDSolveValue::precw]
 	];
 
 
