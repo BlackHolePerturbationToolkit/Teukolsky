@@ -57,26 +57,29 @@ ConvolveSource[l_Integer, m_Integer, n_Integer, k_Integer, R_, S_, TS_] :=
 (*s=-2 point particle on a circular orbit*)
 
 
-ConvolveSourcePointParticleCircular[-2, R_, SH_, TS_] :=
- Module[{a, r0, m, \[Omega], \[CapitalDelta], W, Ann0, Anmb0, Ambmb0, Anmb1, Ambmb1, Ambmb2, RIn, ROut, dRIn, dROut, CIn, COut, ZIn, ZOut,S, dS, d2S, L2dagS, L1dagL2dagS, \[Rho], \[Rho]b, K},
+ConvolveSourcePointParticleCircular[s:-2, R_, SH_, TS_] :=
+ Module[{a, r0, m, \[Omega], \[Lambda], \[CapitalDelta], W, Ann0, Anmb0, Ambmb0, Anmb1, Ambmb1, Ambmb2, RIn, RUp, dRIn, dRUp, d2RIn, d2RUp, CIn, COut, ZIn, ZUp,S, dS, d2S, L2dagS, L1dagL2dagS, \[Rho], \[Rho]b, K},
   a  = TS["Orbit"]["a"];
   r0 = TS["Orbit"]["p"];
   m  = R["In"]["m"];
   \[Omega]  = R["In"]["\[Omega]"];
+  \[Lambda] = R["Up"]["Eigenvalue"];
 
   RIn = R["In"][r0];
-  ROut = R["Up"][r0];
-
+  RUp = R["Up"][r0];
   dRIn = R["In"]'[r0];
-  dROut = R["Up"]'[r0];
+  dRUp = R["Up"]'[r0];
+  d2RUp = (-(-\[Lambda] + 2 I r0 s 2 \[Omega] + (-2 I (-1 + r0) s (-a m + (a^2 + r0^2) \[Omega]) + (-a m + (a^2 + r0^2) \[Omega])^2)/(a^2 - 2 r0 + r0^2)) RUp - (-2 + 2 r0) (1 + s) dRUp)/(a^2 - 2 r0 + r0^2);
+  d2RIn = (-(-\[Lambda] + 2 I r0 s 2 \[Omega] + (-2 I (-1 + r0) s (-a m + (a^2 + r0^2) \[Omega]) + (-a m + (a^2 + r0^2) \[Omega])^2)/(a^2 - 2 r0 + r0^2)) RIn - (-2 + 2 r0) (1 + s) dRIn)/(a^2 - 2 r0 + r0^2);
 
   \[CapitalDelta] = r0^2 - 2r0 + a^2;
-  W = (RIn dROut - ROut dRIn)/\[CapitalDelta];
   K = (r0^2 + a^2)\[Omega] - m a;
 
+  W = 2 I \[Omega] R["In"]["Amplitudes"]["Incidence"];
+
   S = SH[\[Pi]/2, 0];
-  dS = D[SH[\[Theta],0],\[Theta]]/.\[Theta]->\[Pi]/2;
-  d2S = D[SH[\[Theta],0],{\[Theta],2}]/.\[Theta]->\[Pi]/2;
+  dS = Derivative[1,0][SH][\[Pi]/2,0];
+  d2S = Derivative[2,0][SH][\[Pi]/2,0];
 
   L2dagS =  dS + (a \[Omega] - m) S;
   L1dagL2dagS = (-2+(-m+a \[Omega])^2) S + 2 (-m+a \[Omega]) dS + d2S;
@@ -87,22 +90,16 @@ ConvolveSourcePointParticleCircular[-2, R_, SH_, TS_] :=
   Ann0 = -((2 \[Rho]^-3 \[Rho]b^-1 TS["Cnn"])/\[CapitalDelta]^2)(L1dagL2dagS + 2 I a \[Rho] L2dagS);
   Anmb0 = -((2Sqrt[2] \[Rho]^-3 TS["Cnmb"])/\[CapitalDelta])(((I K)/\[CapitalDelta]-\[Rho] -\[Rho]b)L2dagS+((I K)/\[CapitalDelta]+\[Rho]+\[Rho]b)I a S(\[Rho]-\[Rho]b));
   Ambmb0 = S \[Rho]^-3 \[Rho]b TS["Cmbmb"]((K/\[CapitalDelta])^2 + 2I \[Rho] K/\[CapitalDelta] + 2I (a m (r0-1)+a^2 \[Omega]-r0^2 \[Omega])/\[CapitalDelta]^2);
-
   Anmb1 = -2Sqrt[2] \[Rho]^-3 TS["Cnmb"]/\[CapitalDelta](L2dagS + I a \[Rho] (\[Rho]-\[Rho]b) S);
   Ambmb1 = 2 S \[Rho]^-3 \[Rho]b TS["Cmbmb"](\[Rho]-(I K)/\[CapitalDelta]);
-
   Ambmb2 = -S \[Rho]^-3 \[Rho]b TS["Cmbmb"];
 
-  (*FIXME, this is slow to compute the second derivative given we've already computed the R and dR*)
-  CIn = RIn(Ann0 + Anmb0 + Ambmb0) - dRIn(Anmb1 + Ambmb1) + R["In"]''[r0] Ambmb2;
-  COut = ROut(Ann0 + Anmb0 + Ambmb0) - dROut(Anmb1 + Ambmb1) + R["Up"]''[r0] Ambmb2;
+  ZIn = 2 \[Pi] (RUp(Ann0 + Anmb0 + Ambmb0) - dRUp(Anmb1 + Ambmb1) + d2RUp Ambmb2)/W;
+  ZUp = 2 \[Pi] (RIn(Ann0 + Anmb0 + Ambmb0) - dRIn(Anmb1 + Ambmb1) + d2RIn Ambmb2)/W;
 
-  ZIn = 2 \[Pi] COut/W;
-  ZOut = 2 \[Pi] CIn/W;
+  Clear[a, r0, m, \[Omega], \[Lambda], \[CapitalDelta], W, Ann0, Anmb0, Ambmb0, Anmb1, Ambmb1, Ambmb2, RIn, RUp, dRIn, dRUp, d2RIn, d2RUp, CIn, COut, S, dS, d2S, L2dagS, L1dagL2dagS, \[Rho], \[Rho]b, K];
 
-  Clear[a, r0, m, \[Omega], \[CapitalDelta], W, Ann0, Anmb0, Ambmb0, Anmb1, Ambmb1, Ambmb2, RIn, ROut, dRIn, dROut, CIn, COut, S, dS, d2S, L2dagS, L1dagL2dagS, \[Rho], \[Rho]b, K];
-
-  <| "\[ScriptCapitalI]" -> ZOut, "\[ScriptCapitalH]" -> ZIn |>
+  <| "\[ScriptCapitalI]" -> ZUp, "\[ScriptCapitalH]" -> ZIn |>
 ]
 
 
