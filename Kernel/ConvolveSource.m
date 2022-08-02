@@ -108,48 +108,43 @@ ConvolveSourcePointParticleCircular[s:-2, R_, SH_, TS_] :=
 
 
 ConvolveSourcePointParticleSpherical[s:-2, k_Integer, R_, SH_, TS_] :=
- Module[{l, m, orbit, a, r0, e, x, \[ScriptCapitalE], \[ScriptCapitalL], \[ScriptCapitalQ], \[CapitalOmega]\[Theta], \[CapitalOmega]\[Phi], T\[Theta],\[CapitalUpsilon]\[Theta], \[Omega], \[CapitalDelta], Kf, dK\[CapitalDelta], Const, \[Lambda], Rupr0, Rinr0, dRupr0, dRinr0, d2Rupr0, d2Rinr0, integrand, Zin, Zup},
-  l = R["In"]["l"];
+ Module[{a, r0, m, \[Omega], \[Lambda], \[CapitalUpsilon]t, \[CapitalUpsilon]\[Theta], T\[Theta], \[Theta]\[Lambda], t\[Lambda], \[Phi]\[Lambda], T\[Lambda], \[CapitalDelta], Kf, dK\[CapitalDelta], W, RUp, RIn, dRUp, dRIn, d2RUp, d2RIn, integrand, Zin, Zup},
+  a  = TS["Orbit"]["a"];
+  r0 = TS["Orbit"]["p"];
   m = R["In"]["m"];
+  \[Omega]  = R["In"]["\[Omega]"];
+  \[Lambda] = R["Up"]["Eigenvalue"];
+  {\[CapitalUpsilon]\[Theta], \[CapitalUpsilon]t} = {"\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(\[Theta]\)]\)","\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(t\)]\)"} /. TS["Orbit"]["Frequencies"];
+  T\[Theta] = (2\[Pi])/(\[CapitalUpsilon]\[Theta]/\[CapitalUpsilon]t);
 
-  orbit = TS["Orbit"];
-  a  = orbit["a"];
-  r0 = orbit["p"];
-  e  = orbit["e"];
-  x  = orbit["Inclination"];
-
-  \[ScriptCapitalE] = orbit["Energy"];
-  \[ScriptCapitalL] = orbit["AngularMomentum"];
-  \[ScriptCapitalQ] = orbit["CarterConstant"];
-
-  {\[CapitalOmega]\[Theta], \[CapitalOmega]\[Phi]} = {"\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Theta]\)]\)","\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"} /. KerrGeoFrequencies[a,r0,e,x];
-  T\[Theta] = (2\[Pi])/\[CapitalOmega]\[Theta];
-  \[Omega] = m \[CapitalOmega]\[Phi] + k \[CapitalOmega]\[Theta];
+  \[Theta]\[Lambda] = TS["Orbit"]["Trajectory"][[3]];
+  t\[Lambda] = TS["Orbit"]["Trajectory"][[1]];
+  \[Phi]\[Lambda] = TS["Orbit"]["Trajectory"][[4]];
+  T\[Lambda] = Derivative[1][t\[Lambda]];
 
   \[CapitalDelta] = r0^2-2r0+a^2;
   Kf=(r0^2+a^2)\[Omega]-m a;
   dK\[CapitalDelta]=(2 (a m (-1+r0)+a^2 \[Omega]-r0^2 \[Omega]))/\[CapitalDelta]^2;
   
-  Const = 2 I \[Omega] R["In"]["Amplitudes"]["Incidence"](* (Rin[r0]Rup'[r0] - Rin'[r0]Rup'[r0])/\[CapitalDelta]*);
-  \[Lambda] = R["Up"]["Eigenvalue"];
+  W = 2 I \[Omega] R["In"]["Amplitudes"]["Incidence"];
 
-  Rupr0 = R["Up"][r0];
-  Rinr0 = R["In"][r0];
-  dRupr0 = R["Up"]'[r0];
-  dRinr0 = R["In"]'[r0];
-  d2Rupr0 = (-(-\[Lambda] + 2 I r0 s 2 \[Omega] + (-2 I (-1 + r0) s (-a m + (a^2 + r0^2) \[Omega]) + (-a m + (a^2 + r0^2) \[Omega])^2)/(a^2 - 2 r0 + r0^2)) Rupr0 - (-2 + 2 r0) (1 + s) dRupr0)/(a^2 - 2 r0 + r0^2);
-  d2Rinr0 = (-(-\[Lambda] + 2 I r0 s 2 \[Omega] + (-2 I (-1 + r0) s (-a m + (a^2 + r0^2) \[Omega]) + (-a m + (a^2 + r0^2) \[Omega])^2)/(a^2 - 2 r0 + r0^2)) Rinr0 - (-2 + 2 r0) (1 + s) dRinr0)/(a^2 - 2 r0 + r0^2);
+  RUp = R["Up"][r0];
+  RIn = R["In"][r0];
+  dRUp = R["Up"]'[r0];
+  dRIn = R["In"]'[r0];
+  d2RUp = (-(-\[Lambda] + 2 I r0 s 2 \[Omega] + (-2 I (-1 + r0) s (-a m + (a^2 + r0^2) \[Omega]) + (-a m + (a^2 + r0^2) \[Omega])^2)/(a^2 - 2 r0 + r0^2)) RUp - (-2 + 2 r0) (1 + s) dRUp)/(a^2 - 2 r0 + r0^2);
+  d2RIn = (-(-\[Lambda] + 2 I r0 s 2 \[Omega] + (-2 I (-1 + r0) s (-a m + (a^2 + r0^2) \[Omega]) + (-a m + (a^2 + r0^2) \[Omega])^2)/(a^2 - 2 r0 + r0^2)) RIn - (-2 + 2 r0) (1 + s) dRIn)/(a^2 - 2 r0 + r0^2);
 
   integrand[\[Lambda]0_?NumericQ, comp_]:=
    Module[{SH\[Theta], dSH\[Theta], d2SH\[Theta], \[Theta], z, \[CapitalSigma], \[Rho], \[Rho]b, Ld2S, Ld1Ld2S, \[CapitalTheta], T, t0, \[Phi]0, CnnPlus, CnnMinus, CnmPlus, CnmMinus, CmmPlus, CmmMinus, Ann0Plus, Anm0Plus, Amm0Plus, Anm1Plus, Amm1Plus, Amm2Plus, Ann0Minus, Anm0Minus, Amm0Minus, Anm1Minus, Amm1Minus, Amm2Minus, IUpPlus, IUpMinus, IInPlus, IInMinus, res},
+    \[Theta] = \[Theta]\[Lambda][\[Lambda]0];
+    t0 = t\[Lambda][\[Lambda]0];
+    \[Phi]0 = \[Phi]\[Lambda][\[Lambda]0];
+    T = T\[Lambda][\[Lambda]0];
+
     \[CapitalSigma] = r0^2+a^2 Cos[\[Theta]]^2;
     \[Rho] = -1/(r0-I a Cos[\[Theta]]);
     \[Rho]b = -1/(r0+I a Cos[\[Theta]]);
-    \[Theta] = orbit["Trajectory"][[3]][\[Lambda]0];
-    t0 = orbit["Trajectory"][[1]][\[Lambda]0];
-    \[Phi]0 = orbit["Trajectory"][[4]][\[Lambda]0];
-    
-    T = Derivative[1][orbit["Trajectory"][[1]]][\[Lambda]0];
     
     SH\[Theta] = SH[\[Theta],0];
     dSH\[Theta] = Derivative[1,0][SH][\[Theta],0];
@@ -160,7 +155,6 @@ ConvolveSourcePointParticleSpherical[s:-2, k_Integer, R_, SH_, TS_] :=
     CnnPlus = TS["Cnn+"][\[Lambda]0];
     CnmPlus = TS["Cnm+"][\[Lambda]0];
     CmmPlus = TS["Cmm+"][\[Lambda]0];
-   
 
     Ann0Plus = (-2 \[Rho]^-3 \[Rho]b^-1 CnnPlus)/\[CapitalDelta]^2 (Ld1Ld2S+2I a \[Rho] Sin[\[Theta]]Ld2S);
     Anm0Plus = -((2Sqrt[2] \[Rho]^-3 CnmPlus)/\[CapitalDelta])(((I Kf)/\[CapitalDelta]-\[Rho]-\[Rho]b)Ld2S- Kf/\[CapitalDelta] a Sin[\[Theta]]SH\[Theta](\[Rho]-\[Rho]b));
@@ -175,9 +169,8 @@ ConvolveSourcePointParticleSpherical[s:-2, k_Integer, R_, SH_, TS_] :=
     Amm1Minus = 2SH\[Theta] \[Rho]^-3 \[Rho]b CmmMinus(\[Rho]-(I Kf)/\[CapitalDelta]);
     Amm2Minus = -SH\[Theta]  \[Rho]^-3 \[Rho]b CmmMinus;
 
-    IUpPlus=Rupr0(Ann0Plus + Anm0Plus + Amm0Plus)-dRupr0(Anm1Plus+Amm1Plus)+d2Rupr0 Amm2Plus;
-    
-    IInPlus=Rinr0(Ann0Plus + Anm0Plus + Amm0Plus)-dRinr0(Anm1Plus+Amm1Plus)+d2Rinr0 Amm2Plus;
+    IUpPlus=RUp(Ann0Plus + Anm0Plus + Amm0Plus)-dRUp(Anm1Plus+Amm1Plus)+d2RUp Amm2Plus;
+    IInPlus=RIn(Ann0Plus + Anm0Plus + Amm0Plus)-dRIn(Anm1Plus+Amm1Plus)+d2RIn Amm2Plus;
     
     res = {T(E^(I(\[Omega] t0-m \[Phi]0)) IInPlus), T(E^(I(\[Omega] t0-m \[Phi]0)) IUpPlus)}[[comp]];
 
@@ -185,11 +178,10 @@ ConvolveSourcePointParticleSpherical[s:-2, k_Integer, R_, SH_, TS_] :=
     res    
   ];
 
-  \[CapitalUpsilon]\[Theta] = orbit["Frequencies"]["\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(\[Theta]\)]\)"];
-  Zin = ((2\[Pi])/(T\[Theta] Const)) Quiet[NIntegrate[integrand[\[Lambda]0,1], {\[Lambda]0, 0, (2\[Pi])/\[CapitalUpsilon]\[Theta]}, WorkingPrecision -> Precision[R["In"]["\[Omega]"]], Method -> "Trapezoidal"], NIntegrate::precw];
-  Zup = ((2\[Pi])/(T\[Theta] Const)) Quiet[NIntegrate[integrand[\[Lambda]0,2], {\[Lambda]0, 0, (2\[Pi])/\[CapitalUpsilon]\[Theta]}, WorkingPrecision -> Precision[R["In"]["\[Omega]"]], Method -> "Trapezoidal"], NIntegrate::precw];
+  Zin = ((2\[Pi])/(T\[Theta] W)) Quiet[NIntegrate[integrand[\[Lambda]0,1], {\[Lambda]0, 0, (2\[Pi])/\[CapitalUpsilon]\[Theta]}, WorkingPrecision -> Precision[\[Omega]], Method -> {"Trapezoidal", "SymbolicProcessing"->0}], NIntegrate::precw];
+  Zup = ((2\[Pi])/(T\[Theta] W)) Quiet[NIntegrate[integrand[\[Lambda]0,2], {\[Lambda]0, 0, (2\[Pi])/\[CapitalUpsilon]\[Theta]}, WorkingPrecision -> Precision[\[Omega]], Method -> {"Trapezoidal", "SymbolicProcessing"->0}], NIntegrate::precw];
   
-  Clear[l, m, orbit, a, r0, e, x, \[ScriptCapitalE], \[ScriptCapitalL], \[ScriptCapitalQ], \[CapitalOmega]\[Theta], \[CapitalOmega]\[Phi], T\[Theta], \[CapitalUpsilon]\[Theta], \[Omega], \[CapitalDelta], Kf, dK\[CapitalDelta], Const, \[Lambda], Rupr0, Rinr0, dRupr0, dRinr0, d2Rupr0, d2Rinr0];
+  Clear[a, r0, m, \[Omega], \[Lambda], \[CapitalUpsilon]t, \[CapitalUpsilon]\[Theta], T\[Theta], \[Theta]\[Lambda], t\[Lambda], \[Phi]\[Lambda], T\[Lambda], \[CapitalDelta], Kf, dK\[CapitalDelta], W, RUp, RIn, dRUp, dRIn, d2RUp, d2RIn];
   Remove[integrand];
 
   <|"\[ScriptCapitalI]" -> Zin, "\[ScriptCapitalH]" -> Zup|>
