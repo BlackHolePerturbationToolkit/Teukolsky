@@ -10,13 +10,15 @@ VerificationTest[
     ,
     TeukolskyRadialFunction[2, 2, 2, 0.5, 0.1, <|
       "s" -> 2, "l" -> 2, "m" -> 2, "a" -> 0.5, "\[Omega]" -> 0.1, "Eigenvalue" -> \[Lambda]_,
-      "Method" -> {"MST", "RenormalizedAngularMomentum" -> \[Nu]_}, 
+      "RenormalizedAngularMomentum" -> \[Nu]_, 
+      "Method" -> {"NumericalIntegration"}, 
       "BoundaryConditions" -> "In", 
       "Amplitudes" ->
         <|"Incidence" -> _,"Transmission" -> _, "Reflection" -> _|>,
-        "Domain" -> {_, Infinity},
-      "RadialFunction" -> Teukolsky`MST`MST`Private`MSTRadialIn[2, 2, 2, 0.5, 0.2, 
-         \[Nu]_, \[Lambda]_, _, {MachinePrecision, MachinePrecision/2, MachinePrecision/2}]|>
+      "UnscaledAmplitudes" ->
+        <|"Incidence" -> _,"Transmission" -> _, "Reflection" -> _|>,
+      "Domain" -> {_, Infinity},
+      "RadialFunction" -> _Function|>
     ]
     ,
     TestID->"TeukolskyRadial",
@@ -53,7 +55,7 @@ VerificationTest[
 VerificationTest[
     \[Psi]In["Method"]
     ,
-    {"MST", "RenormalizedAngularMomentum" -> _}
+    {"NumericalIntegration"}
     ,
     TestID->"Method",
     SameTest -> MatchQ
