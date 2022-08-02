@@ -501,7 +501,7 @@ ConvolveSourcePointParticleSpherical[0, k_Integer, R_, SH_, TS_] :=
   W = 2 I \[Omega] R["In"]["Amplitudes"]["Incidence"];
 
   \[Alpha] = (r0^2 - 2 r0 + a^2)/r0 Quiet[NIntegrate[TS["\[Alpha]"][\[Theta]p[\[Lambda]]]SH[\[Theta]p[\[Lambda]],0] Cos[\[Omega] tp[\[Lambda]] - m \[Phi]p[\[Lambda]]], {\[Lambda], 0, \[Pi]/(2\[CapitalUpsilon]\[Theta])},
-      Method -> "Trapezoidal", MaxRecursion -> 20, WorkingPrecision -> Precision[\[Omega]]], NIntegrate::precw];
+      Method -> {"Trapezoidal", "SymbolicProcessing"->0}, WorkingPrecision -> Precision[\[Omega]]], NIntegrate::precw];
 
   ZIn = \[Alpha] RUp/W;
   ZOut = \[Alpha] RIn/W;
