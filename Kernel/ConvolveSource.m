@@ -192,90 +192,76 @@ ConvolveSourcePointParticleSpherical[s:-2, k_Integer, R_, SH_, TS_] :=
 (*s=-2 point particle on an eccentric orbit*)
 
 
-ConvolveSourcePointParticleEccentric[s_:-2, n1_Integer, R_, SH_, TS_] :=
- Module[{a, p, x, W, \[Alpha]In, \[Alpha]Up, ZIn, ZOut, S, rq, \[Theta]q, \[Xi],l, m, \[Omega]mkn,qt0,qr0,q\[Theta]0,q\[Phi]0,\[CapitalUpsilon]t,\[CapitalUpsilon]r,\[CapitalUpsilon]\[Theta],\[CapitalDelta]tr,\[CapitalDelta]t\[Theta],\[CapitalDelta]\[Phi]r,\[CapitalDelta]\[Phi]\[Theta],
- integrandIn,integrandUp,pg,RinCache,RupCache,RinPCache,RupPCache,RinPPCache,RupPPCache,\[CapitalDelta]tri,\[CapitalDelta]t\[Theta]i,rpi,zpi,\[CapitalDelta]\[Phi]ri,\[CapitalDelta]\[Phi]\[Theta]i,integrand},
-  a  = TS["Orbit"]["a"];
-  p  = TS["Orbit"]["p"];
-  {\[CapitalUpsilon]t,\[CapitalUpsilon]r,\[CapitalUpsilon]\[Theta]} = {"\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(t\)]\)","\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(r\)]\)","\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(\[Theta]\)]\)"}/.TS["Orbit"]["Frequencies"];
-  rpi=TS["Orbit"]["Trajectory"][[2]];
-  {\[CapitalDelta]tri, \[CapitalDelta]t\[Theta]i, \[CapitalDelta]\[Phi]ri, \[CapitalDelta]\[Phi]\[Theta]i} = {"\[CapitalDelta]tr", "\[CapitalDelta]t\[Theta]", "\[CapitalDelta]\[Phi]r", "\[CapitalDelta]\[Phi]\[Theta]"} /. TS["Orbit"]["TrajectoryDeltas"];
-  {qt0,qr0,q\[Theta]0,q\[Phi]0}=TS["Orbit"]["InitialPhases"];
+ConvolveSourcePointParticleEccentric[s_:-2, n_Integer, R_, SH_, TS_] :=
+ Module[{a, p, rpi, \[CapitalUpsilon]t, \[CapitalUpsilon]r, \[CapitalUpsilon]\[Theta], \[CapitalDelta]tr, \[CapitalDelta]\[Phi]r, qt0, qr0, q\[Theta]0, q\[Phi]0, m, \[Omega], \[Lambda], W, rq, \[Theta]0, S0, dS0, d2S0, L1, L2, L2S, L2p, L1Sp, L1L2S, integrand, \[Alpha]In, \[Alpha]Up, \[Xi], ZIn, ZUp},
+  a = TS["Orbit"]["a"];
+  p = TS["Orbit"]["p"];
+  rpi = TS["Orbit"]["Trajectory"][[2]];
 
-  \[CapitalDelta]tr[qr_]:=\[CapitalDelta]tr[qr]=\[CapitalDelta]tri[qr];
-  rq[qr_]:=rq[qr]=rpi[(qr-qr0)/\[CapitalUpsilon]r];
-  \[Theta]q=Pi/2;
-  \[CapitalDelta]\[Phi]r[qr_]:=\[CapitalDelta]\[Phi]r[qr]=\[CapitalDelta]\[Phi]ri[qr];
-  
-  \[Omega]mkn = R["In"]["\[Omega]"];
-  l = R["In"]["l"];
+  {\[CapitalUpsilon]t, \[CapitalUpsilon]r, \[CapitalUpsilon]\[Theta]} = {"\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(t\)]\)", "\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(r\)]\)", "\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(\[Theta]\)]\)"} /. TS["Orbit"]["Frequencies"];
+  {\[CapitalDelta]tr, \[CapitalDelta]\[Phi]r} = {"\[CapitalDelta]tr", "\[CapitalDelta]\[Phi]r"} /. TS["Orbit"]["TrajectoryDeltas"];
+  {qt0, qr0, q\[Theta]0, q\[Phi]0} = TS["Orbit"]["InitialPhases"];
+
   m = R["In"]["m"];
-  pg = Precision[\[Omega]mkn]/2; 
+  \[Omega] = R["In"]["\[Omega]"];
+  \[Lambda] = R["In"]["Eigenvalue"];
+
+  W = 2 I \[Omega] R["In"]["Amplitudes"]["Incidence"];
   
-  integrand[qr_, Rp0_, Rp1_, Rp2_]:=
-  Module[{rp,thp,Rt,RtP,RtPP,Slm,SlmP,SlmPP,\[CapitalDelta],Kt,\[Rho],\[Rho]bar,L1,L2,L2S,L2p,L1Sp,L1L2S,
-  Ann0,Anmbar0,Anmbar1,Ambarmbar0,Ambarmbar1,Ambarmbar2,Cnnp1p1,Cnmbarp1p1,Cmbarmbarp1p1,
-  Cnnm1p1,Cnmbarm1p1,Cmbarmbarm1p1,Cnnm1m1,Cnmbarm1m1,Cmbarmbarm1m1,Cnnp1m1,Cnmbarp1m1,Cmbarmbarp1m1,
-  prefactorR,prefactorRp,prefactorRpp,rphase,\[Theta]phase},
-    rp = rq[qr];
-    thp = \[Theta]q;
-    Rt = Rp0[rp];
-    RtP = Rp1[rp];
-    RtPP = Rp2[rp];
+  rq[qr_] := rpi[(qr-qr0)/\[CapitalUpsilon]r];
+  \[Theta]0 = Pi/2;
   
-    Slm = SH[thp,0];
-    SlmP = Derivative[1,0][SH][thp,0];
-    SlmPP = Derivative[2,0][SH][thp,0];
+  S0 = SH[\[Theta]0, 0];
+  dS0 = Derivative[1,0][SH][\[Theta]0, 0];
+  d2S0 = Derivative[2,0][SH][\[Theta]0, 0];
+  L1 = -m/Sin[\[Theta]0] + a \[Omega] Sin[\[Theta]0] + Cos[\[Theta]0]/Sin[\[Theta]0];
+  L2 = -m/Sin[\[Theta]0] + a \[Omega] Sin[\[Theta]0] + 2 Cos[\[Theta]0]/Sin[\[Theta]0];
+  L2S = dS0 + L2 S0;
+  L2p = m Cos[\[Theta]0]/Sin[\[Theta]0]^2 + a \[Omega] Cos[\[Theta]0] - 2/Sin[\[Theta]0]^2;
+  L1Sp = d2S0 + L1 dS0;
+  L1L2S = L1Sp + L2p S0 + L2 dS0 + L1 L2 S0;
+
+  integrand[qr_, RF_]:=
+   Module[{r0, R0, dR0, d2R0, \[CapitalDelta], Kt, \[Rho], \[Rho]bar, Ann0, Anmbar0, Anmbar1, Ambarmbar0, Ambarmbar1, Ambarmbar2, Cnnp1p1, Cnmbarp1p1, Cmbarmbarp1p1, Cnnm1p1, Cnmbarm1p1, Cmbarmbarm1p1, rphase, res},
+    r0 = rq[qr];
+    R0   = RF[r0];
+    dR0  = RF'[r0];
+    d2R0 = (-(-\[Lambda] + 2 I r0 s 2 \[Omega] + (-2 I (-1 + r0) s (-a m + (a^2 + r0^2) \[Omega]) + (-a m + (a^2 + r0^2) \[Omega])^2)/(a^2 - 2 r0 + r0^2)) R0 - (-2 + 2 r0) (1 + s) dR0)/(a^2 - 2 r0 + r0^2);
+
+    \[CapitalDelta] = r0^2 + a^2 - 2 r0;
+    Kt = (r0^2 + a^2) \[Omega] - m a;
+    \[Rho] = -1/(r0 - I a Cos[\[Theta]0]);
+    \[Rho]bar = -1/(r0 + I a Cos[\[Theta]0]);
   
-    \[CapitalDelta] = rp*rp + a*a - 2*rp;
-    Kt = (rp*rp + a*a)*\[Omega]mkn - m*a;
-    \[Rho] = -1/(rp - I*a*Cos[thp]);
-    \[Rho]bar = -1/(rp + I*a*Cos[thp]);
-    L1 = -m/Sin[thp] + a*\[Omega]mkn*Sin[thp] + Cos[thp]/Sin[thp];
-    L2 = -m/Sin[thp] + a*\[Omega]mkn*Sin[thp] + 2*Cos[thp]/Sin[thp];
-    L2S = SlmP + L2*Slm;
-    L2p = m*Cos[thp]/Sin[thp]^2 + a*\[Omega]mkn*Cos[thp] - 2/Sin[thp]^2;
-    L1Sp = SlmPP + L1*SlmP;
-    L1L2S = L1Sp + L2p*Slm + L2*SlmP + L1*L2*Slm;
-  
-    Ann0 = -\[Rho]^(-2)*\[Rho]bar^(-1)*(Sqrt[2]*\[CapitalDelta])^(-2)*(\[Rho]^(-1)*L1L2S + 3*I*a*Sin[thp]*L1*Slm + 3*I*a*Cos[thp]*Slm + 2*I*a*Sin[thp]*SlmP - I*a*Sin[thp]*L2*Slm );
-    Anmbar0 = \[Rho]^(-3)*(Sqrt[2]\[CapitalDelta])^(-1)*( (\[Rho] + \[Rho]bar - I*Kt/\[CapitalDelta])*L2S + (\[Rho] - \[Rho]bar)*a*Sin[thp]*Kt/\[CapitalDelta]*Slm );
-    Anmbar1 = -\[Rho]^(-3)*(Sqrt[2]\[CapitalDelta])^(-1)*( L2S + I*(\[Rho] - \[Rho]bar)*a*Sin[thp]*Slm );
-    Ambarmbar0 = \[Rho]^(-3)*\[Rho]bar*Slm*Kt/\[CapitalDelta]/4*( I*(2*\[Omega]mkn*rp/Kt - 2(rp - 1)/\[CapitalDelta]) + Kt/\[CapitalDelta] + 2*I*\[Rho]);
-    Ambarmbar1 = -\[Rho]^(-3)*\[Rho]bar*Slm/2*( I*Kt/\[CapitalDelta] - \[Rho] );
-    Ambarmbar2 = -\[Rho]^(-3)*\[Rho]bar*Slm/4;
+    Ann0 = -\[Rho]^(-2) \[Rho]bar^(-1) (Sqrt[2] \[CapitalDelta])^(-2) (\[Rho]^(-1) L1L2S + 3 I a Sin[\[Theta]0] L1 S0 + 3 I a Cos[\[Theta]0] S0 + 2 I a Sin[\[Theta]0] dS0 - I a Sin[\[Theta]0] L2 S0 );
+    Anmbar0 = \[Rho]^(-3) (Sqrt[2]\[CapitalDelta])^(-1) ( (\[Rho] + \[Rho]bar - I Kt/\[CapitalDelta]) L2S + (\[Rho] - \[Rho]bar) a Sin[\[Theta]0] Kt/\[CapitalDelta] S0 );
+    Anmbar1 = -\[Rho]^(-3) (Sqrt[2]\[CapitalDelta])^(-1) ( L2S + I (\[Rho] - \[Rho]bar) a Sin[\[Theta]0] S0 );
+    Ambarmbar0 = \[Rho]^(-3) \[Rho]bar S0 Kt/\[CapitalDelta]/4 ( I (2 \[Omega] r0/Kt - 2(r0 - 1)/\[CapitalDelta]) + Kt/\[CapitalDelta] + 2 I \[Rho]);
+    Ambarmbar1 = -\[Rho]^(-3) \[Rho]bar S0/2 ( I Kt/\[CapitalDelta] - \[Rho] );
+    Ambarmbar2 = -\[Rho]^(-3) \[Rho]bar S0/4;
+
+    {Cnnp1p1,Cnmbarp1p1,Cmbarmbarp1p1} = TS["Cab"][r0, \[Theta]0, 1, 1];
+    {Cnnm1p1,Cnmbarm1p1,Cmbarmbarm1p1} = TS["Cab"][r0, \[Theta]0, -1, 1];
     
-    {Cnnp1p1,Cnmbarp1p1,Cmbarmbarp1p1} = TS["Cab"][rp, thp, 1, 1];
-    {Cnnm1p1,Cnmbarm1p1,Cmbarmbarm1p1} = TS["Cab"][rp, thp, -1, 1];
+    rphase = \[Omega] \[CapitalDelta]tr[qr] - m \[CapitalDelta]\[Phi]r[qr] + n qr;
     
-    rphase = \[Omega]mkn \[CapitalDelta]tr[qr] - m \[CapitalDelta]\[Phi]r[qr] + n1 qr;
-    
-    ((Ann0*Cnnp1p1 + Anmbar0*Cnmbarp1p1 + Ambarmbar0*Cmbarmbarp1p1) Rt-(Anmbar1*Cnmbarp1p1 + Ambarmbar1*Cmbarmbarp1p1) RtP+Ambarmbar2*Cmbarmbarp1p1 RtPP)Exp[I rphase] 
-    + ((Ann0*Cnnm1p1 + Anmbar0*Cnmbarm1p1 + Ambarmbar0*Cmbarmbarm1p1) Rt-(Anmbar1*Cnmbarm1p1 + Ambarmbar1*Cmbarmbarm1p1) RtP+Ambarmbar2*Cmbarmbarm1p1 RtPP)Exp[-I rphase] 
+    res = ((Ann0 Cnnp1p1 + Anmbar0 Cnmbarp1p1 + Ambarmbar0 Cmbarmbarp1p1) R0-(Anmbar1 Cnmbarp1p1 + Ambarmbar1 Cmbarmbarp1p1) dR0+Ambarmbar2 Cmbarmbarp1p1 d2R0)Exp[I rphase] 
+        + ((Ann0 Cnnm1p1 + Anmbar0 Cnmbarm1p1 + Ambarmbar0 Cmbarmbarm1p1) R0-(Anmbar1 Cnmbarm1p1 + Ambarmbar1 Cmbarmbarm1p1) dR0+Ambarmbar2 Cmbarmbarm1p1 d2R0)Exp[-I rphase];
+
+    Clear[r0, R0, dR0, d2R0, \[CapitalDelta], Kt, \[Rho], \[Rho]bar, Ann0, Anmbar0, Anmbar1, Ambarmbar0, Ambarmbar1, Ambarmbar2, Cnnp1p1, Cnmbarp1p1, Cmbarmbarp1p1, Cnnm1p1, Cnmbarm1p1, Cmbarmbarm1p1, rphase];
+    res
   ];
 
-  W = (p^2 - 2p + a^2)^(-1)(R["In"][p]R["Up"]'[p]-R["Up"][p]R["In"]'[p]);
-  RinCache[r_]:= RinCache[r]=R["In"][r];
-  RupCache[r_]:= RupCache[r]=R["Up"][r];
-  RinPCache[r_]:= RinPCache[r]=R["In"]'[r];
-  RupPCache[r_]:= RupPCache[r]=R["Up"]'[r];
-  RinPPCache[r_]:= RinPPCache[r]=R["In"]''[r];
-  RupPPCache[r_]:= RupPPCache[r]=R["Up"]''[r];
+  \[Alpha]In = 1/(2\[Pi]) Quiet[NIntegrate[integrand[qr,R["In"]], {qr, 0, \[Pi]}, Method -> {"Trapezoidal", "SymbolicProcessing"->0}, WorkingPrecision -> Precision[\[Omega]]], NIntegrate::precw];
+  \[Alpha]Up = 1/(2\[Pi]) Quiet[NIntegrate[integrand[qr,R["Up"]], {qr, 0, \[Pi]}, Method -> {"Trapezoidal", "SymbolicProcessing"->0}, WorkingPrecision -> Precision[\[Omega]]], NIntegrate::precw];
   
-  integrandIn[qr_] := integrand[qr,RinCache,RinPCache,RinPPCache];
-  integrandUp[qr_] := integrand[qr,RupCache,RupPCache,RupPPCache];
-
-  \[Alpha]In = SpectralCosineIntegration1D[integrandIn, pg];
-  \[Alpha]Up = SpectralCosineIntegration1D[integrandUp, pg];
-  
-  \[Xi]=m(\[CapitalDelta]\[Phi]r[qr0]-q\[Phi]0) - \[Omega]mkn(\[CapitalDelta]tr[qr0]-qt0) - n1 qr0;
-
-  Clear[RinCache,RupCache,RinPCache,RupPCache,RinPPCache,RupPPCache];
-  Clear[\[CapitalDelta]tr,\[CapitalDelta]t\[Theta],rq,\[Theta]q,\[CapitalDelta]\[Phi]r,\[CapitalDelta]\[Phi]\[Theta]];
+  \[Xi] = m(\[CapitalDelta]\[Phi]r[qr0]-q\[Phi]0) - \[Omega](\[CapitalDelta]tr[qr0]-qt0) - n qr0;
   
   ZIn = 8Pi \[Alpha]Up/W/\[CapitalUpsilon]t Exp[I \[Xi]];
-  ZOut = 8Pi \[Alpha]In/W/\[CapitalUpsilon]t Exp[I \[Xi]];
-  <| "\[ScriptCapitalI]" -> ZOut, "\[ScriptCapitalH]" -> ZIn |>
+  ZUp = 8Pi \[Alpha]In/W/\[CapitalUpsilon]t Exp[I \[Xi]];
+
+  Clear[a, p, rpi, \[CapitalUpsilon]t, \[CapitalUpsilon]r, \[CapitalUpsilon]\[Theta], \[CapitalDelta]tr, \[CapitalDelta]\[Phi]r, qt0, qr0, q\[Theta]0, q\[Phi]0, m, \[Omega], \[Lambda], W, rq, \[Theta]0, S0, dS0, d2S0, L1, L2, L2S, L2p, L1Sp, L1L2S, integrand, \[Alpha]In, \[Alpha]Up, \[Xi]];
+  <| "\[ScriptCapitalI]" -> ZUp, "\[ScriptCapitalH]" -> ZIn |>
 ]
 
 
