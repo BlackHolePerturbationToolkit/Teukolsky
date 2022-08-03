@@ -276,10 +276,12 @@ ConvolveSourcePointParticleEccentric[s_:-2, n_Integer, R_, SH_, TS_] :=
 
 
 ConvolveSourcePointParticleGeneric[s_:-2, n_Integer, k_Integer, R_, SH_, TS_] :=
- Module[{a, p, rpi, \[Theta]pi, \[CapitalUpsilon]t, \[CapitalUpsilon]r, \[CapitalUpsilon]\[Theta], \[CapitalDelta]tr, \[CapitalDelta]t\[Theta], \[CapitalDelta]\[Phi]r, \[CapitalDelta]\[Phi]\[Theta], qt0, qr0, q\[Theta]0, q\[Phi]0, m, \[Omega], \[Lambda], W, rq, \[Theta]q, integrand, integrandIn, integrandUp, \[Alpha]In, \[Alpha]Up, \[Xi], wpIn, wpUp, ZIn, ZUp},
+ Module[{a, p, \[ScriptCapitalE], \[ScriptCapitalL], rpi, \[Theta]pi, urpi, u\[Theta]pi, \[CapitalUpsilon]t, \[CapitalUpsilon]r, \[CapitalUpsilon]\[Theta], \[CapitalDelta]tr, \[CapitalDelta]t\[Theta], \[CapitalDelta]\[Phi]r, \[CapitalDelta]\[Phi]\[Theta], qt0, qr0, q\[Theta]0, q\[Phi]0, m, \[Omega], \[Lambda], W, rq, \[Theta]q, urq, u\[Theta]q, integrand, integrandIn, integrandUp, \[Alpha]In, \[Alpha]Up, \[Xi], wpIn, wpUp, ZIn, ZUp},
   a = TS["Orbit"]["a"];
   p = TS["Orbit"]["p"];
-  {rpi, \[Theta]pi}=TS["Orbit"]["Trajectory"][[2;;3]];
+  {\[ScriptCapitalE], \[ScriptCapitalL]} = TS["Orbit"] /@ {"Energy", "AngularMomentum"};
+  {rpi, \[Theta]pi} = TS["Orbit"]["Trajectory"][[2;;3]];
+  {urpi, u\[Theta]pi} = TS["Orbit"]["FourVelocity"][[2;;3]];
 
   {\[CapitalUpsilon]t, \[CapitalUpsilon]r, \[CapitalUpsilon]\[Theta]} = {"\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(t\)]\)", "\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(r\)]\)", "\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(\[Theta]\)]\)"} /. TS["Orbit"]["Frequencies"];
   {\[CapitalDelta]tr, \[CapitalDelta]t\[Theta], \[CapitalDelta]\[Phi]r, \[CapitalDelta]\[Phi]\[Theta]} = {"\[CapitalDelta]tr", "\[CapitalDelta]t\[Theta]", "\[CapitalDelta]\[Phi]r", "\[CapitalDelta]\[Phi]\[Theta]"} /. TS["Orbit"]["TrajectoryDeltas"];
@@ -294,8 +296,12 @@ ConvolveSourcePointParticleGeneric[s_:-2, n_Integer, k_Integer, R_, SH_, TS_] :=
   rq[qr_] := rpi[(qr-qr0)/\[CapitalUpsilon]r];
   \[Theta]q[q\[Theta]_] := \[Theta]pi[(q\[Theta]-q\[Theta]0)/\[CapitalUpsilon]\[Theta]];
 
+  (* Mino-time four-velocities *)
+  urq[qr_] := (rpi[(qr-qr0)/\[CapitalUpsilon]r]^2+a^2 Cos[\[Theta]pi[(qr-qr0)/\[CapitalUpsilon]r]]^2) urpi[(qr-qr0)/\[CapitalUpsilon]r];
+  u\[Theta]q[q\[Theta]_] := (rpi[(q\[Theta]-q\[Theta]0)/\[CapitalUpsilon]\[Theta]]^2+a^2 Cos[\[Theta]pi[(q\[Theta]-q\[Theta]0)/\[CapitalUpsilon]\[Theta]]]^2) u\[Theta]pi[(q\[Theta]-q\[Theta]0)/\[CapitalUpsilon]\[Theta]];
+
   integrand[qr_, q\[Theta]_, RF_]:=
-   Module[{r0, R0, dR0, d2R0, \[Theta]0, S0, dS0, d2S0, L1, L2, L2S, L2p, L1Sp, L1L2S, \[CapitalDelta], Kt, \[Rho], \[Rho]bar, Ann0, Anmbar0, Anmbar1, Ambarmbar0, Ambarmbar1, Ambarmbar2, Cnnp1p1, Cnmbarp1p1, Cmbarmbarp1p1, Cnnp1m1, Cnmbarp1m1, Cmbarmbarp1m1, Cnnm1p1, Cnmbarm1p1, Cmbarmbarm1p1, Cnnm1m1,Cnmbarm1m1,Cmbarmbarm1m1, rphase, \[Theta]phase, res},
+   Module[{r0, R0, dR0, d2R0, \[Theta]0, S0, dS0, d2S0, L1, L2, L2S, L2p, L1Sp, L1L2S, ur0, u\[Theta]0, rcomp, \[Theta]comp, \[CapitalDelta], Kt, \[Rho], \[Rho]bar, \[CapitalSigma], Ann0, Anmbar0, Anmbar1, Ambarmbar0, Ambarmbar1, Ambarmbar2, Cnnp1p1, Cnmbarp1p1, Cmbarmbarp1p1, Cnnp1m1, Cnmbarp1m1, Cmbarmbarp1m1, Cnnm1p1, Cnmbarm1p1, Cmbarmbarm1p1, Cnnm1m1,Cnmbarm1m1,Cmbarmbarm1m1, rphase, \[Theta]phase, res},
     r0 = rq[qr];
     R0   = RF[r0];
     dR0  = RF'[r0];
@@ -316,6 +322,7 @@ ConvolveSourcePointParticleGeneric[s_:-2, n_Integer, k_Integer, R_, SH_, TS_] :=
     Kt = (r0^2 + a^2) \[Omega] - m a;
     \[Rho] = -1/(r0 - I a Cos[\[Theta]0]);
     \[Rho]bar = -1/(r0 + I a Cos[\[Theta]0]);
+    \[CapitalSigma] = 1/(\[Rho] \[Rho]bar);
   
     Ann0 = -\[Rho]^(-2) \[Rho]bar^(-1) (Sqrt[2] \[CapitalDelta])^(-2) (\[Rho]^(-1) L1L2S + 3 I a Sin[\[Theta]0] L1 S0 + 3 I a Cos[\[Theta]0] S0 + 2 I a Sin[\[Theta]0] dS0 - I a Sin[\[Theta]0] L2 S0 );
     Anmbar0 = \[Rho]^(-3) (Sqrt[2]\[CapitalDelta])^(-1) ( (\[Rho] + \[Rho]bar - I Kt/\[CapitalDelta]) L2S + (\[Rho] - \[Rho]bar) a Sin[\[Theta]0] Kt/\[CapitalDelta] S0 );
@@ -323,11 +330,14 @@ ConvolveSourcePointParticleGeneric[s_:-2, n_Integer, k_Integer, R_, SH_, TS_] :=
     Ambarmbar0 = \[Rho]^(-3) \[Rho]bar S0 Kt/\[CapitalDelta]/4 ( I (2 \[Omega] r0/Kt - 2(r0 - 1)/\[CapitalDelta]) + Kt/\[CapitalDelta] + 2 I \[Rho]);
     Ambarmbar1 = -\[Rho]^(-3) \[Rho]bar S0/2 ( I Kt/\[CapitalDelta] - \[Rho] );
     Ambarmbar2 = -\[Rho]^(-3) \[Rho]bar S0/4;
+
+    (* Save time by folding the four segments in Subscript[q, \[Theta]]\[Element][0,2\[Pi]], Subscript[q, r]\[Element][0,2\[Pi]] over to Subscript[q, \[Theta]]\[Element][0,\[Pi]], Subscript[q, r]\[Element][0,\[Pi]] *)
+    rcomp = (\[ScriptCapitalE](r0^2+a^2) - a \[ScriptCapitalL] + ur0)/(2\[CapitalSigma]);
+    \[Theta]comp = \[Rho] (I Sin[\[Theta]0](a \[ScriptCapitalE] - \[ScriptCapitalL]/Sin[\[Theta]0]^2) + u\[Theta]0)/Sqrt[2];
     
-    {Cnnp1p1,Cnmbarp1p1,Cmbarmbarp1p1} = TS["Cab"][r0, \[Theta]0, 1, 1];
-    {Cnnp1m1,Cnmbarp1m1,Cmbarmbarp1m1} = TS["Cab"][r0, \[Theta]0, 1, -1];
-    {Cnnm1p1,Cnmbarm1p1,Cmbarmbarm1p1} = TS["Cab"][r0, \[Theta]0, -1, 1];
-    {Cnnm1m1,Cnmbarm1m1,Cmbarmbarm1m1} = TS["Cab"][r0, \[Theta]0, -1, -1];
+    {{{Cnnp1p1,Cnmbarp1p1,Cmbarmbarp1p1}, {Cnnp1m1,Cnmbarp1m1,Cmbarmbarp1m1}},
+      {{Cnnm1p1,Cnmbarm1p1,Cmbarmbarm1p1}, {Cnnm1m1,Cnmbarm1m1,Cmbarmbarm1m1}}} =
+      Table[{rcomp^2, rcomp \[Theta]comp, \[Theta]comp^2}, {ur0, {urq[qr], urq[2\[Pi]-qr]}}, {u\[Theta]0, {u\[Theta]q[q\[Theta]], u\[Theta]q[2\[Pi]-q\[Theta]]}}];
     
     rphase = \[Omega] \[CapitalDelta]tr[qr] - m \[CapitalDelta]\[Phi]r[qr] + n qr;
     \[Theta]phase = \[Omega] \[CapitalDelta]t\[Theta][q\[Theta]] - m \[CapitalDelta]\[Phi]\[Theta][q\[Theta]] + k q\[Theta];
@@ -336,7 +346,7 @@ ConvolveSourcePointParticleGeneric[s_:-2, n_Integer, k_Integer, R_, SH_, TS_] :=
         + ((Ann0*Cnnp1m1 + Anmbar0*Cnmbarp1m1 + Ambarmbar0*Cmbarmbarp1m1) R0-(Anmbar1*Cnmbarp1m1 + Ambarmbar1*Cmbarmbarp1m1) dR0+Ambarmbar2*Cmbarmbarp1m1 d2R0)Exp[I(rphase-\[Theta]phase)] 
         + ((Ann0*Cnnm1p1 + Anmbar0*Cnmbarm1p1 + Ambarmbar0*Cmbarmbarm1p1) R0-(Anmbar1*Cnmbarm1p1 + Ambarmbar1*Cmbarmbarm1p1) dR0+Ambarmbar2*Cmbarmbarm1p1 d2R0)Exp[-I(rphase-\[Theta]phase)] 
         + ((Ann0*Cnnm1m1 + Anmbar0*Cnmbarm1m1 + Ambarmbar0*Cmbarmbarm1m1) R0-(Anmbar1*Cnmbarm1m1 + Ambarmbar1*Cmbarmbarm1m1) dR0+Ambarmbar2*Cmbarmbarm1m1 d2R0)Exp[-I(rphase+\[Theta]phase)];
-    Clear[r0, R0, dR0, d2R0, \[Theta]0, S0, dS0, d2S0, L1, L2, L2S, L2p, L1Sp, L1L2S, \[CapitalDelta], Kt, \[Rho], \[Rho]bar, Ann0, Anmbar0, Anmbar1, Ambarmbar0, Ambarmbar1, Ambarmbar2, Cnnp1p1, Cnmbarp1p1, Cmbarmbarp1p1, Cnnp1m1, Cnmbarp1m1, Cmbarmbarp1m1, Cnnm1p1, Cnmbarm1p1, Cmbarmbarm1p1, Cnnm1m1,Cnmbarm1m1,Cmbarmbarm1m1, rphase, \[Theta]phase];
+    Clear[r0, R0, dR0, d2R0, \[Theta]0, S0, dS0, d2S0, L1, L2, L2S, L2p, L1Sp, L1L2S, ur0, u\[Theta]0, rcomp, \[Theta]comp, \[CapitalDelta], Kt, \[Rho], \[Rho]bar, \[CapitalSigma], Ann0, Anmbar0, Anmbar1, Ambarmbar0, Ambarmbar1, Ambarmbar2, Cnnp1p1, Cnmbarp1p1, Cmbarmbarp1p1, Cnnp1m1, Cnmbarp1m1, Cmbarmbarp1m1, Cnnm1p1, Cnmbarm1p1, Cmbarmbarm1p1, Cnnm1m1,Cnmbarm1m1,Cmbarmbarm1m1, rphase, \[Theta]phase];
     res
   ];
   
@@ -354,7 +364,7 @@ ConvolveSourcePointParticleGeneric[s_:-2, n_Integer, k_Integer, R_, SH_, TS_] :=
   ZIn = 8Pi \[Alpha]Up/W/\[CapitalUpsilon]t Exp[I \[Xi]];
   ZUp = 8Pi \[Alpha]In/W/\[CapitalUpsilon]t Exp[I \[Xi]];
 
-  Clear[a, p, rpi, \[Theta]pi, \[CapitalUpsilon]t, \[CapitalUpsilon]r, \[CapitalUpsilon]\[Theta], \[CapitalDelta]tr, \[CapitalDelta]t\[Theta], \[CapitalDelta]\[Phi]r, \[CapitalDelta]\[Phi]\[Theta], qt0, qr0, q\[Theta]0, q\[Phi]0, m, \[Omega], \[Lambda], W, rq, \[Theta]q, integrand, integrandIn, integrandUp, \[Alpha]In, \[Alpha]Up, \[Xi], wpIn, wpUp];
+  Clear[a, p, \[ScriptCapitalE], \[ScriptCapitalL], rpi, \[Theta]pi, urpi, u\[Theta]pi, \[CapitalUpsilon]t, \[CapitalUpsilon]r, \[CapitalUpsilon]\[Theta], \[CapitalDelta]tr, \[CapitalDelta]t\[Theta], \[CapitalDelta]\[Phi]r, \[CapitalDelta]\[Phi]\[Theta], qt0, qr0, q\[Theta]0, q\[Phi]0, m, \[Omega], \[Lambda], W, rq, \[Theta]q, urq, u\[Theta]q, integrand, integrandIn, integrandUp, \[Alpha]In, \[Alpha]Up, \[Xi], wpIn, wpUp];
   <| "\[ScriptCapitalI]" -> ZUp, "\[ScriptCapitalH]" -> ZIn |>
 ]
 
