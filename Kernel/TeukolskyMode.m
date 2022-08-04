@@ -176,7 +176,7 @@ TeukolskyMode[assoc_]["AngularMomentumFlux"] := AngularMomentumFlux[TeukolskyMod
 TeukolskyMode[assoc_][string_] := assoc[string];
 
 
-Keys[m_TeukolskyMode[assoc_]] ^:= Keys[assoc];
+Keys[m_TeukolskyMode] ^:= Join[Keys[m[[1]]], {"Fluxes", "EnergyFlux", "AngularMomentumFlux"}];
 
 
 (* ::Section::Closed:: *)
