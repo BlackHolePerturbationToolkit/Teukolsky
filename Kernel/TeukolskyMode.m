@@ -46,6 +46,9 @@ TeukolskyPointParticleMode::usage = "TeukolskyPointParticleMode[s, l, m, n, k, o
 TeukolskyPointParticleMode::params = "Parameters s=`1`, e=`2`, x=`3` are not currently supported.";
 
 
+TeukolskyPointParticleMode::mode = "Mode with n=`1`, k=`2` not defined for `3` orbit.";
+
+
 (* ::Subsection::Closed:: *)
 (*Begin Private section*)
 
@@ -65,20 +68,40 @@ Options[TeukolskyPointParticleMode] = {};
 
 
 TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer, orbit_KerrGeoOrbitFunction, opts:OptionsPattern[]] /; AllTrue[orbit["Frequencies"], InexactNumberQ] :=
- Module[{source, assoc, R, S, \[Omega], \[CapitalOmega]r, \[CapitalOmega]\[Phi], \[CapitalOmega]\[Theta], Z, a, \[Lambda]},
-  If[(s != -2  && s != -1 && s != +1 && s != 0) || orbit["e"] != 0,
-    Message[TeukolskyPointParticleMode::params, s, orbit["e"], orbit["Inclination"]];
+ Module[{source, assoc, Ruser, R, S, \[Omega], \[CapitalOmega]r, \[CapitalOmega]\[Phi], \[CapitalOmega]\[Theta], Z, \[Lambda], rmin, rmax, a, p, e, x},
+  {a, p, e, x} = orbit /@ {"a", "p", "e", "Inclination"};
+
+  If[(s != -2  && s != -1 && s != +1 && s != 0) ||
+     (Abs[s] == 1 && {e, x} != {0, 1}),
+    Message[TeukolskyPointParticleMode::params, s, e, x];
     Return[$Failed];
   ];
+
+  If[{e, Abs[x]} == {0, 1} && (n != 0 || k != 0),
+    Message[TeukolskyPointParticleMode::mode, n, k, "circular"];
+    Return[$Failed]];
+  If[e == 0 && n != 0,
+    Message[TeukolskyPointParticleMode::mode, n, k, "spherical"];
+    Return[$Failed]];
+  If[Abs[x] == 1 && k != 0,
+    Message[TeukolskyPointParticleMode::mode, n, k, "eccentric"];
+    Return[$Failed]];
 
   (*{\[CapitalOmega]r, \[CapitalOmega]\[Theta], \[CapitalOmega]\[Phi]} = orbit["Frequencies"];*) (*This gives Mino frequencies, need BL frequencies*)
   {\[CapitalOmega]r, \[CapitalOmega]\[Theta], \[CapitalOmega]\[Phi]} = {"\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(r\)]\)","\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Theta]\)]\)","\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"}/.KerrGeoFrequencies[orbit["a"], orbit["p"], orbit["e"], orbit["Inclination"]];
   \[Omega] = m \[CapitalOmega]\[Phi] + n \[CapitalOmega]r + k \[CapitalOmega]\[Theta];
-  a = orbit["a"];
 
   source = Teukolsky`TeukolskySource`Private`TeukolskyPointParticleSource[s, orbit];
 
-  R = TeukolskyRadial[s, l, m, a, \[Omega]];  
+  R = Ruser = TeukolskyRadial[s, l, m, a, \[Omega]];
+  If[e != 0,
+    rmin = p/(1+e);
+    rmax = p/(1-e);
+    R = TeukolskyRadial[s, l, m, a, \[Omega], Method->{"NumericalIntegration","Domain"-> {"In"->{rmin,rmax}, "Up"->{rmin,rmax}}},
+        "Amplitudes" -> <|"In"-> R["In"]["UnscaledAmplitudes"], "Up"-> R["Up"]["UnscaledAmplitudes"]|>,
+        "RenormalizedAngularMomentum"-> R["In"]["RenormalizedAngularMomentum"], "Eigenvalue" -> R["In"]["Eigenvalue"]]
+  ];
+  
   S = SpinWeightedSpheroidalHarmonicS[s, l, m, a \[Omega]];
   Z = Teukolsky`ConvolveSource`Private`ConvolveSource[l, m, n, k, R, S, source];
 
@@ -90,8 +113,13 @@ TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer
 		     "a" -> a,
   		   "\[Omega]" -> \[Omega],
 		     "Eigenvalue" -> R["In"]["Eigenvalue"],
- 		    "Type" -> Switch[{orbit["e"],Abs[orbit["Inclination"]]},{0,1},{"PointParticleCircular", "Radius" -> orbit["p"]},{0,x_},{"PointParticleSpherical", "Radius" -> orbit["p"], "Inclination"->orbit["Inclination"]},{e_,1},{"PointParticleEccentric", "Peri Latus Rectum" -> orbit["p"], "Eccentricity"->orbit["e"]},{e_,x_},{"PointParticleGeneric", "Peri Latus Rectum" -> orbit["p"], "Eccentricity"->orbit["e"],"Inclination"->orbit["Inclination"]}], 
-		     "RadialFunctions" -> R,
+ 		    "Type" ->
+               Which[
+               {e, Abs[x]} == {0, 1}, {"PointParticleCircular", "Radius" -> p},
+               e == 0, {"PointParticleSpherical", "Radius" -> p, "Inclination" -> x},
+               Abs[x] == 1, {"PointParticleEccentric", "Semi-latus Rectum" -> p, "Eccentricity" -> e},
+               True, {"PointParticleGeneric", "Semi-latus Rectum" -> p, "Eccentricity" -> e , "Inclination" -> x}],
+		     "RadialFunctions" -> Ruser,
 		     "AngularFunction" -> S,
 		     "Amplitudes" -> Z
 		    |>;

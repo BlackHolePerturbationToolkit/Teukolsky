@@ -7,12 +7,19 @@ withinRoundoff[a_, b_] :=
   Block[{Internal`$SameQTolerance = 4},
     SameQ[a,b]];
 
+swshdir = FileNameJoin[{FileNameDrop[ExpandFileName[First[$ScriptCommandLine]],-2], "SpinWeightedSpheroidalHarmonics"}];
+kerrgeodir = FileNameJoin[{FileNameDrop[ExpandFileName[First[$ScriptCommandLine]],-2], "KerrGeodesics"}];
+
 If[$VersionNumber >= 12.1,
   PacletDirectoryLoad[FileNameDrop[ExpandFileName[First[$ScriptCommandLine]],-3]];
+  If[DirectoryQ[swshdir], PacletDirectoryLoad[swshdir]];
+  If[DirectoryQ[kerrgeodir], PacletDirectoryLoad[kerrgeodir]];
   testFiles = FileNames["*.wlt",
     FileNameJoin[{PacletObject["Teukolsky"]["Location"], "Tests"}]];
   ,
   PacletDirectoryAdd[FileNameDrop[ExpandFileName[First[$ScriptCommandLine]],-3]];
+  If[DirectoryQ[swshdir], PacletDirectoryAdd[swshdir]];
+  If[DirectoryQ[kerrgeodir], PacletDirectoryAdd[kerrgeodir]];
   testFiles = FileNames["*.wlt",
     FileNameJoin[{Lookup[PacletInformation["Teukolsky"], "Location"], "Tests"}]];
 ];
