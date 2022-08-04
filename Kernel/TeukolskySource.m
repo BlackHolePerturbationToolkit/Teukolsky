@@ -110,20 +110,8 @@ TeukolskyPointParticleSourceEccentric[0, orbit_] := Module[{assoc, a, r0, e, x, 
 ]
 
 
-TeukolskyPointParticleSourceGeneric[0, orbit_] := Module[{assoc, a, r0, e, x, \[ScriptCapitalE], \[ScriptCapitalL]},
-	a= orbit["a"];
-	
-	assoc = <|  "s" -> 0,
-        "SourceType" -> "PointParticle",
-        "Orbit" -> orbit,
-        "\[Alpha]1" -> Function[r,r^2],
-        "\[Alpha]2" -> Function[\[Theta],-4 Pi],
-        "\[Alpha]3" -> Function[r,1],
-        "\[Alpha]4" -> Function[\[Theta],-4 Pi a^2 Cos[\[Theta]]^2]
-        |>;
-
-  TeukolskySourceObject[assoc]
-]
+TeukolskyPointParticleSourceGeneric[s:0, orbit_] :=
+  TeukolskySourceObject[<|"s" -> s, "SourceType" -> "PointParticle", "Orbit" -> orbit|>];
 
 
 TeukolskyPointParticleSourceCircular[s:(-1|+1), orbit_] := Module[{assoc, a, r0, E0, \[CapitalOmega], Lz, \[CapitalSigma], c, S, B, Ar, Ati, ut, \[Rho], \[CapitalDelta], \[CapitalDelta]p, gtt, gt\[Phi]},

@@ -577,7 +577,7 @@ ConvolveSourcePointParticleEccentric[0, n_Integer, R_, S_, TS_] :=
 
 
 ConvolveSourcePointParticleGeneric[0, n_Integer, k_Integer, R_, SH_, TS_] :=
-Module[{a, p, rpi, \[Theta]pi, rq, \[Theta]q, qt0, qr0, q\[Theta]0, q\[Phi]0, \[Xi], W, \[Alpha]1In, \[Alpha]1Up, \[Alpha]2, \[Alpha]3In, \[Alpha]3Up, \[Alpha]4, S, l, m, \[Omega], \[CapitalUpsilon]t, \[CapitalUpsilon]r, \[CapitalUpsilon]\[Theta], \[CapitalDelta]tr, \[CapitalDelta]t\[Theta], \[CapitalDelta]\[Phi]r, \[CapitalDelta]\[Phi]\[Theta], II1In, II1Up, II2, II3In, II3Up, II4, wp12, wp34, ZIn, ZUp},
+Module[{a, p, rpi, \[Theta]pi, rq, \[Theta]q, qt0, qr0, q\[Theta]0, q\[Phi]0, \[Xi], W, \[Alpha]1In, \[Alpha]1Up, \[Alpha]2, \[Alpha]3In, \[Alpha]3Up, \[Alpha]4, l, m, \[Omega], \[CapitalUpsilon]t, \[CapitalUpsilon]r, \[CapitalUpsilon]\[Theta], \[CapitalDelta]tr, \[CapitalDelta]t\[Theta], \[CapitalDelta]\[Phi]r, \[CapitalDelta]\[Phi]\[Theta], II1In, II1Up, II2, II3In, II3Up, II4, wp12, wp34, ZIn, ZUp},
   a = TS["Orbit"]["a"];
   p = TS["Orbit"]["p"];
   {rpi, \[Theta]pi} = TS["Orbit"]["Trajectory"][[2;;3]];
@@ -595,9 +595,9 @@ Module[{a, p, rpi, \[Theta]pi, rq, \[Theta]q, qt0, qr0, q\[Theta]0, q\[Phi]0, \[
 
   W = 2 I \[Omega] R["In"]["Amplitudes"]["Incidence"];
 
-  II1In = Function[qr, Evaluate[2TS["\[Alpha]1"][rq[qr]]R["In"][rq[qr]]Cos[(\[Omega] \[CapitalDelta]tr[qr] - m \[CapitalDelta]\[Phi]r[qr] + n qr)]]];
-  II1Up = Function[qr, Evaluate[2TS["\[Alpha]1"][rq[qr]]R["Up"][rq[qr]]Cos[(\[Omega] \[CapitalDelta]tr[qr] - m \[CapitalDelta]\[Phi]r[qr] + n qr)]]];
-  II2 = Function[q\[Theta], Evaluate[2TS["\[Alpha]2"][\[Theta]q[q\[Theta]]]SH[\[Theta]q[q\[Theta]], 0]Cos[(\[Omega] \[CapitalDelta]t\[Theta][q\[Theta]] - m \[CapitalDelta]\[Phi]\[Theta][q\[Theta]] + k q\[Theta])]]];
+  II1In[qr_] := 2 rq[qr]^2 R["In"][rq[qr]] Cos[(\[Omega] \[CapitalDelta]tr[qr] - m \[CapitalDelta]\[Phi]r[qr] + n qr)];
+  II1Up[qr_] := 2 rq[qr]^2 R["Up"][rq[qr]] Cos[(\[Omega] \[CapitalDelta]tr[qr] - m \[CapitalDelta]\[Phi]r[qr] + n qr)];
+  II2[q\[Theta]_] := -8 Pi SH[\[Theta]q[q\[Theta]], 0] Cos[(\[Omega] \[CapitalDelta]t\[Theta][q\[Theta]] - m \[CapitalDelta]\[Phi]\[Theta][q\[Theta]] + k q\[Theta])];
   wp12 = Precision[{II1In[0], II1Up[0], II2[0]}];
   \[Alpha]1In = 1/(2\[Pi]) Quiet[NIntegrate[II1In[qr], {qr,0,\[Pi]}, Method -> {"Trapezoidal", "SymbolicProcessing"->0}, WorkingPrecision -> wp12], NIntegrate::precw];
   \[Alpha]1Up = 1/(2\[Pi]) Quiet[NIntegrate[II1Up[qr], {qr,0,\[Pi]}, Method -> {"Trapezoidal", "SymbolicProcessing"->0}, WorkingPrecision -> wp12], NIntegrate::precw];
@@ -605,21 +605,22 @@ Module[{a, p, rpi, \[Theta]pi, rq, \[Theta]q, qt0, qr0, q\[Theta]0, q\[Phi]0, \[
 
   If[a == 0,
     \[Alpha]3In = \[Alpha]3Up = \[Alpha]4 = 0;,
-    II3In = Function[qr, Evaluate[2TS["\[Alpha]3"][rq[qr]]R["In"][rq[qr]]Cos[(\[Omega] \[CapitalDelta]tr[qr] - m \[CapitalDelta]\[Phi]r[qr] + n qr)]]];
-    II3Up = Function[qr, Evaluate[2TS["\[Alpha]3"][rq[qr]]R["Up"][rq[qr]]Cos[(\[Omega] \[CapitalDelta]tr[qr] - m \[CapitalDelta]\[Phi]r[qr] + n qr)]]];
-    II4 = Function[q\[Theta], Evaluate[2TS["\[Alpha]4"][\[Theta]q[q\[Theta]]]SH[\[Theta]q[q\[Theta]], 0]Cos[(\[Omega] \[CapitalDelta]t\[Theta][q\[Theta]] - m \[CapitalDelta]\[Phi]\[Theta][q\[Theta]] + k q\[Theta])]]];
+    II3In[qr_] := 2 R["In"][rq[qr]] Cos[(\[Omega] \[CapitalDelta]tr[qr] - m \[CapitalDelta]\[Phi]r[qr] + n qr)];
+    II3Up[qr_] := 2 R["Up"][rq[qr]] Cos[(\[Omega] \[CapitalDelta]tr[qr] - m \[CapitalDelta]\[Phi]r[qr] + n qr)];
+    II4[q\[Theta]_] := -8 Pi a^2 Cos[\[Theta]q[q\[Theta]]]^2 SH[\[Theta]q[q\[Theta]], 0] Cos[(\[Omega] \[CapitalDelta]t\[Theta][q\[Theta]] - m \[CapitalDelta]\[Phi]\[Theta][q\[Theta]] + k q\[Theta])];
     wp34 = Precision[{II3In[0], II3Up[0], II4[0]}];
     \[Alpha]3In = 1/(2\[Pi]) Quiet[NIntegrate[II3In[qr], {qr,0,\[Pi]}, Method -> {"Trapezoidal", "SymbolicProcessing"->0}, WorkingPrecision -> wp34], NIntegrate::precw];
     \[Alpha]3Up = 1/(2\[Pi]) Quiet[NIntegrate[II3Up[qr], {qr,0,\[Pi]}, Method -> {"Trapezoidal", "SymbolicProcessing"->0}, WorkingPrecision -> wp34], NIntegrate::precw];
     \[Alpha]4 = 1/(2\[Pi]) Quiet[NIntegrate[II4[q\[Theta]], {q\[Theta],0,\[Pi]}, Method -> {"Trapezoidal", "SymbolicProcessing"->0}, WorkingPrecision -> wp34], NIntegrate::precw];
   ];
 
-  \[Xi]=m(\[CapitalDelta]\[Phi]r[qr0]+\[CapitalDelta]\[Phi]\[Theta][q\[Theta]0]-q\[Phi]0) - \[Omega](\[CapitalDelta]tr[qr0]+\[CapitalDelta]t\[Theta][q\[Theta]0]-qt0) - k q\[Theta]0 - n qr0;
+  \[Xi] = m(\[CapitalDelta]\[Phi]r[qr0]+\[CapitalDelta]\[Phi]\[Theta][q\[Theta]0]-q\[Phi]0) - \[Omega](\[CapitalDelta]tr[qr0]+\[CapitalDelta]t\[Theta][q\[Theta]0]-qt0) - k q\[Theta]0 - n qr0;
 
   ZIn = (\[Alpha]1Up*\[Alpha]2 + \[Alpha]3Up*\[Alpha]4)/W/\[CapitalUpsilon]t Exp[I \[Xi]];
   ZUp = (\[Alpha]1In*\[Alpha]2 + \[Alpha]3In*\[Alpha]4)/W/\[CapitalUpsilon]t Exp[I \[Xi]];
 
-  Clear[a, p, rpi, \[Theta]pi, rq, \[Theta]q, qt0, qr0, q\[Theta]0, q\[Phi]0, \[Xi], W, \[Alpha]1In, \[Alpha]1Up, \[Alpha]2, \[Alpha]3In, \[Alpha]3Up, \[Alpha]4, S, l, m, \[Omega], \[CapitalUpsilon]t, \[CapitalUpsilon]r, \[CapitalUpsilon]\[Theta], \[CapitalDelta]tr, \[CapitalDelta]t\[Theta], \[CapitalDelta]\[Phi]r, \[CapitalDelta]\[Phi]\[Theta], II1In, II1Up, II2, II3In, II3Up, II4, wp12, wp34];
+  Clear[a, p, rpi, \[Theta]pi, rq, \[Theta]q, qt0, qr0, q\[Theta]0, q\[Phi]0, \[Xi], W, \[Alpha]1In, \[Alpha]1Up, \[Alpha]2, \[Alpha]3In, \[Alpha]3Up, \[Alpha]4, l, m, \[Omega], \[CapitalUpsilon]t, \[CapitalUpsilon]r, \[CapitalUpsilon]\[Theta], \[CapitalDelta]tr, \[CapitalDelta]t\[Theta], \[CapitalDelta]\[Phi]r, \[CapitalDelta]\[Phi]\[Theta], II1In, II1Up, II2, II3In, II3Up, II4, wp12, wp34];
+  Remove[II1In, II1Up, II2, II3In, II3Up, II4];
   <| "\[ScriptCapitalI]" -> ZUp, "\[ScriptCapitalH]" -> ZIn |>
 ]
 
