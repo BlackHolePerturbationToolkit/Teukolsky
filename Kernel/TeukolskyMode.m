@@ -201,6 +201,26 @@ Derivative[n_][TeukolskyMode[assoc_]][r:(_?NumericQ|{_?NumericQ..})] :=
   ];
 
 
+(* ::Subsection::Closed:: *)
+(*Numerical Evaluation using extended homogeneous solutions*)
+
+
+TeukolskyMode[assoc_]["ExtendedHomogeneous" -> "\[ScriptCapitalH]"][r:(_?NumericQ|{_?NumericQ..})] :=
+  assoc["Amplitudes"]["\[ScriptCapitalH]"]assoc["RadialFunctions"]["In"][r];
+
+
+Derivative[n_][TeukolskyMode[assoc_]["ExtendedHomogeneous" -> "\[ScriptCapitalH]"]][r:(_?NumericQ|{_?NumericQ..})] :=
+  assoc["Amplitudes"]["\[ScriptCapitalH]"]Derivative[n][assoc["RadialFunctions"]["In"]][r];
+
+
+TeukolskyMode[assoc_]["ExtendedHomogeneous" -> "\[ScriptCapitalI]"][r:(_?NumericQ|{_?NumericQ..})] :=
+  assoc["Amplitudes"]["\[ScriptCapitalI]"]assoc["RadialFunctions"]["Up"][r];
+
+
+Derivative[n_][TeukolskyMode[assoc_]["ExtendedHomogeneous" -> "\[ScriptCapitalI]"]][r:(_?NumericQ|{_?NumericQ..})] :=
+  assoc["Amplitudes"]["\[ScriptCapitalI]"]Derivative[n][assoc["RadialFunctions"]["Up"]][r];
+
+
 (* ::Section::Closed:: *)
 (*Fluxes*)
 
