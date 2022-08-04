@@ -68,33 +68,8 @@ TeukolskyPointParticleSourceCircular[0, orbit_] := Module[{assoc, \[Alpha], gtt,
 ]
 
 
-TeukolskyPointParticleSourceSpherical[0, orbit_] := Module[{assoc, \[Alpha], gtt, gt\[Phi], \[CapitalDelta], ut, dtd\[Lambda], a, r0, e, x, \[ScriptCapitalE], \[ScriptCapitalL], \[CapitalUpsilon], \[CapitalSigma], \[Rho],\[CapitalOmega]r,\[CapitalOmega]\[Theta],\[CapitalOmega]\[Phi]},
-	r0 =orbit["p"];
-	a= orbit["a"];
-	x = orbit["Inclination"];
-	e = orbit["e"];
-	{\[CapitalOmega]r,\[CapitalOmega]\[Theta],\[CapitalOmega]\[Phi]} = {"\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(r\)]\)", "\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Theta]\)]\)", "\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"} /. KerrGeoFrequencies[a,r0,e,x];
-	\[ScriptCapitalE]=orbit["Energy"];
-	\[ScriptCapitalL]=orbit["AngularMomentum"];
-	
-	\[CapitalSigma] = Function[\[Theta],r0^2+a^2 Cos[\[Theta]]^2];
-	\[CapitalDelta] = r0^2-2 r0 + a^2;	
-
-  gtt = Function[\[Theta], -((a^4+2 r0^4+a^2 r0 (2 +3 r0)+a^2 (a^2+r0 (-2 +r0)) Cos[2 \[Theta]])/((a^2+r0 (-2 +r0)) (a^2+2 r0^2+a^2 Cos[2 \[Theta]])))];
-  gt\[Phi] = Function[\[Theta], -((4 a  r0)/((a^2+r0 (-2 +r0)) (a^2+2 r0^2+a^2 Cos[2 \[Theta]])))];
-  ut = Function[\[Theta],gt\[Phi][\[Theta]]\[ScriptCapitalL] - gtt[\[Theta]]\[ScriptCapitalE]];
-  dtd\[Lambda] = Function[\[Theta],(\[ScriptCapitalE]((r0^2+a^2)^2/\[CapitalDelta] - a^2 Sin[\[Theta]]^2)+a \[ScriptCapitalL](1-(r0^2+a^2)/\[CapitalDelta]))];
-  
-  \[Alpha] = Function[\[Theta],-(8 \[CapitalOmega]\[Theta] r0 dtd\[Lambda][\[Theta]])/(\[CapitalDelta] ut[\[Theta]])];
-
-  assoc = <|  "s" -> 0,
-        "SourceType" -> "PointParticle",
-        "Orbit" -> orbit,
-        "\[Alpha]" -> \[Alpha]
-      |>;
-
-  TeukolskySourceObject[assoc]
-]
+TeukolskyPointParticleSourceSpherical[s:0, orbit_] :=
+  TeukolskySourceObject[<|"s" -> s, "SourceType" -> "PointParticle", "Orbit" -> orbit|>];
 
 
 TeukolskyPointParticleSourceEccentric[s:0, orbit_] :=
