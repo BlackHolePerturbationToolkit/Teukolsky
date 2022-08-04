@@ -237,27 +237,8 @@ assoc
 ]
 
 
-TeukolskyPointParticleSourceEccentric[-2, orbit_] := Module[{assoc, Cab},
-  Cab = With[{a = orbit["a"], E0 = orbit["Energy"], Lz = orbit["AngularMomentum"], Qc = orbit["CarterConstant"]},
-    Function[{r, \[Theta], sgnUr, sgnU\[Theta]}, Module[{\[CapitalSigma],\[Rho],ur,u\[Theta],rcomp,\[Theta]comp},
-		\[CapitalSigma]=r^2+a^2Cos[\[Theta]]^2;
-		\[Rho]=-1/(r-I a Cos[\[Theta]]);
-		(* FIXME: There is a major loss of precision here near the turning points *)
-		ur = Sqrt[-((r^2 - 2r + a^2)*(Qc + ((a*E0) - Lz)^2 + r^2)) + (a*Lz - E0*(a^2 + r^2))^2];
-		u\[Theta] = Sqrt[Qc - a^2*(1 - E0^2)*Cos[\[Theta]]^2 - (Lz*Cos[\[Theta]]/Sin[\[Theta]])^2];
-		rcomp=(E0(r^2+a^2) - a Lz + sgnUr ur)/(2\[CapitalSigma]);
-		\[Theta]comp=\[Rho] (I Sin[\[Theta]](a E0 - Lz/Sin[\[Theta]]^2)+sgnU\[Theta] u\[Theta] )/Sqrt[2];
-		{rcomp^2, rcomp \[Theta]comp, \[Theta]comp^2}
-  ]]];
-
-  assoc = <|  "s" -> -2,
-        "SourceType" -> "PointParticle",
-        "Orbit" -> orbit,
-        "Cab" -> Cab
-      |>;
-
-  TeukolskySourceObject[assoc]
-]
+TeukolskyPointParticleSourceEccentric[s:-2, orbit_] :=
+  TeukolskySourceObject[<|"s" -> s, "SourceType" -> "PointParticle", "Orbit" -> orbit|>]
 
 
 TeukolskyPointParticleSourceGeneric[s:-2, orbit_] :=

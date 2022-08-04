@@ -196,12 +196,14 @@ ConvolveSourcePointParticleSpherical[s:-2, k_Integer, R_, SH_, TS_] :=
 
 
 ConvolveSourcePointParticleEccentric[s_:-2, n_Integer, R_, SH_, TS_] :=
- Module[{a, p, rpi, \[CapitalUpsilon]t, \[CapitalUpsilon]r, \[CapitalUpsilon]\[Theta], \[CapitalDelta]tr, \[CapitalDelta]\[Phi]r, qt0, qr0, q\[Theta]0, q\[Phi]0, m, \[Omega], \[Lambda], W, rq, \[Theta]0, S0, dS0, d2S0, L1, L2, L2S, L2p, L1Sp, L1L2S, integrand, \[Alpha]In, \[Alpha]Up, \[Xi], wpIn, wpUp, ZIn, ZUp},
+ Module[{a, p, \[ScriptCapitalE], \[ScriptCapitalL], rpi, urpi, \[CapitalUpsilon]t, \[CapitalUpsilon]r, \[CapitalUpsilon]\[Theta], \[CapitalDelta]tr, \[CapitalDelta]\[Phi]r, qt0, qr0, q\[Theta]0, q\[Phi]0, m, \[Omega], \[Lambda], W, rq, \[Theta]0, urq, u\[Theta]0, S0, dS0, d2S0, L1, L2, L2S, L2p, L1Sp, L1L2S, integrand, \[Alpha]In, \[Alpha]Up, \[Xi], wpIn, wpUp, ZIn, ZUp},
   a = TS["Orbit"]["a"];
   p = TS["Orbit"]["p"];
+  {\[ScriptCapitalE], \[ScriptCapitalL]} = TS["Orbit"] /@ {"Energy", "AngularMomentum"};
   rpi = TS["Orbit"]["Trajectory"][[2]];
+  urpi = TS["Orbit"]["FourVelocity"][[2]];
 
-  {\[CapitalUpsilon]t, \[CapitalUpsilon]r, \[CapitalUpsilon]\[Theta]} = {"\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(t\)]\)", "\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(r\)]\)", "\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(\[Theta]\)]\)"} /. TS["Orbit"]["Frequencies"];
+  {\[CapitalUpsilon]t, \[CapitalUpsilon]r} = {"\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(t\)]\)", "\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(r\)]\)"} /. TS["Orbit"]["Frequencies"];
   {\[CapitalDelta]tr, \[CapitalDelta]\[Phi]r} = {"\[CapitalDelta]tr", "\[CapitalDelta]\[Phi]r"} /. TS["Orbit"]["TrajectoryDeltas"];
   {qt0, qr0, q\[Theta]0, q\[Phi]0} = TS["Orbit"]["InitialPhases"];
 
@@ -213,7 +215,11 @@ ConvolveSourcePointParticleEccentric[s_:-2, n_Integer, R_, SH_, TS_] :=
   
   rq[qr_] := rpi[(qr-qr0)/\[CapitalUpsilon]r];
   \[Theta]0 = Pi/2;
-  
+
+  (* Mino-time four-velocity *)
+  urq[qr_] := (rpi[(qr-qr0)/\[CapitalUpsilon]r]^2+a^2 Cos[\[Theta]0]^2) urpi[(qr-qr0)/\[CapitalUpsilon]r];
+  u\[Theta]0 = 0;
+
   S0 = SH[\[Theta]0, 0];
   dS0 = Derivative[1,0][SH][\[Theta]0, 0];
   d2S0 = Derivative[2,0][SH][\[Theta]0, 0];
@@ -225,7 +231,7 @@ ConvolveSourcePointParticleEccentric[s_:-2, n_Integer, R_, SH_, TS_] :=
   L1L2S = L1Sp + L2p S0 + L2 dS0 + L1 L2 S0;
 
   integrand[qr_, RF_]:=
-   Module[{r0, R0, dR0, d2R0, \[CapitalDelta], Kt, \[Rho], \[Rho]bar, Ann0, Anmbar0, Anmbar1, Ambarmbar0, Ambarmbar1, Ambarmbar2, Cnnp1p1, Cnmbarp1p1, Cmbarmbarp1p1, Cnnm1p1, Cnmbarm1p1, Cmbarmbarm1p1, rphase, res},
+   Module[{r0, R0, dR0, d2R0, ur0, rcomp, \[Theta]comp, \[CapitalDelta], Kt, \[Rho], \[Rho]bar, \[CapitalSigma], Ann0, Anmbar0, Anmbar1, Ambarmbar0, Ambarmbar1, Ambarmbar2, Cnnp1p1, Cnmbarp1p1, Cmbarmbarp1p1, Cnnm1p1, Cnmbarm1p1, Cmbarmbarm1p1, rphase, res},
     r0 = rq[qr];
     R0   = RF[r0];
     dR0  = RF'[r0];
@@ -235,6 +241,7 @@ ConvolveSourcePointParticleEccentric[s_:-2, n_Integer, R_, SH_, TS_] :=
     Kt = (r0^2 + a^2) \[Omega] - m a;
     \[Rho] = -1/(r0 - I a Cos[\[Theta]0]);
     \[Rho]bar = -1/(r0 + I a Cos[\[Theta]0]);
+    \[CapitalSigma] = 1/(\[Rho] \[Rho]bar);
   
     Ann0 = -\[Rho]^(-2) \[Rho]bar^(-1) (Sqrt[2] \[CapitalDelta])^(-2) (\[Rho]^(-1) L1L2S + 3 I a Sin[\[Theta]0] L1 S0 + 3 I a Cos[\[Theta]0] S0 + 2 I a Sin[\[Theta]0] dS0 - I a Sin[\[Theta]0] L2 S0 );
     Anmbar0 = \[Rho]^(-3) (Sqrt[2]\[CapitalDelta])^(-1) ( (\[Rho] + \[Rho]bar - I Kt/\[CapitalDelta]) L2S + (\[Rho] - \[Rho]bar) a Sin[\[Theta]0] Kt/\[CapitalDelta] S0 );
@@ -243,8 +250,12 @@ ConvolveSourcePointParticleEccentric[s_:-2, n_Integer, R_, SH_, TS_] :=
     Ambarmbar1 = -\[Rho]^(-3) \[Rho]bar S0/2 ( I Kt/\[CapitalDelta] - \[Rho] );
     Ambarmbar2 = -\[Rho]^(-3) \[Rho]bar S0/4;
 
-    {Cnnp1p1,Cnmbarp1p1,Cmbarmbarp1p1} = TS["Cab"][r0, \[Theta]0, 1, 1];
-    {Cnnm1p1,Cnmbarm1p1,Cmbarmbarm1p1} = TS["Cab"][r0, \[Theta]0, -1, 1];
+    (* Save time by folding the two segments in Subscript[q, r]\[Element][0,2\[Pi]] over to Subscript[q, r]\[Element][0,\[Pi]] *)
+    rcomp = (\[ScriptCapitalE](r0^2+a^2) - a \[ScriptCapitalL] + ur0)/(2\[CapitalSigma]);
+    \[Theta]comp = \[Rho] (I Sin[\[Theta]0](a \[ScriptCapitalE] - \[ScriptCapitalL]/Sin[\[Theta]0]^2) + u\[Theta]0)/Sqrt[2];
+
+    {{Cnnp1p1,Cnmbarp1p1,Cmbarmbarp1p1}, {Cnnm1p1,Cnmbarm1p1,Cmbarmbarm1p1}} =
+      Table[{rcomp^2, rcomp \[Theta]comp, \[Theta]comp^2}, {ur0, {urq[qr], urq[2\[Pi]-qr]}}];
     
     rphase = \[Omega] \[CapitalDelta]tr[qr] - m \[CapitalDelta]\[Phi]r[qr] + n qr;
     
