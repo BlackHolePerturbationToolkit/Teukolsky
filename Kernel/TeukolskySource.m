@@ -30,43 +30,11 @@ Begin["`Private`"];
 (*TeukolskyPointParticleSource*)
 
 
-TeukolskyPointParticleSource[s_, orbit_] :=
- Module[{e, x},
-  {e, x} = {orbit["e"], orbit["Inclination"]};
-
-  Which[
-  {e, Abs[x]} == {0, 1},
-    Return[TeukolskyPointParticleSourceCircular[s,orbit]],
-  e == 0,
-    Return[TeukolskyPointParticleSourceSpherical[s,orbit]],
-  Abs[x] == 1,
-    Return[TeukolskyPointParticleSourceEccentric[s,orbit]];,
-  True,
-    Return[TeukolskyPointParticleSourceGeneric[s,orbit]];
-  ];
-
-  $Failed
-]
-    
-
-
-TeukolskyPointParticleSourceCircular[s:0, orbit_] :=
+TeukolskyPointParticleSource[s:(0|-2), orbit_] :=
   TeukolskySourceObject[<|"s" -> s, "SourceType" -> "PointParticle", "Orbit" -> orbit|>];
 
 
-TeukolskyPointParticleSourceSpherical[s:0, orbit_] :=
-  TeukolskySourceObject[<|"s" -> s, "SourceType" -> "PointParticle", "Orbit" -> orbit|>];
-
-
-TeukolskyPointParticleSourceEccentric[s:0, orbit_] :=
-  TeukolskySourceObject[<|"s" -> s, "SourceType" -> "PointParticle", "Orbit" -> orbit|>];
-
-
-TeukolskyPointParticleSourceGeneric[s:0, orbit_] :=
-  TeukolskySourceObject[<|"s" -> s, "SourceType" -> "PointParticle", "Orbit" -> orbit|>];
-
-
-TeukolskyPointParticleSourceCircular[s:(-1|+1), orbit_] := Module[{assoc, a, r0, E0, \[CapitalOmega], Lz, \[CapitalSigma], c, S, B, Ar, Ati, ut, \[Rho], \[CapitalDelta], \[CapitalDelta]p, gtt, gt\[Phi]},
+TeukolskyPointParticleSource[s:(-1|+1), orbit_] := Module[{assoc, a, r0, E0, \[CapitalOmega], Lz, \[CapitalSigma], c, S, B, Ar, Ati, ut, \[Rho], \[CapitalDelta], \[CapitalDelta]p, gtt, gt\[Phi]},
   a = orbit["a"];
   r0 = orbit["p"];
 
@@ -106,22 +74,6 @@ TeukolskyPointParticleSourceCircular[s:(-1|+1), orbit_] := Module[{assoc, a, r0,
 
   TeukolskySourceObject[assoc]
 ]
-
-
-TeukolskyPointParticleSourceCircular[s:-2, orbit_] :=
-  TeukolskySourceObject[<|"s" -> s, "SourceType" -> "PointParticle", "Orbit" -> orbit|>]
-
-
-TeukolskyPointParticleSourceSpherical[s:-2, orbit_] :=
-  TeukolskySourceObject[<|"s" -> s, "SourceType" -> "PointParticle", "Orbit" -> orbit|>]
-
-
-TeukolskyPointParticleSourceEccentric[s:-2, orbit_] :=
-  TeukolskySourceObject[<|"s" -> s, "SourceType" -> "PointParticle", "Orbit" -> orbit|>]
-
-
-TeukolskyPointParticleSourceGeneric[s:-2, orbit_] :=
-  TeukolskySourceObject[<|"s" -> s, "SourceType" -> "PointParticle", "Orbit" -> orbit|>];
 
 
 TeukolskySourceObject[assoc_][string_] := assoc[string]
