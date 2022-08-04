@@ -584,8 +584,8 @@ ConvolveSourcePointParticleEccentric[0, n_Integer, R_, S_, TS_] :=
 
   \[Xi] = m(\[CapitalDelta]\[Phi]r[qr0]-q\[Phi]0) - \[Omega](\[CapitalDelta]tr[qr0]-qt0) - n qr0;
 
-  ZIn = \[Alpha]1In/W/\[CapitalUpsilon]t Exp[I \[Xi]];
-  ZUp = \[Alpha]1Up/W/\[CapitalUpsilon]t Exp[I \[Xi]];
+  ZIn = \[Alpha]1Up/W/\[CapitalUpsilon]t Exp[I \[Xi]];
+  ZUp = \[Alpha]1In/W/\[CapitalUpsilon]t Exp[I \[Xi]];
 
   Clear[a, p, rpi, rq, \[Theta]0, qt0, qr0, q\[Theta]0, q\[Phi]0, \[Xi], W, \[Alpha]1In, \[Alpha]1Up, S0, m, \[Omega], \[CapitalUpsilon]t, \[CapitalUpsilon]r, \[CapitalDelta]tr, \[CapitalDelta]\[Phi]r, II1In, II1Up, wpIn, wpUp];
   <| "\[ScriptCapitalI]" -> ZUp, "\[ScriptCapitalH]" -> ZIn |>
