@@ -50,22 +50,8 @@ TeukolskyPointParticleSource[s_, orbit_] :=
     
 
 
-TeukolskyPointParticleSourceCircular[0, orbit_] := Module[{assoc, \[Alpha], gtt, gt\[Phi], \[CapitalDelta], ut, a, r0, E0, Lz, \[CapitalSigma], \[Rho]},
-  a = orbit["a"];
-  r0 = orbit["p"];
-  \[CapitalDelta] = r0^2 - 2r0 + a^2;
-  ut = orbit["FourVelocity"][[1]][0];
-  
-  \[Alpha] = -((4 \[Pi] r0)/(ut \[CapitalDelta]));
-
-  assoc = <|  "s" -> 0,
-        "SourceType" -> "PointParticle",
-        "Orbit" -> orbit,
-        "\[Alpha]" -> \[Alpha]
-      |>;
-
-  TeukolskySourceObject[assoc]
-]
+TeukolskyPointParticleSourceCircular[s:0, orbit_] :=
+  TeukolskySourceObject[<|"s" -> s, "SourceType" -> "PointParticle", "Orbit" -> orbit|>];
 
 
 TeukolskyPointParticleSourceSpherical[s:0, orbit_] :=

@@ -463,27 +463,32 @@ ConvolveSourcePointParticleCircular[s:(-1|+1), R_, SH_, TS_] :=
 
 
 ConvolveSourcePointParticleCircular[0, R_, SH_, TS_] :=
- Module[{a, r0, \[Omega], RIn, RUp, dRIn, dRUp, \[Psi]In, \[Psi]Out, d\[Psi]In, d\[Psi]Out, W, \[Alpha], ZIn, ZOut, S},
+ Module[{a, p, r0, \[Theta]0, \[Omega], m, \[CapitalUpsilon]t, RIn, RUp, S, W, \[Alpha], ZIn, ZUp},
   a  = TS["Orbit"]["a"];
-  r0 = TS["Orbit"]["p"];
-  \[Omega] = R["In"]["\[Omega]"];
+  p = TS["Orbit"]["p"];
 
-  RIn = R["In"][r0];
-  dRIn = R["In"]'[r0];
-  RUp = R["Up"][r0];
-  dRUp = R["Up"]'[r0];
+  \[CapitalUpsilon]t = TS["Orbit"]["Frequencies"]["\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(t\)]\)"];
+
+  r0 = p;
+  \[Theta]0 = \[Pi]/2;
+
+  \[Omega] = R["In"]["\[Omega]"];
+  m = R["In"]["m"];
 
   W = 2 I \[Omega] R["In"]["Amplitudes"]["Incidence"];
 
+  RIn = R["In"][r0];
+  RUp = R["Up"][r0];
   S = SH[\[Pi]/2,0];
-  \[Alpha] = (r0^2 - 2 r0 + a^2)/r0 TS["\[Alpha]"] S;
 
-  ZIn = \[Alpha] RUp/W;
-  ZOut = \[Alpha] RIn/W;
+  \[Alpha] = -4 \[Pi] r0^2  S;
 
-  Clear[a, r0, \[Omega], RIn, RUp, dRIn, dRUp, \[Psi]In, \[Psi]Out, d\[Psi]In, d\[Psi]Out, W, \[Alpha], S];
+  ZIn = \[Alpha] RUp/W/\[CapitalUpsilon]t;
+  ZUp = \[Alpha] RIn/W/\[CapitalUpsilon]t;
 
-  <| "\[ScriptCapitalI]" -> ZOut, "\[ScriptCapitalH]" -> ZIn |>
+  Clear[a, p, r0, \[Theta]0, \[Omega], m, \[CapitalUpsilon]t, RIn, RUp, S, W, \[Alpha]];
+
+  <| "\[ScriptCapitalI]" -> ZUp, "\[ScriptCapitalH]" -> ZIn |>
 ]
 
 
