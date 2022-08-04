@@ -3,8 +3,6 @@ name: Run unit tests
 on:
   push:
   
-  pull_request:
-  
   workflow_dispatch:
 
 jobs:
@@ -17,6 +15,20 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
+
+      - name: Check out SpinWeightedSpheroidalHarmonics
+        uses: actions/checkout@v3
+        with:
+          repository: BlackHolePerturbationToolkit/SpinWeightedSpheroidalHarmonics
+          ref: master
+          path: SpinWeightedSpheroidalHarmonics
+
+      - name: Check out KerrGeodesics
+        uses: actions/checkout@v3
+        with:
+          repository: "BlackHolePerturbationToolkit/KerrGeodesics"
+          ref: master
+          path: KerrGeodesics
 
       - name: Cache/restore Wolfram Engine install
         id: cache-restore
@@ -38,7 +50,6 @@ jobs:
           WOLFRAMSCRIPT_KERNELPATH: "${{ env.WOLFRAMENGINE_INSTALLATION_DIRECTORY }}/Contents/MacOS/WolframKernel"
         run: |
           export PATH="${{ env.WOLFRAMENGINE_EXECUTABLES_DIRECTORY }}:$PATH"
-          wolframscript -debug -verbose -script ./Tests/InstallDependencies.wls
           wolframscript -debug -verbose -script ./Tests/AllTests.wls
       - name: Produce test report
         id: testreport
