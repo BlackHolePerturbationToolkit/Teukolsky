@@ -58,47 +58,65 @@ ConvolveSource[l_Integer, m_Integer, n_Integer, k_Integer, R_, S_, TS_] :=
 
 
 ConvolveSourcePointParticleCircular[s:-2, R_, SH_, TS_] :=
- Module[{a, r0, m, \[Omega], \[Lambda], \[CapitalDelta], W, Ann0, Anmb0, Ambmb0, Anmb1, Ambmb1, Ambmb2, RIn, RUp, dRIn, dRUp, d2RIn, d2RUp, CIn, COut, ZIn, ZUp,S, dS, d2S, L2dagS, L1dagL2dagS, \[Rho], \[Rho]b, K},
-  a  = TS["Orbit"]["a"];
-  r0 = TS["Orbit"]["p"];
-  m  = R["In"]["m"];
-  \[Omega]  = R["In"]["\[Omega]"];
-  \[Lambda] = R["Up"]["Eigenvalue"];
+ Module[{a, p, \[ScriptCapitalE], \[ScriptCapitalL], r0, \[Theta]0, \[CapitalDelta], Kt, \[CapitalUpsilon]t, m, \[Omega], \[Lambda], W, RIn, dRIn, d2RIn, RUp, dRUp, d2RUp, S0, dS0, d2S0, L1, L2, L2S, L2p, L1Sp, L1L2S, rcomp, \[Theta]comp, \[Rho], \[Rho]bar, \[CapitalSigma], Ann0, Anmbar0, Anmbar1, Ambarmbar0, Ambarmbar1, Ambarmbar2, Cnnp1p1, Cnmbarp1p1, Cmbarmbarp1p1, \[Alpha]In, \[Alpha]Up, ZIn, ZUp},
+  a = TS["Orbit"]["a"];
+  p = TS["Orbit"]["p"];
+  {\[ScriptCapitalE], \[ScriptCapitalL]} = TS["Orbit"] /@ {"Energy", "AngularMomentum"};
 
-  RIn = R["In"][r0];
-  RUp = R["Up"][r0];
-  dRIn = R["In"]'[r0];
-  dRUp = R["Up"]'[r0];
-  d2RUp = (-(-\[Lambda] + 2 I r0 s 2 \[Omega] + (-2 I (-1 + r0) s (-a m + (a^2 + r0^2) \[Omega]) + (-a m + (a^2 + r0^2) \[Omega])^2)/(a^2 - 2 r0 + r0^2)) RUp - (-2 + 2 r0) (1 + s) dRUp)/(a^2 - 2 r0 + r0^2);
-  d2RIn = (-(-\[Lambda] + 2 I r0 s 2 \[Omega] + (-2 I (-1 + r0) s (-a m + (a^2 + r0^2) \[Omega]) + (-a m + (a^2 + r0^2) \[Omega])^2)/(a^2 - 2 r0 + r0^2)) RIn - (-2 + 2 r0) (1 + s) dRIn)/(a^2 - 2 r0 + r0^2);
+  \[CapitalUpsilon]t = TS["Orbit"]["Frequencies"]["\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(t\)]\)"];
 
-  \[CapitalDelta] = r0^2 - 2r0 + a^2;
-  K = (r0^2 + a^2)\[Omega] - m a;
+  m = R["In"]["m"];
+  \[Omega] = R["In"]["\[Omega]"];
+  \[Lambda] = R["In"]["Eigenvalue"];
 
   W = 2 I \[Omega] R["In"]["Amplitudes"]["Incidence"];
 
-  S = SH[\[Pi]/2, 0];
-  dS = Derivative[1,0][SH][\[Pi]/2,0];
-  d2S = Derivative[2,0][SH][\[Pi]/2,0];
+  r0 = p;
+  \[Theta]0 = \[Pi]/2;
 
-  L2dagS =  dS + (a \[Omega] - m) S;
-  L1dagL2dagS = (-2+(-m+a \[Omega])^2) S + 2 (-m+a \[Omega]) dS + d2S;
+  \[CapitalDelta] = r0^2-2r0+a^2;
+  Kt=(r0^2+a^2)\[Omega]-m a;
 
-  \[Rho] = -1/r0;
-  \[Rho]b = -1/r0;
+  RUp = R["Up"][r0];
+  RIn = R["In"][r0];
+  dRUp = R["Up"]'[r0];
+  dRIn = R["In"]'[r0];
+  d2RUp = (-(-\[Lambda] + 2 I r0 s 2 \[Omega] + (-2 I (-1 + r0) s (-a m + (a^2 + r0^2) \[Omega]) + (-a m + (a^2 + r0^2) \[Omega])^2)/(a^2 - 2 r0 + r0^2)) RUp - (-2 + 2 r0) (1 + s) dRUp)/(a^2 - 2 r0 + r0^2);
+  d2RIn = (-(-\[Lambda] + 2 I r0 s 2 \[Omega] + (-2 I (-1 + r0) s (-a m + (a^2 + r0^2) \[Omega]) + (-a m + (a^2 + r0^2) \[Omega])^2)/(a^2 - 2 r0 + r0^2)) RIn - (-2 + 2 r0) (1 + s) dRIn)/(a^2 - 2 r0 + r0^2);
 
-  Ann0 = -((2 \[Rho]^-3 \[Rho]b^-1 TS["Cnn"])/\[CapitalDelta]^2)(L1dagL2dagS + 2 I a \[Rho] L2dagS);
-  Anmb0 = -((2Sqrt[2] \[Rho]^-3 TS["Cnmb"])/\[CapitalDelta])(((I K)/\[CapitalDelta]-\[Rho] -\[Rho]b)L2dagS+((I K)/\[CapitalDelta]+\[Rho]+\[Rho]b)I a S(\[Rho]-\[Rho]b));
-  Ambmb0 = S \[Rho]^-3 \[Rho]b TS["Cmbmb"]((K/\[CapitalDelta])^2 + 2I \[Rho] K/\[CapitalDelta] + 2I (a m (r0-1)+a^2 \[Omega]-r0^2 \[Omega])/\[CapitalDelta]^2);
-  Anmb1 = -2Sqrt[2] \[Rho]^-3 TS["Cnmb"]/\[CapitalDelta](L2dagS + I a \[Rho] (\[Rho]-\[Rho]b) S);
-  Ambmb1 = 2 S \[Rho]^-3 \[Rho]b TS["Cmbmb"](\[Rho]-(I K)/\[CapitalDelta]);
-  Ambmb2 = -S \[Rho]^-3 \[Rho]b TS["Cmbmb"];
+  S0 = SH[\[Theta]0, 0];
+  dS0 = Derivative[1,0][SH][\[Theta]0, 0];
+  d2S0 = Derivative[2,0][SH][\[Theta]0, 0];
+  L1 = -m/Sin[\[Theta]0] + a \[Omega] Sin[\[Theta]0] + Cos[\[Theta]0]/Sin[\[Theta]0];
+  L2 = -m/Sin[\[Theta]0] + a \[Omega] Sin[\[Theta]0] + 2 Cos[\[Theta]0]/Sin[\[Theta]0];
+  L2S = dS0 + L2 S0;
+  L2p = m Cos[\[Theta]0]/Sin[\[Theta]0]^2 + a \[Omega] Cos[\[Theta]0] - 2/Sin[\[Theta]0]^2;
+  L1Sp = d2S0 + L1 dS0;
+  L1L2S = L1Sp + L2p S0 + L2 dS0 + L1 L2 S0;
 
-  ZIn = 2 \[Pi] (RUp(Ann0 + Anmb0 + Ambmb0) - dRUp(Anmb1 + Ambmb1) + d2RUp Ambmb2)/W;
-  ZUp = 2 \[Pi] (RIn(Ann0 + Anmb0 + Ambmb0) - dRIn(Anmb1 + Ambmb1) + d2RIn Ambmb2)/W;
+  \[Rho] = -1/(r0 - I a Cos[\[Theta]0]);
+  \[Rho]bar = -1/(r0 + I a Cos[\[Theta]0]);
+  \[CapitalSigma] = 1/(\[Rho] \[Rho]bar);
 
-  Clear[a, r0, m, \[Omega], \[Lambda], \[CapitalDelta], W, Ann0, Anmb0, Ambmb0, Anmb1, Ambmb1, Ambmb2, RIn, RUp, dRIn, dRUp, d2RIn, d2RUp, CIn, COut, S, dS, d2S, L2dagS, L1dagL2dagS, \[Rho], \[Rho]b, K];
+  Ann0 = -\[Rho]^(-2) \[Rho]bar^(-1) (Sqrt[2] \[CapitalDelta])^(-2) (\[Rho]^(-1) L1L2S + 3 I a Sin[\[Theta]0] L1 S0 + 3 I a Cos[\[Theta]0] S0 + 2 I a Sin[\[Theta]0] dS0 - I a Sin[\[Theta]0] L2 S0 );
+  Anmbar0 = \[Rho]^(-3) (Sqrt[2]\[CapitalDelta])^(-1) ( (\[Rho] + \[Rho]bar - I Kt/\[CapitalDelta]) L2S + (\[Rho] - \[Rho]bar) a Sin[\[Theta]0] Kt/\[CapitalDelta] S0 );
+  Anmbar1 = -\[Rho]^(-3) (Sqrt[2]\[CapitalDelta])^(-1) ( L2S + I (\[Rho] - \[Rho]bar) a Sin[\[Theta]0] S0 );
+  Ambarmbar0 = \[Rho]^(-3) \[Rho]bar S0 Kt/\[CapitalDelta]/4 ( I (2 \[Omega] r0/Kt - 2(r0 - 1)/\[CapitalDelta]) + Kt/\[CapitalDelta] + 2 I \[Rho]);
+  Ambarmbar1 = -\[Rho]^(-3) \[Rho]bar S0/2 ( I Kt/\[CapitalDelta] - \[Rho] );
+  Ambarmbar2 = -\[Rho]^(-3) \[Rho]bar S0/4;
 
+  rcomp = (\[ScriptCapitalE](r0^2+a^2) - a \[ScriptCapitalL])/(2\[CapitalSigma]);
+  \[Theta]comp = \[Rho] (I Sin[\[Theta]0](a \[ScriptCapitalE] - \[ScriptCapitalL]/Sin[\[Theta]0]^2))/Sqrt[2];
+    
+  {Cnnp1p1, Cnmbarp1p1, Cmbarmbarp1p1} = {rcomp^2, rcomp \[Theta]comp, \[Theta]comp^2};
+    
+  \[Alpha]In = ((Ann0*Cnnp1p1 + Anmbar0*Cnmbarp1p1 + Ambarmbar0*Cmbarmbarp1p1) RIn-(Anmbar1*Cnmbarp1p1 + Ambarmbar1*Cmbarmbarp1p1) dRIn+Ambarmbar2*Cmbarmbarp1p1 d2RIn);
+  \[Alpha]Up = ((Ann0*Cnnp1p1 + Anmbar0*Cnmbarp1p1 + Ambarmbar0*Cmbarmbarp1p1) RUp-(Anmbar1*Cnmbarp1p1 + Ambarmbar1*Cmbarmbarp1p1) dRUp+Ambarmbar2*Cmbarmbarp1p1 d2RUp);
+
+  ZIn = 8Pi \[Alpha]Up/W/\[CapitalUpsilon]t;
+  ZUp = 8Pi \[Alpha]In/W/\[CapitalUpsilon]t;
+
+  Clear[a, p, \[ScriptCapitalE], \[ScriptCapitalL], r0, \[Theta]0, \[CapitalDelta], Kt, \[CapitalUpsilon]t, m, \[Omega], \[Lambda], W, RIn, dRIn, d2RIn, RUp, dRUp, d2RUp, S0, dS0, d2S0, L1, L2, L2S, L2p, L1Sp, L1L2S, rcomp, \[Theta]comp, \[Rho], \[Rho]bar, \[CapitalSigma], Ann0, Anmbar0, Anmbar1, Ambarmbar0, Ambarmbar1, Ambarmbar2, Cnnp1p1, Cnmbarp1p1, Cmbarmbarp1p1, \[Alpha]In, \[Alpha]Up];
   <| "\[ScriptCapitalI]" -> ZUp, "\[ScriptCapitalH]" -> ZIn |>
 ]
 
