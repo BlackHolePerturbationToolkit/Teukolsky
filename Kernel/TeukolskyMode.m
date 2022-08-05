@@ -99,7 +99,9 @@ TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer
     rmax = p/(1-e);
     R = TeukolskyRadial[s, l, m, a, \[Omega], Method->{"NumericalIntegration","Domain"-> {"In"->{rmin,rmax}, "Up"->{rmin,rmax}}},
         "Amplitudes" -> <|"In"-> R["In"]["UnscaledAmplitudes"], "Up"-> R["Up"]["UnscaledAmplitudes"]|>,
-        "RenormalizedAngularMomentum"-> R["In"]["RenormalizedAngularMomentum"], "Eigenvalue" -> R["In"]["Eigenvalue"]]
+        "RenormalizedAngularMomentum"-> R["In"]["RenormalizedAngularMomentum"], "Eigenvalue" -> R["In"]["Eigenvalue"]];
+  ,
+    rmin = rmax = p;
   ];
   
   S = SpinWeightedSpheroidalHarmonicS[s, l, m, a \[Omega]];
@@ -119,6 +121,8 @@ TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer
                e == 0, {"PointParticleSpherical", "Radius" -> p, "Inclination" -> x},
                Abs[x] == 1, {"PointParticleEccentric", "Semi-latus Rectum" -> p, "Eccentricity" -> e},
                True, {"PointParticleGeneric", "Semi-latus Rectum" -> p, "Eccentricity" -> e , "Inclination" -> x}],
+ 		    "rmin" -> rmin,
+ 		    "rmax" -> rmax,
 		     "RadialFunctions" -> Ruser,
 		     "AngularFunction" -> S,
 		     "Amplitudes" -> Z
@@ -173,10 +177,48 @@ TeukolskyMode[assoc_]["Fluxes"] := <|"Energy" -> TeukolskyMode[assoc]["EnergyFlu
 TeukolskyMode[assoc_]["AngularMomentumFlux"] := AngularMomentumFlux[TeukolskyMode[assoc]];
 
 
-TeukolskyMode[assoc_][string_] := assoc[string];
+TeukolskyMode[assoc_][key_String] /; KeyExistsQ[assoc, key] := assoc[key];
 
 
 Keys[m_TeukolskyMode] ^:= Join[Keys[m[[1]]], {"Fluxes", "EnergyFlux", "AngularMomentumFlux"}];
+
+
+(* ::Subsection::Closed:: *)
+(*Numerical Evaluation*)
+
+
+TeukolskyMode[assoc_][r:(_?NumericQ|{_?NumericQ..})] :=
+  Piecewise[{{assoc["Amplitudes"]["\[ScriptCapitalH]"]assoc["RadialFunctions"]["In"][r], r < assoc["rmin"]},
+             {assoc["Amplitudes"]["\[ScriptCapitalI]"]assoc["RadialFunctions"]["Up"][r], r > assoc["rmax"]}},
+            Indeterminate
+  ];
+
+
+Derivative[n_][TeukolskyMode[assoc_]][r:(_?NumericQ|{_?NumericQ..})] :=
+  Piecewise[{{assoc["Amplitudes"]["\[ScriptCapitalH]"]Derivative[n][assoc["RadialFunctions"]["In"]][r], r < assoc["rmin"]},
+             {assoc["Amplitudes"]["\[ScriptCapitalI]"]Derivative[n][assoc["RadialFunctions"]["Up"]][r], r > assoc["rmax"]}},
+            Indeterminate
+  ];
+
+
+(* ::Subsection::Closed:: *)
+(*Numerical Evaluation using extended homogeneous solutions*)
+
+
+TeukolskyMode[assoc_]["ExtendedHomogeneous" -> "\[ScriptCapitalH]"][r:(_?NumericQ|{_?NumericQ..})] :=
+  assoc["Amplitudes"]["\[ScriptCapitalH]"]assoc["RadialFunctions"]["In"][r];
+
+
+Derivative[n_][TeukolskyMode[assoc_]["ExtendedHomogeneous" -> "\[ScriptCapitalH]"]][r:(_?NumericQ|{_?NumericQ..})] :=
+  assoc["Amplitudes"]["\[ScriptCapitalH]"]Derivative[n][assoc["RadialFunctions"]["In"]][r];
+
+
+TeukolskyMode[assoc_]["ExtendedHomogeneous" -> "\[ScriptCapitalI]"][r:(_?NumericQ|{_?NumericQ..})] :=
+  assoc["Amplitudes"]["\[ScriptCapitalI]"]assoc["RadialFunctions"]["Up"][r];
+
+
+Derivative[n_][TeukolskyMode[assoc_]["ExtendedHomogeneous" -> "\[ScriptCapitalI]"]][r:(_?NumericQ|{_?NumericQ..})] :=
+  assoc["Amplitudes"]["\[ScriptCapitalI]"]Derivative[n][assoc["RadialFunctions"]["Up"]][r];
 
 
 (* ::Section::Closed:: *)
