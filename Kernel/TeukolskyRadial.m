@@ -577,7 +577,7 @@ TeukolskyRadialFunction[s_, l_, m_, a_, \[Omega]_, assoc_][r:(_?NumericQ|{_?Nume
  ];
 
 
-Derivative[n_][TeukolskyRadialFunction[s_, l_, m_, a_, \[Omega]_, assoc_]][r:(_?NumericQ|{_?NumericQ..})] :=
+Derivative[n:1][TeukolskyRadialFunction[s_, l_, m_, a_, \[Omega]_, assoc_]][r:(_?NumericQ|{_?NumericQ..})] :=
  Module[{rmin, rmax},
   {rmin, rmax} = assoc["Domain"];
   If[outsideDomainQ[r, rmin, rmax],
@@ -585,6 +585,19 @@ Derivative[n_][TeukolskyRadialFunction[s_, l_, m_, a_, \[Omega]_, assoc_]][r:(_?
   ];
   Quiet[Derivative[n][assoc["RadialFunction"]][r], InterpolatingFunction::dmval]
  ];
+
+
+Derivative[n_Integer/;n>1][trf:(TeukolskyRadialFunction[s_, l_, m_, a_, \[Omega]_, assoc_])][r0:(_?NumericQ|{_?NumericQ..})] :=
+ Module[{Rderivs, R, r, i, res},
+  Rderivs = D[R[r_], {r_, i_}] :> D[(-(-trf["Eigenvalue"] + 2 I r s 2 \[Omega] + (-2 I (-1 + r) s (-a m + (a^2 + r^2) \[Omega]) + (-a m + (a^2 + r^2) \[Omega])^2)/(a^2 - 2 r + r^2)) R[r] - (-2 + 2 r) (1 + s) R'[r])/(a^2 - 2 r + r^2), {r, i - 2}] /; i >= 2;
+  Do[Derivative[i][R][r] = Collect[D[Derivative[i - 1][R][r], r] /. Rderivs, {R'[r], R[r]}, Simplify];, {i, 2, n}];
+  res = Derivative[n][R][r] /. {
+    R'[r] -> trf'[r0],
+    R[r] -> trf[r0], r -> r0};
+  Clear[Rderivs, i];
+  Remove[R, r];
+  res
+];
 
 
 (* ::Section::Closed:: *)
