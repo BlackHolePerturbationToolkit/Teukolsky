@@ -49,6 +49,9 @@ TeukolskyPointParticleMode::params = "Parameters s=`1`, e=`2`, x=`3` are not cur
 TeukolskyPointParticleMode::mode = "Mode with n=`1`, k=`2` not defined for `3` orbit.";
 
 
+TeukolskyPointParticleMode::noret = "This package does not compute the retarded solution `1`. If you want the extended homogeneous solutions at this radius use [\"ExtendedHomogeneous\" -> \"\[ScriptCapitalH]|\[ScriptCapitalI]\"]`2`[`3`] instead.";
+
+
 (* ::Subsection::Closed:: *)
 (*Begin Private section*)
 
@@ -198,14 +201,14 @@ Keys[m_TeukolskyMode] ^:= Join[Keys[m[[1]]], {"Fluxes", "EnergyFlux", "AngularMo
 TeukolskyMode[assoc_][r:(_?NumericQ|{_?NumericQ..})] :=
   Piecewise[{{assoc["Amplitudes"]["\[ScriptCapitalH]"]assoc["RadialFunctions"]["In"][r], r < assoc["rmin"]},
              {assoc["Amplitudes"]["\[ScriptCapitalI]"]assoc["RadialFunctions"]["Up"][r], r > assoc["rmax"]}},
-            Indeterminate
+            Message[TeukolskyPointParticleMode::noret, If[assoc["rmin"]==assoc["rmax"], "at the particle", "inside the libration region"], "", r]; Indeterminate
   ];
 
 
 Derivative[n_][TeukolskyMode[assoc_]][r:(_?NumericQ|{_?NumericQ..})] :=
   Piecewise[{{assoc["Amplitudes"]["\[ScriptCapitalH]"]Derivative[n][assoc["RadialFunctions"]["In"]][r], r < assoc["rmin"]},
              {assoc["Amplitudes"]["\[ScriptCapitalI]"]Derivative[n][assoc["RadialFunctions"]["Up"]][r], r > assoc["rmax"]}},
-            Indeterminate
+            Message[TeukolskyPointParticleMode::noret, If[assoc["rmin"]==assoc["rmax"], "at the particle", "inside the libration region"], StringRepeat["'", n], r]; Indeterminate
   ];
 
 
