@@ -30,7 +30,7 @@ Begin["`Private`"];
 (*TeukolskyPointParticleSource*)
 
 
-TeukolskyPointParticleSource[s:(0|-2), orbit_] :=
+TeukolskyPointParticleSource[s:(0|-2|+2), orbit_] :=
   TeukolskySourceObject[<|"s" -> s, "SourceType" -> "PointParticle", "Orbit" -> orbit|>];
 
 
