@@ -64,11 +64,11 @@ SyntaxInformation[TeukolskyPointParticleMode] =
  {"ArgumentsPattern" -> {_, _, _, _, _, _, OptionsPattern[]}};
 
 
-Options[TeukolskyPointParticleMode] = {};
+Options[TeukolskyPointParticleMode] = {"Domain" -> Automatic};
 
 
 TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer, orbit_KerrGeoOrbitFunction, opts:OptionsPattern[]] /; AllTrue[orbit["Frequencies"], InexactNumberQ] :=
- Module[{source, assoc, Ruser, R, S, \[Omega], \[CapitalOmega]r, \[CapitalOmega]\[Phi], \[CapitalOmega]\[Theta], Z, \[Lambda], rmin, rmax, a, p, e, x},
+ Module[{source, assoc, domain, Ruser, R, S, \[Omega], \[CapitalOmega]r, \[CapitalOmega]\[Phi], \[CapitalOmega]\[Theta], Z, \[Lambda], rmin, rmax, a, p, e, x},
   {a, p, e, x} = orbit /@ {"a", "p", "e", "Inclination"};
 
   If[(s != -2  && s != -1 && s != +1 && s != 0) ||
@@ -93,7 +93,14 @@ TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer
 
   source = Teukolsky`TeukolskySource`Private`TeukolskyPointParticleSource[s, orbit];
 
-  R = Ruser = TeukolskyRadial[s, l, m, a, \[Omega]];
+  domain = OptionValue["Domain"];
+  If[MatchQ[domain, {_?NumericQ, _?NumericQ}],
+    R = Ruser = TeukolskyRadial[s, l, m, a, \[Omega], Method ->
+      {"NumericalIntegration", "Domain"-> {"In" -> domain, "Up" -> domain}}];
+  ,
+    R = Ruser = TeukolskyRadial[s, l, m, a, \[Omega]];
+  ];
+
   If[e != 0,
     rmin = p/(1+e);
     rmax = p/(1-e);
@@ -123,6 +130,7 @@ TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer
                True, {"PointParticleGeneric", "Semi-latus Rectum" -> p, "Eccentricity" -> e , "Inclination" -> x}],
  		    "rmin" -> rmin,
  		    "rmax" -> rmax,
+ 		    "Domain" -> domain,
 		     "RadialFunctions" -> Ruser,
 		     "AngularFunction" -> S,
 		     "Amplitudes" -> Z
