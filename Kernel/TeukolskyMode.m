@@ -74,9 +74,14 @@ TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer
  Module[{source, assoc, domain, Ruser, R, S, \[Omega], \[CapitalOmega]r, \[CapitalOmega]\[Phi], \[CapitalOmega]\[Theta], Z, \[Lambda], rmin, rmax, a, p, e, x},
   {a, p, e, x} = orbit /@ {"a", "p", "e", "Inclination"};
 
-  If[!MemberQ[{-2, -1, 0, 1, 2}, s] ||
+  (*If[!MemberQ[{-2, -1, 0, 1, 2}, s] ||
      (Abs[s] == 1 && {e, x} != {0, 1}) ||
      (s == +2 && {a, e, x} != {0, 0, 1}),
+    Message[TeukolskyPointParticleMode::params, s, e, x];
+    Return[$Failed];
+  ];*)
+  If[!MemberQ[{-2, -1, 0, 1, 2}, s] ||
+     (Abs[s] == 1 && {e, x} != {0, 1}),
     Message[TeukolskyPointParticleMode::params, s, e, x];
     Return[$Failed];
   ];
