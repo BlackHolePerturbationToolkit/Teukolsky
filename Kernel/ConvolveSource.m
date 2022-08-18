@@ -22,7 +22,7 @@ BeginPackage["Teukolsky`ConvolveSource`", {"KerrGeodesics`", "KerrGeodesics`Orbi
 Begin["`Private`"];
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*ConvolveSource*)
 
 
@@ -611,7 +611,7 @@ ConvolveSourcePointParticleSpherical[2, k_Integer, R_, SH_, TS_] :=
     {{Cllp1p1,Clmp1p1,Cmmp1p1}, {Cllp1m1,Clmp1m1,Cmmp1m1}} =
       Table[{rcomp^2, rcomp \[Theta]comp, \[Theta]comp^2}, {u\[Theta]0, {u\[Theta]q[q\[Theta]], u\[Theta]q[2\[Pi]-q\[Theta]]}}];
     
-    \[Theta]phase = \[Omega] \[CapitalDelta]t\[Theta][q\[Theta]] - m \[CapitalDelta]\[Phi]\[Theta][q\[Theta]];
+    \[Theta]phase = \[Omega] \[CapitalDelta]t\[Theta][q\[Theta]] - m \[CapitalDelta]\[Phi]\[Theta][q\[Theta]] + k q\[Theta]0;
 	
     res = ((All0*Cllp1p1 + Alm0*Clmp1p1 + Amm0*Cmmp1p1) \[CapitalDelta]2R0-(Alm1*Clmp1p1 + Amm1*Cmmp1p1) d\[CapitalDelta]2R0+Amm2*Cmmp1p1 d2\[CapitalDelta]2R0)Exp[I \[Theta]phase] 
         + ((All0*Cllp1m1 + Alm0*Clmp1m1 + Amm0*Cmmp1m1) \[CapitalDelta]2R0-(Alm1*Clmp1m1 + Amm1*Cmmp1m1) d\[CapitalDelta]2R0+Amm2*Cmmp1m1 d2\[CapitalDelta]2R0)Exp[-I \[Theta]phase];
@@ -806,8 +806,8 @@ ConvolveSourcePointParticleGeneric[2, n_Integer, k_Integer, R_, SH_, TS_] :=
       {{Cllm1p1,Clmm1p1,Cmmm1p1}, {Cllm1m1,Clmm1m1,Cmmm1m1}}} =
       Table[{rcomp^2, rcomp \[Theta]comp, \[Theta]comp^2}, {ur0, {urq[qr], urq[2\[Pi]-qr]}}, {u\[Theta]0, {u\[Theta]q[q\[Theta]], u\[Theta]q[2\[Pi]-q\[Theta]]}}];
     
-    rphase = \[Omega] \[CapitalDelta]tr[qr] - m \[CapitalDelta]\[Phi]r[qr];
-    \[Theta]phase = \[Omega] \[CapitalDelta]t\[Theta][q\[Theta]] - m \[CapitalDelta]\[Phi]\[Theta][q\[Theta]];
+    rphase = \[Omega] \[CapitalDelta]tr[qr] - m \[CapitalDelta]\[Phi]r[qr] + k q\[Theta]0;
+    \[Theta]phase = \[Omega] \[CapitalDelta]t\[Theta][q\[Theta]] - m \[CapitalDelta]\[Phi]\[Theta][q\[Theta]] + n qr;
     
 	\[CapitalDelta]2R0=\[CapitalDelta]^2 R0;
 	d\[CapitalDelta]2R0=\[CapitalDelta]^2dR0+2\[CapitalDelta] d\[CapitalDelta] R0;
