@@ -1,6 +1,6 @@
 # Teukolsky
 
-Copyright (c) 2019-20 Black Hole Perturbation Toolkit
+Copyright (c) 2019-22 Black Hole Perturbation Toolkit
 
 The Teukolsky package provides a set of functions for computing solutions
 to the Teukolsky equation for perturbations about the spacetime of a Kerr
