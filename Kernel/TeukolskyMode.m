@@ -64,7 +64,7 @@ Begin["`Private`"];
 
 
 SyntaxInformation[TeukolskyPointParticleMode] =
- {"ArgumentsPattern" -> {_, _, _, _, _, _, OptionsPattern[]}};
+ {"ArgumentsPattern" -> {_, _, _, _., _., _, OptionsPattern[]}};
 
 
 Options[TeukolskyPointParticleMode] = {"Domain" -> Automatic};
@@ -147,6 +147,31 @@ TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer
 
   TeukolskyMode[assoc]
 ]
+
+
+(* ::Subsection::Closed:: *)
+(*Special cases*)
+
+
+circularOrbitQ[orbit_KerrGeoOrbitFunction] := orbit["e"] == 0 && Abs[orbit["Inclination"]] == 1;
+
+
+sphericalOrbitQ[orbit_KerrGeoOrbitFunction] := orbit["e"] == 0;
+
+
+eccentricOrbitQ[orbit_KerrGeoOrbitFunction] := Abs[orbit["Inclination"]] == 1;
+
+
+TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, orbit_KerrGeoOrbitFunction, opts:OptionsPattern[]] /; circularOrbitQ[orbit] :=
+  TeukolskyPointParticleMode[s, l, m, 0, 0, orbit, opts]
+
+
+TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, k_Integer, orbit_KerrGeoOrbitFunction, opts:OptionsPattern[]] /; sphericalOrbitQ[orbit] :=
+  TeukolskyPointParticleMode[s, l, m, 0, k, orbit, opts]
+
+
+TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, orbit_KerrGeoOrbitFunction, opts:OptionsPattern[]] /; eccentricOrbitQ[orbit] :=
+  TeukolskyPointParticleMode[s, l, m, n, orbit, opts]
 
 
 (* ::Section::Closed:: *)
