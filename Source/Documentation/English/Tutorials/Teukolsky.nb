@@ -6,19 +6,141 @@ Cell["Solutions of the radial Teukolsky equation", \
 
 Cell["\<\
 The Teukolsky package provides functions for computing solutions to the \
-Teukolsky equation. Before using the functions, first load the package\
-\>", "Text",ExpressionUUID->"20e5e87d-a148-494e-bcb6-e08aea04675e"],
+radial Teukolsky equation,\
+\>", "Text",ExpressionUUID->"e20ad51a-03ff-4122-ac5c-de4914e917e3"],
 
-Cell[BoxData[
- RowBox[{"<<", "Teukolsky`"}]], "Input",
- CellLabel->"In[1]:=",ExpressionUUID->"46721f8c-4afa-4aac-b0cf-116b9db62b1f"],
+Cell[TextData[Cell[BoxData[
+ FormBox[
+  RowBox[{
+   RowBox[{
+    RowBox[{
+     RowBox[{
+      SuperscriptBox["\[CapitalDelta]", 
+       RowBox[{"-", "s"}]], 
+      RowBox[{
+       FractionBox["d", "dr"], "[", 
+       RowBox[{
+        SuperscriptBox["\[CapitalDelta]", 
+         RowBox[{"s", "+", "1"}]], 
+        FractionBox[
+         RowBox[{"d", " ", "R"}], 
+         RowBox[{"d", " ", "r"}]]}], "]"}]}], "+", 
+     RowBox[{
+      RowBox[{"[", 
+       RowBox[{
+        FractionBox[
+         RowBox[{
+          SuperscriptBox["K", "2"], "-", 
+          RowBox[{"2", " ", "\[ImaginaryI]", " ", "s", " ", 
+           RowBox[{"(", 
+            RowBox[{"r", "-", "M"}], ")"}], "K"}]}], "\[CapitalDelta]"], "+", 
+        
+        RowBox[{
+        "4", " ", "\[ImaginaryI]", " ", "s", " ", "\[Omega]", " ", "r"}], " ",
+         "-", " ", "\[Lambda]"}], "]"}], "R"}]}], "=", "\[ScriptCapitalT]"}], 
+   ","}], TraditionalForm]],ExpressionUUID->"2573fdf8-dfbc-4e2d-9706-\
+d85d38638d44"]], "Text",
+ TextAlignment->-0.5,ExpressionUUID->"20e5e87d-a148-494e-bcb6-e08aea04675e"],
+
+Cell[TextData[{
+ "where ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"\[CapitalDelta]", "=", 
+    RowBox[{
+     SuperscriptBox["r", "2"], "-", 
+     RowBox[{"2", " ", "M", " ", "r"}], "+", 
+     SuperscriptBox["a", "2"]}]}], TraditionalForm]],ExpressionUUID->
+  "46191252-6f5e-40af-a1b2-1801be3414fa"],
+ ", ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"K", "=", 
+    RowBox[{
+     RowBox[{
+      RowBox[{"(", 
+       RowBox[{
+        SuperscriptBox["r", "2"], "+", 
+        SuperscriptBox["a", "2"]}], ")"}], "\[Omega]"}], "-", 
+     RowBox[{"a", " ", "m"}]}]}], TraditionalForm]],ExpressionUUID->
+  "6100e2f2-4b3d-4eea-b9d1-5b4d29764c66"],
+ ", ",
+ Cell[BoxData[
+  FormBox["s", TraditionalForm]],ExpressionUUID->
+  "71074bfa-d7fe-4422-97b6-2949906bb191"],
+ " is the spin-weight of the field, ",
+ Cell[BoxData[
+  FormBox["\[Lambda]", TraditionalForm]],ExpressionUUID->
+  "fe595187-220d-4c5c-82ed-e57cd2abfea1"],
+ " is the spheroidal eigenvalue, ",
+ Cell[BoxData[
+  FormBox["a", TraditionalForm]],ExpressionUUID->
+  "722b7da7-a79d-4247-b4d2-68c6caf3cbb0"],
+ " and ",
+ Cell[BoxData[
+  FormBox["M", TraditionalForm]],ExpressionUUID->
+  "3dda0e22-016b-4b8e-87cc-d14bec5d109c"],
+ " are the spin and mass of the Kerr black hole, and \[Omega] is the mode \
+frequency."
+}], "Text",ExpressionUUID->"6370e822-db50-4833-a260-b8236189ab56"],
+
+Cell[TextData[{
+ "The package uses the convention that all quantities are a-dimensionalized \
+using the mass ",
+ Cell[BoxData[
+  FormBox["M", TraditionalForm]],ExpressionUUID->
+  "430fe637-4fcb-4e60-a462-5a24d6a3e8ec"],
+ ", so that ",
+ Cell[BoxData[
+  FormBox["r", TraditionalForm]],ExpressionUUID->
+  "401b2bd2-8956-4d92-af64-ffaf30aee678"],
+ " and ",
+ Cell[BoxData[
+  FormBox["a", TraditionalForm]],ExpressionUUID->
+  "2c200ad2-56aa-4f71-bdc6-14d216a19fd7"],
+ " are considered to be in units of ",
+ Cell[BoxData[
+  FormBox["M", TraditionalForm]],ExpressionUUID->
+  "354f4cf3-a9cb-4b8b-b9a8-9682284207f5"],
+ ", and ",
+ Cell[BoxData[
+  FormBox["\[Omega]", TraditionalForm]],ExpressionUUID->
+  "6debe01a-cf2c-427e-91ff-5d7f10327930"],
+ " is in units of ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"1", "/", "M"}], TraditionalForm]],ExpressionUUID->
+  "1b730213-f38c-491e-9122-6cf3d30cfb11"],
+ ". This is equivalent to using the above equations with ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"M", "=", "1"}], TraditionalForm]],ExpressionUUID->
+  "cc902052-2806-408f-ba4d-3d2fcaaf09e6"],
+ "."
+}], "Text",ExpressionUUID->"eb566ca9-d948-4a7a-8421-86760cfdb953"],
 
 Cell[CellGroupData[{
 
-Cell["Homogeneous solutions", "Section",
- CellChangeTimes->{{3.7678114536819077`*^9, 
-  3.767811457896558*^9}},ExpressionUUID->"b462d2d3-777f-4d7b-9394-\
-b127472c0366"],
+Cell["Load the package", \
+"Section",ExpressionUUID->"f1d40281-9767-4373-bccc-27b82d6db873"],
+
+Cell["Before using the functions we must first load the package:", \
+"Text",ExpressionUUID->"20e819a7-6ade-4f17-9637-28cd94f058f2"],
+
+Cell[BoxData[
+ RowBox[{"<<", "Teukolsky`"}]], "Input",
+ CellLabel->"In[1]:=",ExpressionUUID->"46721f8c-4afa-4aac-b0cf-116b9db62b1f"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Homogeneous solutions", \
+"Section",ExpressionUUID->"b462d2d3-777f-4d7b-9394-b127472c0366"],
+
+Cell[CellGroupData[{
+
+Cell["Computing solutions", \
+"Subsection",ExpressionUUID->"a873fcf1-04e6-48a3-ada7-6885f3c06653"],
 
 Cell[BoxData[GridBox[{
    {"TeukolskyRadial", "TeukolskyRadialFunction"}
@@ -28,26 +150,43 @@ cc8229917a1e"],
 Cell["Functions related to computing homogeneous solutions", \
 "Caption",ExpressionUUID->"ad721812-bdaa-43d1-a407-8413158ece54"],
 
-Cell["\<\
-We start by considering homogeneous solutions to the Teukolsky equation. \
-These are generated using the TeukolskyRadial function. A single homogeneous \
-solution satisfying particular boundary conditions is represented by a \
-TeukolskyRadialFunction. \
-\>", "Text",ExpressionUUID->"794ddac1-22dd-4bc1-8296-818a07dbed04"],
+Cell[TextData[{
+ "We start by considering homogeneous solutions to the Teukolsky equation. \
+First, we choose parameters for the spin-weight ",
+ Cell[BoxData[
+  FormBox["s", TraditionalForm]],ExpressionUUID->
+  "86ae7100-1a46-4f38-b2b4-43fb7b53cbff"],
+ ", spheroidal-harmonic ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"(", 
+    RowBox[{"l", ",", " ", "m", ",", " ", "\[Omega]"}], ")"}], 
+   TraditionalForm]],ExpressionUUID->"1481c58c-e39f-43b8-a95f-280dbb89651d"],
+ " mode and Kerr spin ",
+ Cell[BoxData[
+  FormBox["a", TraditionalForm]],ExpressionUUID->
+  "1530a55e-f697-4dae-97eb-887808d7fe79"],
+ ":"
+}], "Text",ExpressionUUID->"794ddac1-22dd-4bc1-8296-818a07dbed04"],
 
-Cell[BoxData[{
+Cell[BoxData[
  RowBox[{
   RowBox[{"s", "=", 
-   RowBox[{"-", "2"}]}], ";"}], "\[IndentingNewLine]", 
- RowBox[{
-  RowBox[{"l", "=", "2"}], ";"}], "\[IndentingNewLine]", 
- RowBox[{
-  RowBox[{"m", "=", "2"}], ";"}], "\[IndentingNewLine]", 
- RowBox[{
-  RowBox[{"a", "=", "0.3`20"}], ";"}], "\[IndentingNewLine]", 
- RowBox[{
-  RowBox[{"\[Omega]", "=", "0.1`20"}], ";"}]}], "Input",
- CellLabel->"In[2]:=",ExpressionUUID->"090dea4f-0f73-4236-83b6-a21d4a9fc5df"],
+   RowBox[{"-", "2"}]}], ";", 
+  RowBox[{"l", "=", "2"}], ";", 
+  RowBox[{"m", "=", "2"}], ";", 
+  RowBox[{"\[Omega]", "=", "0.1"}], ";", 
+  RowBox[{"a", "=", "0.3"}], 
+  ";"}]], "Input",ExpressionUUID->"090dea4f-0f73-4236-83b6-a21d4a9fc5df"],
+
+Cell[TextData[{
+ "We now obtain solutions to the radial Teukolsky equation with these \
+parameters using the ",
+ ButtonBox["TeukolskyRadial",
+  BaseStyle->"Link",
+  ButtonData->"paclet:Teukolsky/ref/TeukolskyRadial"],
+ " function:"
+}], "Text",ExpressionUUID->"26a366f9-f147-4851-b55a-b27dab2934f7"],
 
 Cell[BoxData[
  RowBox[{"R", "=", 
@@ -56,16 +195,37 @@ Cell[BoxData[
    "]"}]}]], "Input",
  CellLabel->"In[7]:=",ExpressionUUID->"476b098f-b828-444e-9e12-ba592aadba4a"],
 
-Cell["\<\
-As we see from the result above, the default is for TeukolskyRadial to \
-produce a pair of TeukolskyRadialFunctions representing  \
-\[OpenCurlyDoubleQuote]in\[CloseCurlyDoubleQuote] (purely ingoing from past \
-infinity) and \[OpenCurlyDoubleQuote]up\[CloseCurlyDoubleQuote] (purely \
-upgoing from the past horizon) boundary conditions.\
-\>", "Text",ExpressionUUID->"f0948377-829b-4581-ad1c-11a02b746cc9"],
+Cell[TextData[{
+ "A single homogeneous solution satisfying particular boundary conditions is \
+represented by a ",
+ ButtonBox["TeukolskyRadialFunction",
+  BaseStyle->"Link",
+  ButtonData->"paclet:Teukolsky/ref/TeukolskyRadialFunction"],
+ ". As we see from the result above, the default is for ",
+ ButtonBox["TeukolskyRadial",
+  BaseStyle->"Link",
+  ButtonData->"paclet:Teukolsky/ref/TeukolskyRadial"],
+ " to produce a pair of ",
+ ButtonBox["s",
+  BaseStyle->"Link",
+  ButtonData->"paclet:Teukolsky/ref/TeukolskyRadialFunction"],
+ "olutions representing  \[OpenCurlyDoubleQuote]in\[CloseCurlyDoubleQuote] \
+(purely ingoing from past infinity) and \[OpenCurlyDoubleQuote]up\
+\[CloseCurlyDoubleQuote] (purely upgoing from the past horizon) boundary \
+conditions."
+}], "Text",ExpressionUUID->"f0948377-829b-4581-ad1c-11a02b746cc9"],
+
+Cell[CellGroupData[{
+
+Cell["Numerical evaluation", \
+"Subsubsection",ExpressionUUID->"753bc723-9cae-4fa3-8408-778643b70f25"],
 
 Cell[TextData[{
- "A TeukolskyRadialFunction can be treated as a normal ",
+ "A ",
+ ButtonBox["TeukolskyRadialFunction",
+  BaseStyle->"Link",
+  ButtonData->"paclet:Teukolsky/ref/TeukolskyRadialFunction"],
+ " can be treated as a normal ",
  StyleBox["Mathematica",
   FontSlant->"Italic"],
  " function that can be evaluated at any value of the radius. Let\
@@ -73,7 +233,8 @@ Cell[TextData[{
  Cell[BoxData[
   FormBox[
    RowBox[{"r", "=", "10"}], TraditionalForm]],ExpressionUUID->
-  "9ef23c69-b200-4632-91fc-b7fe95ca3292"]
+  "9ef23c69-b200-4632-91fc-b7fe95ca3292"],
+ ":"
 }], "Text",ExpressionUUID->"68d199c3-4d38-4771-9636-cb88f054e177"],
 
 Cell[BoxData[
@@ -82,7 +243,7 @@ Cell[BoxData[
  CellLabel->"In[8]:=",ExpressionUUID->"d2e735e4-2c09-491f-960b-a5aa10dfe9e5"],
 
 Cell["\<\
-We can also compute derivatives in the normal way for functions\
+We can also compute derivatives in the normal way for functions:\
 \>", "Text",ExpressionUUID->"5158ae25-1cba-4869-b427-b736cdd6901a"],
 
 Cell[BoxData[
@@ -91,7 +252,7 @@ Cell[BoxData[
    RowBox[{"R", "[", "\"\<In\>\"", "]"}], "'"}], "[", "10", "]"}]], "Input",
  CellLabel->"In[9]:=",ExpressionUUID->"d7eccf37-3806-4939-a7b9-0e8cd07bfb5e"],
 
-Cell["Higher derivatives are also supported", \
+Cell["Higher derivatives are also supported:", \
 "Text",ExpressionUUID->"e420185c-342e-4fa4-9f05-7e6533258ec2"],
 
 Cell[BoxData[
@@ -107,7 +268,7 @@ Cell[BoxData[
   "]"}]], "Input",
  CellLabel->"In[11]:=",ExpressionUUID->"d9b93c88-af68-4754-8876-25432b3c7617"],
 
-Cell["We can even evaluate on a grid of points", \
+Cell["We can even evaluate on a grid of points:", \
 "Text",ExpressionUUID->"a6be2f31-2ba2-4da1-990f-e74e10bffe41"],
 
 Cell[BoxData[
@@ -123,21 +284,115 @@ Cell[BoxData[
    RowBox[{"R", "[", "\"\<In\>\"", "]"}], "'"}], "[", 
   RowBox[{"{", 
    RowBox[{"10", ",", "11", ",", "12"}], "}"}], "]"}]], "Input",
- CellLabel->"In[13]:=",ExpressionUUID->"343b93d6-d00f-41f5-a863-645fe36512a1"],
+ CellLabel->
+  "In[13]:=",ExpressionUUID->"343b93d6-d00f-41f5-a863-645fe36512a1"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Normalisation convention", \
+"Subsubsection",ExpressionUUID->"d490037a-0154-4439-9f95-329a13e30e8c"],
+
+Cell["\<\
+The homogeneous solutions are normalised such that they have transmission \
+coefficient equal to 1, i.e.\
+\>", "Text",ExpressionUUID->"b69ce055-1c46-492d-a234-f8623e1b58f5"],
 
 Cell[TextData[{
- "Our normalisation convention is that the homogeneous solutions have \
-transmission coefficient equal to 1. We can verify this by plotting the \
-\[OpenCurlyDoubleQuote]up\[CloseCurlyDoubleQuote] solution at large radius, \
-where it should be ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    RowBox[{
+     UnderscriptBox["\[Limit]", 
+      RowBox[{"r", "\[Rule]", 
+       SubscriptBox["r", "+"]}]], 
+     RowBox[{"|", 
+      RowBox[{
+       SuperscriptBox["\[CapitalDelta]", "s"], 
+       RowBox[{
+        SuperscriptBox["R", "in"], "(", "r", ")"}]}], "|"}]}], "=", "1"}], 
+   TraditionalForm]],ExpressionUUID->"ff450687-279e-49b0-b8f7-139e750c14a3"],
+ ",\n",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    RowBox[{
+     UnderscriptBox["\[Limit]", 
+      RowBox[{"r", "\[Rule]", "\[Infinity]"}]], 
+     RowBox[{"|", 
+      RowBox[{
+       SuperscriptBox["r", 
+        RowBox[{
+         RowBox[{"2", "s"}], "+", "1"}]], 
+       RowBox[{
+        SuperscriptBox["R", "up"], "(", "r", ")"}]}], "|"}]}], "=", "1"}], 
+   TraditionalForm]],ExpressionUUID->"894a92ca-b584-4237-aaec-53b377bcf675"],
+ "."
+}], "Text",
+ TextAlignment->-0.5,ExpressionUUID->"dda5c70f-4cda-4b6b-8919-053bc0f70302"],
+
+Cell[TextData[{
+ "We can verify this by plotting the \[OpenCurlyDoubleQuote]up\
+\[CloseCurlyDoubleQuote] solution at large radius. It should have the \
+asymptotic form ",
  Cell[BoxData[
   FormBox[
    RowBox[{"\[TildeEqual]", 
     SuperscriptBox["\[ExponentialE]", 
      RowBox[{"\[ImaginaryI]", " ", "\[Omega]", " ", 
       SubscriptBox["r", "*"]}]]}], TraditionalForm]],ExpressionUUID->
-  "a65b0dc3-b78e-4999-99a6-8c93576df519"]
-}], "Text",ExpressionUUID->"b69ce055-1c46-492d-a234-f8623e1b58f5"],
+  "6b2116a6-d6cb-40d8-9803-25751bd4b7c1"],
+ " where ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    SubscriptBox["r", "*"], " ", "=", 
+    RowBox[{"r", "+", 
+     RowBox[{
+      FractionBox["1", 
+       RowBox[{"2", 
+        SubscriptBox["\[Kappa]", "+"]}]], "ln", " ", 
+      FractionBox[
+       RowBox[{"r", "-", 
+        SubscriptBox["r", "+"]}], 
+       RowBox[{"2", "M"}]]}], "+", 
+     RowBox[{
+      FractionBox["1", 
+       RowBox[{"2", 
+        SubscriptBox["\[Kappa]", "-"]}]], "ln", " ", 
+      FractionBox[
+       RowBox[{"r", "-", 
+        SubscriptBox["r", "-"]}], 
+       RowBox[{"2", "M"}]]}]}]}], TraditionalForm]],ExpressionUUID->
+  "ae1b4ff1-b597-4f56-91e3-bb9c907fe42c"],
+ " is the tortoise coordinate with ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    SubscriptBox["\[Kappa]", "\[PlusMinus]"], "=", 
+    FractionBox[
+     RowBox[{
+      SubscriptBox["r", "\[PlusMinus]"], "-", 
+      SubscriptBox["r", "\[MinusPlus]"]}], 
+     RowBox[{"2", 
+      RowBox[{"(", 
+       RowBox[{
+        SubsuperscriptBox["r", "\[PlusMinus]", "2"], "-", 
+        SuperscriptBox["a", "2"]}], ")"}]}]]}], TraditionalForm]],
+  ExpressionUUID->"35449820-fda9-4b51-9940-ded8f7029865"],
+ " the surface gravity on the outer/inner horizon defined by ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    SubscriptBox["r", "\[PlusMinus]"], "=", 
+    RowBox[{"M", "\[PlusMinus]", 
+     SqrtBox[
+      RowBox[{
+       SuperscriptBox["M", "2"], "-", 
+       SuperscriptBox["a", "2"]}]]}]}], TraditionalForm]],ExpressionUUID->
+  "cce7cb2a-9ac5-48a8-94c2-ffd878c59dc1"],
+ "."
+}], "Text",ExpressionUUID->"ce7215c4-248a-4d7f-b6d4-476de8c8e7e8"],
 
 Cell[BoxData[
  RowBox[{
@@ -147,11 +402,15 @@ Cell[BoxData[
      RowBox[{
       RowBox[{"ReIm", "[", 
        RowBox[{
-        RowBox[{"R", "[", "\"\<Up\>\"", "]"}], "[", "r", "]"}], "]"}], ",", 
+        SuperscriptBox["r", 
+         RowBox[{
+          RowBox[{"2", "s"}], "+", "1"}]], 
+        RowBox[{
+         RowBox[{"R", "[", "\"\<Up\>\"", "]"}], "[", "r", "]"}]}], "]"}], ",", 
       RowBox[{"{", 
        RowBox[{"r", ",", "3000", ",", "3100", ",", "5"}], "}"}]}], "]"}], 
     "]"}]}], ";"}]], "Input",
- CellLabel->"In[14]:=",ExpressionUUID->"0ec28e87-0566-4e71-9ad6-e337f36bc207"],
+ CellLabel->"In[16]:=",ExpressionUUID->"0ec28e87-0566-4e71-9ad6-e337f36bc207"],
 
 Cell[BoxData[{
  RowBox[{
@@ -159,137 +418,126 @@ Cell[BoxData[{
    RowBox[{"1", "+", 
     SqrtBox[
      RowBox[{"1", "-", 
-      SuperscriptBox["a", "2"]}]]}]}], ";"}], "\[IndentingNewLine]", 
- RowBox[{
+      SuperscriptBox["a", "2"]}]]}]}], ";", 
   RowBox[{"rm", "=", 
    RowBox[{"1", "-", 
     SqrtBox[
      RowBox[{"1", "-", 
-      SuperscriptBox["a", "2"]}]]}]}], ";"}]}], "Input",
- CellLabel->"In[15]:=",ExpressionUUID->"9905b839-82da-48e8-9496-7afa9fb91d09"],
+      SuperscriptBox["a", "2"]}]]}]}], ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"rstar", "[", "r_", "]"}], ":=", 
+   RowBox[{"r", "+", 
+    RowBox[{
+     FractionBox[
+      RowBox[{"2", " ", "rp"}], 
+      RowBox[{"rp", "-", "rm"}]], " ", 
+     RowBox[{"Log", "[", 
+      RowBox[{
+       RowBox[{"(", 
+        RowBox[{"r", "-", "rp"}], ")"}], "/", "2"}], "]"}]}], "-", 
+    RowBox[{
+     FractionBox[
+      RowBox[{"2", " ", "rm"}], 
+      RowBox[{"rp", "-", "rm"}]], " ", 
+     RowBox[{"Log", "[", 
+      RowBox[{
+       RowBox[{"(", 
+        RowBox[{"r", "-", "rm"}], ")"}], "/", "2"}], "]"}]}]}]}], 
+  ";"}]}], "Input",
+ CellLabel->"In[21]:=",ExpressionUUID->"9905b839-82da-48e8-9496-7afa9fb91d09"],
 
 Cell[BoxData[
- RowBox[{"Show", "[", 
+ RowBox[{"Show", "[", "\[IndentingNewLine]", 
   RowBox[{
    RowBox[{"ListPlot", "[", 
     RowBox[{"Rdata", ",", 
      RowBox[{"DataRange", "\[Rule]", 
       RowBox[{"{", 
        RowBox[{"3000", ",", "3100"}], "}"}]}]}], "]"}], ",", 
+   "\[IndentingNewLine]", 
    RowBox[{"Plot", "[", 
     RowBox[{
      RowBox[{"Evaluate", "[", 
       RowBox[{"ReIm", "[", 
-       RowBox[{
-        SuperscriptBox["r", 
-         RowBox[{
-          RowBox[{"-", "1"}], "-", 
-          RowBox[{"2", "s"}]}]], 
-        RowBox[{"Exp", "[", 
-         RowBox[{"\[ImaginaryI]", " ", "\[Omega]", " ", 
-          RowBox[{"(", 
-           RowBox[{"r", "+", 
-            RowBox[{
-             FractionBox[
-              RowBox[{"2", " ", "rp"}], 
-              RowBox[{"rp", "-", "rm"}]], " ", 
-             RowBox[{"Log", "[", 
-              RowBox[{
-               RowBox[{"(", 
-                RowBox[{"r", "-", "rp"}], ")"}], "/", "2"}], "]"}]}], "-", 
-            RowBox[{
-             FractionBox[
-              RowBox[{"2", " ", "rm"}], 
-              RowBox[{"rp", "-", "rm"}]], " ", 
-             RowBox[{"Log", "[", 
-              RowBox[{
-               RowBox[{"(", 
-                RowBox[{"r", "-", "rm"}], ")"}], "/", "2"}], "]"}]}]}], 
-           ")"}]}], "]"}]}], "]"}], "]"}], ",", 
+       RowBox[{"Exp", "[", 
+        RowBox[{"\[ImaginaryI]", " ", "\[Omega]", " ", 
+         RowBox[{"rstar", "[", "r", "]"}]}], "]"}], "]"}], "]"}], ",", 
      RowBox[{"{", 
       RowBox[{"r", ",", "3000", ",", "3100"}], "}"}]}], "]"}]}], 
   "]"}]], "Input",
- CellLabel->"In[17]:=",ExpressionUUID->"0fc09dfb-fb40-45b2-a281-7e198c315802"],
+ CellLabel->
+  "In[24]:=",ExpressionUUID->"0fc09dfb-fb40-45b2-a281-7e198c315802"]
+}, Open  ]],
 
-Cell["\<\
-Finally, we can query a TeukolskyRadialFunction about its properties. For \
-example, we can obtain the values of the asymptotic amplitudes (as expected \
-from our normalisation convention, the transmission coefficient is 1)\
-\>", "Text",ExpressionUUID->"ae05093a-398b-4e8d-8a81-a5916af1e816"],
+Cell[CellGroupData[{
 
-Cell[BoxData[
- RowBox[{
-  RowBox[{"R", "[", "\"\<In\>\"", "]"}], "[", "\"\<Amplitudes\>\"", 
-  "]"}]], "Input",
- CellLabel->"In[18]:=",ExpressionUUID->"6c2301e1-7890-4c76-9f69-cd8e13c1a29e"],
+Cell["Properties", \
+"Subsubsection",ExpressionUUID->"ad9e4a53-97c4-42a8-aaec-458fa417310e"],
 
-Cell["The full set of properties are", \
-"Text",ExpressionUUID->"1dcf4b1e-bd9d-49e3-8aa5-d3465cd5053b"],
-
-Cell[BoxData[
- RowBox[{
-  RowBox[{"R", "[", "\"\<In\>\"", "]"}], "[", "\"\<s\>\"", "]"}]], "Input",
- CellLabel->"In[19]:=",ExpressionUUID->"e2c55987-cc48-4cdd-8bd1-6d808e3b7be1"],
-
-Cell[BoxData[
- RowBox[{
-  RowBox[{"R", "[", "\"\<In\>\"", "]"}], "[", "\"\<l\>\"", "]"}]], "Input",
- CellLabel->"In[20]:=",ExpressionUUID->"454cb322-5a9a-47b4-b6d4-796c9d6844b0"],
-
-Cell[BoxData[
- RowBox[{
-  RowBox[{"R", "[", "\"\<In\>\"", "]"}], "[", "\"\<m\>\"", "]"}]], "Input",
- CellLabel->"In[21]:=",ExpressionUUID->"a4605d92-11a9-4e0e-a017-c1d374c0a5d5"],
-
-Cell[BoxData[
- RowBox[{
-  RowBox[{"R", "[", "\"\<In\>\"", "]"}], "[", "\"\<a\>\"", "]"}]], "Input",
- CellLabel->"In[22]:=",ExpressionUUID->"eab63199-a2f2-4686-85cf-d4c89dfad001"],
-
-Cell[BoxData[
- RowBox[{
-  RowBox[{"R", "[", "\"\<In\>\"", "]"}], "[", "\"\<\[Omega]\>\"", 
-  "]"}]], "Input",
- CellLabel->"In[23]:=",ExpressionUUID->"408191a0-7cc7-424c-b418-004d21aa4fec"],
-
-Cell[BoxData[
- RowBox[{
-  RowBox[{"R", "[", "\"\<In\>\"", "]"}], "[", "\"\<Eigenvalue\>\"", 
-  "]"}]], "Input",
- CellLabel->"In[24]:=",ExpressionUUID->"adfdb05c-76cd-49ee-bbbe-97dc9eb4e77a"],
-
-Cell[BoxData[
- RowBox[{
-  RowBox[{"R", "[", "\"\<In\>\"", "]"}], "[", "\"\<Method\>\"", 
-  "]"}]], "Input",
- CellLabel->"In[25]:=",ExpressionUUID->"227a4788-0f06-482e-b0d5-84e41c6762cf"],
-
-Cell[BoxData[
- RowBox[{
-  RowBox[{"R", "[", "\"\<In\>\"", "]"}], "[", "\"\<BoundaryConditions\>\"", 
-  "]"}]], "Input",
- CellLabel->"In[26]:=",ExpressionUUID->"47fa2034-d016-4053-873d-c1d260d86f15"],
+Cell[TextData[{
+ "Finally, we can query a ",
+ ButtonBox["TeukolskyRadialFunction",
+  BaseStyle->"Link",
+  ButtonData->"paclet:Teukolsky/ref/TeukolskyRadialFunction"],
+ " about its properties. For example, we can obtain the values of the \
+asymptotic amplitudes (as expected from our normalisation convention, the \
+transmission coefficient is 1):"
+}], "Text",ExpressionUUID->"ae05093a-398b-4e8d-8a81-a5916af1e816"],
 
 Cell[BoxData[
  RowBox[{
   RowBox[{"R", "[", "\"\<In\>\"", "]"}], "[", "\"\<Amplitudes\>\"", 
   "]"}]], "Input",
- CellLabel->"In[27]:=",ExpressionUUID->"bd25f4f7-9cc9-45b0-9a9d-32528d9cef27"],
+ CellLabel->"In[25]:=",ExpressionUUID->"6c2301e1-7890-4c76-9f69-cd8e13c1a29e"],
+
+Cell[TextData[{
+ "The full set of properties can be obtained using ",
+ ButtonBox["Keys",
+  BaseStyle->"Link",
+  ButtonData->"paclet:ref/Keys"],
+ ":"
+}], "Text",ExpressionUUID->"1dcf4b1e-bd9d-49e3-8aa5-d3465cd5053b"],
+
+Cell[BoxData[
+ RowBox[{"keys", "=", 
+  RowBox[{"Keys", "[", 
+   RowBox[{"R", "[", "\"\<In\>\"", "]"}], "]"}]}]], "Input",
+ CellLabel->"In[26]:=",ExpressionUUID->"927c4a52-dfce-4e41-9952-cd1eebf202eb"],
 
 Cell[BoxData[
  RowBox[{
-  RowBox[{"R", "[", "\"\<In\>\"", "]"}], "[", "\"\<Domain\>\"", 
-  "]"}]], "Input",
- CellLabel->"In[28]:=",ExpressionUUID->"56e63a80-a7bd-4e75-8e71-66e1478db4b5"],
+  RowBox[{"R", "[", "\"\<In\>\"", "]"}], "/@", 
+  RowBox[{"{", 
+   RowBox[{
+   "\"\<s\>\"", ",", "\"\<l\>\"", ",", "\"\<m\>\"", ",", "\"\<a\>\"", ",", 
+    "\"\<\[Omega]\>\""}], 
+   "}"}]}]], "Input",ExpressionUUID->"f41f6020-b9c6-416e-8a7f-9c765dfa90ce"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"R", "[", "\"\<In\>\"", "]"}], "/@", 
+  RowBox[{"{", 
+   RowBox[{
+   "\"\<Eigenvalue\>\"", ",", "\"\<RenormalizedAngularMomentum\>\"", ",", 
+    "\"\<Amplitudes\>\"", ",", "\"\<Method\>\"", ",", 
+    "\"\<BoundaryConditions\>\"", ",", "\"\<Domain\>\""}], 
+   "}"}]}]], "Input",ExpressionUUID->"324046a2-170d-44c3-82bb-3547b8d1ddd9"]
+}, Open  ]]
+}, Open  ]],
 
 Cell[CellGroupData[{
 
 Cell["Options", \
 "Subsection",ExpressionUUID->"9491ff9f-e8a5-4797-9b96-aa54ad1972a9"],
 
-Cell["\<\
-There are a number of options that control the behaviour of TeukolskyRadial\
-\>", "Text",ExpressionUUID->"e95ee2de-fd2d-4147-9a8c-f661117f3059"],
+Cell[TextData[{
+ "There are a number of options that control the behaviour of ",
+ ButtonBox["TeukolskyRadial",
+  BaseStyle->"Link",
+  ButtonData->"paclet:Teukolsky/ref/TeukolskyRadial"],
+ ":"
+}], "Text",ExpressionUUID->"e95ee2de-fd2d-4147-9a8c-f661117f3059"],
 
 Cell[BoxData[
  RowBox[{"Options", "[", "TeukolskyRadial", "]"}]], "Input",
@@ -300,18 +548,22 @@ Cell[CellGroupData[{
 Cell["\[OpenCurlyDoubleQuote]BoundaryConditions\[CloseCurlyDoubleQuote]", \
 "Subsubsection",ExpressionUUID->"eb42d035-d3a2-4c08-a4c6-e9c02af062c8"],
 
-Cell["\<\
-The \[OpenCurlyDoubleQuote]BoundaryConditions\[CloseCurlyDoubleQuote] option \
-controls which solutions are produced. Either a single boundary condition or \
-a List of boundary conditions can be given. When we specify a List we get an \
-Association whereas with a single boundary condition we just get a \
-TeukolskyRadialFuncion.\
-\>", "Text",ExpressionUUID->"1203dba5-f4ba-4534-ad48-2cdcda559479"],
+Cell[TextData[{
+ "The \[OpenCurlyDoubleQuote]BoundaryConditions\[CloseCurlyDoubleQuote] \
+option controls which solutions are produced. Either a single boundary \
+condition or a List of boundary conditions can be given. When we specify a \
+List we get an Association whereas with a single boundary condition we just \
+get a ",
+ ButtonBox["TeukolskyRadialFunction",
+  BaseStyle->"Link",
+  ButtonData->"paclet:Teukolsky/ref/TeukolskyRadialFunction"],
+ "."
+}], "Text",ExpressionUUID->"1203dba5-f4ba-4534-ad48-2cdcda559479"],
 
 Cell["\<\
 We now generate a single homogeneous solution by specifying that we want it \
 to satisfy \[OpenCurlyDoubleQuote]in\[CloseCurlyDoubleQuote] boundary \
-conditions\
+conditions:\
 \>", "Text",ExpressionUUID->"1587990a-1b9e-4144-b643-5e5443cb2dca"],
 
 Cell[BoxData[
@@ -338,10 +590,8 @@ In most cases, all three methods produce identical results.\
 
 Cell[CellGroupData[{
 
-Cell["\<\
-WorkingPrecision, PrecisionGoal and AccuracyGoal precision and accuracy goals \
-can be set\
-\>", "Subsubsection",ExpressionUUID->"ccf57ec1-b897-4393-8825-04bae582b133"],
+Cell["WorkingPrecision, PrecisionGoal and AccuracyGoal", \
+"Subsubsection",ExpressionUUID->"ccf57ec1-b897-4393-8825-04bae582b133"],
 
 Cell[TextData[{
  "The WorkingPrecision, PrecisionGoal and AccuracyGoal options behave much as \
@@ -351,8 +601,7 @@ they do for other ",
  " functions. By default, WorkingPrecision will match the precision of the \
 input value of ",
  Cell[BoxData[
-  FormBox["a", TraditionalForm]],
-  FormatType->"TraditionalForm",ExpressionUUID->
+  FormBox["a", TraditionalForm]],ExpressionUUID->
   "3d61d170-04bb-4d33-9d06-f47cdcf8cdea"],
  " and \[Omega], while PrecisionGoal and AccuracyGoal will be equal to \
 WorkingPrecision/2."
@@ -399,20 +648,22 @@ Cell["Methods", \
 "Section",ExpressionUUID->"5828fc03-b10a-4c90-9bd7-1ce587d266ae"],
 
 Cell["\<\
-There is currently three supported methods for computing homogeneous \
-solutions: MST, NumericalIntegration and HeunC. The MST method is the default \
-and can produce highly accurate results, but often needs to work beyond \
-machine precision. The NumericalIntegration method can produce fast results \
-on a grid of points, but is not always as accurate as the MST method. The \
-HeunC method uses the new HeunC function included in Mathematica 12.1, but \
-only currently supports computing solutions satisfying \
-\[OpenCurlyDoubleQuote]in\[CloseCurlyDoubleQuote] boundary conditions. It is \
-often fast, but fails to produce accurate (or even correct) results in some \
-cases.\
+There are currently three supported methods for computing homogeneous \
+solutions: MST, NumericalIntegration and HeunC. The MST method can produce \
+highly accurate results, but often needs to work beyond machine precision. \
+The NumericalIntegration method can produce fast results on a grid of points, \
+but is not always as accurate as the MST method. The HeunC method uses the \
+new HeunC function included in Mathematica 12.1, but only currently supports \
+computing solutions satisfying \[OpenCurlyDoubleQuote]in\
+\[CloseCurlyDoubleQuote] boundary conditions. It is often fast, but fails to \
+produce accurate (or even correct) results in some cases. In most cases, all \
+three methods produce consistent numerical results.\
 \>", "Text",ExpressionUUID->"c1e296c9-3753-432e-9f5d-f6978c6ed7b0"],
 
 Cell["\<\
-In most cases, all three methods produce consistent numerical results.\
+If a Method is not specified or is set to Automatic, then the \
+NumericalIntegration method will be used for machine precision calculations \
+and the MST method will be used for non-machine precision calculations. \
 \>", "Text",ExpressionUUID->"144df0aa-25fc-46e7-b1cd-94313a27ad2f"],
 
 Cell[CellGroupData[{
@@ -428,25 +679,15 @@ convergent series of hypergeometric functions, (see ",
   ButtonData->{
     URL["https://doi.org/10.12942/lrr-2003-6"], None},
   ButtonNote->"https://doi.org/10.12942/lrr-2003-6"],
- " for details). The MST method is the default, but can also be specified \
-using the Method -> \[OpenCurlyDoubleQuote]MST\[CloseCurlyDoubleQuote] \
-option. The method has a single sub-option \
-\[OpenCurlyDoubleQuote]RenormalizedAngularMomentum\[CloseCurlyDoubleQuote], \
-which is passed as the Method option to RenormalizedAngularMomentum. The \
-default options are equivalent to the following:"
+ " for details). The MST method can be specified using the Method -> \
+\[OpenCurlyDoubleQuote]MST\[CloseCurlyDoubleQuote] option. The method has a \
+single sub-option \[OpenCurlyDoubleQuote]RenormalizedAngularMomentum\
+\[CloseCurlyDoubleQuote], which is passed as the Method option to the ",
+ ButtonBox["RenormalizedAngularMomentum",
+  BaseStyle->"Link",
+  ButtonData->"paclet:Teukolsky/ref/RenormalizedAngularMomentum"],
+ " function."
 }], "Text",ExpressionUUID->"656d7c55-344c-4755-a3bb-e44b6795bdf2"],
-
-Cell[BoxData[
- RowBox[{"R", "==", 
-  RowBox[{"TeukolskyRadial", "[", 
-   RowBox[{"s", ",", "l", ",", "m", ",", "a", ",", "\[Omega]", ",", 
-    RowBox[{"Method", "\[Rule]", 
-     RowBox[{"{", 
-      RowBox[{"\"\<MST\>\"", ",", 
-       RowBox[{
-       "\"\<RenormalizedAngularMomentum\>\"", "\[Rule]", 
-        "\"\<Monodromy\>\""}]}], "}"}]}]}], "]"}]}]], "Input",
- CellLabel->"In[37]:=",ExpressionUUID->"b1553a73-52ad-423e-978e-5475d6c6be30"],
 
 Cell[CellGroupData[{
 
@@ -466,7 +707,8 @@ Cell[TextData[{
  Cell[BoxData[
   FormBox["\[Nu]", TraditionalForm]],ExpressionUUID->
   "a396ba19-5a47-44f4-8bf8-c591b92180ec"],
- ",  is central to the MST method."
+ ",  is central to the MST method. For sufficiently low frequencies it is \
+real:"
 }], "Text",ExpressionUUID->"23d4df93-17d9-4b72-808b-cd01f9a38199"],
 
 Cell[BoxData[
@@ -476,8 +718,8 @@ Cell[BoxData[
  CellLabel->"In[38]:=",ExpressionUUID->"a7e3a7b1-07a2-4eb2-9ff2-1c29ea1f02e0"],
 
 Cell["\<\
-The renormalized angular momentum is in general complex. If we plot it, its \
-real and imaginary parts appear to have an interesting structure.\
+but in general it is complex. If we plot it, its real and imaginary parts \
+appear to have an interesting structure:\
 \>", "Text",ExpressionUUID->"81b4e7f3-c646-4fdf-bd9e-4be3c9a4dc40"],
 
 Cell[BoxData[
@@ -501,7 +743,7 @@ Cell[TextData[{
    RowBox[{"cos", "(", 
     RowBox[{"2", "\[Pi]\[Nu]"}], ")"}], TraditionalForm]],ExpressionUUID->
   "49ce5a1b-0991-4ada-aa2b-bb05bd57ef72"],
- " is real and sometimes goes outside the range [-1,1]"
+ " is real and sometimes goes outside the range [-1,1]:"
 }], "Text",ExpressionUUID->"4d9b9776-7831-4a9a-89f0-c8829a004f39"],
 
 Cell[BoxData[
@@ -535,14 +777,12 @@ Cell["NumericalIntegration method", \
 Cell["\<\
 The NumericalIntegration method uses numerical differential equation solving \
 (NDSolve) to compute solutions of the radial Teukolsky equation. It uses \
-hyperboloidal slicing to maintain high accuracy and avoid typical problems \
-associated with the long-range potential in the Teukolsky equation. The \
-NumericalIntegration method can be specified using an option of the form \
-Method \[Rule] {\[OpenCurlyDoubleQuote]NumericalIntegration\
-\[CloseCurlyDoubleQuote], \[OpenCurlyDoubleQuote]Domain\
-\[CloseCurlyDoubleQuote] \[Rule] ...}.  There should be one numerical domain \
-specified for each solution (satisfying a given boundary condition). For \
-example,\
+hyperboloidal slicing to maintain high accuracy. The NumericalIntegration \
+method can be specified using an option of the form Method \[Rule] {\
+\[OpenCurlyDoubleQuote]NumericalIntegration\[CloseCurlyDoubleQuote], \
+\[OpenCurlyDoubleQuote]Domain\[CloseCurlyDoubleQuote] \[Rule] ...}.  There \
+should be one numerical domain specified for each solution (satisfying a \
+given boundary condition). For example,\
 \>", "Text",ExpressionUUID->"885cdd7c-2141-43b7-b476-bb8dfb3abfd4"],
 
 Cell[BoxData[
@@ -562,6 +802,8 @@ Cell[BoxData[
            RowBox[{"4", ",", "16"}], "}"}]}]}], "}"}]}]}], "}"}]}]}], 
   "]"}]], "Input",ExpressionUUID->"042bb969-a920-4423-b7d4-5a1bc178b9a2"],
 
+Cell["or", "Text",ExpressionUUID->"c3b21dea-4353-4eff-a511-2bc560a6678b"],
+
 Cell[BoxData[
  RowBox[{"R", "=", 
   RowBox[{"TeukolskyRadial", "[", 
@@ -577,7 +819,7 @@ Cell[BoxData[
 
 Cell["\<\
 Once a TeukolskyRadialFunction is constructed using the NumericalIntegration \
-method, it can be efficiently evaluated on a grid of points.\
+method, it can be efficiently evaluated on a grid of points:\
 \>", "Text",ExpressionUUID->"24051fc7-bd4b-4cfc-98b2-f814b3335c17"],
 
 Cell[BoxData[
@@ -596,7 +838,7 @@ Cell["HeunC method", \
 "Subsection",ExpressionUUID->"a17c5b4d-cba0-4277-af1d-c6038d0efce1"],
 
 Cell["\<\
-The HeunC method uses Mathematica\[CloseCurlyQuote]s built-in HeunC method \
+The HeunC method uses Mathematica\[CloseCurlyQuote]s built-in HeunC function \
 (available since version 12.1) to compute solutions of the radial Teukolsky \
 equation. It is reasonably fast and accurate in many instances and is as \
 reliable as the HeunC function itself (which works in many, but not all cases \
@@ -630,35 +872,43 @@ Cell["Functions related to the MST method", \
 Cell["\<\
 Inhomogeneous solutions to the Teukolsky equation can be obtained by \
 variation of parameters, integrating the homogeneous solutions against a \
-source. In practice, this is rarely done by direct integration. Instead, \
+source. In practice, this is rarely done by direct integration; instead, \
 efficient methods are developed on a case-by-case basis.\
 \>", "Text",ExpressionUUID->"1d92682b-1190-44b6-962a-8f177eaa5371"],
 
 Cell[TextData[{
- "Inhomogeneous solutions are represented by a TeukolskyMode, which stores \
-information about the radial functions, angular functions and normalisation \
-coefficients. So far, the cases of a point mass (",
+ "Inhomogeneous solutions are represented by a ",
+ ButtonBox["TeukolskyMode",
+  BaseStyle->"Link",
+  ButtonData->"paclet:Teukolsky/ref/TeukolskyMode"],
+ ", which stores information about the radial functions, angular functions \
+and normalisation coefficients. The ",
+ ButtonBox["TeukolskyPointParticleMode",
+  BaseStyle->"Link",
+  ButtonData->"paclet:Teukolsky/ref/TeukolskyPointParticleMode"],
+ " function can be  used to create a ",
+ ButtonBox["TeukolskyMode",
+  BaseStyle->"Link",
+  ButtonData->"paclet:Teukolsky/ref/TeukolskyMode"],
+ " representing  a point mass (",
  Cell[BoxData[
   FormBox[
    RowBox[{"s", "=", 
-    RowBox[{"-", "2"}]}], TraditionalForm]],
-  FormatType->"TraditionalForm",ExpressionUUID->
+    RowBox[{"\[PlusMinus]", "2"}]}], TraditionalForm]],ExpressionUUID->
   "4cb9ce27-35d1-4db5-b4ca-d5ea2eaeeac1"],
  "), electric (",
  Cell[BoxData[
   FormBox[
    RowBox[{"s", "=", 
-    RowBox[{"-", "1"}]}], TraditionalForm]],
-  FormatType->"TraditionalForm",ExpressionUUID->
+    RowBox[{"\[PlusMinus]", "1"}]}], TraditionalForm]],ExpressionUUID->
   "89bd8f07-4ab3-4b25-85d2-e37fce988e96"],
  ") or scalar (",
  Cell[BoxData[
   FormBox[
-   RowBox[{"s", "=", "0"}], TraditionalForm]],
-  FormatType->"TraditionalForm",ExpressionUUID->
+   RowBox[{"s", "=", "0"}], TraditionalForm]],ExpressionUUID->
   "42be6123-ae11-43dc-82c5-1c29d3cb5399"],
- ") charge on a circular, equatorial orbit is supported directly, although \
-the framework exists for supporting any inhomogeneous solution of interest."
+ ") charge on a generic bound orbit of Kerr spacetime. The framework exists \
+for supporting other inhomogeneous solutions of interest."
 }], "Text",ExpressionUUID->"3fef7646-5790-4269-b967-bf489803f397"],
 
 Cell[CellGroupData[{
@@ -680,7 +930,28 @@ circular orbit of radius ",
    RowBox[{
     SubscriptBox["r", "0"], "=", "10"}], TraditionalForm]],ExpressionUUID->
   "93d3e902-f7ab-4608-aabd-8db3c9fd8da4"],
- "M in Kerr spacetime with a=0.5 and compute the s=2, l=2, m=2 mode"
+ "M in Kerr spacetime with ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"a", "=", "0.5"}], TraditionalForm]],
+  FormatType->TraditionalForm,ExpressionUUID->
+  "240d8dd7-e3da-4b45-8774-3b192a73e194"],
+ " and compute the  ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"s", "=", "2"}], TraditionalForm]],ExpressionUUID->
+  "0e446ecb-2eb8-4baf-9769-a4478a56e1b9"],
+ ", ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"l", "=", "2"}], TraditionalForm]],ExpressionUUID->
+  "0e4c8c37-6e9d-46f6-ba2c-2c81b98ed059"],
+ ", ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"m", "=", "2"}], TraditionalForm]],ExpressionUUID->
+  "48d70f88-d948-4492-b7b7-fad9d6d01506"],
+ "  mode:"
 }], "Text",ExpressionUUID->"0448923f-e4cd-4cf7-88b5-3a7296760929"],
 
 Cell[BoxData[
@@ -688,8 +959,8 @@ Cell[BoxData[
   RowBox[{
    RowBox[{"{", 
     RowBox[{
-     RowBox[{"a", "=", "0.5`32"}], ",", 
-     RowBox[{"r0", "=", "10.`32"}], ",", 
+     RowBox[{"a", "=", "0.5"}], ",", 
+     RowBox[{"r0", "=", "10.0"}], ",", 
      RowBox[{"e", "=", "0"}], ",", 
      RowBox[{"x", "=", "1"}], ",", " ", 
      RowBox[{"s", "=", 
@@ -706,8 +977,8 @@ Cell[BoxData[
     RowBox[{"mode", "=", 
      RowBox[{"TeukolskyPointParticleMode", "[", 
       RowBox[{"s", ",", "l", ",", "m", ",", "n", ",", "k", ",", "orbit"}], 
-      "]"}]}]}]}], "\[IndentingNewLine]", "]"}]], "Input",
- CellLabel->"In[46]:=",ExpressionUUID->"a811586d-cd0c-4360-847e-b7907b02d2c2"],
+      "]"}]}]}]}], "\[IndentingNewLine]", 
+  "]"}]], "Input",ExpressionUUID->"a811586d-cd0c-4360-847e-b7907b02d2c2"],
 
 Cell["\<\
 This has computed the asymptotic amplitudes at the horizon and infinity. We \
@@ -748,8 +1019,8 @@ Cell["Fluxes of energy and angular momentum", \
 "Subsection",ExpressionUUID->"b79840f2-23f6-44d2-93bf-2569dc8be8a6"],
 
 Cell["\<\
-It is often of physical interest to know the fluxes of energy an angular \
-momentum in a given mode. These can be accessed as properties of the mode\
+It is often of physical interest to know the fluxes of energy and angular \
+momentum from a given mode. These can be accessed as properties of the mode:\
 \>", "Text",ExpressionUUID->"509b9033-4b05-477d-b0bf-3de1c1f78ee0"],
 
 Cell[BoxData[
@@ -769,13 +1040,13 @@ Cell[BoxData[
 }, Open  ]]
 },
 Saveable->True,
-WindowSize->{967, 967},
-WindowMargins->{{Automatic, 295}, {Automatic, 0}},
+WindowSize->{Full, Full},
+WindowMargins->{{Automatic, 22}, {Automatic, 0}},
 PrivateNotebookOptions->{"FileOutlineCache"->False,
 "VersionedStylesheet"->{"Default.nb"[8.] -> False}},
 ShowSelection->True,
 TrackCellChangeTimes->False,
-FrontEndVersion->"10.2 for Mac OS X x86 (64-bit) (July 14, 2015)",
+FrontEndVersion->"13.1 for Mac OS X x86 (64-bit) (June 16, 2022)",
 StyleDefinitions->"Default.nb",
 ExpressionUUID->"1d88c5c6-87dc-4686-8a84-a178aa78dbcb"
 ]
