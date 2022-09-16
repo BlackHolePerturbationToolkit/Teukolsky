@@ -1,6 +1,6 @@
 Paclet[
   "Name" -> "Teukolsky",
-  "Version" -> "0.3.0",
+  "Version" -> "1.0.0",
   "MathematicaVersion" -> "10.2+",
   "Creator" -> "Black Hole Perturbation Toolkit",
   "Description" -> "A set of functions for computing solutions to the Teukolsky equation.",
