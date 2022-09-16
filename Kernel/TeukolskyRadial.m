@@ -557,6 +557,9 @@ TeukolskyRadialFunction[s_, l_, m_, a_, \[Omega]_, assoc_][y_String] /; !MemberQ
   assoc[y];
 
 
+Keys[m_TeukolskyRadialFunction] ^:= Join[Keys[m[[-1]]], {}];
+
+
 (* ::Subsection::Closed:: *)
 (*Numerical evaluation*)
 
