@@ -4,7 +4,7 @@
 (*SasakiNakamura*)
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Create Package*)
 
 
@@ -15,18 +15,76 @@
 BeginPackage["Teukolsky`SasakiNakamura`"];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Begin Private section*)
 
 
 Begin["`Private`"];
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Radial solutions*)
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
+(*Teukolsky Boundary conditions*)
+
+
+BCsTeukolskyUp[ \[Lambda]_, m_, a_, \[Omega]_][rim_]:=Module[{M=1,rl,R,dR, d2R,Teuk,j,recur,OuterBC,c,c0,rstar,rm,rp},
+c0=-12I \[Omega] M+\[Lambda](\[Lambda]+2)-12 a \[Omega](a \[Omega]-m);
+rp=M+Sqrt[M^2-a^2];
+rm=M-Sqrt[M^2-a^2];
+rstar[r_]:=r+(2M rp)/(rp-rm) Log[(r-rp)/(2M)]-(2M rm)/(rp-rm) Log[(r-rm)/(2M)];
+OuterBC:=Sum[c[3-j]*(\[Omega]*rl)^(3-j),{j,0,23}]*Exp[I*\[Omega]*rstar[rl]];
+R=OuterBC;
+dR=D[R,rl];
+d2R=D[dR,rl];
+Teuk=Numerator[Together[Exp[-I*\[Omega]*rstar[rl]]*TeukolskyRadialEquation[-2, \[Lambda], m, a, \[Omega], rl, {R, dR, d2R}]]];
+c[3]=-4/\[Omega]/c0;
+For[j=1,j<=23,j++,
+recur=c[3-j]/.Solve[Coefficient[Teuk,rl,32-j]==0,c[3-j]];
+c[3-j]=recur;
+];
+R/.rl->rim];
+BCsTeukolskyIn[ \[Lambda]_, m_, a_, \[Omega]_][rim_]:=Module[{M=1,rl,R,dR, d2R,Teuk,j,recur,InnerBc,d,rstar,rm,rp,\[Omega]p,\[CapitalDelta],xl,c},
+rp=M+Sqrt[M^2-a^2];
+rm=M-Sqrt[M^2-a^2];
+d=Sqrt[2M*rp]*((8-24I*M*\[Omega]-16M^2*\[Omega]^2)*rp^2+(12I*a*m-16M+16a*m*M*\[Omega]+24I*M^2*\[Omega])*rp-4a^2*m^2-12I*a*m*M+8*M^2);
+\[Omega]p=a/2/M/rp;
+\[CapitalDelta]=(xl+rp)^2 - 2M *(xl+rp) + a^2;
+rstar[r_]:=r+(2M rp)/(rp-rm) Log[(r-rp)/(2M)]-(2M rm)/(rp-rm) Log[(r-rm)/(2M)];
+InnerBc:=\[CapitalDelta]^2*(Sum[c[j]*(xl)^j,{j,0,20}])*Exp[-I*(\[Omega]-m*\[Omega]p)*rstar[xl+rp]];
+R=InnerBc;
+dR=D[R,xl];
+d2R=D[dR,xl];
+c[0]=1/d;
+Teuk=Numerator[Together[Exp[I*(\[Omega]-m*\[Omega]p)*rstar[xl+rp]]*TeukolskyRadialEquation[-2, \[Lambda], m, a, \[Omega], rp+xl, {R, dR, d2R}]]];
+For[j=1,j<=20,j++,
+recur=c[j]/.Solve[Coefficient[Teuk,xl,j+1]==0,c[j]];
+c[j]=recur;
+];
+R/.xl->rim-rp]
+
+
+
+(* ::Subsection:: *)
+(*Convert Teukolsky BCs to Sasaki-Nakamura BCs*)
+
+
+SNBCs[\[Lambda]_, m_, a_, \[Omega]_, rim_,UpIn_?StringQ]:=Module[{M=1,X,dX,R,dR,RBC,rl,\[Alpha],\[Beta],\[CapitalDelta],K},
+K=(rl^2+a^2)\[Omega]-m a;
+\[CapitalDelta]=rl^2-2M rl +a^2;
+\[Beta]=2 \[CapitalDelta](-I K+rl-M-2 \[CapitalDelta]/rl);
+\[Alpha]=-I K \[Beta]/\[CapitalDelta]^2+3 I D[K,rl]+\[Lambda]+6 \[CapitalDelta]/rl^2;
+If[UpIn=="Up",RBC=BCsTeukolskyUp[ \[Lambda], m, a, \[Omega]]];
+If[UpIn=="In",RBC=BCsTeukolskyIn[ \[Lambda], m, a, \[Omega]]];
+dR=D[RBC,rl];
+X=Chop[Simplify[(\[Alpha] *RBC[rl]+\[Beta]/\[CapitalDelta] *RBC'[rl])*Sqrt[rl^2+a^2]/\[CapitalDelta]]];
+dX=D[X,rl];
+{X,dX}/.{rl->rim}]
+
+
+(* ::Subsection:: *)
 (*Boundary Conditions*)
 
 
@@ -48,12 +106,12 @@ OuterBCs[\[Lambda]_, m_, a_, \[Omega]_, rout_]:=Module[{M=1,recur,k,j,rp,rm,rs,X
   rs[r_]=r+(2M rp)/(rp-rm) Log[(r-rp)/(2M)]-(2M rm)/(rp-rm) Log[(r-rm)/(2M)];
   X[r_]:=Exp[I \[Omega] rs[r]]Sum[c[j](\[Omega] r)^-j,{j,0,20}];
 
-  {X[r], X'[r], X''[r]}/.r->rout
+  {X[r], X'[r], X''[r]}/.r->rout]
  
- ]
+ 
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Teukolsky equation*)
 
 
@@ -67,7 +125,7 @@ TeukolskyRadialEquation[s_, \[Lambda]_, m_, a_, \[Omega]_, r1_, {R_, dR_, d2R_}]
 ]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Sasaki-Nakamura equation for s=-2*)
 
 
@@ -100,7 +158,7 @@ f^2 d2X + f(D[f,r]-F)dX - U X/.r->r1
 ]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Numerical integration of Up solutions*)
 
 
@@ -111,10 +169,23 @@ SasakiNakamuraRadialUp[a_?NumericQ, \[Lambda]_?NumericQ, m_?NumericQ, \[Omega]_?
  XUp = X/.NDSolve[{SasakiNakamuraEquation[\[Lambda], m, a, \[Omega], r, {X[r],X'[r],X''[r]}]==0, X[rout]==outBC[[1]], X'[rout]==outBC[[2]]}, X, {r, rout, r1}][[1,1]];
   
  XUp 
-]
+];
+
+SasakiNakamuraRadialNew[a_?NumericQ, \[Lambda]_?NumericQ, m_?NumericQ, \[Omega]_?NumericQ, r1_?NumericQ,UpIn_?StringQ] := Module[{M=1, r, rbound, BCs, Xres},
+If[UpIn=="Up", 
+rbound=1000;
+BCs = SNBCs[\[Lambda], m, a, \[Omega], rbound,"Up"];
+Xres = X/.NDSolve[{SasakiNakamuraEquation[\[Lambda], m, a, \[Omega], r, {X[r],X'[r],X''[r]}]==0, X[rbound]==BCs[[1]], X'[rbound]==BCs[[2]]}, X, {r, rbound, r1}][[1,1]];
+];
+If[UpIn=="In", 
+rbound=1+Sqrt[1-a^2]+10^-2;
+BCs = SNBCs[\[Lambda], m, a, \[Omega], rbound,"In"];
+Xres = X/.NDSolve[{SasakiNakamuraEquation[\[Lambda], m, a, \[Omega], r, {X[r],X'[r],X''[r]}]==0, X[rbound]==BCs[[1]], X'[rbound]==BCs[[2]]}, X, {r, r1, rbound}][[1,1]];];
+ Xres
+];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Convert Sasaki-Nakamura back to Teukolsky variables*)
 
 
@@ -148,9 +219,43 @@ K=(r^2+a^2)\[Omega]-m a;
  {Rup, D[Rup,r]}/.{r->r1, X[r]->XUp[r1], X'[r] -> XUp'[r1], X''[r] -> XUp''[r1]}
  
  ]
+ 
+ TeukolskyRadialnew[-2, \[Lambda]_?NumericQ, m_?IntegerQ, a_?NumericQ, \[Omega]_?NumericQ,UpIn_?StringQ][r1_?NumericQ]:=Module[{M=1, r, \[Chi]m, X, XSN, Rres, c0, c1, c2, c3 ,c4, K, \[Eta], \[CapitalDelta], \[Alpha], \[Beta], \[Chi]},
+
+If[UpIn=="Up", 
+XSN = SasakiNakamuraRadialNew[a, \[Lambda], m, \[Omega], r1,"Up"];
+];
+If[UpIn=="In", 
+XSN = SasakiNakamuraRadialNew[a, \[Lambda], m, \[Omega], r1,"In"];
+];
+
+\[CapitalDelta]=r^2-2M r +a^2;
 
 
-(* ::Section::Closed:: *)
+c0 = -12I \[Omega] M+\[Lambda](\[Lambda]+2)-12 a \[Omega](a \[Omega]-m);
+c1 = 8I a(3a \[Omega]-\[Lambda](a \[Omega]-m));
+c2 = -24I a M(a \[Omega]-m)+12a^2 (1-2(a \[Omega]-m)^2);
+c3 = 24I a^3 (a \[Omega]-m)-24 M a^2;
+c4 = 12a^4;
+
+K=(r^2+a^2)\[Omega]-m a;
+
+\[Eta] = c0+c1/r+c2/r^2+c3/r^3+c4/r^4; 
+
+\[Beta] = 2 \[CapitalDelta](-I K+r-M-2 \[CapitalDelta]/r);
+\[Alpha] = -I K \[Beta]/\[CapitalDelta]^2+3 I D[K,r] + \[Lambda] + 6 \[CapitalDelta]/r^2;
+ 
+ 
+ \[Chi] = (XSN[r]\[CapitalDelta])/Sqrt[r^2+a^2];
+ 
+ Rres = Chop[Simplify[N[1/\[Eta] ((\[Alpha] + D[\[Beta],r]/\[CapitalDelta])\[Chi] - \[Beta]/\[CapitalDelta] D[\[Chi],r]),50]]];
+
+ {Rres, D[Rres,r]}/.{r->r1}
+ 
+ ]
+
+
+(* ::Section:: *)
 (*End Package*)
 
 
