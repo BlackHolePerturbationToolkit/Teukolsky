@@ -79,7 +79,7 @@ K=(rl^2+a^2)\[Omega]-m a;
 If[UpIn=="Up",RBC=BCsTeukolskyUp[ \[Lambda], m, a, \[Omega]]];
 If[UpIn=="In",RBC=BCsTeukolskyIn[ \[Lambda], m, a, \[Omega]]];
 dR=D[RBC,rl];
-X=Chop[Simplify[(\[Alpha] *RBC[rl]+\[Beta]/\[CapitalDelta] *RBC'[rl])*Sqrt[rl^2+a^2]/\[CapitalDelta]]];
+X=Chop[(\[Alpha] *RBC[rl]+\[Beta]/\[CapitalDelta] *RBC'[rl])*Sqrt[rl^2+a^2]/\[CapitalDelta]];
 dX=D[X,rl];
 {X,dX}/.{rl->rim}]
 
@@ -246,11 +246,11 @@ K=(r^2+a^2)\[Omega]-m a;
 \[Alpha] = -I K \[Beta]/\[CapitalDelta]^2+3 I D[K,r] + \[Lambda] + 6 \[CapitalDelta]/r^2;
  
  
- \[Chi] = (XSN[r]\[CapitalDelta])/Sqrt[r^2+a^2];
+ \[Chi] = (X[r]\[CapitalDelta])/Sqrt[r^2+a^2];
  
- Rres = Chop[Simplify[N[1/\[Eta] ((\[Alpha] + D[\[Beta],r]/\[CapitalDelta])\[Chi] - \[Beta]/\[CapitalDelta] D[\[Chi],r]),50]]];
+ Rres = 1/\[Eta] ((\[Alpha] + D[\[Beta],r]/\[CapitalDelta])\[Chi] - \[Beta]/\[CapitalDelta] D[\[Chi],r]);
 
- {Rres, D[Rres,r]}/.{r->r1}
+ {Rres, D[Rres,r]}/.{r->r1, X[r]->XSN[r1], X'[r] -> XSN'[r1], X''[r] -> XSN''[r1]}
  
  ]
 
