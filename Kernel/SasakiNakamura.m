@@ -40,7 +40,8 @@ R=OuterBC;
 dR=D[R,rl];
 d2R=D[dR,rl];
 Teuk=Numerator[Together[Exp[-I*\[Omega]*rstar[rl]]*TeukolskyRadialEquation[-2, \[Lambda], m, a, \[Omega], rl, {R, dR, d2R}]]];
-c[3]=-4/\[Omega]/c0;
+(*c[3]=-4/\[Omega]/c0;*)
+c[3]=1/\[Omega]^3;
 For[j=1,j<=23,j++,
 recur=c[3-j]/.Solve[Coefficient[Teuk,rl,32-j]==0,c[3-j]];
 c[3-j]=recur;
@@ -57,7 +58,8 @@ InnerBc:=\[CapitalDelta]^2*(Sum[c[j]*(xl)^j,{j,0,20}])*Exp[-I*(\[Omega]-m*\[Omeg
 R=InnerBc;
 dR=D[R,xl];
 d2R=D[dR,xl];
-c[0]=1/d;
+(*c[0]=1/d;*)
+c[0]=1;
 Teuk=Numerator[Together[Exp[I*(\[Omega]-m*\[Omega]p)*rstar[xl+rp]]*TeukolskyRadialEquation[-2, \[Lambda], m, a, \[Omega], rp+xl, {R, dR, d2R}]]];
 For[j=1,j<=20,j++,
 recur=c[j]/.Solve[Coefficient[Teuk,xl,j+1]==0,c[j]];
