@@ -45,7 +45,7 @@ c[3]=1/\[Omega]^3;
 order=40;
 While[NumericQ[Coefficient[Teuk,rl,  order]]==True,order--];
 For[j=0,j<=22,j++,
-recur=c[2-j]/.Solve[Coefficient[Teuk,rl,order-j]==0,c[2-j]];
+recur=c[2-j]/.Solve[Coefficient[Teuk,rl,order-j]==0,c[2-j],WorkingPrecision->MachinePrecision];
 c[2-j]=recur;
 ];
 R/.rl->rim];
@@ -67,7 +67,7 @@ order=-3;
 While[NumericQ[Coefficient[Teuk,xl,  order]]==True,order++];
 For[j=1,j<=20,j++,
 (*Print[Coefficient[Teuk,xl,order-1+j]==0,c[j]];*)
-recur=c[j]/.Solve[Coefficient[Teuk,xl,order-1+j]==0,c[j]];
+recur=c[j]/.Solve[Coefficient[Teuk,xl,order-1+j]==0,c[j],WorkingPrecision->MachinePrecision];
 c[j]=recur;
 ];
 R/.xl->rim-rp]
