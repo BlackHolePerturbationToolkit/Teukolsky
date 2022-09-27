@@ -30,7 +30,7 @@ Begin["`Private`"];
 (*Teukolsky Boundary conditions*)
 
 
-BCsTeukolskyUp[ \[Lambda]_, m_, a_, \[Omega]_][rim_]:=Module[{M=1,rl,R,dR, d2R,Teuk,j,recur,OuterBC,c,c0,rstar,rm,rp},
+BCsTeukolskyUp[ \[Lambda]_, m_, a_, \[Omega]_][rim_]:=Module[{M=1,rl,R,dR, d2R,Teuk,j,order,recur,OuterBC,c,c0,rstar,rm,rp},
 c0=-12I \[Omega] M+\[Lambda](\[Lambda]+2)-12 a \[Omega](a \[Omega]-m);
 rp=M+Sqrt[M^2-a^2];
 rm=M-Sqrt[M^2-a^2];
@@ -42,12 +42,14 @@ d2R=D[dR,rl];
 Teuk=Numerator[Together[Exp[-I*\[Omega]*rstar[rl]]*TeukolskyRadialEquation[-2, \[Lambda], m, a, \[Omega], rl, {R, dR, d2R}]]];
 (*c[3]=-4/\[Omega]/c0;*)
 c[3]=1/\[Omega]^3;
-For[j=1,j<=23,j++,
-recur=c[3-j]/.Solve[Coefficient[Teuk,rl,32-j]==0,c[3-j]];
-c[3-j]=recur;
+order=40;
+While[NumericQ[Coefficient[Teuk,rl,  order]]==True,order--];
+For[j=0,j<=22,j++,
+recur=c[2-j]/.Solve[Coefficient[Teuk,rl,order-j]==0,c[2-j]];
+c[2-j]=recur;
 ];
 R/.rl->rim];
-BCsTeukolskyIn[ \[Lambda]_, m_, a_, \[Omega]_][rim_]:=Module[{M=1,rl,R,dR, d2R,Teuk,j,recur,InnerBc,d,rstar,rm,rp,\[Omega]p,\[CapitalDelta],xl,c},
+BCsTeukolskyIn[ \[Lambda]_, m_, a_, \[Omega]_][rim_]:=Module[{M=1,rl,R,dR, d2R,Teuk,j,recur,InnerBc,order,d,rstar,rm,rp,\[Omega]p,\[CapitalDelta],xl,c},
 rp=M+Sqrt[M^2-a^2];
 rm=M-Sqrt[M^2-a^2];
 d=Sqrt[2M*rp]*((8-24I*M*\[Omega]-16M^2*\[Omega]^2)*rp^2+(12I*a*m-16M+16a*m*M*\[Omega]+24I*M^2*\[Omega])*rp-4a^2*m^2-12I*a*m*M+8*M^2);
@@ -61,8 +63,11 @@ d2R=D[dR,xl];
 (*c[0]=1/d;*)
 c[0]=1;
 Teuk=Numerator[Together[Exp[I*(\[Omega]-m*\[Omega]p)*rstar[xl+rp]]*TeukolskyRadialEquation[-2, \[Lambda], m, a, \[Omega], rp+xl, {R, dR, d2R}]]];
+order=-3;
+While[NumericQ[Coefficient[Teuk,xl,  order]]==True,order++];
 For[j=1,j<=20,j++,
-recur=c[j]/.Solve[Coefficient[Teuk,xl,j+1]==0,c[j]];
+(*Print[Coefficient[Teuk,xl,order-1+j]==0,c[j]];*)
+recur=c[j]/.Solve[Coefficient[Teuk,xl,order-1+j]==0,c[j]];
 c[j]=recur;
 ];
 R/.xl->rim-rp]
@@ -81,7 +86,7 @@ K=(rl^2+a^2)\[Omega]-m a;
 If[UpIn=="Up",RBC=BCsTeukolskyUp[ \[Lambda], m, a, \[Omega]]];
 If[UpIn=="In",RBC=BCsTeukolskyIn[ \[Lambda], m, a, \[Omega]]];
 dR=D[RBC,rl];
-X=Chop[(\[Alpha] *RBC[rl]+\[Beta]/\[CapitalDelta] *RBC'[rl])*Sqrt[rl^2+a^2]/\[CapitalDelta]];
+X=(\[Alpha] *RBC[rl]+\[Beta]/\[CapitalDelta] *RBC'[rl])*Sqrt[rl^2+a^2]/\[CapitalDelta];
 dX=D[X,rl];
 {X,dX}/.{rl->rim}]
 
