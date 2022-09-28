@@ -8,11 +8,12 @@
 (*Create Package*)
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*BeginPackage*)
 
 
-BeginPackage["Teukolsky`SasakiNakamura`"];
+BeginPackage["Teukolsky`SasakiNakamura`",
+{"Teukolsky`TeukolskyRadial`"}];
 
 
 (* ::Subsection:: *)
@@ -227,13 +228,13 @@ K=(r^2+a^2)\[Omega]-m a;
  
  ]
  
- TeukolskyRadialnew[-2, \[Lambda]_?NumericQ, m_?IntegerQ, a_?NumericQ, \[Omega]_?NumericQ,UpIn_?StringQ][r1_?NumericQ]:=Module[{M=1, r, \[Chi]m, X, XSN, Rres, c0, c1, c2, c3 ,c4, K, \[Eta], \[CapitalDelta], \[Alpha], \[Beta], \[Chi]},
+ TeukolskyRadialnew[-2, \[Lambda]_?NumericQ, m_?IntegerQ, a_?NumericQ, \[Omega]_?NumericQ,UpIn_?StringQ]:=Module[{M=1, r, \[Chi]m, X, XSN, Rres, c0, c1, c2, c3 ,c4, K, \[Eta], \[CapitalDelta], \[Alpha], \[Beta], \[Chi],assoc},
 
 If[UpIn=="Up", 
-XSN = SasakiNakamuraRadialNew[a, \[Lambda], m, \[Omega], r1,"Up"];
+XSN = SasakiNakamuraRadialNew[a, \[Lambda], m, \[Omega], 10,"Up"];
 ];
 If[UpIn=="In", 
-XSN = SasakiNakamuraRadialNew[a, \[Lambda], m, \[Omega], r1,"In"];
+XSN = SasakiNakamuraRadialNew[a, \[Lambda], m, \[Omega], 10,"In"];
 ];
 
 \[CapitalDelta]=r^2-2M r +a^2;
@@ -257,7 +258,19 @@ K=(r^2+a^2)\[Omega]-m a;
  
  Rres = 1/\[Eta] ((\[Alpha] + D[\[Beta],r]/\[CapitalDelta])\[Chi] - \[Beta]/\[CapitalDelta] D[\[Chi],r]);
 
- {Rres, D[Rres,r]}/.{r->r1, X[r]->XSN[r1], X'[r] -> XSN'[r1], X''[r] -> XSN''[r1]}
+ (*{Rres, D[Rres,r]}/.{r->r1, X[r]->XSN[r1], X'[r] -> XSN'[r1], X''[r] -> XSN''[r1]}*)
+ 
+ assoc=<|
+ 
+ "RadialFunction"->Function[{r2},Rres/.{X[r]->XSN[r], X'[r] -> XSN'[r], X''[r] -> XSN''[r]}/.r->r2],
+ "Amplitudes"->{},
+ "Eigenvalue"->\[Lambda],
+ "Domain"->Switch[UpIn,"Up",{10,1000},"In",{1+Sqrt[1-a^2]+10^-2,10}],
+ "Method"->{"SasakiNakamura"}
+ 
+ |>;
+ 
+ TeukolskyRadialFunction[-2,2,m,a,\[Omega],assoc]
  
  ]
 
