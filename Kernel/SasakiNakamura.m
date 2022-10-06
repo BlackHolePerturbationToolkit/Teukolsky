@@ -31,47 +31,34 @@ Begin["`Private`"];
 (*Teukolsky Boundary conditions*)
 
 
-BCsTeukolskyUp[ \[Lambda]_, m_, a_, \[Omega]_][rim_]:=Module[{M=1,rl,R,dR, d2R,Teuk,j,order,recur,OuterBC,c,c0,rstar,rm,rp},
-c0=-12I \[Omega] M+\[Lambda](\[Lambda]+2)-12 a \[Omega](a \[Omega]-m);
+BCsTeukolskyUp[ \[Lambda]_, m_, a_, \[Omega]_][rim_]:=Module[{M=1,c,k,rl,rstar,rm,rp},
 rp=M+Sqrt[M^2-a^2];
 rm=M-Sqrt[M^2-a^2];
 rstar[r_]:=r+(2M rp)/(rp-rm) Log[(r-rp)/(2M)]-(2M rm)/(rp-rm) Log[(r-rm)/(2M)];
-OuterBC:=Sum[c[3-j]*(\[Omega]*rl)^(3-j),{j,0,23}]*Exp[I*\[Omega]*rstar[rl]];
-R=OuterBC;
-dR=D[R,rl];
-d2R=D[dR,rl];
-Teuk=Numerator[Together[Exp[-I*\[Omega]*rstar[rl]]*TeukolskyRadialEquation[-2, \[Lambda], m, a, \[Omega], rl, {R, dR, d2R}]]];
-(*c[3]=-4/\[Omega]/c0;*)
-c[3]=1/\[Omega]^3;
-order=40;
-While[NumericQ[Coefficient[Teuk,rl,  order]]==True,order--];
-For[j=0,j<=22,j++,
-recur=c[2-j]/.Solve[Coefficient[Teuk,rl,order-j]==0,c[2-j],WorkingPrecision->MachinePrecision];
-c[2-j]=recur;
+For[k=-7,k<=-4,k++,
+c[k]=0;
 ];
-R/.rl->rim];
-BCsTeukolskyIn[ \[Lambda]_, m_, a_, \[Omega]_][rim_]:=Module[{M=1,rl,R,dR, d2R,Teuk,j,recur,InnerBc,order,d,rstar,rm,rp,\[Omega]p,\[CapitalDelta],xl,c},
+c[-3]=1/\[Omega]^3;
+For[k=-2,k<31,k++,
+c[k]=-((I a^4 (-5+k) (-4+k) \[Omega]^4 c[-5+k])/(2 (3+k)))-(a^2 (-4+k) \[Omega]^3 (-I (-5+2 k) M+a^2 \[Omega]) c[-4+k])/(3+k)-(I \[Omega]^2 (4 I a m M+4 (-3+k) (-1+k) M^2-2 a^3 m \[Omega]+a^2 (4 (-3+k)+2 (-3+k)^2+m^2-\[Lambda]+4 I (-3+k) M \[Omega])) c[-3+k])/(2 (3+k))+(\[Omega] (I M (-2-3 k+2 k^2-\[Lambda])+a (-2 m+a (1-2 k) \[Omega])) c[-2+k])/(3+k)+(I (-2-k^2+\[Lambda]+2 a m \[Omega]+8 I M \[Omega]+k (-1-4 I M \[Omega])-2 (-2+8 I M \[Omega])) c[-1+k])/(2 (3+k));
+];
+Sum[c[j-3]*(\[Omega]*rl)^(-j+3),{j,0,33}]*Exp[I*\[Omega]*rstar[rl]]/.rl->rim];
+BCsTeukolskyIn[ \[Lambda]_, m_, a_, \[Omega]_][rim_]:=Module[{M=1,c,k,rp,rm,rl,rstar,\[Omega]p,\[CapitalDelta]},
 rp=M+Sqrt[M^2-a^2];
 rm=M-Sqrt[M^2-a^2];
-d=Sqrt[2M*rp]*((8-24I*M*\[Omega]-16M^2*\[Omega]^2)*rp^2+(12I*a*m-16M+16a*m*M*\[Omega]+24I*M^2*\[Omega])*rp-4a^2*m^2-12I*a*m*M+8*M^2);
-\[Omega]p=a/2/M/rp;
-\[CapitalDelta]=(xl+rp)^2 - 2M *(xl+rp) + a^2;
+\[Omega]p=a/(2*M*rp);
+\[CapitalDelta]=(rl)^2 - 2M *(rl) + a^2;
 rstar[r_]:=r+(2M rp)/(rp-rm) Log[(r-rp)/(2M)]-(2M rm)/(rp-rm) Log[(r-rm)/(2M)];
-InnerBc:=\[CapitalDelta]^2*(Sum[c[j]*(xl)^j,{j,0,20}])*Exp[-I*(\[Omega]-m*\[Omega]p)*rstar[xl+rp]];
-R=InnerBc;
-dR=D[R,xl];
-d2R=D[dR,xl];
-(*c[0]=1/d;*)
+For[k=-7,k<=-1,k++,
+c[k]=0;
+];
 c[0]=1;
-Teuk=Numerator[Together[Exp[I*(\[Omega]-m*\[Omega]p)*rstar[xl+rp]]*TeukolskyRadialEquation[-2, \[Lambda], m, a, \[Omega], rp+xl, {R, dR, d2R}]]];
-order=-3;
-While[NumericQ[Coefficient[Teuk,xl,  order]]==True,order++];
-For[j=1,j<=20,j++,
-(*Print[Coefficient[Teuk,xl,order-1+j]==0,c[j]];*)
-recur=c[j]/.Solve[Coefficient[Teuk,xl,order-1+j]==0,c[j],WorkingPrecision->MachinePrecision];
-c[j]=recur;
+rp=M+Sqrt[M^2-a^2];
+For[k=1,k<31,k++,
+c[k]=(m \[Omega]p (-2 \[Omega]+m \[Omega]p) c[-4+k]+(2 I \[Omega] (2+k+4 I m \[Omega]p+4 I \[Sqrt](1-a^2) m \[Omega]p)+2 m \[Omega]p (-I k+2 m \[Omega]p+2 \[Sqrt](1-a^2) m \[Omega]p)) c[-3+k]+2 c[-2+k]-k c[-2+k]-k^2 c[-2+k]+\[Lambda] c[-2+k]+2 I \[Omega] c[-2+k]+14 I \[Sqrt](1-a^2) \[Omega] c[-2+k]+4 I k \[Omega] c[-2+k]+8 I \[Sqrt](1-a^2) k \[Omega] c[-2+k]+2 a m \[Omega] c[-2+k]-2 I m \[Omega]p c[-2+k]-2 I \[Sqrt](1-a^2) m \[Omega]p c[-2+k]-4 I k m \[Omega]p c[-2+k]-8 I \[Sqrt](1-a^2) k m \[Omega]p c[-2+k]-24 m \[Omega] \[Omega]p c[-2+k]+8 a^2 m \[Omega] \[Omega]p c[-2+k]-24 \[Sqrt](1-a^2) m \[Omega] \[Omega]p c[-2+k]+12 m^2 \[Omega]p^2 c[-2+k]-4 a^2 m^2 \[Omega]p^2 c[-2+k]+12 \[Sqrt](1-a^2) m^2 \[Omega]p^2 c[-2+k]+2 \[Sqrt](1-a^2) c[-1+k]-6 \[Sqrt](1-a^2) k c[-1+k]-4 \[Sqrt](1-a^2) k^2 c[-1+k]+4 I a m c[-1+k]+2 \[Sqrt](1-a^2) \[Lambda] c[-1+k]+8 I \[Omega] c[-1+k]-12 I a^2 \[Omega] c[-1+k]+8 I \[Sqrt](1-a^2) \[Omega] c[-1+k]+12 I k \[Omega] c[-1+k]-8 I a^2 k \[Omega] c[-1+k]+12 I \[Sqrt](1-a^2) k \[Omega] c[-1+k]+4 a m \[Omega] c[-1+k]+4 a \[Sqrt](1-a^2) m \[Omega] c[-1+k]-8 I m \[Omega]p c[-1+k]+4 I a^2 m \[Omega]p c[-1+k]-8 I \[Sqrt](1-a^2) m \[Omega]p c[-1+k]-12 I k m \[Omega]p c[-1+k]+8 I a^2 k m \[Omega]p c[-1+k]-12 I \[Sqrt](1-a^2) k m \[Omega]p c[-1+k]-32 m \[Omega] \[Omega]p c[-1+k]+16 a^2 m \[Omega] \[Omega]p c[-1+k]-32 \[Sqrt](1-a^2) m \[Omega] \[Omega]p c[-1+k]+16 m^2 \[Omega]p^2 c[-1+k]-8 a^2 m^2 \[Omega]p^2 c[-1+k]+16 \[Sqrt](1-a^2) m^2 \[Omega]p^2 c[-1+k])/(a (-4 I \[Sqrt](1-a^2) m-4 (1+\[Sqrt](1-a^2)) m \[Omega])+a^2 (-4 k^2+m (m+4 (-2 I-2 \[Omega]) \[Omega]p+4 m \[Omega]p^2)+4 k (-2+2 I (\[Omega]-m \[Omega]p)))+4 (k^2+(1+\[Sqrt](1-a^2)) m \[Omega]p (2 I+4 \[Omega]-2 m \[Omega]p)-k (-2+2 I (1+\[Sqrt](1-a^2)) (\[Omega]-m \[Omega]p))))
 ];
-R/.xl->rim-rp]
+\[CapitalDelta]^2*(Sum[c[j]*(rl-rp)^j,{j,0,30}])*Exp[-I*(\[Omega]-m*\[Omega]p)*rstar[rl]]/.rl->rim
+]
 
 
 
@@ -183,12 +170,12 @@ SasakiNakamuraRadialNew[a_?NumericQ, \[Lambda]_?NumericQ, m_?NumericQ, \[Omega]_
 If[UpIn=="Up", 
 rbound=1000;
 BCs = SNBCs[\[Lambda], m, a, \[Omega], rbound,"Up"];
-Xres = X/.NDSolve[{SasakiNakamuraEquation[\[Lambda], m, a, \[Omega], r, {X[r],X'[r],X''[r]}]==0, X[rbound]==BCs[[1]], X'[rbound]==BCs[[2]]}, X, {r, rbound, r1}][[1,1]];
+Xres = X/.NDSolve[{SasakiNakamuraEquation[\[Lambda], m, a, \[Omega], r, {X[r],X'[r],X''[r]}]==0, X[rbound]==BCs[[1]], X'[rbound]==BCs[[2]]}, X, {r, rbound, r1},PrecisionGoal -> \[Infinity],WorkingPrecision -> Precision[{a, \[Omega]}]][[1,1]]//Quiet;
 ];
 If[UpIn=="In", 
 rbound=1+Sqrt[1-a^2]+10^-2;
 BCs = SNBCs[\[Lambda], m, a, \[Omega], rbound,"In"];
-Xres = X/.NDSolve[{SasakiNakamuraEquation[\[Lambda], m, a, \[Omega], r, {X[r],X'[r],X''[r]}]==0, X[rbound]==BCs[[1]], X'[rbound]==BCs[[2]]}, X, {r, r1, rbound}][[1,1]];];
+Xres = X/.NDSolve[{SasakiNakamuraEquation[\[Lambda], m, a, \[Omega], r, {X[r],X'[r],X''[r]}]==0, X[rbound]==BCs[[1]], X'[rbound]==BCs[[2]]}, X, {r, r1, rbound},PrecisionGoal -> \[Infinity],WorkingPrecision -> Precision[{a, \[Omega]}]][[1,1]];]//Quiet;
  Xres
 ];
 
