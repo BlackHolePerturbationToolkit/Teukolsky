@@ -64,7 +64,7 @@ We recommend only developers download the code directly from GitHub.
 ## Citation
 
 In addition to citing the Black Hole Perturbation Toolkit as suggested on the [front page](https://bhptoolkit.org/index.html)
-we also recommend citing the version of the code you use using the Document Object Identifier (DOI) from the [package's Zenodo page](https://zenodo.org/badge/latestdoi/96558973).
+we also recommend citing the version of the specific package version you use via the citation information on the [package's Zenodo page](https://zenodo.org/badge/latestdoi/96558973).
 
 ## Authors and contributors
 
