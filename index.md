@@ -52,6 +52,13 @@ Under the hood the Teukolsky package defaults to using the MST method for comput
 
 Example notebooks can be found in the [Mathematica Toolkit Examples](https://github.com/BlackHolePerturbationToolkit/MathematicaToolkitExamples) repository.
 
+## Installation
+
+We recommend users install the package using Mathematica's Paclet system. 
+For instructions click the "Install this package" button above.
+This will automatically handle upgrades as new releases become available.
+Alternatively, the latest official release can be found at: [![DOI](https://zenodo.org/badge/96558973.svg)](https://zenodo.org/badge/latestdoi/96558973).
+We recommend only developers download the code directly from GitHub. 
 
 ## Authors and contributors
 
