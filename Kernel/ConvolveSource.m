@@ -937,6 +937,7 @@ ConvolveSourcePointParticleGeneric[s:-1, n_Integer, k_Integer, R_, SH_, TS_] :=
     Kt = (r0^2 + a^2) \[Omega] - m a;
     \[Rho] = -1/(r0 - I a Cos[\[Theta]0]);
     \[Rho]bar = -1/(r0 + I a Cos[\[Theta]0]);
+    \[CapitalSigma] = (\[Rho] \[Rho]bar)^-1;
       
     An0 = -1/Sqrt[2] \[CapitalDelta]^-1 \[Rho]^3 \[Rho]bar^3 (S0 \[Rho]^-4 \[Rho]bar^-2 L1 + dS0/(\[Rho]^4 \[Rho]bar^2)-(4 I a S0 Sin[\[Theta]0])/(\[Rho]^3 \[Rho]bar^2)+(2 I a S0 Sin[\[Theta]0])/(\[Rho]^4 \[Rho]bar));
     Ambar0 = 1/2 S0 \[Rho]^-1 \[Rho]bar (I Kt/\[CapitalDelta]-2\[Rho]+\[Rho]bar);
