@@ -59,7 +59,7 @@ TeukolskyPointParticleMode::noret = "This package does not compute the retarded 
 Begin["`Private`"];
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*TeukolskyPointParticleMode*)
 
 
@@ -80,11 +80,7 @@ TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer
     Message[TeukolskyPointParticleMode::params, s, e, x];
     Return[$Failed];
   ];*)
-  If[!MemberQ[{-2, -1, 0, 1, 2}, s] ||
-     (Abs[s] == 1 && {e, x} != {0, 1}),
-    Message[TeukolskyPointParticleMode::params, s, e, x];
-    Return[$Failed];
-  ];
+  
 
   If[{e, Abs[x]} == {0, 1} && (n != 0 || k != 0),
     Message[TeukolskyPointParticleMode::mode, n, k, "circular"];
