@@ -122,8 +122,8 @@ TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer
   assoc = <| "s" -> s, 
 		     "l" -> l,
 		     "m" -> m,
-		     "n"->n,
-		     "k"->k,
+		     "n" -> n,
+		     "k" -> k,
 		     "a" -> a,
   		   "\[Omega]" -> \[Omega],
 		     "Eigenvalue" -> R["In"]["Eigenvalue"],
@@ -263,7 +263,7 @@ Derivative[n_][TeukolskyMode[assoc_]["ExtendedHomogeneous" -> "\[ScriptCapitalI]
 (*Fluxes*)
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Energy Flux*)
 
 

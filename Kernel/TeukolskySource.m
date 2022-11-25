@@ -26,7 +26,7 @@ BeginPackage["Teukolsky`TeukolskySource`", {"KerrGeodesics`", "KerrGeodesics`Orb
 Begin["`Private`"];
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*TeukolskyPointParticleSource*)
 
 
@@ -73,7 +73,10 @@ TeukolskyPointParticleSource[s:(-1|+1), orbit_] := Module[{assoc, a, r0, E0, \[C
          |>;
 
   TeukolskySourceObject[assoc]
-]
+](*/;(orbit[e]==0 && Abs[orbit["Inclination"]]==1);
+*)
+(*TeukolskyPointParticleSource[s:(-1|+1), orbit_] :=
+  TeukolskySourceObject[<|"s" -> s, "SourceType" -> "PointParticle", "Orbit" -> orbit|>];*)
 
 
 TeukolskySourceObject[assoc_][string_] := assoc[string]

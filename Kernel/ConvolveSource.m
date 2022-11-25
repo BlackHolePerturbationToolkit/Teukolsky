@@ -306,7 +306,7 @@ ConvolveSourcePointParticleEccentric[s:-2, n_Integer, R_, SH_, TS_] :=
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*s=-2 point particle on a generic orbit*)
 
 
@@ -839,7 +839,7 @@ ConvolveSourcePointParticleGeneric[2, n_Integer, k_Integer, R_, SH_, TS_] :=
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*s=\[PlusMinus]1 point particle on a circular orbit*)
 
 
@@ -894,10 +894,92 @@ ConvolveSourcePointParticleCircular[s:(-1|+1), R_, SH_, TS_] :=
 
 
 (* ::Subsection:: *)
+(*s=-1 point particle on a spherical orbit*)
+
+
+ConvolveSourcePointParticleSpherical[s:-1, k_Integer, R_, SH_, TS_] :=
+ Module[{a, p, \[ScriptCapitalE], \[ScriptCapitalL], \[Theta]pi, u\[Theta]pi, r0, ur0, \[CapitalDelta], Kt, \[CapitalUpsilon]t, \[CapitalUpsilon]r, \[CapitalUpsilon]\[Theta], \[CapitalDelta]t\[Theta], \[CapitalDelta]\[Phi]\[Theta], qt0, qr0, q\[Theta]0, q\[Phi]0, m, \[Omega], \[Lambda], W, \[Theta]q, u\[Theta]q, RIn, dRIn, d2RIn, RUp, dRUp, d2RUp, integrand, \[Alpha]In, \[Alpha]Up, \[Xi], wpIn, wpUp, ZIn, ZUp},
+  a = TS["Orbit"]["a"];
+  p = TS["Orbit"]["p"];
+  {\[ScriptCapitalE], \[ScriptCapitalL]} = TS["Orbit"] /@ {"Energy", "AngularMomentum"};
+  \[Theta]pi = TS["Orbit"]["Trajectory"][[3]];
+  u\[Theta]pi = TS["Orbit"]["FourVelocity"][[3]];
+
+  {\[CapitalUpsilon]t, \[CapitalUpsilon]\[Theta]} = {"\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(t\)]\)", "\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(\[Theta]\)]\)"} /. TS["Orbit"]["Frequencies"];
+  {\[CapitalDelta]t\[Theta], \[CapitalDelta]\[Phi]\[Theta]} = {"\[CapitalDelta]t\[Theta]", "\[CapitalDelta]\[Phi]\[Theta]"} /. TS["Orbit"]["TrajectoryDeltas"];
+  {qt0, qr0, q\[Theta]0, q\[Phi]0} = TS["Orbit"]["InitialPhases"];
+
+  m = R["In"]["m"];
+  \[Omega] = R["In"]["\[Omega]"];
+  \[Lambda] = R["In"]["Eigenvalue"];
+
+  W = 2 I \[Omega] R["In"]["Amplitudes"]["Incidence"];
+
+  r0 = p;
+  \[Theta]q[q\[Theta]_] := \[Theta]pi[(q\[Theta]-q\[Theta]0)/\[CapitalUpsilon]\[Theta]];
+
+  (* Mino-time four-velocities *)
+  ur0 = 0;
+  u\[Theta]q[q\[Theta]_] := (r0^2+a^2 Cos[\[Theta]pi[(q\[Theta]-q\[Theta]0)/\[CapitalUpsilon]\[Theta]]]^2) u\[Theta]pi[(q\[Theta]-q\[Theta]0)/\[CapitalUpsilon]\[Theta]];
+
+  \[CapitalDelta] = r0^2-2r0+a^2;
+  Kt=(r0^2+a^2)\[Omega]-m a;
+
+  RUp = R["Up"][r0];
+  RIn = R["In"][r0];
+  dRUp = R["Up"]'[r0];
+  dRIn = R["In"]'[r0];
+  
+  integrand[q\[Theta]_, {R0_, dR0_}]:=
+   Module[{\[Theta]0, S0, dS0, L1,  u\[Theta]0, rcomp, \[Theta]comp, \[Rho], \[Rho]bar, \[CapitalSigma], An0, Ambar0, Ambar1, Cnp1p1, Cmbarp1p1, Cnp1m1, Cmbarp1m1, \[Theta]phase, res},
+    \[Theta]0 = \[Theta]q[q\[Theta]];
+    S0 = SH[\[Theta]0, 0];
+    dS0 = Derivative[1,0][SH][\[Theta]0, 0];
+    L1 = -m/Sin[\[Theta]0] + a \[Omega] Sin[\[Theta]0] + Cos[\[Theta]0]/Sin[\[Theta]0];
+       
+    \[Rho] = -1/(r0 - I a Cos[\[Theta]0]);
+    \[Rho]bar = -1/(r0 + I a Cos[\[Theta]0]);
+    \[CapitalSigma] = 1/(\[Rho] \[Rho]bar);
+  
+    An0 =(dS0+L1 S0+I a S0 \[Rho] Sin[\[Theta]0])/(Sqrt[2] \[CapitalDelta] \[Rho]);
+    Ambar0 =(I S0 (Kt+I \[CapitalDelta] \[Rho]) \[Rho]bar)/(2 \[CapitalDelta] \[Rho]);
+    Ambar1 = (S0 \[Rho]bar)/(2 \[Rho]);
+    (* Save time by folding the two segments in Subscript[q, \[Theta]]\[Element][0,2\[Pi]] over to Subscript[q, \[Theta]]\[Element][0,\[Pi]] *)
+    rcomp = (\[ScriptCapitalE](r0^2+a^2) - a \[ScriptCapitalL] + ur0)/(2\[CapitalSigma]);
+    \[Theta]comp = \[Rho] (I Sin[\[Theta]0](a \[ScriptCapitalE] - \[ScriptCapitalL]/Sin[\[Theta]0]^2) + u\[Theta]0)/Sqrt[2];
+    
+    {{Cnp1p1,Cmbarp1p1}, {Cnp1m1,Cmbarp1m1}} =
+      Table[{rcomp, \[Theta]comp}, {u\[Theta]0, {u\[Theta]q[q\[Theta]], u\[Theta]q[2\[Pi]-q\[Theta]]}}];
+    
+    \[Theta]phase = \[Omega] \[CapitalDelta]t\[Theta][q\[Theta]] - m \[CapitalDelta]\[Phi]\[Theta][q\[Theta]] + k q\[Theta];
+    
+    res = ((An0*Cnp1p1 + Ambar0*Cmbarp1p1) R0-(Ambar1*Cmbarp1p1) dR0)Exp[I \[Theta]phase] 
+        + ((An0*Cnp1m1 + Ambar0*Cmbarp1m1) R0-(Ambar1*Cmbarp1m1) dR0)Exp[-I \[Theta]phase];
+    Clear[\[Theta]0, S0, dS0, L1, u\[Theta]0, rcomp, \[Theta]comp, \[Rho], \[Rho]bar, \[CapitalSigma], An0, Ambar0, Ambar1, Cnp1p1, Cmbarp1p1, Cnp1m1, Cmbarp1m1, \[Theta]phase];
+    res  
+  ];
+
+  wpIn = Precision[integrand[0, {RIn, dRIn}]];
+  wpUp = Precision[integrand[0, {RUp, dRUp}]];
+
+  \[Alpha]In = 1/(2\[Pi]) Quiet[NIntegrate[integrand[q\[Theta], {RIn, dRIn}], {q\[Theta], 0, \[Pi]}, Method -> {"Trapezoidal", "SymbolicProcessing"->0}, WorkingPrecision -> wpIn], NIntegrate::precw];
+  \[Alpha]Up = 1/(2\[Pi]) Quiet[NIntegrate[integrand[q\[Theta], {RUp, dRUp}], {q\[Theta], 0, \[Pi]}, Method -> {"Trapezoidal", "SymbolicProcessing"->0}, WorkingPrecision -> wpUp], NIntegrate::precw];
+  
+  \[Xi] = m(\[CapitalDelta]\[Phi]\[Theta][q\[Theta]0]-q\[Phi]0) - \[Omega](\[CapitalDelta]t\[Theta][q\[Theta]0]-qt0) - k q\[Theta]0;
+
+  ZIn = 8Pi \[Alpha]Up/W/\[CapitalUpsilon]t Exp[I \[Xi]];
+  ZUp = 8Pi \[Alpha]In/W/\[CapitalUpsilon]t Exp[I \[Xi]];
+
+  Clear[a, p, \[ScriptCapitalE], \[ScriptCapitalL], \[Theta]pi, u\[Theta]pi, r0, ur0, \[CapitalDelta], Kt, \[CapitalUpsilon]t, \[CapitalUpsilon]r, \[CapitalUpsilon]\[Theta], \[CapitalDelta]t\[Theta], \[CapitalDelta]\[Phi]\[Theta], qt0, qr0, q\[Theta]0, q\[Phi]0, m, \[Omega], \[Lambda], W, \[Theta]q, u\[Theta]q, RIn, dRIn, RUp, dRUp, integrand, \[Alpha]In, \[Alpha]Up, \[Xi], wpIn, wpUp];
+  <| "\[ScriptCapitalI]" -> ZUp, "\[ScriptCapitalH]" -> ZIn |>
+]
+
+
+(* ::Subsection::Closed:: *)
 (*s = \[ImplicitPlus]-1 point particle on a generic orbit*)
 
 
-ConvolveSourcePointParticleGeneric[s:-1, n_Integer, k_Integer, R_, SH_, TS_] :=
+ConvolveSourcePointParticleGeneric[-1, n_Integer, k_Integer, R_, SH_, TS_] :=
  Module[{a, p, \[ScriptCapitalE], \[ScriptCapitalL], rpi, \[Theta]pi, urpi, u\[Theta]pi, \[CapitalUpsilon]t, \[CapitalUpsilon]r, \[CapitalUpsilon]\[Theta], \[CapitalDelta]tr, \[CapitalDelta]t\[Theta], \[CapitalDelta]\[Phi]r, \[CapitalDelta]\[Phi]\[Theta], qt0, qr0, q\[Theta]0, q\[Phi]0, m, \[Omega], \[Lambda], W, rq, \[Theta]q, urq, u\[Theta]q, integrand, integrandIn, integrandUp, \[Alpha]In, \[Alpha]Up, \[Xi], wpIn, wpUp, ZIn, ZUp},
   a = TS["Orbit"]["a"];
   p = TS["Orbit"]["p"];
