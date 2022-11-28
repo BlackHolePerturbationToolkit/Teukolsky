@@ -942,8 +942,8 @@ ConvolveSourcePointParticleSpherical[s:-1, k_Integer, R_, SH_, TS_] :=
     \[CapitalSigma] = 1/(\[Rho] \[Rho]bar);
   
     An0 =(dS0+L1 S0+I a S0 \[Rho] Sin[\[Theta]0])/(Sqrt[2] \[CapitalDelta] \[Rho]);
-    Ambar0 =(I S0 (Kt+I \[CapitalDelta] \[Rho]) \[Rho]bar)/(2 \[CapitalDelta] \[Rho]);
-    Ambar1 = (S0 \[Rho]bar)/(2 \[Rho]);
+    Ambar0 =-(I S0 (Kt+I \[CapitalDelta] \[Rho]) \[Rho]bar)/(2 \[CapitalDelta] \[Rho]);
+    Ambar1 = -(S0 \[Rho]bar)/(2 \[Rho]);
     (* Save time by folding the two segments in Subscript[q, \[Theta]]\[Element][0,2\[Pi]] over to Subscript[q, \[Theta]]\[Element][0,\[Pi]] *)
     rcomp = (\[ScriptCapitalE](r0^2+a^2) - a \[ScriptCapitalL] + ur0)/(2\[CapitalSigma]);
     \[Theta]comp = \[Rho] (I Sin[\[Theta]0](a \[ScriptCapitalE] - \[ScriptCapitalL]/Sin[\[Theta]0]^2) + u\[Theta]0)/Sqrt[2];
