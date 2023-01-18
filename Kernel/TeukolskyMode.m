@@ -259,7 +259,7 @@ Derivative[n_][TeukolskyMode[assoc_]["ExtendedHomogeneous" -> "\[ScriptCapitalI]
   assoc["Amplitudes"]["\[ScriptCapitalI]"]Derivative[n][assoc["RadialFunctions"]["Up"]][r];
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Fluxes*)
 
 
@@ -280,9 +280,22 @@ EnergyFlux[mode_TeukolskyMode] :=
   rh = M + Sqrt[M^2-a^2];
   \[CapitalOmega]h = a/(2 M rh);
   \[Kappa] = \[Omega] - m \[CapitalOmega]h;
-  \[Epsilon] = Sqrt[M^2-a^2]/(4 M rh);
+  \[Epsilon] = Sqrt[M^2-a^2]/(4 M rh);  	
 
-  FluxInf = Abs[Z["\[ScriptCapitalI]"]]^2 \[Omega]^(2(1-Abs[s]))/(4 \[Pi]);
+  FluxInf = 
+  Switch[s,
+  -2, Abs[Z["\[ScriptCapitalI]"]]^2 \[Omega]^(2(1-Abs[s]))/(4 \[Pi]),
+  -1, Abs[Z["\[ScriptCapitalI]"]]^2 \[Omega]^(2(1-Abs[s]))/(4 \[Pi]),
+  0, Abs[Z["\[ScriptCapitalI]"]]^2 \[Omega]^(2(1-Abs[s]))/(4 \[Pi]),
+  1, AbsCSq = (\[Lambda]+2)^2+ 4 a \[Omega](m-a \[Omega]);
+  (4 \[Omega]^4 Abs[Z["\[ScriptCapitalI]"]]^2)/(AbsCSq) \[Omega]^(2(1-Abs[s]))/(4 \[Pi]),
+  2, AbsCSq = (4+\[Lambda])^2 (6+\[Lambda])^2+144 M^2 \[Omega]^2+8 a (4+\[Lambda]) (-4+5 (6+\[Lambda])) \[Omega] (m-a \[Omega])+48 a^2 \[Omega]^2 (2 (4+\[Lambda])+3 (m-a \[Omega])^2);
+  (16 \[Omega]^8 Abs[Z["\[ScriptCapitalI]"]]^2)/(AbsCSq) \[Omega]^(2(1-Abs[s]))/(4 \[Pi])
+  ];
+                
+  
+  
+  (*Abs[Z["\[ScriptCapitalI]"]]^2 \[Omega]^(2(1-Abs[s]))/(4 \[Pi]);*)
   FluxHor = Switch[s,
 			-2,
 			  AbsCSq = ((\[Lambda]+2)^2 + 4 a m \[Omega] - 4a^2 \[Omega]^2)(\[Lambda]^2+36 m a \[Omega] - 36 a^2 \[Omega]^2) + (2\[Lambda]+3)(96 a^2 \[Omega]^2 - 48 m a \[Omega]) + 144 \[Omega]^2 (M^2-a^2);
@@ -293,7 +306,11 @@ EnergyFlux[mode_TeukolskyMode] :=
 			  \[Omega] Abs[Z["\[ScriptCapitalH]"]]^2 (2 M rh \[Kappa]) 4 ((2 M rh \[Kappa])^2+(M^2-a^2))/ (p \[Pi]),
 			0,
 			  (* The rh^2 factor vs arXiv:1003.1860 Eq. (55) is needed as \[Psi] = r R*)
-			  1/(2 \[Pi] rh) \[Omega](\[Omega]-m \[CapitalOmega]h) Abs[Z["\[ScriptCapitalH]"]]^2*rh^2
+			  1/(2 \[Pi] rh) \[Omega](\[Omega]-m \[CapitalOmega]h) Abs[Z["\[ScriptCapitalH]"]]^2*rh^2,
+			 1,
+			 (\[Omega] Abs[Z["\[ScriptCapitalH]"]]^2)/(32 \[Pi] \[Kappa] rh),
+			 2,
+			  (\[Omega] Abs[Z["\[ScriptCapitalH]"]]^2)/(512 \[Pi] rh^3 \[Kappa] (\[Kappa]^2+4 \[Epsilon]^2))
 			];
 
   <| "\[ScriptCapitalI]" -> FluxInf, "\[ScriptCapitalH]" -> FluxHor |>
@@ -307,7 +324,7 @@ EnergyFlux[mode_TeukolskyMode] :=
 AngularMomentumFlux[mode_TeukolskyMode] := If[mode["\[Omega]"]!=0,EnergyFlux[mode] mode["m"]/mode["\[Omega]"],0];
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*End Package*)
 
 
@@ -318,9 +335,12 @@ AngularMomentumFlux[mode_TeukolskyMode] := If[mode["\[Omega]"]!=0,EnergyFlux[mod
 SetAttributes[{TeukolskyMode, TeukolskyPointParticleMode}, {Protected, ReadProtected}];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*End*)
 
 
 End[];
 EndPackage[];
+
+
+
