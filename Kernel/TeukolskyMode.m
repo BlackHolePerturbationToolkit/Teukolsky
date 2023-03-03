@@ -59,7 +59,7 @@ TeukolskyPointParticleMode::noret = "This package does not compute the retarded 
 Begin["`Private`"];
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*TeukolskyPointParticleMode*)
 
 
@@ -72,15 +72,7 @@ Options[TeukolskyPointParticleMode] = {"Domain" -> Automatic};
 
 TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer, orbit_KerrGeoOrbitFunction, opts:OptionsPattern[]] /; AllTrue[orbit["Frequencies"], InexactNumberQ] :=
  Module[{source, assoc, domain, Ruser, R, S, \[Omega], \[CapitalOmega]r, \[CapitalOmega]\[Phi], \[CapitalOmega]\[Theta], Z, \[Lambda], rmin, rmax, a, p, e, x},
-  {a, p, e, x} = orbit /@ {"a", "p", "e", "Inclination"};
-
-  (*If[!MemberQ[{-2, -1, 0, 1, 2}, s] ||
-     (Abs[s] == 1 && {e, x} != {0, 1}) ||
-     (s == +2 && {a, e, x} != {0, 0, 1}),
-    Message[TeukolskyPointParticleMode::params, s, e, x];
-    Return[$Failed];
-  ];*)
-  
+  {a, p, e, x} = orbit /@ {"a", "p", "e", "Inclination"};  
 
   If[{e, Abs[x]} == {0, 1} && (n != 0 || k != 0),
     Message[TeukolskyPointParticleMode::mode, n, k, "circular"];
@@ -259,11 +251,11 @@ Derivative[n_][TeukolskyMode[assoc_]["ExtendedHomogeneous" -> "\[ScriptCapitalI]
   assoc["Amplitudes"]["\[ScriptCapitalI]"]Derivative[n][assoc["RadialFunctions"]["Up"]][r];
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Fluxes*)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Energy Flux*)
 
 
@@ -324,7 +316,7 @@ EnergyFlux[mode_TeukolskyMode] :=
 AngularMomentumFlux[mode_TeukolskyMode] := If[mode["\[Omega]"]!=0,EnergyFlux[mode] mode["m"]/mode["\[Omega]"],0];
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*End Package*)
 
 
@@ -335,7 +327,7 @@ AngularMomentumFlux[mode_TeukolskyMode] := If[mode["\[Omega]"]!=0,EnergyFlux[mod
 SetAttributes[{TeukolskyMode, TeukolskyPointParticleMode}, {Protected, ReadProtected}];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*End*)
 
 

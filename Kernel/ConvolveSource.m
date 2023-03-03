@@ -22,7 +22,7 @@ BeginPackage["Teukolsky`ConvolveSource`", {"KerrGeodesics`", "KerrGeodesics`Orbi
 Begin["`Private`"];
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*ConvolveSource*)
 
 
@@ -1226,7 +1226,7 @@ ConvolveSourcePointParticleSpherical[s:1, k_Integer, R_, SH_, TS_] :=
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*s=+1 point particle on an eccentric orbit*)
 
 
@@ -1288,7 +1288,6 @@ ConvolveSourcePointParticleEccentric[1, n_Integer, R_, SH_, TS_] :=
         + ((Al0*Clm1 + Am0*Cmm1) R0-(Am1*Cmm1) dR0)Exp[-I rphase];
         
     Clear[r0, R0, dR0, ur0, u\[Theta]0, rcomp, \[Theta]comp, \[CapitalDelta], \[CapitalDelta]p, Kt, \[Rho], \[Rho]bar, rphase, \[Theta]phase];
-    (*Print[res];*)
     res
   ];
   
@@ -1311,7 +1310,7 @@ ConvolveSourcePointParticleEccentric[1, n_Integer, R_, SH_, TS_] :=
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*s=+1 point particle on a generic orbit*)
 
 
