@@ -72,19 +72,7 @@ Options[TeukolskyPointParticleMode] = {"Domain" -> Automatic};
 
 TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer, orbit_KerrGeoOrbitFunction, opts:OptionsPattern[]] /; AllTrue[orbit["Frequencies"], InexactNumberQ] :=
  Module[{source, assoc, domain, Ruser, R, S, \[Omega], \[CapitalOmega]r, \[CapitalOmega]\[Phi], \[CapitalOmega]\[Theta], Z, \[Lambda], rmin, rmax, a, p, e, x},
-  {a, p, e, x} = orbit /@ {"a", "p", "e", "Inclination"};
-
-  (*If[!MemberQ[{-2, -1, 0, 1, 2}, s] ||
-     (Abs[s] == 1 && {e, x} != {0, 1}) ||
-     (s == +2 && {a, e, x} != {0, 0, 1}),
-    Message[TeukolskyPointParticleMode::params, s, e, x];
-    Return[$Failed];
-  ];*)
-  If[!MemberQ[{-2, -1, 0, 1, 2}, s] ||
-     (Abs[s] == 1 && {e, x} != {0, 1}),
-    Message[TeukolskyPointParticleMode::params, s, e, x];
-    Return[$Failed];
-  ];
+  {a, p, e, x} = orbit /@ {"a", "p", "e", "Inclination"};  
 
   If[{e, Abs[x]} == {0, 1} && (n != 0 || k != 0),
     Message[TeukolskyPointParticleMode::mode, n, k, "circular"];
@@ -95,6 +83,10 @@ TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer
   If[Abs[x] == 1 && k != 0,
     Message[TeukolskyPointParticleMode::mode, n, k, "eccentric"];
     Return[$Failed]];
+  If[!MemberQ[{-2,-1,0,1,2},s], 
+    Message[TeukolskyPointParticleMode::params,s];
+    Return[$Failed];
+    ];
 
   (*{\[CapitalOmega]r, \[CapitalOmega]\[Theta], \[CapitalOmega]\[Phi]} = orbit["Frequencies"];*) (*This gives Mino frequencies, need BL frequencies*)
   {\[CapitalOmega]r, \[CapitalOmega]\[Theta], \[CapitalOmega]\[Phi]} = {"\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(r\)]\)","\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Theta]\)]\)","\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"}/.KerrGeoFrequencies[orbit["a"], orbit["p"], orbit["e"], orbit["Inclination"]];
@@ -126,8 +118,8 @@ TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer
   assoc = <| "s" -> s, 
 		     "l" -> l,
 		     "m" -> m,
-		     "n"->n,
-		     "k"->k,
+		     "n" -> n,
+		     "k" -> k,
 		     "a" -> a,
   		   "\[Omega]" -> \[Omega],
 		     "Eigenvalue" -> R["In"]["Eigenvalue"],
@@ -284,9 +276,22 @@ EnergyFlux[mode_TeukolskyMode] :=
   rh = M + Sqrt[M^2-a^2];
   \[CapitalOmega]h = a/(2 M rh);
   \[Kappa] = \[Omega] - m \[CapitalOmega]h;
-  \[Epsilon] = Sqrt[M^2-a^2]/(4 M rh);
+  \[Epsilon] = Sqrt[M^2-a^2]/(4 M rh);  	
 
-  FluxInf = Abs[Z["\[ScriptCapitalI]"]]^2 \[Omega]^(2(1-Abs[s]))/(4 \[Pi]);
+  FluxInf = 
+  Switch[s,
+  -2, Abs[Z["\[ScriptCapitalI]"]]^2 \[Omega]^(2(1-Abs[s]))/(4 \[Pi]),
+  -1, Abs[Z["\[ScriptCapitalI]"]]^2 \[Omega]^(2(1-Abs[s]))/(4 \[Pi]),
+  0, Abs[Z["\[ScriptCapitalI]"]]^2 \[Omega]^(2(1-Abs[s]))/(4 \[Pi]),
+  1, AbsCSq = (\[Lambda]+2)^2+ 4 a \[Omega](m-a \[Omega]);
+  (4 \[Omega]^4 Abs[Z["\[ScriptCapitalI]"]]^2)/(AbsCSq) \[Omega]^(2(1-Abs[s]))/(4 \[Pi]),
+  2, AbsCSq = (4+\[Lambda])^2 (6+\[Lambda])^2+144 M^2 \[Omega]^2+8 a (4+\[Lambda]) (-4+5 (6+\[Lambda])) \[Omega] (m-a \[Omega])+48 a^2 \[Omega]^2 (2 (4+\[Lambda])+3 (m-a \[Omega])^2);
+  (16 \[Omega]^8 Abs[Z["\[ScriptCapitalI]"]]^2)/(AbsCSq) \[Omega]^(2(1-Abs[s]))/(4 \[Pi])
+  ];
+                
+  
+  
+  (*Abs[Z["\[ScriptCapitalI]"]]^2 \[Omega]^(2(1-Abs[s]))/(4 \[Pi]);*)
   FluxHor = Switch[s,
 			-2,
 			  AbsCSq = ((\[Lambda]+2)^2 + 4 a m \[Omega] - 4a^2 \[Omega]^2)(\[Lambda]^2+36 m a \[Omega] - 36 a^2 \[Omega]^2) + (2\[Lambda]+3)(96 a^2 \[Omega]^2 - 48 m a \[Omega]) + 144 \[Omega]^2 (M^2-a^2);
@@ -297,7 +302,11 @@ EnergyFlux[mode_TeukolskyMode] :=
 			  \[Omega] Abs[Z["\[ScriptCapitalH]"]]^2 (2 M rh \[Kappa]) 4 ((2 M rh \[Kappa])^2+(M^2-a^2))/ (p \[Pi]),
 			0,
 			  (* The rh^2 factor vs arXiv:1003.1860 Eq. (55) is needed as \[Psi] = r R*)
-			  1/(2 \[Pi] rh) \[Omega](\[Omega]-m \[CapitalOmega]h) Abs[Z["\[ScriptCapitalH]"]]^2*rh^2
+			  1/(2 \[Pi] rh) \[Omega](\[Omega]-m \[CapitalOmega]h) Abs[Z["\[ScriptCapitalH]"]]^2*rh^2,
+			 1,
+			 (\[Omega] Abs[Z["\[ScriptCapitalH]"]]^2)/(32 \[Pi] \[Kappa] rh),
+			 2,
+			  (\[Omega] Abs[Z["\[ScriptCapitalH]"]]^2)/(512 \[Pi] rh^3 \[Kappa] (\[Kappa]^2+4 \[Epsilon]^2))
 			];
 
   <| "\[ScriptCapitalI]" -> FluxInf, "\[ScriptCapitalH]" -> FluxHor |>
