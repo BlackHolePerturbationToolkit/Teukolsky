@@ -83,6 +83,10 @@ TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer
   If[Abs[x] == 1 && k != 0,
     Message[TeukolskyPointParticleMode::mode, n, k, "eccentric"];
     Return[$Failed]];
+  If[!MemberQ[{-2,-1,0,1,2},s], 
+    Message[TeukolskyPointParticleMode::params,s];
+    Return[$Failed];
+    ];
 
   (*{\[CapitalOmega]r, \[CapitalOmega]\[Theta], \[CapitalOmega]\[Phi]} = orbit["Frequencies"];*) (*This gives Mino frequencies, need BL frequencies*)
   {\[CapitalOmega]r, \[CapitalOmega]\[Theta], \[CapitalOmega]\[Phi]} = {"\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(r\)]\)","\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Theta]\)]\)","\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"}/.KerrGeoFrequencies[orbit["a"], orbit["p"], orbit["e"], orbit["Inclination"]];
@@ -333,6 +337,3 @@ SetAttributes[{TeukolskyMode, TeukolskyPointParticleMode}, {Protected, ReadProte
 
 End[];
 EndPackage[];
-
-
-
