@@ -26,7 +26,7 @@ BeginPackage["Teukolsky`TeukolskySource`", {"KerrGeodesics`", "KerrGeodesics`Orb
 Begin["`Private`"];
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*TeukolskyPointParticleSource*)
 
 
