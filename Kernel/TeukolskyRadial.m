@@ -516,7 +516,7 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
       norms = N[Teukolsky`MST`MST`Private`Amplitudes[s, l, m, SetPrecision[a, 2 $MachinePrecision], SetPrecision[2\[Omega], 2 $MachinePrecision], SetPrecision[\[Nu], 2 $MachinePrecision], SetPrecision[\[Lambda], 2 $MachinePrecision], {2 $MachinePrecision, prec, acc}]];,
       norms = Teukolsky`MST`MST`Private`Amplitudes[s, l, m, a, 2\[Omega], \[Nu], \[Lambda], {wp, prec, acc}];
     ];,
-  _,
+  True,
     Message[TeukolskyRadial::optx, "Amplitudes" -> OptionValue["Amplitudes"]];
     Return[$Failed];
   ];
