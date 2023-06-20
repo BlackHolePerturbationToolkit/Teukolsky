@@ -309,6 +309,35 @@ TeukolskyRadialHeunC[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, \[Lambda]_,
 (*Static modes*)
 
 
+AmpIn1[s_,l_,m_,a_]:=Module[{\[Tau] = -((m a)/Sqrt[1-a^2]),\[Kappa] = Sqrt[1 - a^2]},
+If[\[Tau]==0,
+If[s>0,
+(2^(l+s) \[Kappa]^(-l+s) Gamma[1/2+l] Gamma[1+s])/(Sqrt[\[Pi]] Gamma[1+l+s]),
+(2^(l-s) \[Kappa]^(-l-s) Gamma[1/2+l] Gamma[1-s])/(Sqrt[\[Pi]] Gamma[1+l-s])
+]
+,(2^(-l-s-I \[Tau]) \[Kappa]^(-2 l-s) Gamma[1+2 l] Gamma[1-s-I \[Tau]])/(Gamma[1+l-s] Gamma[1+l-I \[Tau]]) \[Kappa]^(l-I \[Tau])
+]
+]
+AmpIn2[s_,l_,m_,a_]:=Module[{\[Tau] = -((m a)/Sqrt[1-a^2]),\[Kappa] = Sqrt[1 - a^2]},
+-((2^(l-s-I \[Tau]) \[Kappa]^(1-s) Cos[\[Pi] (l+s)] Gamma[1+l+s] Gamma[1-s-I \[Tau]])/(Gamma[2+2 l] Gamma[-l-I \[Tau]]))
+]
+AmpUp3[s_,l_,m_,a_]:=Module[{\[Tau] = -((m a)/Sqrt[1-a^2]),\[Kappa] = Sqrt[1 - a^2]},
+(2^(-1-l-s-I \[Tau]) \[Kappa]^(-1-l-s-I \[Tau]) Gamma[2+2 l] Gamma[-s-I \[Tau]])/(Gamma[1+l-s] Gamma[1+l-I \[Tau]])
+]
+
+AmpUp4[s_,l_,m_,a_]:=Module[{\[Tau] = -((m a)/Sqrt[1-a^2]),\[Kappa] = Sqrt[1 - a^2]},
+(2^(-1-l+s+I \[Tau]) \[Kappa]^(-1-l+s+I \[Tau]) Gamma[2+2 l] Gamma[s+I \[Tau]])/(Gamma[1+l+s] Gamma[1+l+I \[Tau]])
+]
+
+AmpUp5[s_,l_,a_]:=Module[{\[Kappa] = Sqrt[1 - a^2]},
+If[s==0,
+  -(((2^l) (\[Kappa]^(-1-l)) Gamma[3/2+l] )/(Sqrt[\[Pi]] Gamma[1+l])),
+If[s>0,
+AmpUp4[s,l,0,a],
+AmpUp3[s,l,0,a]]]
+];
+
+
 TeukolskyRadialStatic[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, \[Lambda]_, \[Nu]_, BCs_] :=
  Module[{normIn, normUp, solFuncs, TRF},
   (* Function to construct a TeukolskyRadialFunction *)
@@ -323,7 +352,7 @@ TeukolskyRadialStatic[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, \[Lambda]_
 
   (* Solution functions for the specified boundary conditions *)
   With[{\[Tau] = -((m a)/Sqrt[1-a^2]), \[Kappa] = Sqrt[1 - a^2]},
-    normIn = (2 \[Kappa])^(-2s) Exp[-I \[Tau]/2 \[Kappa] (1+2Log[\[Kappa]]/(1+\[Kappa]))] If[s >= 1 && \[Tau] == 0, 1, Gamma[1 - s - I \[Tau]]];
+    normIn = If[s>0&&\[Tau]==0,Gamma[s+1]Pochhammer[l+s+1,-2s],(2\[Kappa])^(-2s-I \[Tau]) Gamma[1-s-I \[Tau]]];
     normUp = (2 \[Kappa])^(-s-l-1);
     solFuncs =
       <|"In" :> Function[{r}, normIn (-(1 + \[Kappa] - r)/(2 \[Kappa]))^(-s - I \[Tau]/2) (1 - (1 + \[Kappa] - r)/(2 \[Kappa]))^(-I \[Tau]/2) Hypergeometric2F1Regularized[-l - I \[Tau], l + 1 - I \[Tau], 1 - s - I \[Tau], (1 + \[Kappa] - r)/(2 \[Kappa])]],
