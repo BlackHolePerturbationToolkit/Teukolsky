@@ -309,33 +309,46 @@ TeukolskyRadialHeunC[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, \[Lambda]_,
 (*Static modes*)
 
 
-AmpIn1[s_,l_,m_,a_]:=Module[{\[Tau] = -((m a)/Sqrt[1-a^2]),\[Kappa] = Sqrt[1 - a^2]},
-If[\[Tau]==0,
-If[s>0,
-(2^(l+s) \[Kappa]^(-l+s) Gamma[1/2+l] Gamma[1+s])/(Sqrt[\[Pi]] Gamma[1+l+s]),
-(2^(l-s) \[Kappa]^(-l-s) Gamma[1/2+l] Gamma[1-s])/(Sqrt[\[Pi]] Gamma[1+l-s])
-]
-,(2^(-l-s-I \[Tau]) \[Kappa]^(-2 l-s) Gamma[1+2 l] Gamma[1-s-I \[Tau]])/(Gamma[1+l-s] Gamma[1+l-I \[Tau]]) \[Kappa]^(l-I \[Tau])
-]
-]
-AmpIn2[s_,l_,m_,a_]:=Module[{\[Tau] = -((m a)/Sqrt[1-a^2]),\[Kappa] = Sqrt[1 - a^2]},
--((2^(l-s-I \[Tau]) \[Kappa]^(1-s) Cos[\[Pi] (l+s)] Gamma[1+l+s] Gamma[1-s-I \[Tau]])/(Gamma[2+2 l] Gamma[-l-I \[Tau]]))
-]
-AmpUp3[s_,l_,m_,a_]:=Module[{\[Tau] = -((m a)/Sqrt[1-a^2]),\[Kappa] = Sqrt[1 - a^2]},
-(2^(-1-l-s-I \[Tau]) \[Kappa]^(-1-l-s-I \[Tau]) Gamma[2+2 l] Gamma[-s-I \[Tau]])/(Gamma[1+l-s] Gamma[1+l-I \[Tau]])
-]
+AmpIn1[s_, l_, m_, a_] :=
+ Module[{\[Tau] = -((m a)/Sqrt[1-a^2]),\[Kappa] = Sqrt[1 - a^2]},
+  If[\[Tau]==0 && s>0,
+    (2^(l+s) \[Kappa]^(-l+s) Gamma[1/2+l] Gamma[1+s])/(Sqrt[\[Pi]] Gamma[1+l+s]),
+    (2^(-l-s-I \[Tau]) \[Kappa]^(-2 l-s) Gamma[1+2 l] Gamma[1-s-I \[Tau]])/(Gamma[1+l-s] Gamma[1+l-I \[Tau]]) \[Kappa]^(l-I \[Tau])
+  ]
+ ];
 
-AmpUp4[s_,l_,m_,a_]:=Module[{\[Tau] = -((m a)/Sqrt[1-a^2]),\[Kappa] = Sqrt[1 - a^2]},
-(2^(-1-l+s+I \[Tau]) \[Kappa]^(-1-l+s+I \[Tau]) Gamma[2+2 l] Gamma[s+I \[Tau]])/(Gamma[1+l+s] Gamma[1+l+I \[Tau]])
-]
 
-AmpUp5[s_,l_,a_]:=Module[{\[Kappa] = Sqrt[1 - a^2]},
-If[s==0,
-  -(((2^l) (\[Kappa]^(-1-l)) Gamma[3/2+l] )/(Sqrt[\[Pi]] Gamma[1+l])),
-If[s>0,
-AmpUp4[s,l,0,a],
-AmpUp3[s,l,0,a]]]
-];
+AmpIn2[s_, l_, m_, a_] :=
+ Module[{\[Tau] = -((m a)/Sqrt[1-a^2]),\[Kappa] = Sqrt[1 - a^2]},
+  -((2^(l-s-I \[Tau]) \[Kappa]^(1-s) Cos[\[Pi] (l+s)] Gamma[1+l+s] Gamma[1-s-I \[Tau]])/(Gamma[2+2 l] Gamma[-l-I \[Tau]]))
+ ];
+
+
+AmpUp3[s_, l_, m_, a_] :=
+ Module[{\[Tau] = -((m a)/Sqrt[1-a^2]),\[Kappa] = Sqrt[1 - a^2]},
+  (2^(-1-l-s-I \[Tau]) \[Kappa]^(-1-l-s-I \[Tau]) Gamma[2+2 l] Gamma[-s-I \[Tau]])/(Gamma[1+l-s] Gamma[1+l-I \[Tau]])
+ ];
+
+
+AmpUp4[s_, l_, m_, a_] :=
+ Module[{\[Tau] = -((m a)/Sqrt[1-a^2]),\[Kappa] = Sqrt[1 - a^2]},
+  (2^(-1-l+s+I \[Tau]) \[Kappa]^(-1-l+s+I \[Tau]) Gamma[2+2 l] Gamma[s+I \[Tau]])/(Gamma[1+l+s] Gamma[1+l+I \[Tau]])
+ ];
+
+
+AmpUp5[s_, l_, a_ ] :=
+ Module[{\[Kappa] = Sqrt[1 - a^2]},
+  Which[
+   s==0,
+    -(((2^l) (\[Kappa]^(-1-l)) Gamma[3/2+l] )/(Sqrt[\[Pi]] Gamma[1+l])),
+   s>0,
+    AmpUp4[s,l,0,a],
+   s<0,
+    AmpUp3[s,l,0,a],
+   True,
+    $Failed
+  ]
+ ];
 
 
 TeukolskyRadialStatic[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, \[Lambda]_, \[Nu]_, BCs_] :=
