@@ -111,7 +111,7 @@ TeukolskyRadialNumericalIntegration[s_Integer, l_Integer, m_Integer, a_, \[Omega
       "Method" -> {"NumericalIntegration", ndsolveopts},
       "BoundaryConditions" -> bc, "Amplitudes" -> amp, "UnscaledAmplitudes" -> ns,
       "Domain" -> If[domain === All, {rp[a, 1], \[Infinity]}, First[solutionFunction["Domain"]]],
-      "RadialFunction" -> Function[{Global`r}, Evaluate[Global`r^-1 \[CapitalDelta][Global`r,a]^-s Exp[bcdir I \[Omega] rs[Global`r,a]] Exp[I m \[Phi]Reg[Global`r,a]] solutionFunction[Global`r]]]
+      "RadialFunction" -> (Evaluate[#^-1 \[CapitalDelta][#,a]^-s Exp[bcdir I \[Omega] rs[#,a]] Exp[I m \[Phi]Reg[#,a]] solutionFunction[#]]&)
      ]
     ]
    ];
@@ -291,7 +291,7 @@ TeukolskyRadialHeunC[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, \[Lambda]_,
 
   (* Solution functions for the specified boundary conditions *)
   solFuncs =
-    <|"In" :> Function[{r}, 2^((-I a m-Sqrt[1-a^2] s+2 I \[Omega])/Sqrt[1-a^2]) (1-a^2)^((I a m)/(2 (1+Sqrt[1-a^2]))-s-I \[Omega]) E^(1/2 I (a m-2 r \[Omega])) ((-1-Sqrt[1-a^2]+r)/Sqrt[1-a^2])^((I a m)/(2 Sqrt[1-a^2])-s-I (1+1/Sqrt[1-a^2]) \[Omega]) ((-1+Sqrt[1-a^2]+r)/Sqrt[1-a^2])^((I (a m+2 (-1+Sqrt[1-a^2]) \[Omega]))/(2 Sqrt[1-a^2])) HeunC[s+s^2+\[Lambda]-(a m-2 \[Omega])^2/(-1+a^2)-4 \[Omega]^2+(I (-a m-4 (-1+s) \[Omega]+2 a^2 (-1+2 s) \[Omega]))/Sqrt[1-a^2],-4 \[Omega] (-I Sqrt[1-a^2]+a m+I Sqrt[1-a^2] s-2 \[Omega]+2 Sqrt[1-a^2] \[Omega]),1-s+(I (a m-2 \[Omega]))/Sqrt[1-a^2]-2 I \[Omega],1+s+(I (a m-2 \[Omega]))/Sqrt[1-a^2]+2 I \[Omega],4 I Sqrt[1-a^2] \[Omega],(1+Sqrt[1-a^2]-r)/(2 Sqrt[1-a^2])]],
+    <|"In" :> (2^((-I a m-Sqrt[1-a^2] s+2 I \[Omega])/Sqrt[1-a^2]) (1-a^2)^((I a m)/(2 (1+Sqrt[1-a^2]))-s-I \[Omega]) E^(1/2 I (a m-2 # \[Omega])) ((-1-Sqrt[1-a^2]+#)/Sqrt[1-a^2])^((I a m)/(2 Sqrt[1-a^2])-s-I (1+1/Sqrt[1-a^2]) \[Omega]) ((-1+Sqrt[1-a^2]+#)/Sqrt[1-a^2])^((I (a m+2 (-1+Sqrt[1-a^2]) \[Omega]))/(2 Sqrt[1-a^2])) HeunC[s+s^2+\[Lambda]-(a m-2 \[Omega])^2/(-1+a^2)-4 \[Omega]^2+(I (-a m-4 (-1+s) \[Omega]+2 a^2 (-1+2 s) \[Omega]))/Sqrt[1-a^2],-4 \[Omega] (-I Sqrt[1-a^2]+a m+I Sqrt[1-a^2] s-2 \[Omega]+2 Sqrt[1-a^2] \[Omega]),1-s+(I (a m-2 \[Omega]))/Sqrt[1-a^2]-2 I \[Omega],1+s+(I (a m-2 \[Omega]))/Sqrt[1-a^2]+2 I \[Omega],4 I Sqrt[1-a^2] \[Omega],(1+Sqrt[1-a^2]-#)/(2 Sqrt[1-a^2])])&,
       "Up" :> $Failed |>;
   solFuncs = Lookup[solFuncs, BCs];
 
@@ -331,7 +331,7 @@ staticAmplitudes[s_, l_, m_, a_] :=
 
 
 TeukolskyRadialStatic[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, \[Lambda]_, \[Nu]_, BCs_, norms_] :=
- Module[{amps, normIn, normUp, solFuncs, TRF},
+ Module[{amps, solFuncs, TRF},
   (* Function to construct a TeukolskyRadialFunction *)
   TRF[bc_, amp_, sf_] :=
     TeukolskyRadialFunction[s, l, m, a, \[Omega],
@@ -344,12 +344,13 @@ TeukolskyRadialStatic[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, \[Lambda]_
 
   (* Solution functions for the specified boundary conditions *)
   With[{\[Tau] = -((m a)/Sqrt[1-a^2]), \[Kappa] = Sqrt[1 - a^2]},
-    normIn = If[s>0&&\[Tau]==0,Gamma[s+1]Pochhammer[l+s+1,-2s],(2\[Kappa])^(-2s-I \[Tau]) Gamma[1-s-I \[Tau]]];
-    normUp = (2 \[Kappa])^(-s-l-1);
+    With[{normIn = If[\[Tau]==0 && s>0, Gamma[s+1]Pochhammer[l+s+1,-2s], (2\[Kappa])^(-2s-I \[Tau]) Gamma[1-s-I \[Tau]]],
+          normUp = (2 \[Kappa])^(-s-l-1)},
     solFuncs =
-      <|"In" :> Function[{r}, normIn (-(1 + \[Kappa] - r)/(2 \[Kappa]))^(-s - I \[Tau]/2) (1 - (1 + \[Kappa] - r)/(2 \[Kappa]))^(-I \[Tau]/2) Hypergeometric2F1Regularized[-l - I \[Tau], l + 1 - I \[Tau], 1 - s - I \[Tau], (1 + \[Kappa] - r)/(2 \[Kappa])]],
-      "Up" :> Function[{r}, normUp (-(1 + \[Kappa] - r)/(2 \[Kappa]))^(-s - (I \[Tau])/2) (1 - (1 + \[Kappa] - r)/(2 \[Kappa]))^((I \[Tau])/2 - l - 1) Hypergeometric2F1[l + 1 - I \[Tau], l + 1 - s, 2 l + 2, 1/(1 - (1 + \[Kappa] - r)/(2 \[Kappa]))]]
+      <|"In" :> (normIn (-(1 + \[Kappa] - #)/(2 \[Kappa]))^(-s - I \[Tau]/2) (1 - (1 + \[Kappa] - #)/(2 \[Kappa]))^(-I \[Tau]/2) Hypergeometric2F1Regularized[-l - I \[Tau], l + 1 - I \[Tau], 1 - s - I \[Tau], (1 + \[Kappa] - #)/(2 \[Kappa])]&),
+        "Up" :> (normUp (-(1 + \[Kappa] - #)/(2 \[Kappa]))^(-s - (I \[Tau])/2) (1 - (1 + \[Kappa] - #)/(2 \[Kappa]))^((I \[Tau])/2 - l - 1) Hypergeometric2F1[l + 1 - I \[Tau], l + 1 - s, 2 l + 2, 1/(1 - (1 + \[Kappa] - #)/(2 \[Kappa]))]&)
        |>;
+    ];
   ];
   solFuncs = Lookup[solFuncs, BCs];
 
