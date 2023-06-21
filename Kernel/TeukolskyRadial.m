@@ -324,8 +324,8 @@ staticAmplitudes[s_, l_, m_, a_] :=
      <|"In" -> <| "\[ScriptCapitalH]" -> 1, "\[ScriptCapitalI]" -> ampIn1|>,
        "Up" -> <| "\[ScriptCapitalH]" -> ampUp5, "\[ScriptCapitalI]" -> 1|>|>
   ,
-     <|"In" -> <| "\[ScriptCapitalH]" -> 1, "\[ScriptCapitalI]-" -> ampIn1, "\[ScriptCapitalI]+" -> ampIn2|>,
-       "Up" -> <| "\[ScriptCapitalH]-" -> ampUp3, "\[ScriptCapitalH]+" -> ampUp4, "\[ScriptCapitalI]" -> 1|>|>
+     <|"In" -> <| "\[ScriptCapitalH]" -> 1, "\[ScriptCapitalI]-" -> ampIn2, "\[ScriptCapitalI]+" -> ampIn1|>,
+       "Up" -> <| "\[ScriptCapitalH]-" -> ampUp4, "\[ScriptCapitalH]+" -> ampUp3, "\[ScriptCapitalI]" -> 1|>|>
   ]
  ];
 
