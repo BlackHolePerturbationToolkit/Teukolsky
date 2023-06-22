@@ -311,21 +311,26 @@ TeukolskyRadialHeunC[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, \[Lambda]_,
 
 staticAmplitudes[s_, l_, m_, a_] :=
  Module[{\[Tau] = -((m a)/Sqrt[1-a^2]), \[Kappa] = Sqrt[1 - a^2], ampIn1, ampIn2, ampUp3, ampUp4, ampUp5},
-  ampIn1 = If[\[Tau]==0 && s>0,
-    ((2 \[Kappa])^(-l+s) Gamma[2l+1] Gamma[1+s])/(Gamma[l+1] Gamma[1+l+s]),
-    ((2 \[Kappa])^(-l-s-I \[Tau]) Gamma[2l+1] Gamma[1-s-I \[Tau]])/(Gamma[1+l-s] Gamma[1+l-I \[Tau]])];
-  ampIn2 = If[\[Tau]==0 && s>0, 0, -((2^(l-s-I \[Tau]) \[Kappa]^(1-s) (-1)^(l+s) Gamma[1+l+s] Gamma[1-s-I \[Tau]])/(Gamma[2+2 l] Gamma[-l-I \[Tau]]))];
-  ampUp3 = ((2 \[Kappa])^(-1-l-s-I \[Tau]) Gamma[2+2 l] Gamma[-s-I \[Tau]])/(Gamma[1+l-s] Gamma[1+l-I \[Tau]]);
-  ampUp4 = ((2 \[Kappa])^(-1-l+s+I \[Tau]) Gamma[2+2 l] Gamma[s+I \[Tau]])/(Gamma[1+l+s] Gamma[1+l+I \[Tau]]);
-  ampUp5 = Which[s==0, -((2 \[Kappa])^(-1-l) Gamma[3+2l])/(2 Gamma[l+2] Gamma[1+l]), s>0, ampUp4, s<0, ampUp3, True, $Failed];
-
   (* Return results as an Association *)
   If[\[Tau]==0,
-     <|"In" -> <| "\[ScriptCapitalH]" -> 1, "\[ScriptCapitalI]" -> ampIn1|>,
-       "Up" -> <| "\[ScriptCapitalH]" -> ampUp5, "\[ScriptCapitalI]" -> 1|>|>
+     <|"In" -> <|
+         "\[ScriptCapitalH]" -> 1,
+         "\[ScriptCapitalI]" -> ((2 \[Kappa])^(-l+Abs[s]) Gamma[2l+1] Gamma[1+Abs[s]])/(Gamma[l+1] Gamma[1+l+Abs[s]])|>,
+       "Up" -> <|
+         "\[ScriptCapitalH]" ->
+           If[s==0,
+             -((2 \[Kappa])^(-1-l) Gamma[3+2l])/(2 Gamma[l+2] Gamma[1+l]),
+             ((2 \[Kappa])^(-1-l+Abs[s]) Gamma[2+2 l] Gamma[Abs[s]])/(Gamma[1+l+Abs[s]] Gamma[1+l])],
+         "\[ScriptCapitalI]" -> 1|>|>
   ,
-     <|"In" -> <| "\[ScriptCapitalH]" -> 1, "\[ScriptCapitalI]-" -> ampIn2, "\[ScriptCapitalI]+" -> ampIn1|>,
-       "Up" -> <| "\[ScriptCapitalH]-" -> ampUp4, "\[ScriptCapitalH]+" -> ampUp3, "\[ScriptCapitalI]" -> 1|>|>
+     <|"In" -> <|
+         "\[ScriptCapitalH]" -> 1,
+         "\[ScriptCapitalI]-" -> -((2^(l-s-I \[Tau]) \[Kappa]^(1-s) (-1)^(l+s) Gamma[1+l+s] Gamma[1-s-I \[Tau]])/(Gamma[2+2 l] Gamma[-l-I \[Tau]])),
+         "\[ScriptCapitalI]+" -> ((2 \[Kappa])^(-l-s-I \[Tau]) Gamma[2l+1] Gamma[1-s-I \[Tau]])/(Gamma[1+l-s] Gamma[1+l-I \[Tau]])|>,
+       "Up" -> <|
+         "\[ScriptCapitalH]-" -> ((2 \[Kappa])^(-1-l+s+I \[Tau]) Gamma[2+2 l] Gamma[s+I \[Tau]])/(Gamma[1+l+s] Gamma[1+l+I \[Tau]]),
+         "\[ScriptCapitalH]+" -> ((2 \[Kappa])^(-1-l-s-I \[Tau]) Gamma[2+2 l] Gamma[-s-I \[Tau]])/(Gamma[1+l-s] Gamma[1+l-I \[Tau]]),
+         "\[ScriptCapitalI]" -> 1|>|>
   ]
  ];
 
