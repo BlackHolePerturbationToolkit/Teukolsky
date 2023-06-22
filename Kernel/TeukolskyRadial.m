@@ -111,7 +111,7 @@ TeukolskyRadialNumericalIntegration[s_Integer, l_Integer, m_Integer, a_, \[Omega
       "Method" -> {"NumericalIntegration", ndsolveopts},
       "BoundaryConditions" -> bc, "Amplitudes" -> amp, "UnscaledAmplitudes" -> ns,
       "Domain" -> If[domain === All, {rp[a, 1], \[Infinity]}, First[solutionFunction["Domain"]]],
-      "RadialFunction" -> Function[{Global`r}, Evaluate[Global`r^-1 \[CapitalDelta][Global`r,a]^-s Exp[bcdir I \[Omega] rs[Global`r,a]] Exp[I m \[Phi]Reg[Global`r,a]] solutionFunction[Global`r]]]
+      "RadialFunction" -> (Evaluate[#^-1 \[CapitalDelta][#,a]^-s Exp[bcdir I \[Omega] rs[#,a]] Exp[I m \[Phi]Reg[#,a]] solutionFunction[#]]&)
      ]
     ]
    ];
@@ -291,7 +291,7 @@ TeukolskyRadialHeunC[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, \[Lambda]_,
 
   (* Solution functions for the specified boundary conditions *)
   solFuncs =
-    <|"In" :> Function[{r}, 2^((-I a m-Sqrt[1-a^2] s+2 I \[Omega])/Sqrt[1-a^2]) (1-a^2)^((I a m)/(2 (1+Sqrt[1-a^2]))-s-I \[Omega]) E^(1/2 I (a m-2 r \[Omega])) ((-1-Sqrt[1-a^2]+r)/Sqrt[1-a^2])^((I a m)/(2 Sqrt[1-a^2])-s-I (1+1/Sqrt[1-a^2]) \[Omega]) ((-1+Sqrt[1-a^2]+r)/Sqrt[1-a^2])^((I (a m+2 (-1+Sqrt[1-a^2]) \[Omega]))/(2 Sqrt[1-a^2])) HeunC[s+s^2+\[Lambda]-(a m-2 \[Omega])^2/(-1+a^2)-4 \[Omega]^2+(I (-a m-4 (-1+s) \[Omega]+2 a^2 (-1+2 s) \[Omega]))/Sqrt[1-a^2],-4 \[Omega] (-I Sqrt[1-a^2]+a m+I Sqrt[1-a^2] s-2 \[Omega]+2 Sqrt[1-a^2] \[Omega]),1-s+(I (a m-2 \[Omega]))/Sqrt[1-a^2]-2 I \[Omega],1+s+(I (a m-2 \[Omega]))/Sqrt[1-a^2]+2 I \[Omega],4 I Sqrt[1-a^2] \[Omega],(1+Sqrt[1-a^2]-r)/(2 Sqrt[1-a^2])]],
+    <|"In" :> (2^((-I a m-Sqrt[1-a^2] s+2 I \[Omega])/Sqrt[1-a^2]) (1-a^2)^((I a m)/(2 (1+Sqrt[1-a^2]))-s-I \[Omega]) E^(1/2 I (a m-2 # \[Omega])) ((-1-Sqrt[1-a^2]+#)/Sqrt[1-a^2])^((I a m)/(2 Sqrt[1-a^2])-s-I (1+1/Sqrt[1-a^2]) \[Omega]) ((-1+Sqrt[1-a^2]+#)/Sqrt[1-a^2])^((I (a m+2 (-1+Sqrt[1-a^2]) \[Omega]))/(2 Sqrt[1-a^2])) HeunC[s+s^2+\[Lambda]-(a m-2 \[Omega])^2/(-1+a^2)-4 \[Omega]^2+(I (-a m-4 (-1+s) \[Omega]+2 a^2 (-1+2 s) \[Omega]))/Sqrt[1-a^2],-4 \[Omega] (-I Sqrt[1-a^2]+a m+I Sqrt[1-a^2] s-2 \[Omega]+2 Sqrt[1-a^2] \[Omega]),1-s+(I (a m-2 \[Omega]))/Sqrt[1-a^2]-2 I \[Omega],1+s+(I (a m-2 \[Omega]))/Sqrt[1-a^2]+2 I \[Omega],4 I Sqrt[1-a^2] \[Omega],(1+Sqrt[1-a^2]-#)/(2 Sqrt[1-a^2])])&,
       "Up" :> $Failed |>;
   solFuncs = Lookup[solFuncs, BCs];
 
@@ -309,32 +309,62 @@ TeukolskyRadialHeunC[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, \[Lambda]_,
 (*Static modes*)
 
 
-TeukolskyRadialStatic[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, \[Lambda]_, \[Nu]_, BCs_] :=
- Module[{normIn, normUp, solFuncs, TRF},
+staticAmplitudes[s_, l_, m_, a_] :=
+ Module[{\[Tau] = -((m a)/Sqrt[1-a^2]), \[Kappa] = Sqrt[1 - a^2], ampIn1, ampIn2, ampUp3, ampUp4, ampUp5},
+  (* Return results as an Association *)
+  If[\[Tau]==0,
+     <|"In" -> <|
+         "\[ScriptCapitalH]" -> 1,
+         "\[ScriptCapitalI]" -> ((2 \[Kappa])^(-l+Abs[s]) Gamma[2l+1] Gamma[1+Abs[s]])/(Gamma[l+1] Gamma[1+l+Abs[s]])|>,
+       "Up" -> <|
+         "\[ScriptCapitalH]" ->
+           If[s==0,
+             -((2 \[Kappa])^(-1-l) Gamma[3+2l])/(2 Gamma[l+2] Gamma[1+l]),
+             ((2 \[Kappa])^(-1-l+Abs[s]) Gamma[2+2 l] Gamma[Abs[s]])/(Gamma[1+l+Abs[s]] Gamma[1+l])],
+         "\[ScriptCapitalI]" -> 1|>|>
+  ,
+     <|"In" -> <|
+         "\[ScriptCapitalH]" -> 1,
+         "\[ScriptCapitalI]-" -> -((2^(l-s-I \[Tau]) \[Kappa]^(1-s) (-1)^(l+s) Gamma[1+l+s] Gamma[1-s-I \[Tau]])/(Gamma[2+2 l] Gamma[-l-I \[Tau]])),
+         "\[ScriptCapitalI]+" -> ((2 \[Kappa])^(-l-s-I \[Tau]) Gamma[2l+1] Gamma[1-s-I \[Tau]])/(Gamma[1+l-s] Gamma[1+l-I \[Tau]])|>,
+       "Up" -> <|
+         "\[ScriptCapitalH]-" -> ((2 \[Kappa])^(-1-l+s+I \[Tau]) Gamma[2+2 l] Gamma[s+I \[Tau]])/(Gamma[1+l+s] Gamma[1+l+I \[Tau]]),
+         "\[ScriptCapitalH]+" -> ((2 \[Kappa])^(-1-l-s-I \[Tau]) Gamma[2+2 l] Gamma[-s-I \[Tau]])/(Gamma[1+l-s] Gamma[1+l-I \[Tau]]),
+         "\[ScriptCapitalI]" -> 1|>|>
+  ]
+ ];
+
+
+TeukolskyRadialStatic[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, \[Lambda]_, \[Nu]_, BCs_, norms_] :=
+ Module[{amps, solFuncs, TRF},
   (* Function to construct a TeukolskyRadialFunction *)
-  TRF[bc_, sf_] :=
+  TRF[bc_, amp_, sf_] :=
     TeukolskyRadialFunction[s, l, m, a, \[Omega],
      Association["s" -> s, "l" -> l, "m" -> m, "a" -> a, "\[Omega]" -> \[Omega], "Eigenvalue" -> \[Lambda], "RenormalizedAngularMomentum" -> \[Nu],
       "Method" -> {"Static"},
-      "BoundaryConditions" -> bc,
+      "BoundaryConditions" -> bc, "Amplitudes" -> amp,
       "Domain" -> {rp[a, 1], \[Infinity]}, "RadialFunction" -> sf
      ]
     ];
 
   (* Solution functions for the specified boundary conditions *)
   With[{\[Tau] = -((m a)/Sqrt[1-a^2]), \[Kappa] = Sqrt[1 - a^2]},
-    normIn = (2 \[Kappa])^(-2s) Exp[-I \[Tau]/2 \[Kappa] (1+2Log[\[Kappa]]/(1+\[Kappa]))] If[s >= 1 && \[Tau] == 0, 1, Gamma[1 - s - I \[Tau]]];
-    normUp = (2 \[Kappa])^(-s-l-1);
+    With[{normIn = If[\[Tau]==0 && s>0, Gamma[s+1]Pochhammer[l+s+1,-2s], (2\[Kappa])^(-2s-I \[Tau]) Gamma[1-s-I \[Tau]]],
+          normUp = (2 \[Kappa])^(-s-l-1)},
     solFuncs =
-      <|"In" :> Function[{r}, normIn (-(1 + \[Kappa] - r)/(2 \[Kappa]))^(-s - I \[Tau]/2) (1 - (1 + \[Kappa] - r)/(2 \[Kappa]))^(-I \[Tau]/2) Hypergeometric2F1Regularized[-l - I \[Tau], l + 1 - I \[Tau], 1 - s - I \[Tau], (1 + \[Kappa] - r)/(2 \[Kappa])]],
-      "Up" :> Function[{r}, normUp (-(1 + \[Kappa] - r)/(2 \[Kappa]))^(-s - (I \[Tau])/2) (1 - (1 + \[Kappa] - r)/(2 \[Kappa]))^((I \[Tau])/2 - l - 1) Hypergeometric2F1[l + 1 - I \[Tau], l + 1 - s, 2 l + 2, 1/(1 - (1 + \[Kappa] - r)/(2 \[Kappa]))]]
+      <|"In" :> (normIn (-(1 + \[Kappa] - #)/(2 \[Kappa]))^(-s - I \[Tau]/2) (1 - (1 + \[Kappa] - #)/(2 \[Kappa]))^(-I \[Tau]/2) Hypergeometric2F1Regularized[-l - I \[Tau], l + 1 - I \[Tau], 1 - s - I \[Tau], (1 + \[Kappa] - #)/(2 \[Kappa])]&),
+        "Up" :> (normUp (-(1 + \[Kappa] - #)/(2 \[Kappa]))^(-s - (I \[Tau])/2) (1 - (1 + \[Kappa] - #)/(2 \[Kappa]))^((I \[Tau])/2 - l - 1) Hypergeometric2F1[l + 1 - I \[Tau], l + 1 - s, 2 l + 2, 1/(1 - (1 + \[Kappa] - #)/(2 \[Kappa]))]&)
        |>;
+    ];
   ];
   solFuncs = Lookup[solFuncs, BCs];
 
+  (* Select normalisation coefficients for the specified boundary conditions *)
+  amps = Lookup[norms, BCs];
+
   If[ListQ[BCs],
-    Return[Association[MapThread[#1 -> TRF[#1, #2]&, {BCs, solFuncs}]]],
-    Return[TRF[BCs, solFuncs]]
+    Return[Association[MapThread[#1 -> TRF[#1, #2, #3]&, {BCs, amps, solFuncs}]]],
+    Return[TRF[BCs, amps, solFuncs]]
   ];
 ];
 
@@ -364,7 +394,7 @@ Options[TeukolskyRadial] = {
 
 
 TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPattern[]] /; \[Omega] == 0 :=
- Module[{\[Lambda], BCs, wp, prec, acc},
+ Module[{\[Lambda], BCs, norms, wp, prec, acc},
   (* Determine which boundary conditions the homogeneous solution(s) should satisfy *)
   BCs = OptionValue["BoundaryConditions"];
   If[!MatchQ[BCs, "In"|"Up"|{("In"|"Up")..}], 
@@ -381,8 +411,21 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
     {opt, {"Eigenvalue", "RenormalizedAngularMomentum", "Amplitudes", Method, WorkingPrecision, PrecisionGoal, AccuracyGoal}}
   ];
 
+  (* Compute the asymptotic amplitudes *)
+  Which[
+  OptionValue["Amplitudes"] === False,
+    norms = <|"In" -> <|"Transmission" -> 1|>, "Up" -> <|"Transmission" -> 1|>|>;,
+  MatchQ[OptionValue["Amplitudes"], <|"In"-><|___|>, "Up" -> <|___|>|>],
+    norms = OptionValue["Amplitudes"];,
+  MatchQ[OptionValue["Amplitudes"], Automatic|True],
+    norms = staticAmplitudes[s, l, m, a];,
+  True,
+    Message[TeukolskyRadial::optx, "Amplitudes" -> OptionValue["Amplitudes"]];
+    Return[$Failed];
+  ];
+
   (* Call the chosen implementation *)
-  TeukolskyRadialStatic[s, l, m, a, \[Omega], \[Lambda], \[Lambda], BCs]
+  TeukolskyRadialStatic[s, l, m, a, \[Omega], \[Lambda], \[Lambda], BCs, norms]
 ]
 
 
@@ -478,7 +521,7 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
       norms = N[Teukolsky`MST`MST`Private`Amplitudes[s, l, m, SetPrecision[a, 2 $MachinePrecision], SetPrecision[2\[Omega], 2 $MachinePrecision], SetPrecision[\[Nu], 2 $MachinePrecision], SetPrecision[\[Lambda], 2 $MachinePrecision], {2 $MachinePrecision, prec, acc}]];,
       norms = Teukolsky`MST`MST`Private`Amplitudes[s, l, m, a, 2\[Omega], \[Nu], \[Lambda], {wp, prec, acc}];
     ];,
-  _,
+  True,
     Message[TeukolskyRadial::optx, "Amplitudes" -> OptionValue["Amplitudes"]];
     Return[$Failed];
   ];
@@ -532,13 +575,17 @@ TeukolskyRadialFunction /:
                   BoxForm`SummaryItem[{"\[Omega]: ", \[Omega]}]}],
              BoxForm`SummaryItem[{"Domain: ", assoc["Domain"]}],
              BoxForm`SummaryItem[{"Boundary Conditions: " , assoc["BoundaryConditions"]}]};
+  If[assoc["Method"] === {"Static"},
+  extended = {BoxForm`SummaryItem[{"Eigenvalue: ", assoc["Eigenvalue"]}],
+              BoxForm`SummaryItem[{"Amplitudes: ", assoc["Amplitudes"]}],
+              BoxForm`SummaryItem[{"Method: ", First[assoc["Method"]]}]},
   extended = {BoxForm`SummaryItem[{"Eigenvalue: ", assoc["Eigenvalue"]}],
               BoxForm`SummaryItem[{"Renormalized angular momentum: ", assoc["RenormalizedAngularMomentum"]}],
               BoxForm`SummaryItem[{"Transmission Amplitude: ", assoc["Amplitudes", "Transmission"]}],
               BoxForm`SummaryItem[{"Incidence Amplitude: ", Lookup[assoc["Amplitudes"], "Incidence", Missing]}],
               BoxForm`SummaryItem[{"Reflection Amplitude: ", Lookup[assoc["Amplitudes"], "Reflection", Missing]}],
               BoxForm`SummaryItem[{"Method: ", First[assoc["Method"]]}],
-              BoxForm`SummaryItem[{"Method options: ",Column[Rest[assoc["Method"]]]}]};
+              BoxForm`SummaryItem[{"Method options: ",Column[Rest[assoc["Method"]]]}]}];
   BoxForm`ArrangeSummaryBox[
     TeukolskyRadialFunction,
     trf,
