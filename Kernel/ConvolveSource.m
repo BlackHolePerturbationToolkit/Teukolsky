@@ -424,60 +424,6 @@ ConvolveSourcePointParticleGeneric[s:-2, n_Integer, k_Integer, R_, SH_, TS_] :=
 
 
 (* ::Subsection::Closed:: *)
-(*s=+2 point particle on a circular orbit (a =  0)*)
-
-
-ConvolveSourcePointParticleCircularSchwarzschild[s:+2, R_, SH_, TS_] :=
- Module[{a, p, m, \[Omega], l, \[Lambda], W, r0, \[Theta]0, ut, u\[Phi], \[CapitalDelta], RIn, dRIn, d2RIn, RUp, dRUp, d2RUp, S, dS, d2S, \[ScriptCapitalL]\[Dagger]2S, \[ScriptCapitalL]\[Dagger]2\[ScriptCapitalL]\[Dagger]1S, K11, K14, K44, C20, C21, C22, ZIn, ZUp},
-  a = TS["Orbit"]["a"];
-  p = TS["Orbit"]["p"];
-
-  m = R["In"]["m"];
-  l = R["In"]["l"];
-  \[Omega] = R["In"]["\[Omega]"];
-  \[Lambda] = R["In"]["Eigenvalue"];
-
-  W = wronskian[R["In"]];
-
-  r0 = p;
-  \[Theta]0 = \[Pi]/2;
-
-  ut = TS["Orbit"]["FourVelocity"][[1]][0];
-  u\[Phi] = TS["Orbit"]["FourVelocity"][[4]][0];
-
-  \[CapitalDelta] = r0^2-2r0+a^2;
-
-  RUp = R["Up"][r0];
-  RIn = R["In"][r0];
-  dRUp = R["Up"]'[r0];
-  dRIn = R["In"]'[r0];
-  d2RUp = (-(-\[Lambda] + 2 I r0 s 2 \[Omega] + (-2 I (-1 + r0) s (-a m + (a^2 + r0^2) \[Omega]) + (-a m + (a^2 + r0^2) \[Omega])^2)/(a^2 - 2 r0 + r0^2)) RUp - (-2 + 2 r0) (1 + s) dRUp)/(a^2 - 2 r0 + r0^2);
-  d2RIn = (-(-\[Lambda] + 2 I r0 s 2 \[Omega] + (-2 I (-1 + r0) s (-a m + (a^2 + r0^2) \[Omega]) + (-a m + (a^2 + r0^2) \[Omega])^2)/(a^2 - 2 r0 + r0^2)) RIn - (-2 + 2 r0) (1 + s) dRIn)/(a^2 - 2 r0 + r0^2);
-
-  S = SH[\[Theta]0, 0];
-  dS = Derivative[1,0][SH][\[Theta]0, 0];
-  d2S = Derivative[2,0][SH][\[Theta]0, 0];
-
-  \[ScriptCapitalL]\[Dagger]2S = dS + m Csc[\[Theta]0] S + 2 Cot[\[Theta]0] S;
-  \[ScriptCapitalL]\[Dagger]2\[ScriptCapitalL]\[Dagger]1S = d2S+dS (2 m+3 Cos[\[Theta]0]) Csc[\[Theta]0]+S (-1+m^2+2 m Cos[\[Theta]0]+Cos[2 \[Theta]0]) Csc[\[Theta]0]^2;
-
-  K11 = ut;
-  K14 = u\[Phi];
-  K44 = u\[Phi]^2/ut;
-
-  C20[R0_] := 2 \[ScriptCapitalL]\[Dagger]2\[ScriptCapitalL]\[Dagger]1S (r0-2)^2 R0 K11;
-  C21[R0_, dR0_] := 4 I \[ScriptCapitalL]\[Dagger]2S (-2+r0) r0^2 (dR0 (-2+r0)+R0 (2+I r0 \[Omega])) K14;
-  C22[R0_, dR0_, d2R0_] := -2 S r0^2 (d2R0 (-2+r0)^2 r0^2+2 dR0 (-2+r0) r0 (-2+3 r0+I r0^2 \[Omega])-R0 (8+r0^2 (-4+6 I \[Omega])-6 I r0^3 \[Omega]+r0^4 \[Omega]^2)) K44;
-
-  ZUp = 2\[Pi] (C20[RIn] + C21[RIn, dRIn] + C22[RIn, dRIn, d2RIn])/W;
-  ZIn = 2\[Pi] ( C20[RUp] + C21[RUp, dRUp] + C22[RUp, dRUp, d2RUp])/W;
-
-  Clear[a, p, m, \[Omega], l, \[Omega], \[Lambda], W, r0, \[Theta]0, RIn, dRIn, d2RIn, RUp, dRUp, d2RUp, S, dS, d2S, \[ScriptCapitalL]\[Dagger]2S, \[ScriptCapitalL]\[Dagger]2\[ScriptCapitalL]\[Dagger]1S, K11, K14, K44, C20, C21, C22];
-  <| "\[ScriptCapitalI]" -> ZUp, "\[ScriptCapitalH]" -> ZIn |>
-]
-
-
-(* ::Subsection::Closed:: *)
 (*s=+2 point particle on a circular orbit*)
 
 
