@@ -120,7 +120,7 @@ ConvolveSourcePointParticleCircular[s:-2, R_, SH_, TS_] :=
   Ann0 = -\[Rho]^(-2) \[Rho]bar^(-1) (Sqrt[2] \[CapitalDelta])^(-2) (\[Rho]^(-1) L1L2S + 3 I a Sin[\[Theta]0] L1 S0 + 3 I a Cos[\[Theta]0] S0 + 2 I a Sin[\[Theta]0] dS0 - I a Sin[\[Theta]0] L2 S0 );
   Anmbar0 = \[Rho]^(-3) (Sqrt[2]\[CapitalDelta])^(-1) ( (\[Rho] + \[Rho]bar - I Kt/\[CapitalDelta]) L2S + (\[Rho] - \[Rho]bar) a Sin[\[Theta]0] Kt/\[CapitalDelta] S0 );
   Anmbar1 = -\[Rho]^(-3) (Sqrt[2]\[CapitalDelta])^(-1) ( L2S + I (\[Rho] - \[Rho]bar) a Sin[\[Theta]0] S0 );
-  Ambarmbar0 = \[Rho]^(-3) \[Rho]bar S0 Kt/\[CapitalDelta]/4 ( I (2 \[Omega] r0/Kt - 2(r0 - 1)/\[CapitalDelta]) + Kt/\[CapitalDelta] + 2 I \[Rho]);
+  Ambarmbar0 = (Kt^2 S0 \[Rho]bar)/(4 \[CapitalDelta]^2 \[Rho]^3)+(I Kt S0 (1-r0+\[CapitalDelta] \[Rho]) \[Rho]bar)/(2 \[CapitalDelta]^2 \[Rho]^3)+(I r0 S0 \[Rho]bar \[Omega])/(2 \[CapitalDelta] \[Rho]^3);
   Ambarmbar1 = -\[Rho]^(-3) \[Rho]bar S0/2 ( I Kt/\[CapitalDelta] - \[Rho] );
   Ambarmbar2 = -\[Rho]^(-3) \[Rho]bar S0/4;
 
@@ -199,7 +199,7 @@ ConvolveSourcePointParticleSpherical[s:-2, k_Integer, R_, SH_, TS_] :=
     Ann0 = -\[Rho]^(-2) \[Rho]bar^(-1) (Sqrt[2] \[CapitalDelta])^(-2) (\[Rho]^(-1) L1L2S + 3 I a Sin[\[Theta]0] L1 S0 + 3 I a Cos[\[Theta]0] S0 + 2 I a Sin[\[Theta]0] dS0 - I a Sin[\[Theta]0] L2 S0 );
     Anmbar0 = \[Rho]^(-3) (Sqrt[2]\[CapitalDelta])^(-1) ( (\[Rho] + \[Rho]bar - I Kt/\[CapitalDelta]) L2S + (\[Rho] - \[Rho]bar) a Sin[\[Theta]0] Kt/\[CapitalDelta] S0 );
     Anmbar1 = -\[Rho]^(-3) (Sqrt[2]\[CapitalDelta])^(-1) ( L2S + I (\[Rho] - \[Rho]bar) a Sin[\[Theta]0] S0 );
-    Ambarmbar0 = \[Rho]^(-3) \[Rho]bar S0 Kt/\[CapitalDelta]/4 ( I (2 \[Omega] r0/Kt - 2(r0 - 1)/\[CapitalDelta]) + Kt/\[CapitalDelta] + 2 I \[Rho]);
+    Ambarmbar0 = (Kt^2 S0 \[Rho]bar)/(4 \[CapitalDelta]^2 \[Rho]^3)+(I Kt S0 (1-r0+\[CapitalDelta] \[Rho]) \[Rho]bar)/(2 \[CapitalDelta]^2 \[Rho]^3)+(I r0 S0 \[Rho]bar \[Omega])/(2 \[CapitalDelta] \[Rho]^3);
     Ambarmbar1 = -\[Rho]^(-3) \[Rho]bar S0/2 ( I Kt/\[CapitalDelta] - \[Rho] );
     Ambarmbar2 = -\[Rho]^(-3) \[Rho]bar S0/4;
 
@@ -289,7 +289,7 @@ ConvolveSourcePointParticleEccentric[s:-2, n_Integer, R_, SH_, TS_] :=
     Ann0 = -\[Rho]^(-2) \[Rho]bar^(-1) (Sqrt[2] \[CapitalDelta])^(-2) (\[Rho]^(-1) L1L2S + 3 I a Sin[\[Theta]0] L1 S0 + 3 I a Cos[\[Theta]0] S0 + 2 I a Sin[\[Theta]0] dS0 - I a Sin[\[Theta]0] L2 S0 );
     Anmbar0 = \[Rho]^(-3) (Sqrt[2]\[CapitalDelta])^(-1) ( (\[Rho] + \[Rho]bar - I Kt/\[CapitalDelta]) L2S + (\[Rho] - \[Rho]bar) a Sin[\[Theta]0] Kt/\[CapitalDelta] S0 );
     Anmbar1 = -\[Rho]^(-3) (Sqrt[2]\[CapitalDelta])^(-1) ( L2S + I (\[Rho] - \[Rho]bar) a Sin[\[Theta]0] S0 );
-    Ambarmbar0 = \[Rho]^(-3) \[Rho]bar S0 Kt/\[CapitalDelta]/4 ( I (2 \[Omega] r0/Kt - 2(r0 - 1)/\[CapitalDelta]) + Kt/\[CapitalDelta] + 2 I \[Rho]);
+    Ambarmbar0 = (Kt^2 S0 \[Rho]bar)/(4 \[CapitalDelta]^2 \[Rho]^3)+(I Kt S0 (1-r0+\[CapitalDelta] \[Rho]) \[Rho]bar)/(2 \[CapitalDelta]^2 \[Rho]^3)+(I r0 S0 \[Rho]bar \[Omega])/(2 \[CapitalDelta] \[Rho]^3);
     Ambarmbar1 = -\[Rho]^(-3) \[Rho]bar S0/2 ( I Kt/\[CapitalDelta] - \[Rho] );
     Ambarmbar2 = -\[Rho]^(-3) \[Rho]bar S0/4;
 
@@ -381,7 +381,7 @@ ConvolveSourcePointParticleGeneric[s:-2, n_Integer, k_Integer, R_, SH_, TS_] :=
     Ann0 = -\[Rho]^(-2) \[Rho]bar^(-1) (Sqrt[2] \[CapitalDelta])^(-2) (\[Rho]^(-1) L1L2S + 3 I a Sin[\[Theta]0] L1 S0 + 3 I a Cos[\[Theta]0] S0 + 2 I a Sin[\[Theta]0] dS0 - I a Sin[\[Theta]0] L2 S0 );
     Anmbar0 = \[Rho]^(-3) (Sqrt[2]\[CapitalDelta])^(-1) ( (\[Rho] + \[Rho]bar - I Kt/\[CapitalDelta]) L2S + (\[Rho] - \[Rho]bar) a Sin[\[Theta]0] Kt/\[CapitalDelta] S0 );
     Anmbar1 = -\[Rho]^(-3) (Sqrt[2]\[CapitalDelta])^(-1) ( L2S + I (\[Rho] - \[Rho]bar) a Sin[\[Theta]0] S0 );
-    Ambarmbar0 = \[Rho]^(-3) \[Rho]bar S0 Kt/\[CapitalDelta]/4 ( I (2 \[Omega] r0/Kt - 2(r0 - 1)/\[CapitalDelta]) + Kt/\[CapitalDelta] + 2 I \[Rho]);
+    Ambarmbar0 = (Kt^2 S0 \[Rho]bar)/(4 \[CapitalDelta]^2 \[Rho]^3)+(I Kt S0 (1-r0+\[CapitalDelta] \[Rho]) \[Rho]bar)/(2 \[CapitalDelta]^2 \[Rho]^3)+(I r0 S0 \[Rho]bar \[Omega])/(2 \[CapitalDelta] \[Rho]^3);
     Ambarmbar1 = -\[Rho]^(-3) \[Rho]bar S0/2 ( I Kt/\[CapitalDelta] - \[Rho] );
     Ambarmbar2 = -\[Rho]^(-3) \[Rho]bar S0/4;
 
@@ -533,7 +533,7 @@ ConvolveSourcePointParticleCircular[2, R_, SH_, TS_] :=
   All0 = -(1/2) \[Rho]^(-1) \[Rho]bar (d2S0 + (\[Delta]L\[Dagger]1 + \[Delta]L\[Dagger]2 + 2 d\[Rho]over\[Rho])dS0 + (d\[Delta]L\[Dagger]2 + \[Delta]L\[Dagger]1 \[Delta]L\[Dagger]2 - 6 d\[Rho]over\[Rho]^2 + 3 d2\[Rho]over\[Rho] + (3 \[Delta]L\[Dagger]1 - \[Delta]L\[Dagger]2)d\[Rho]over\[Rho]) S0);
   Alm0 = (2/Sqrt[2]) \[Rho]^(-1) ( -(\[Rho] + \[Rho]bar + I Kt/\[CapitalDelta]) (dS0 + \[Delta]L\[Dagger]2 S0) + (\[Rho] - \[Rho]bar) a Sin[\[Theta]0] Kt/\[CapitalDelta] S0 );
   Alm1 = (2/Sqrt[2]) \[Rho]^(-1) ( (dS0 + \[Delta]L\[Dagger]2 S0) + I (\[Rho] - \[Rho]bar) a Sin[\[Theta]0] S0 );
-  Amm0 = -\[Rho]^(-1) \[Rho]bar^(-1) S0 Kt/\[CapitalDelta] ( I (2 \[Omega] r0/Kt - 2(r0 - 1)/\[CapitalDelta]) - Kt/\[CapitalDelta] + 2 I \[Rho]);
+  Amm0 = (Kt^2 S0)/(\[CapitalDelta]^2 \[Rho] \[Rho]bar)+(2 I Kt S0 (-1+r0-\[CapitalDelta] \[Rho]))/(\[CapitalDelta]^2 \[Rho] \[Rho]bar)-(2 I r0 S0 \[Omega])/(\[CapitalDelta] \[Rho] \[Rho]bar);
   Amm1 = 2 \[Rho]^(-1) \[Rho]bar^(-1) S0 ( I Kt/\[CapitalDelta] + \[Rho] );
   Amm2 = -\[Rho]^(-1) \[Rho]bar^(-1) S0;
 
@@ -619,7 +619,7 @@ ConvolveSourcePointParticleSpherical[2, k_Integer, R_, SH_, TS_] :=
     All0 = -(1/2) \[Rho]^(-1) \[Rho]bar (d2S0 + (\[Delta]L\[Dagger]1 + \[Delta]L\[Dagger]2 + 2 d\[Rho]over\[Rho])dS0 + (d\[Delta]L\[Dagger]2 + \[Delta]L\[Dagger]1 \[Delta]L\[Dagger]2 - 6 d\[Rho]over\[Rho]^2 + 3 d2\[Rho]over\[Rho] + (3 \[Delta]L\[Dagger]1 - \[Delta]L\[Dagger]2)d\[Rho]over\[Rho]) S0);
     Alm0 = (2/Sqrt[2]) \[Rho]^(-1) ( -(\[Rho] + \[Rho]bar + I Kt/\[CapitalDelta]) (dS0 + \[Delta]L\[Dagger]2 S0) + (\[Rho] - \[Rho]bar) a Sin[\[Theta]0] Kt/\[CapitalDelta] S0 );
     Alm1 = (2/Sqrt[2]) \[Rho]^(-1) ( (dS0 + \[Delta]L\[Dagger]2 S0) + I (\[Rho] - \[Rho]bar) a Sin[\[Theta]0] S0 );
-    Amm0 = -\[Rho]^(-1) \[Rho]bar^(-1) S0 Kt/\[CapitalDelta] ( I (2 \[Omega] r0/Kt - 2(r0 - 1)/\[CapitalDelta]) - Kt/\[CapitalDelta] + 2 I \[Rho]);
+    Amm0 = (Kt^2 S0)/(\[CapitalDelta]^2 \[Rho] \[Rho]bar)+(2 I Kt S0 (-1+r0-\[CapitalDelta] \[Rho]))/(\[CapitalDelta]^2 \[Rho] \[Rho]bar)-(2 I r0 S0 \[Omega])/(\[CapitalDelta] \[Rho] \[Rho]bar);
     Amm1 = 2 \[Rho]^(-1) \[Rho]bar^(-1) S0 ( I Kt/\[CapitalDelta] + \[Rho] );
     Amm2 = -\[Rho]^(-1) \[Rho]bar^(-1) S0;
 
@@ -713,7 +713,7 @@ ConvolveSourcePointParticleEccentric[2, n_Integer, R_, SH_, TS_] :=
     All0 = -(1/2) \[Rho]^(-1) \[Rho]bar (d2S0 + (\[Delta]L\[Dagger]1 + \[Delta]L\[Dagger]2 + 2 d\[Rho]over\[Rho])dS0 + (d\[Delta]L\[Dagger]2 + \[Delta]L\[Dagger]1 \[Delta]L\[Dagger]2 - 6 d\[Rho]over\[Rho]^2 + 3 d2\[Rho]over\[Rho] + (3 \[Delta]L\[Dagger]1 - \[Delta]L\[Dagger]2)d\[Rho]over\[Rho]) S0);
     Alm0 = (2/Sqrt[2]) \[Rho]^(-1) ( -(\[Rho] + \[Rho]bar + I Kt/\[CapitalDelta]) (dS0 + \[Delta]L\[Dagger]2 S0) + (\[Rho] - \[Rho]bar) a Sin[\[Theta]0] Kt/\[CapitalDelta] S0 );
     Alm1 = (2/Sqrt[2]) \[Rho]^(-1) ( (dS0 + \[Delta]L\[Dagger]2 S0) + I (\[Rho] - \[Rho]bar) a Sin[\[Theta]0] S0 );
-    Amm0 = -\[Rho]^(-1) \[Rho]bar^(-1) S0 Kt/\[CapitalDelta] ( I (2 \[Omega] r0/Kt - 2(r0 - 1)/\[CapitalDelta]) - Kt/\[CapitalDelta] + 2 I \[Rho]);
+    Amm0 = (Kt^2 S0)/(\[CapitalDelta]^2 \[Rho] \[Rho]bar)+(2 I Kt S0 (-1+r0-\[CapitalDelta] \[Rho]))/(\[CapitalDelta]^2 \[Rho] \[Rho]bar)-(2 I r0 S0 \[Omega])/(\[CapitalDelta] \[Rho] \[Rho]bar);
     Amm1 = 2 \[Rho]^(-1) \[Rho]bar^(-1) S0 ( I Kt/\[CapitalDelta] + \[Rho] );
     Amm2 = -\[Rho]^(-1) \[Rho]bar^(-1) S0;
 
@@ -813,7 +813,7 @@ ConvolveSourcePointParticleGeneric[2, n_Integer, k_Integer, R_, SH_, TS_] :=
     All0 = -(1/2) \[Rho]^(-1) \[Rho]bar (d2S0 + (\[Delta]L\[Dagger]1 + \[Delta]L\[Dagger]2 + 2 d\[Rho]over\[Rho])dS0 + (d\[Delta]L\[Dagger]2 + \[Delta]L\[Dagger]1 \[Delta]L\[Dagger]2 - 6 d\[Rho]over\[Rho]^2 + 3 d2\[Rho]over\[Rho] + (3 \[Delta]L\[Dagger]1 - \[Delta]L\[Dagger]2)d\[Rho]over\[Rho]) S0);
     Alm0 = (2/Sqrt[2]) \[Rho]^(-1) ( -(\[Rho] + \[Rho]bar + I Kt/\[CapitalDelta]) (dS0 + \[Delta]L\[Dagger]2 S0) + (\[Rho] - \[Rho]bar) a Sin[\[Theta]0] Kt/\[CapitalDelta] S0 );
     Alm1 = (2/Sqrt[2]) \[Rho]^(-1) ( (dS0 + \[Delta]L\[Dagger]2 S0) + I (\[Rho] - \[Rho]bar) a Sin[\[Theta]0] S0 );
-    Amm0 = -\[Rho]^(-1) \[Rho]bar^(-1) S0 Kt/\[CapitalDelta] ( I (2 \[Omega] r0/Kt - 2(r0 - 1)/\[CapitalDelta]) - Kt/\[CapitalDelta] + 2 I \[Rho]);
+    Amm0 = (Kt^2 S0)/(\[CapitalDelta]^2 \[Rho] \[Rho]bar)+(2 I Kt S0 (-1+r0-\[CapitalDelta] \[Rho]))/(\[CapitalDelta]^2 \[Rho] \[Rho]bar)-(2 I r0 S0 \[Omega])/(\[CapitalDelta] \[Rho] \[Rho]bar);
     Amm1 = 2 \[Rho]^(-1) \[Rho]bar^(-1) S0 ( I Kt/\[CapitalDelta] + \[Rho] );
     Amm2 = -\[Rho]^(-1) \[Rho]bar^(-1) S0;
 
