@@ -273,6 +273,8 @@ EnergyFlux[mode_TeukolskyMode] :=
   \[Lambda] = mode["Eigenvalue"];
   Z = mode["Amplitudes"];
 
+  If[\[Omega] == 0, Return[<| "\[ScriptCapitalI]" -> 0, "\[ScriptCapitalH]" -> 0 |>]];
+
   rh = M + Sqrt[M^2-a^2];
   \[CapitalOmega]h = a/(2 M rh);
   \[Kappa] = \[Omega] - m \[CapitalOmega]h;
@@ -317,7 +319,7 @@ EnergyFlux[mode_TeukolskyMode] :=
 (*Angular Momentum Flux*)
 
 
-AngularMomentumFlux[mode_TeukolskyMode] := If[mode["\[Omega]"]!=0,EnergyFlux[mode] mode["m"]/mode["\[Omega]"],0];
+AngularMomentumFlux[mode_TeukolskyMode] := If[mode["\[Omega]"]!=0,EnergyFlux[mode] mode["m"]/mode["\[Omega]"], <| "\[ScriptCapitalI]" -> 0, "\[ScriptCapitalH]" -> 0 |>];
 
 
 (* ::Section::Closed:: *)
