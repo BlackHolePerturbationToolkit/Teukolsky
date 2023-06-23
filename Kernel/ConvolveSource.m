@@ -27,6 +27,25 @@ Begin["`Private`"];
 
 
 (* ::Subsection::Closed:: *)
+(*Wronskian*)
+
+
+(* Invariant Wronskian: W = \[CapitalDelta]^(s+1)(Rup'[r] Rin[r] - Rin'[r] Rup[r]) *) 
+wronskian[RIn_] := Module[{W, l, m, a, \[Omega]},  
+  {l, m, a, \[Omega]} = RIn/@{"l", "m", "a", "\[Omega]"};
+  If[RIn["Method"] === {"Static"},
+    If[a m == 0,
+      W = -(2l+1) RIn["Amplitudes"]["\[ScriptCapitalI]"];,
+      W = -(2l+1) RIn["Amplitudes"]["\[ScriptCapitalI]+"];
+    ],
+    W = 2 I \[Omega] RIn["Amplitudes"]["Incidence"];
+  ];
+  
+  W
+];
+
+
+(* ::Subsection::Closed:: *)
 (*ConvolveSource*)
 
 
@@ -69,7 +88,7 @@ ConvolveSourcePointParticleCircular[s:-2, R_, SH_, TS_] :=
   \[Omega] = R["In"]["\[Omega]"];
   \[Lambda] = R["In"]["Eigenvalue"];
 
-  W = 2 I \[Omega] R["In"]["Amplitudes"]["Incidence"];
+  W = wronskian[R["In"]];
 
   r0 = p;
   \[Theta]0 = \[Pi]/2;
@@ -141,7 +160,7 @@ ConvolveSourcePointParticleSpherical[s:-2, k_Integer, R_, SH_, TS_] :=
   \[Omega] = R["In"]["\[Omega]"];
   \[Lambda] = R["In"]["Eigenvalue"];
 
-  W = 2 I \[Omega] R["In"]["Amplitudes"]["Incidence"];
+  W = wronskian[R["In"]];
 
   r0 = p;
   \[Theta]q[q\[Theta]_] := \[Theta]pi[(q\[Theta]-q\[Theta]0)/\[CapitalUpsilon]\[Theta]];
@@ -235,7 +254,7 @@ ConvolveSourcePointParticleEccentric[s:-2, n_Integer, R_, SH_, TS_] :=
   \[Omega] = R["In"]["\[Omega]"];
   \[Lambda] = R["In"]["Eigenvalue"];
 
-  W = 2 I \[Omega] R["In"]["Amplitudes"]["Incidence"];
+  W = wronskian[R["In"]];
   
   rq[qr_] := rpi[(qr-qr0)/\[CapitalUpsilon]r];
   \[Theta]0 = Pi/2;
@@ -326,7 +345,7 @@ ConvolveSourcePointParticleGeneric[s:-2, n_Integer, k_Integer, R_, SH_, TS_] :=
   \[Omega] = R["In"]["\[Omega]"];
   \[Lambda] = R["In"]["Eigenvalue"];
 
-  W = 2 I \[Omega] R["In"]["Amplitudes"]["Incidence"];
+  W = wronskian[R["In"]];
 
   rq[qr_] := rpi[(qr-qr0)/\[CapitalUpsilon]r];
   \[Theta]q[q\[Theta]_] := \[Theta]pi[(q\[Theta]-q\[Theta]0)/\[CapitalUpsilon]\[Theta]];
@@ -418,7 +437,7 @@ ConvolveSourcePointParticleCircularSchwarzschild[s:+2, R_, SH_, TS_] :=
   \[Omega] = R["In"]["\[Omega]"];
   \[Lambda] = R["In"]["Eigenvalue"];
 
-  W = 2 I \[Omega] R["In"]["Amplitudes"]["Incidence"];
+  W = wronskian[R["In"]];
 
   r0 = p;
   \[Theta]0 = \[Pi]/2;
@@ -474,7 +493,7 @@ ConvolveSourcePointParticleCircular[2, R_, SH_, TS_] :=
   \[Omega] = R["In"]["\[Omega]"];
   \[Lambda] = R["In"]["Eigenvalue"];
 
-  W = 2 I \[Omega] R["In"]["Amplitudes"]["Incidence"];
+  W = wronskian[R["In"]];
 
   r0 = p;
   \[Theta]0 = \[Pi]/2;
@@ -554,7 +573,7 @@ ConvolveSourcePointParticleSpherical[2, k_Integer, R_, SH_, TS_] :=
   \[Omega] = R["In"]["\[Omega]"];
   \[Lambda] = R["In"]["Eigenvalue"];
 
-  W = 2 I \[Omega] R["In"]["Amplitudes"]["Incidence"];
+  W = wronskian[R["In"]];
 
   r0 = p;
   \[Theta]q[q\[Theta]_] := \[Theta]pi[(q\[Theta]-q\[Theta]0)/\[CapitalUpsilon]\[Theta]];
@@ -660,7 +679,7 @@ ConvolveSourcePointParticleEccentric[2, n_Integer, R_, SH_, TS_] :=
   \[Omega] = R["In"]["\[Omega]"];
   \[Lambda] = R["In"]["Eigenvalue"];
 
-  W = 2 I \[Omega] R["In"]["Amplitudes"]["Incidence"];
+  W = wronskian[R["In"]];
   
   rq[qr_] := rpi[(qr-qr0)/\[CapitalUpsilon]r];
   \[Theta]0 = Pi/2;
@@ -758,7 +777,7 @@ ConvolveSourcePointParticleGeneric[2, n_Integer, k_Integer, R_, SH_, TS_] :=
   \[Omega] = R["In"]["\[Omega]"];
   \[Lambda] = R["In"]["Eigenvalue"];
 
-  W = 2 I \[Omega] R["In"]["Amplitudes"]["Incidence"];
+  W = wronskian[R["In"]];
 
   rq[qr_] := rpi[(qr-qr0)/\[CapitalUpsilon]r];
   \[Theta]q[q\[Theta]_] := \[Theta]pi[(q\[Theta]-q\[Theta]0)/\[CapitalUpsilon]\[Theta]];
@@ -878,7 +897,7 @@ ConvolveSourcePointParticleCircular[s:(-1|+1), R_, SH_, TS_] :=
   ];
 
   (* Wronskian *)
-  W = (PIn dPOut - POut dPIn);
+  W = wronskian[R["In"]];
 
   (* Define source terms: arXiv:2008.12703 Eq. (48) *)
   A = TS["\[ScriptCapitalS]"] ((m*TS["\!\(\*SuperscriptBox[\(A\), \((r)\)]\)"] + s I TS["\!\(\*SuperscriptBox[OverscriptBox[\(A\), \(~\)], \((i)\)]\)"])S + s TS["C"]dS);
@@ -913,7 +932,7 @@ ConvolveSourcePointParticleEccentric[s:-1, n_Integer, R_, SH_, TS_] :=
   \[Omega] = R["In"]["\[Omega]"];
   \[Lambda] = R["In"]["Eigenvalue"];
 
-  W = 2 I \[Omega] R["In"]["Amplitudes"]["Incidence"];
+  W = wronskian[R["In"]];
   
   rq[qr_] := rpi[(qr-qr0)/\[CapitalUpsilon]r];
   \[Theta]0 = Pi/2;
@@ -993,7 +1012,7 @@ ConvolveSourcePointParticleSpherical[s:-1, k_Integer, R_, SH_, TS_] :=
   \[Omega] = R["In"]["\[Omega]"];
   \[Lambda] = R["In"]["Eigenvalue"];
 
-  W = 2 I \[Omega] R["In"]["Amplitudes"]["Incidence"];
+  W = wronskian[R["In"]];
 
   r0 = p;
   \[Theta]q[q\[Theta]_] := \[Theta]pi[(q\[Theta]-q\[Theta]0)/\[CapitalUpsilon]\[Theta]];
@@ -1075,7 +1094,7 @@ ConvolveSourcePointParticleGeneric[-1, n_Integer, k_Integer, R_, SH_, TS_] :=
   \[Omega] = R["In"]["\[Omega]"];
   \[Lambda] = R["In"]["Eigenvalue"];
 
-  W = 2 I \[Omega] R["In"]["Amplitudes"]["Incidence"];
+  W = wronskian[R["In"]];
 
   rq[qr_] := rpi[(qr-qr0)/\[CapitalUpsilon]r];
   \[Theta]q[q\[Theta]_] := \[Theta]pi[(q\[Theta]-q\[Theta]0)/\[CapitalUpsilon]\[Theta]];
@@ -1163,7 +1182,7 @@ ConvolveSourcePointParticleSpherical[s:1, k_Integer, R_, SH_, TS_] :=
   \[Omega] = R["In"]["\[Omega]"];
   \[Lambda] = R["In"]["Eigenvalue"];
 
-  W = 2 I \[Omega] R["In"]["Amplitudes"]["Incidence"];
+  W = wronskian[R["In"]];
 
   r0 = p;
   \[Theta]q[q\[Theta]_] := \[Theta]pi[(q\[Theta]-q\[Theta]0)/\[CapitalUpsilon]\[Theta]];
@@ -1247,7 +1266,7 @@ ConvolveSourcePointParticleEccentric[1, n_Integer, R_, SH_, TS_] :=
   \[Omega] = R["In"]["\[Omega]"];
   \[Lambda] = R["In"]["Eigenvalue"];
 
-  W = 2 I \[Omega] R["In"]["Amplitudes"]["Incidence"];
+  W = wronskian[R["In"]];
   
   rq[qr_] := rpi[(qr-qr0)/\[CapitalUpsilon]r];
   \[Theta]0 = Pi/2;
@@ -1330,7 +1349,7 @@ ConvolveSourcePointParticleGeneric[1, n_Integer, k_Integer, R_, SH_, TS_] :=
   \[Omega] = R["In"]["\[Omega]"];
   \[Lambda] = R["In"]["Eigenvalue"];
 
-  W = 2 I \[Omega] R["In"]["Amplitudes"]["Incidence"];
+  W = wronskian[R["In"]];
 
   rq[qr_] := rpi[(qr-qr0)/\[CapitalUpsilon]r];
   \[Theta]q[q\[Theta]_] := \[Theta]pi[(q\[Theta]-q\[Theta]0)/\[CapitalUpsilon]\[Theta]];
@@ -1416,7 +1435,7 @@ ConvolveSourcePointParticleCircular[0, R_, SH_, TS_] :=
   \[Omega] = R["In"]["\[Omega]"];
   m = R["In"]["m"];
 
-  W = 2 I \[Omega] R["In"]["Amplitudes"]["Incidence"];
+  W = wronskian[R["In"]];
 
   RIn = R["In"][r0];
   RUp = R["Up"][r0];
@@ -1459,7 +1478,7 @@ ConvolveSourcePointParticleSpherical[0, k_Integer, R_, SH_, TS_] :=
     If[MatchQ[l+m+k,_?OddQ]||(Abs[m+k]>l), Return[<| "\[ScriptCapitalI]" -> 0, "\[ScriptCapitalH]" -> 0 |>]];
   ];
 
-  W = 2 I \[Omega] R["In"]["Amplitudes"]["Incidence"];
+  W = wronskian[R["In"]];
 
   RIn = R["In"][r0];
   RUp = R["Up"][r0];
@@ -1510,7 +1529,7 @@ ConvolveSourcePointParticleEccentric[0, n_Integer, R_, S_, TS_] :=
   \[Omega] = R["In"]["\[Omega]"];
   m = R["In"]["m"];
 
-  W = 2 I \[Omega] R["In"]["Amplitudes"]["Incidence"];
+  W = wronskian[R["In"]];
 
   S0 = S[\[Theta]0, 0];
   
@@ -1553,7 +1572,7 @@ Module[{a, p, rpi, \[Theta]pi, rq, \[Theta]q, qt0, qr0, q\[Theta]0, q\[Phi]0, \[
   \[Omega] = R["In"]["\[Omega]"];
   m = R["In"]["m"];
 
-  W = 2 I \[Omega] R["In"]["Amplitudes"]["Incidence"];
+  W = wronskian[R["In"]];
 
   II1In[qr_] := 2 rq[qr]^2 R["In"][rq[qr]] Cos[(\[Omega] \[CapitalDelta]tr[qr] - m \[CapitalDelta]\[Phi]r[qr] + n qr)];
   II1Up[qr_] := 2 rq[qr]^2 R["Up"][rq[qr]] Cos[(\[Omega] \[CapitalDelta]tr[qr] - m \[CapitalDelta]\[Phi]r[qr] + n qr)];
