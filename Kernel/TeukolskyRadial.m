@@ -408,7 +408,7 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
   (* Some options are not supported for static modes *)
   Do[
     If[OptionValue[opt] =!= Automatic, Message[TeukolskyRadial::sopt, opt]];,
-    {opt, {"Eigenvalue", "RenormalizedAngularMomentum", "Amplitudes", Method, WorkingPrecision, PrecisionGoal, AccuracyGoal}}
+    {opt, {"Eigenvalue", "RenormalizedAngularMomentum", Method, WorkingPrecision, PrecisionGoal, AccuracyGoal}}
   ];
 
   (* Compute the asymptotic amplitudes *)
