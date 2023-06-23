@@ -393,7 +393,7 @@ Options[TeukolskyRadial] = {
 (*Static modes*)
 
 
-TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPattern[]] /; \[Omega] == 0 :=
+TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPattern[]] /; AllTrue[{a, \[Omega]}, NumericQ] && \[Omega] == 0 :=
  Module[{\[Lambda], BCs, norms, wp, prec, acc},
   (* Determine which boundary conditions the homogeneous solution(s) should satisfy *)
   BCs = OptionValue["BoundaryConditions"];
@@ -433,7 +433,7 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
 (*Non-static modes*)
 
 
-TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPattern[]] /; InexactNumberQ[a] || InexactNumberQ[\[Omega]] :=
+TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPattern[]] /; AllTrue[{a, \[Omega]}, NumericQ] && (InexactNumberQ[a] || InexactNumberQ[\[Omega]]) :=
  Module[{TRF, subopts, BCs, norms, \[Nu], \[Lambda], wp, prec, acc},
   (* Extract suboptions from Method to be passed on. *)
   If[ListQ[OptionValue[Method]],
