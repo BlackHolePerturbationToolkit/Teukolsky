@@ -52,6 +52,9 @@ TeukolskyPointParticleMode::mode = "Mode with n=`1`, k=`2` not defined for `3` o
 TeukolskyPointParticleMode::noret = "This package does not compute the retarded solution `1`. If you want the extended homogeneous solutions at this radius use [\"ExtendedHomogeneous\" -> \"\[ScriptCapitalH]|\[ScriptCapitalI]\"]`2`[`3`] instead.";
 
 
+TeukolskyPointParticleMode::type = "Only bound orbits supported but orbit type is: `1`.";
+
+
 (* ::Subsection::Closed:: *)
 (*Begin Private section*)
 
@@ -74,6 +77,9 @@ TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer
  Module[{source, assoc, domain, Ruser, R, S, \[Omega], \[CapitalOmega]r, \[CapitalOmega]\[Phi], \[CapitalOmega]\[Theta], Z, \[Lambda], rmin, rmax, a, p, e, x},
   {a, p, e, x} = orbit /@ {"a", "p", "e", "Inclination"};  
 
+  If[!MatchQ[orbit["Type"], {"Bound", ___} | {"Unbound" | "MarginallyBound", "Circular", __}],
+    Message[TeukolskyPointParticleMode::type, orbit["Type"]];
+    Return[$Failed]];
   If[{e, Abs[x]} == {0, 1} && (n != 0 || k != 0),
     Message[TeukolskyPointParticleMode::mode, n, k, "circular"];
     Return[$Failed]];
