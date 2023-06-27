@@ -220,7 +220,7 @@ TeukolskyMode[assoc_]["AngularMomentumFlux"] := AngularMomentumFlux[TeukolskyMod
 TeukolskyMode[assoc_][key_String] /; KeyExistsQ[assoc, key] := assoc[key];
 
 
-Keys[m_TeukolskyMode] ^:= Join[Keys[m[[1]]], {"Fluxes", "EnergyFlux", "AngularMomentumFlux"}];
+Keys[m_TeukolskyMode] ^:= Join[Keys[m[[1]]], {"Fluxes", "EnergyFlux", "AngularMomentumFlux", "ExtendedHomogeneous" -> "\[ScriptCapitalH]", "ExtendedHomogeneous" -> "\[ScriptCapitalI]"}];
 
 
 (* ::Subsection::Closed:: *)
