@@ -19,40 +19,14 @@ Begin["`Private`"];
 (* Internal functions                                     *)
 (**********************************************************)
 
-(* Read in data for series coefficients from hdf5 files *)
-
-(* If the h5mma is not found, then just use Mathematica's built-in HDF5 support *)
-$h5mma = If[Quiet[Get["h5mma`"], {Needs::nocont, Get::noopen}]===$Failed, False, True];
-If[$h5mma, SetOptions[ImportHDF5, Turbo->True]];
-
-ReadHDF5[file_String, opts_:"Datasets"] :=
-  If[$h5mma, ImportHDF5[file, opts], Import[file, opts]];
-
-coeffsFile = FileNameJoin[{FileNameDrop[FindFile["Teukolsky`"], -2], "nu_coeffs.h5"}];
-
-modesAvailable := modesAvailable =
-  Sort[Flatten[StringCases[ReadHDF5[coeffsFile, "Datasets"],
-    "s" ~~ s : NumberString ~~ "l" ~~ l : NumberString ~~ "m" ~~ m : NumberString :> {ToExpression[s], ToExpression[l], ToExpression[m]}], 1]];
-
-coeffs[s_Integer, l_Integer, m_Integer] := coeffs[s, l, m] =
- Module[{},
-  If[!MemberQ[modesAvailable, {s, l, m}], Return[$Failed]];
-  ReadHDF5[coeffsFile, {"Datasets", "s"<>ToString[s]<>"l"<>ToString[l]<>"m"<>ToString[m]}]
-]
-
-(* Compute an approximation for nu from its series expansion *)
+(* Compute an approximation for nu from its series expansion - cos of Eq. (173) in Sasaki-Tagoshi *)
 Cos2\[Pi]\[Nu]Series[a_, \[Omega]_, s_, l_, m_] :=
- Module[{data, \[Omega]Exp, qExp, q, Cos2\[Pi]\[Nu]},
-  data = coeffs[s, l, m];
-  If[data == $Failed, Return[$Failed]];
-  
-  (* Exponents of \[Omega] and q *)
-  \[Omega]Exp = Range[0, Length[data] - 1];
-  qExp = Range[0, Length[First[data]] - 1];
-  
-  q = a;
-  
-  Cos2\[Pi]\[Nu] = 1 + \[Omega]^\[Omega]Exp.(data.q^qExp);
+ Module[{Cos2\[Pi]\[Nu]},
+  If[l==0,
+    Cos2\[Pi]\[Nu] = 1 - (8 ((-11 + 15 l + 15 l^2)^2 \[Pi]^2) \[Omega]^4)/((1 - 2 l)^2 (1 + 2 l)^2 (3 + 2 l)^2);
+    ,
+    Cos2\[Pi]\[Nu] = 1 - (8 (\[Pi]^2 (30 l^3 + 15 l^4 + 3 s^2 (-2 + s^2) + l (-11 + 6 s^2) + l^2 (4 + 6 s^2))^2) \[Omega]^4)/((1 - 2 l)^2 l^2 (1 + l)^2 (1 + 2 l)^2 (3 + 2 l)^2);
+  ];
   Cos2\[Pi]\[Nu]
 ]
 
@@ -229,8 +203,3 @@ SetAttributes[RenormalizedAngularMomentum, {Protected, ReadProtected}];
 
 End[];
 EndPackage[];
-
-(* Add h5mma to $ContextPath since Get[] inside `Private` does not do so. *)
-If[SimulationTools`ReadHDF5`Private`$h5mma,
-  If[!MemberQ[$ContextPath, "h5mma`"], AppendTo[$ContextPath, "h5mma`"]];
-];

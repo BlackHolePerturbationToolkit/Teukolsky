@@ -101,7 +101,7 @@ Switch[MST`$MasterFunction,
   prefacInTrans[s_, \[Epsilon]_, \[Tau]_, \[Kappa]_] := E^(I \[Epsilon]);
   prefacUpTrans[s_, \[Epsilon]_, \[Tau]_, \[Kappa]_] := (2I)^s Exp[I \[Epsilon] Log[\[Epsilon]]];
   prefacAplus[s_, \[Epsilon]_, \[Tau]_, \[Kappa]_, \[Nu]_] := (2^(-1 - I \[Epsilon]) E^(-((\[Pi] \[Epsilon])/2) + 1/2 I \[Pi] (1 + \[Nu])) Gamma[\[Nu]+I \[Epsilon]+1])/Gamma[\[Nu]-I \[Epsilon]+1];
-  prefacInInc[s_, \[Epsilon]_, \[Tau]_, \[Kappa]_, \[Nu]_, K\[Nu]1_, K\[Nu]2_] := (K\[Nu]1 - I E^(-I \[Pi] \[Nu]) Sin[\[Pi] (\[Nu] + I \[Epsilon])] / Sin[\[Pi] (\[Nu] - I \[Epsilon])] K\[Nu]2);,
+  prefacInInc[s_, \[Epsilon]_, \[Tau]_, \[Kappa]_, \[Nu]_, K\[Nu]1_, K\[Nu]2_] := (K\[Nu]1 - I E^(-I \[Pi] \[Nu]) Sin[\[Pi] (\[Nu] + I \[Epsilon])] / Sin[\[Pi] (\[Nu] - I \[Epsilon])] K\[Nu]2) E^(-I*\[Epsilon]*Log[\[Epsilon]]);,
 "Teukolsky", 
   prefacInTrans[s_, \[Epsilon]_, \[Tau]_, \[Kappa]_] := 4^s \[Kappa]^(2 s) E^(I (\[Epsilon] + \[Tau]) \[Kappa] (1/2 + Log[\[Kappa]]/(1 + \[Kappa])));
   prefacUpTrans[s_, \[Epsilon]_, \[Tau]_, \[Kappa]_] := (\[Epsilon]/2)^(-1 - 2 s) Exp[I \[Epsilon] (Log[\[Epsilon]] - (1 - \[Kappa])/2)];
@@ -261,6 +261,100 @@ fn[q_, \[Epsilon]_, \[Kappa]_, \[Tau]_, \[Nu]_, \[Lambda]_, s_, m_, nf_] :=
 (*Asymptotic amplitudes*)
 
 
+Switch[MST`$MasterFunction,
+"ReggeWheeler",
+Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, {wp_, prec_, acc_}] :=
+ Module[{\[Kappa], \[Tau], \[Epsilon]p, \[Omega], K\[Nu], K\[Nu]1, K\[Nu]2, Aminus, Aplus, D1, D12, D2, D22, InTrans, UpTrans, InInc, UpInc, InRef, UpRef, n, fSumUp, fSumDown, fSumK\[Nu]1Up, fSumK\[Nu]1Down, fSumK\[Nu]2Up, fSumK\[Nu]2Down, fSumAminusUp, fSumAminusDown, fSumD1Up, fSumD1Down, fSumD12Up, fSumD12Down, termf, termK\[Nu]1Up, termK\[Nu]1Down, termK\[Nu]2Up, termK\[Nu]2Down, termAminus, termD1, termD12},
+ Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], fn},
+  \[Kappa] = Sqrt[1 - q^2];
+  \[Tau] = (\[Epsilon] - m q)/\[Kappa];
+  \[Epsilon]p = 1/2 (\[Tau] + \[Epsilon]);
+  \[Omega] = \[Epsilon] / 2;
+
+  (* All of the formulae are taken from Sasaki & Tagoshi, Living Rev. Relativity 6:6 (ST)
+     and Casals & Ottewill, Phys. Rev. D 92, 124055 (CO) *)
+
+  (* There are three formally infinite sums which must be computed, but which may be numerically 
+     truncated after a finite number of terms. We determine how many terms to include by summing
+     until the result doesn't change. *)
+
+  (* Sum MST series coefficients with no extra factors *)
+  termf[n_] := termf[n] = fIn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n];
+  fSumUp = fSumDown = 0;
+
+  n = 0;
+  While[fSumUp != (fSumUp += termf[n]), n++];
+
+  n = -1;
+  While[fSumDown != (fSumDown += termf[n]), n--];
+
+  (* Sums appearing in ST Eq. (165) with r=0. We evaluate these with 1: \[Nu] and 2:-\[Nu]-1 *)
+  termK\[Nu]1Up[n_] := termK\[Nu]1Up[n] = ((-1)^(2 n) Gamma[-n+s-I \[Epsilon]-\[Nu]] Gamma[1+n-s+I \[Epsilon]+\[Nu]] Gamma[1+n+s+I \[Epsilon]+\[Nu]] Gamma[1+n+2 \[Nu]] Pochhammer[1+I \[Epsilon]+\[Nu],n])/(n! Gamma[1+n-s-I \[Epsilon]+\[Nu]] Gamma[1-s+I \[Epsilon]+\[Nu]] Gamma[1+s+I \[Epsilon]+\[Nu]] Pochhammer[1-I \[Epsilon]+\[Nu],n]) fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n];
+  termK\[Nu]1Down[n_] := termK\[Nu]1Down[n] = ((-1)^n Gamma[1+n-I \[Epsilon]+\[Nu]] Gamma[1+n+s-I \[Epsilon]+\[Nu]] Gamma[1+I \[Epsilon]+\[Nu]] Pochhammer[1+I \[Epsilon]+\[Nu],n])/((-n)! Gamma[1+n+I \[Epsilon]+\[Nu]] Gamma[1+n-s+I \[Epsilon]+\[Nu]] Gamma[2+n+2 \[Nu]] Pochhammer[1-I \[Epsilon]+\[Nu],n]) fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n];
+  fSumK\[Nu]1Up = fSumK\[Nu]1Down = 0;
+
+  n = 0;
+  While[fSumK\[Nu]1Up != (fSumK\[Nu]1Up += termK\[Nu]1Up[n]), n++];
+
+  n = 0;
+  While[fSumK\[Nu]1Down != (fSumK\[Nu]1Down += termK\[Nu]1Down[n]), n--];
+
+  termK\[Nu]2Up[n_] := termK\[Nu]2Up[n] = ((-1)^(2 n) Gamma[-n+s-I \[Epsilon]-(-1-\[Nu])] Gamma[1+n-s+I \[Epsilon]+(-1-\[Nu])] Gamma[1+n+s+I \[Epsilon]+(-1-\[Nu])] Gamma[1+n+2 (-1-\[Nu])] Pochhammer[1+I \[Epsilon]+(-1-\[Nu]),n])/(n! Gamma[1+n-s-I \[Epsilon]+(-1-\[Nu])] Gamma[1-s+I \[Epsilon]+(-1-\[Nu])] Gamma[1+s+I \[Epsilon]+(-1-\[Nu])] Pochhammer[1-I \[Epsilon]+(-1-\[Nu]),n])fn[q, \[Epsilon], \[Kappa], \[Tau], (-1-\[Nu]), \[Lambda], s, m, n];
+  termK\[Nu]2Down[n_] := termK\[Nu]2Down[n] = ((-1)^n Gamma[1+n-I \[Epsilon]+(-1-\[Nu])] Gamma[1+n+s-I \[Epsilon]+(-1-\[Nu])] Gamma[1+I \[Epsilon]+(-1-\[Nu])] Pochhammer[1+I \[Epsilon]+(-1-\[Nu]),n])/((-n)! Gamma[1+n+I \[Epsilon]+(-1-\[Nu])] Gamma[1+n-s+I \[Epsilon]+(-1-\[Nu])] Gamma[2+n+2 (-1-\[Nu])] Pochhammer[1-I \[Epsilon]+(-1-\[Nu]),n])fn[q, \[Epsilon], \[Kappa], \[Tau], (-1-\[Nu]), \[Lambda], s, m, n];
+  fSumK\[Nu]2Up = fSumK\[Nu]2Down = 0;
+
+  n = 0;
+  While[fSumK\[Nu]2Up != (fSumK\[Nu]2Up += termK\[Nu]2Up[n]), n++];
+
+  n = 0;
+  While[fSumK\[Nu]2Down != (fSumK\[Nu]2Down += termK\[Nu]2Down[n]), n--];
+
+  (* Sum appearing in ST (158), CO (3.19) *)
+  termAminus[n_] := termAminus[n] = (-1)^n Pochhammer[\[Nu] + 1 + s - I \[Epsilon], n]/Pochhammer[\[Nu] + 1 - s + I \[Epsilon], n] fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n];
+  fSumAminusUp = fSumAminusDown = 0;
+
+  n = 0;
+  While[fSumAminusUp != (fSumAminusUp += termAminus[n]), n++];
+
+  n = -1;
+  While[fSumAminusDown != (fSumAminusDown += termAminus[n]), n--];
+
+  (* In transmission coefficient: Btrans in ST (167) and CO (3.12) *)
+  InTrans = prefacInTrans[s, \[Epsilon], \[Tau], \[Kappa]] (fSumUp+fSumDown);
+
+  (* A-: ST (158), CO (3.19) *)
+  Aminus = 2^(-s - 1 + I \[Epsilon]) E^(-\[Pi] \[Epsilon] / 2 - I \[Pi] (\[Nu]+1+s) / 2) (fSumAminusUp+fSumAminusDown);
+
+  (* Up Transmission coefficient: Ctrans in ST (170), CO (3.20) *)
+  UpTrans = prefacUpTrans[s, \[Epsilon], \[Tau], \[Kappa]] Aminus;
+
+  (* K\[Nu]: ST (165), CO (3.32) *)
+  K\[Nu]1 = ((2^-\[Nu])( E^(I \[Epsilon])) \[Epsilon]^(-1-\[Nu]) Gamma[1-s-2 I \[Epsilon]] Gamma[1+s-I \[Epsilon]+\[Nu]])/(Gamma[-I \[Epsilon]-\[Nu]] Gamma[1+I \[Epsilon]+\[Nu]] Gamma[1-s+I \[Epsilon]+\[Nu]]) fSumK\[Nu]1Up / fSumK\[Nu]1Down;
+  K\[Nu]2 = ((2^-(-1-\[Nu]))( E^(I \[Epsilon])) \[Epsilon]^(-1-(-1-\[Nu])) Gamma[1-s-2 I \[Epsilon]] Gamma[1+s-I \[Epsilon]+(-1-\[Nu])])/(Gamma[-I \[Epsilon]-(-1-\[Nu])] Gamma[1+I \[Epsilon]+(-1-\[Nu])] Gamma[1-s+I \[Epsilon]+(-1-\[Nu])]) fSumK\[Nu]2Up / fSumK\[Nu]2Down;
+
+  (* In reflection coefficient: Bref in ST (169), CO (3.37) *)
+  InRef = (Gamma[1-2 I \[Epsilon]] Gamma[-I \[Epsilon]-\[Nu]] Gamma[1-I \[Epsilon]+\[Nu]])/(Gamma[1-s-2 I \[Epsilon]] Gamma[s-I \[Epsilon]-\[Nu]] Gamma[1+s-I \[Epsilon]+\[Nu]]) UpTrans (K\[Nu]1 + I E^(I \[Pi] \[Nu]) K\[Nu]2);
+
+  (* A+: ST (157), CO (3.38) and (3.41) *)
+  Aplus = prefacAplus[s, \[Epsilon], \[Tau], \[Kappa], \[Nu]] (fSumUp+fSumDown);
+
+  (* In incidence coefficient: Binc from ST (168), CO (3.36) and (3.39) *)
+  InInc = (Gamma[1-2 I \[Epsilon]] Gamma[-I \[Epsilon]-\[Nu]] Gamma[1-I \[Epsilon]+\[Nu]])/(Gamma[1-s-2 I \[Epsilon]] Gamma[s-I \[Epsilon]-\[Nu]] Gamma[1+s-I \[Epsilon]+\[Nu]]) prefacInInc[s, \[Epsilon], \[Tau], \[Kappa], \[Nu], K\[Nu]1, K\[Nu]2] Aplus;
+
+  (* Compute Up incidence and reflection coefficients from other coefficients *)
+  UpInc = UpTrans/InTrans InInc;
+  UpRef = -Conjugate[InRef/InTrans] UpTrans;
+
+  (* Clear local symbols with DownValues to avoid memory leaks *)
+  Clear[termf, termK\[Nu]1Up, termK\[Nu]1Down, termK\[Nu]2Up, termK\[Nu]2Down, termAminus, termD1, termD12];
+
+  (* Return results as an Association *)
+  <| "In" -> <| "Incidence" -> InInc, "Transmission" -> InTrans, "Reflection" -> InRef|>,
+     "Up" -> <| "Incidence" -> UpInc, "Transmission" -> UpTrans, "Reflection" -> UpRef |>
+   |>
+]],
+
+"Teukolsky",
 Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, {wp_, prec_, acc_}] :=
  Module[{\[Kappa], \[Tau], \[Epsilon]p, \[Omega], K\[Nu], K\[Nu]1, K\[Nu]2, Aminus, Aplus, D1, D12, D2, D22, InTrans, UpTrans, InInc, UpInc, InRef, UpRef, n, fSumUp, fSumDown, fSumK\[Nu]1Up, fSumK\[Nu]1Down, fSumK\[Nu]2Up, fSumK\[Nu]2Down, fSumAminusUp, fSumAminusDown, fSumD1Up, fSumD1Down, fSumD12Up, fSumD12Down, termf, termK\[Nu]1Up, termK\[Nu]1Down, termK\[Nu]2Up, termK\[Nu]2Down, termAminus, termD1, termD12},
  Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], fn},
@@ -379,7 +473,8 @@ Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_,
   <| "In" -> <| "Incidence" -> InInc, "Transmission" -> InTrans, "Reflection" -> InRef|>,
      "Up" -> <| "Incidence" -> UpInc, "Transmission" -> UpTrans, "Reflection" -> UpRef |>
    |>
-]];
+]]
+];
 
 
 (* ::Section::Closed:: *)
