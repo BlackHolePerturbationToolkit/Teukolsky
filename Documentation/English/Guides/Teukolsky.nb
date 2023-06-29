@@ -1,0 +1,305 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 13.2' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[     11424,        297]
+NotebookOptionsPosition[      7565,        212]
+NotebookOutlinePosition[      8081,        230]
+CellTagsIndexPosition[      8038,        227]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["Solutions to the radial Teukolsky equation", "GuideTitle",
+ CellID->1554358880,ExpressionUUID->"03d3336f-7183-4f64-8cd5-8c64bd754c7c"],
+
+Cell["\<\
+The Teukolsky package provides functions for computing solutions to the \
+radial Teukolsky equation and related functions. Support is included for \
+arbitrary-precision numerical evaluation.\
+\>", "GuideAbstract",
+ CellChangeTimes->{3.896987105583681*^9},
+ CellID->2118614052,ExpressionUUID->"cd7ba905-0c5e-44e7-a5a3-4101446e2a0d"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Solutions of the radial Teukolsky equation", "GuideFunctionsSection",
+ CellChangeTimes->{{3.896987109870715*^9, 3.896987118489729*^9}},
+ CellID->120021057,ExpressionUUID->"0fa0755c-ce18-44bc-ab19-329128f2c6d0"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TeukolskyRadial",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Teukolsky/ref/TeukolskyRadial"]], "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"c40ac8e4-27e1-4161-a8df-4d4f38357a23",ExpressionUUID->
+  "fbe81c3d-7259-4a35-b0c6-c6feed7b9974"],
+ " \[LongDash] compute homogeneous solutions of the Teukolsky equation"
+}], "GuideText",
+ CellChangeTimes->{{3.896987120806007*^9, 3.896987171447134*^9}},
+ CellID->706760466,ExpressionUUID->"46836b80-9bf3-42fe-93d3-0e009e468eb9"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TeukolskyRadialFunction",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Teukolsky/ref/TeukolskyRadialFunction"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"c5c6736a-1ff4-4e4e-8fcf-2d9846cbae62",ExpressionUUID->
+  "8ba5b700-870f-4125-93b9-d4e2d851ab99"],
+ " \[LongDash]  object representing a solution of the Teukolsky equation"
+}], "GuideText",
+ CellChangeTimes->{{3.896987125120722*^9, 3.896987175384034*^9}},
+ CellID->791100505,ExpressionUUID->"412b9239-622a-4eae-963c-05b15cf4cbbc"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["RenormalizedAngularMomentum",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Teukolsky/ref/RenormalizedAngularMomentum"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"f9f2ee7b-d442-4d09-8940-7ef5784c878e",ExpressionUUID->
+  "acdf4076-8e0f-41ca-adce-39110031a204"],
+ " \[LongDash] parameter used in MST method"
+}], "GuideText",
+ CellChangeTimes->{{3.896987136687787*^9, 3.896987189914899*^9}},
+ CellID->282076611,ExpressionUUID->"765a2246-71b7-4879-b3e9-6cbd4e1f0d6d"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Sources", "GuideFunctionsSection",
+ CellChangeTimes->{{3.896987109870715*^9, 3.896987118489729*^9}, {
+  3.896987238769565*^9, 3.896987239987934*^9}},
+ CellID->906949409,ExpressionUUID->"f3ee889c-901b-4c92-af01-a4dd22893326"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TeukolskyPointParticleMode",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Teukolsky/ref/TeukolskyPointParticleMode"]], 
+  "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"f9f2ee7b-d442-4d09-8940-7ef5784c878e",ExpressionUUID->
+  "a753fb12-1045-4068-b7f9-a255b62985ed"],
+ " \[LongDash] object representing a single mode of a solution of the \
+Teukolsky equation with point particle source"
+}], "GuideText",
+ CellChangeTimes->{{3.89698724774057*^9, 3.896987257614205*^9}, {
+  3.896987289559039*^9, 3.8969872895591*^9}},
+ CellID->452611893,ExpressionUUID->"4e462771-b0b4-40be-9d83-67ad191204b0"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  ButtonBox["TeukolskyMode",
+   BaseStyle->"Link",
+   ButtonData->"paclet:Teukolsky/ref/TeukolskyMode"]], "InlineGuideFunction",
+  TaggingRules->{"PageType" -> "Function"},
+  CellTags->"f9f2ee7b-d442-4d09-8940-7ef5784c878e",ExpressionUUID->
+  "4de59e04-38b0-49a3-aa5d-2ea902179f7f"],
+ " \[LongDash] object representing a single mode of a solution of the \
+Teukolsky equation"
+}], "GuideText",
+ CellChangeTimes->{{3.896987262921775*^9, 3.8969872928987226`*^9}},
+ CellID->661007977,ExpressionUUID->"691b8a72-4492-4ae3-99c7-3d9ad97fdb38"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Tech Notes", "GuideTutorialsSection",
+ CellID->2081294968,ExpressionUUID->"ee6f713e-b2af-48e6-848a-43d505a42084"],
+
+Cell[TextData[ButtonBox["Teukolsky",
+ BaseStyle->"Link",
+ ButtonData->"paclet:Teukolsky/tutorial/Teukolsky"]], "GuideTutorial",
+ CellChangeTimes->{{3.8969872699040327`*^9, 3.896987297188754*^9}},
+ CellID->2110884840,ExpressionUUID->"82b27932-b4a8-4768-a3b6-09a26165e27d"],
+
+Cell["XXXX", "GuideTutorial",
+ CellID->1211657440,ExpressionUUID->"5732face-7089-4402-ade1-e74e6d535844"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Related Guides", "GuideMoreAboutSection",
+ CellChangeTimes->{{3.8430423939366693`*^9, 3.843042395176153*^9}},
+ CellID->1886653226,ExpressionUUID->"d2750dcb-75eb-4079-8d59-a49a9bcd52a1"],
+
+Cell["XXXX", "GuideMoreAbout",
+ CellID->1384721427,ExpressionUUID->"ba60f573-1208-4671-bd6e-a0bde58e3fc2"],
+
+Cell["XXXX", "GuideMoreAbout",
+ CellID->732741050,ExpressionUUID->"ec4b4f25-4dd7-49ad-9292-3ee5ec313539"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Related Links", "GuideRelatedLinksSection",
+ CellID->1507595452,ExpressionUUID->"cfa1338b-0c69-4656-bfc4-5c775ea6f833"],
+
+Cell[TextData[ButtonBox["Black Hole Perturbation Toolkit",
+ BaseStyle->"Hyperlink",
+ ButtonData->{
+   URL["https://bhptoolkit.org"], None},
+ ButtonNote->"https://bhptoolkit.org"]], "GuideRelatedLinks",
+ CellID->1409211692,ExpressionUUID->"bde8e20f-2028-479b-9889-f8597d1e6185"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Metadata", "MetadataSection",
+ CellID->2144694458,ExpressionUUID->"29b58fbc-e47d-4141-a626-b5b820c9c2ab"],
+
+Cell[TextData[{
+ "New in: ",
+ Cell["XX", "HistoryData",
+  CellTags->"New",ExpressionUUID->"c2d46d70-3e57-4491-bce6-d988580713a4"],
+ " | Modified in: ",
+ Cell[" ", "HistoryData",
+  CellTags->"Modified",ExpressionUUID->"0977638e-d926-4bfd-b3a4-1de93668ad08"],
+ " | Obsolete in: ",
+ Cell[" ", "HistoryData",
+  CellTags->"Obsolete",ExpressionUUID->
+  "179f9763-e303-463b-b004-f47d88fb506a"]
+}], "History",
+ CellID->366740711,ExpressionUUID->"6a5a3570-02cf-4d83-9454-1355f6f3d6e5"],
+
+Cell[CellGroupData[{
+
+Cell["Categorization", "CategorizationSection",
+ CellID->533062887,ExpressionUUID->"567f0b53-4f25-4399-a729-25e00b328409"],
+
+Cell["Guide", "Categorization",
+ CellLabel->"Entity Type",
+ CellID->2033650172,ExpressionUUID->"15de505d-3a0c-48d3-be22-b28de6690ed9"],
+
+Cell["Teukolsky", "Categorization",
+ CellLabel->"Paclet Name",
+ CellID->208715152,ExpressionUUID->"21e22003-fb48-491c-aba4-f29374ed88c9"],
+
+Cell["Teukolsky`", "Categorization",
+ CellLabel->"Context",
+ CellID->1034764113,ExpressionUUID->"fb7a986e-ceb5-48e4-9dd5-7f8aa84be130"],
+
+Cell["Teukolsky/guide/SolutionstotheradialTeukolskyequation", "Categorization",
+ CellLabel->"URI",
+ CellID->957873785,ExpressionUUID->"fbb88cb1-e31c-4b53-8ed4-cc38fcd2289f"]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["Keywords", "KeywordsSection",
+ CellID->1447286583,ExpressionUUID->"ee0d1ebb-e321-4689-a801-bfe5b2945617"],
+
+Cell["XXXX", "Keywords",
+ CellID->2145814559,ExpressionUUID->"70a8ff1f-e2ad-430e-a9f5-e8760f6b54ba"]
+}, Closed]]
+}, Open  ]]
+},
+WindowSize->{700, 770},
+WindowMargins->{{492, Automatic}, {Automatic, 50}},
+TaggingRules-><|"Paclet" -> "Teukolsky"|>,
+FrontEndVersion->"13.2 for Mac OS X x86 (64-bit) (January 30, 2023)",
+StyleDefinitions->FrontEnd`FileName[{"Wolfram"}, "GuidePageStylesExt.nb", 
+  CharacterEncoding -> "UTF-8"],
+ExpressionUUID->"033aa102-7715-49b1-8856-32571a84ba02"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[580, 22, 140, 1, 88, "GuideTitle",ExpressionUUID->"03d3336f-7183-4f64-8cd5-8c64bd754c7c",
+ CellID->1554358880],
+Cell[723, 25, 341, 6, 47, "GuideAbstract",ExpressionUUID->"cd7ba905-0c5e-44e7-a5a3-4101446e2a0d",
+ CellID->2118614052]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[1101, 36, 216, 2, 72, "GuideFunctionsSection",ExpressionUUID->"0fa0755c-ce18-44bc-ab19-329128f2c6d0",
+ CellID->120021057],
+Cell[1320, 40, 548, 11, 27, "GuideText",ExpressionUUID->"46836b80-9bf3-42fe-93d3-0e009e468eb9",
+ CellID->706760466],
+Cell[1871, 53, 569, 12, 27, "GuideText",ExpressionUUID->"412b9239-622a-4eae-963c-05b15cf4cbbc",
+ CellID->791100505],
+Cell[2443, 67, 548, 12, 27, "GuideText",ExpressionUUID->"765a2246-71b7-4879-b3e9-6cbd4e1f0d6d",
+ CellID->282076611]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[3028, 84, 230, 3, 72, "GuideFunctionsSection",ExpressionUUID->"f3ee889c-901b-4c92-af01-a4dd22893326",
+ CellID->906949409],
+Cell[3261, 89, 666, 14, 44, "GuideText",ExpressionUUID->"4e462771-b0b4-40be-9d83-67ad191204b0",
+ CellID->452611893],
+Cell[3930, 105, 566, 12, 27, "GuideText",ExpressionUUID->"691b8a72-4492-4ae3-99c7-3d9ad97fdb38",
+ CellID->661007977]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[4533, 122, 119, 1, 74, "GuideTutorialsSection",ExpressionUUID->"ee6f713e-b2af-48e6-848a-43d505a42084",
+ CellID->2081294968],
+Cell[4655, 125, 271, 4, 24, "GuideTutorial",ExpressionUUID->"82b27932-b4a8-4768-a3b6-09a26165e27d",
+ CellID->2110884840],
+Cell[4929, 131, 105, 1, 24, "GuideTutorial",ExpressionUUID->"5732face-7089-4402-ade1-e74e6d535844",
+ CellID->1211657440]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[5071, 137, 191, 2, 74, "GuideMoreAboutSection",ExpressionUUID->"d2750dcb-75eb-4079-8d59-a49a9bcd52a1",
+ CellID->1886653226],
+Cell[5265, 141, 106, 1, 24, "GuideMoreAbout",ExpressionUUID->"ba60f573-1208-4671-bd6e-a0bde58e3fc2",
+ CellID->1384721427],
+Cell[5374, 144, 105, 1, 24, "GuideMoreAbout",ExpressionUUID->"ec4b4f25-4dd7-49ad-9292-3ee5ec313539",
+ CellID->732741050]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[5516, 150, 125, 1, 74, "GuideRelatedLinksSection",ExpressionUUID->"cfa1338b-0c69-4656-bfc4-5c775ea6f833",
+ CellID->1507595452],
+Cell[5644, 153, 277, 5, 24, "GuideRelatedLinks",ExpressionUUID->"bde8e20f-2028-479b-9889-f8597d1e6185",
+ CellID->1409211692]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[5958, 163, 111, 1, 72, "MetadataSection",ExpressionUUID->"29b58fbc-e47d-4141-a626-b5b820c9c2ab",
+ CellID->2144694458],
+Cell[6072, 166, 476, 12, 26, "History",ExpressionUUID->"6a5a3570-02cf-4d83-9454-1355f6f3d6e5",
+ CellID->366740711],
+Cell[CellGroupData[{
+Cell[6573, 182, 122, 1, 21, "CategorizationSection",ExpressionUUID->"567f0b53-4f25-4399-a729-25e00b328409",
+ CellID->533062887],
+Cell[6698, 185, 134, 2, 70, "Categorization",ExpressionUUID->"15de505d-3a0c-48d3-be22-b28de6690ed9",
+ CellID->2033650172],
+Cell[6835, 189, 137, 2, 70, "Categorization",ExpressionUUID->"21e22003-fb48-491c-aba4-f29374ed88c9",
+ CellID->208715152],
+Cell[6975, 193, 135, 2, 70, "Categorization",ExpressionUUID->"fb7a986e-ceb5-48e4-9dd5-7f8aa84be130",
+ CellID->1034764113],
+Cell[7113, 197, 173, 2, 70, "Categorization",ExpressionUUID->"fbb88cb1-e31c-4b53-8ed4-cc38fcd2289f",
+ CellID->957873785]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[7323, 204, 111, 1, 21, "KeywordsSection",ExpressionUUID->"ee0d1ebb-e321-4689-a801-bfe5b2945617",
+ CellID->1447286583],
+Cell[7437, 207, 100, 1, 70, "Keywords",ExpressionUUID->"70a8ff1f-e2ad-430e-a9f5-e8760f6b54ba",
+ CellID->2145814559]
+}, Closed]]
+}, Open  ]]
+}
+]
+*)
+
