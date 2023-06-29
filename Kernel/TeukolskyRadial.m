@@ -291,7 +291,7 @@ TeukolskyRadialHeunC[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, \[Lambda]_,
 
   (* Solution functions for the specified boundary conditions *)
   solFuncs =
-    <|"In" :> (2^((-I a m-Sqrt[1-a^2] s+2 I \[Omega])/Sqrt[1-a^2]) (1-a^2)^((I a m)/(2 (1+Sqrt[1-a^2]))-s-I \[Omega]) E^(1/2 I (a m-2 # \[Omega])) ((-1-Sqrt[1-a^2]+#)/Sqrt[1-a^2])^((I a m)/(2 Sqrt[1-a^2])-s-I (1+1/Sqrt[1-a^2]) \[Omega]) ((-1+Sqrt[1-a^2]+#)/Sqrt[1-a^2])^((I (a m+2 (-1+Sqrt[1-a^2]) \[Omega]))/(2 Sqrt[1-a^2])) HeunC[s+s^2+\[Lambda]-(a m-2 \[Omega])^2/(-1+a^2)-4 \[Omega]^2+(I (-a m-4 (-1+s) \[Omega]+2 a^2 (-1+2 s) \[Omega]))/Sqrt[1-a^2],-4 \[Omega] (-I Sqrt[1-a^2]+a m+I Sqrt[1-a^2] s-2 \[Omega]+2 Sqrt[1-a^2] \[Omega]),1-s+(I (a m-2 \[Omega]))/Sqrt[1-a^2]-2 I \[Omega],1+s+(I (a m-2 \[Omega]))/Sqrt[1-a^2]+2 I \[Omega],4 I Sqrt[1-a^2] \[Omega],(1+Sqrt[1-a^2]-#)/(2 Sqrt[1-a^2])])&,
+    <|"In" :> ((2^((-I a m-Sqrt[1-a^2] s+2 I \[Omega])/Sqrt[1-a^2]) (1-a^2)^((I a m)/(2 (1+Sqrt[1-a^2]))-s-I \[Omega]) E^(1/2 I (a m-2 # \[Omega])) ((-1-Sqrt[1-a^2]+#)/Sqrt[1-a^2])^((I a m)/(2 Sqrt[1-a^2])-s-I (1+1/Sqrt[1-a^2]) \[Omega]) ((-1+Sqrt[1-a^2]+#)/Sqrt[1-a^2])^((I (a m+2 (-1+Sqrt[1-a^2]) \[Omega]))/(2 Sqrt[1-a^2])) HeunC[s+s^2+\[Lambda]-(a m-2 \[Omega])^2/(-1+a^2)-4 \[Omega]^2+(I (-a m-4 (-1+s) \[Omega]+2 a^2 (-1+2 s) \[Omega]))/Sqrt[1-a^2],-4 \[Omega] (-I Sqrt[1-a^2]+a m+I Sqrt[1-a^2] s-2 \[Omega]+2 Sqrt[1-a^2] \[Omega]),1-s+(I (a m-2 \[Omega]))/Sqrt[1-a^2]-2 I \[Omega],1+s+(I (a m-2 \[Omega]))/Sqrt[1-a^2]+2 I \[Omega],4 I Sqrt[1-a^2] \[Omega],(1+Sqrt[1-a^2]-#)/(2 Sqrt[1-a^2])])&),
       "Up" :> $Failed |>;
   solFuncs = Lookup[solFuncs, BCs];
 
