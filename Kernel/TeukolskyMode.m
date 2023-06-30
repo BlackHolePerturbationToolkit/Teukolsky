@@ -169,7 +169,7 @@ TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, k_Integer, orbit_Ker
 
 
 TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, orbit_KerrGeoOrbitFunction, opts:OptionsPattern[]] /; eccentricOrbitQ[orbit] :=
-  TeukolskyPointParticleMode[s, l, m, n, orbit, opts]
+  TeukolskyPointParticleMode[s, l, m, n, 0, orbit, opts]
 
 
 (* ::Section::Closed:: *)
