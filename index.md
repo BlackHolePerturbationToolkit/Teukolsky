@@ -20,51 +20,39 @@ $\omega$ is the mode frequency
 $\mathcal{T}$ is the source
 
 Currently the source has been implemented for a point particle moving along a circular orbit in Kerr spacetime. As an example, the flux in this case for the $l=2,m=2$ mode is easily computed using:  
-```
-a = 0.9`32;
-r0 = 10.`32;
-
-orbit = KerrGeoOrbit[a, r0, 0, 1];
-
-s = -2; l = 2; m = 2; n = 0; k = 0;
-mode = TeukolskyPointParticleMode[s, l, m, n, k, orbit];
-
-mode["Fluxes"]
+```Mathematica
+With[{a = 0.9, p = 10.0, e=0, x=1, s = -2, l = 2, m = 2},
+  orbit = KerrGeoOrbit[a, p, e, x];
+  ψ4 = TeukolskyPointParticleMode[s, l, m, orbit];
+  ψ4["Fluxes"]
+]
 ```  
 This returns an association with the results:  
+```Mathematica
+<|"Energy" -> <|"ℐ" -> 0.000022273, "ℋ" -> -5.9836*10^-8|>,
+  "AngularMomentum" -> <|"ℐ" -> 0.00072438, "ℋ" -> -1.94603*10^-6|>|>
 ```
-<|"FluxInf" -> 0.000022273000551180497057, "FluxHor" -> -5.9836792133833631984*10^-8, "FluxTotal" -> 0.000022213163759046663425|>
-```
-Note the high precision of the input values for $a$ and $r_0$. Currently this is often a requirement to get an accurate result.
 
 ## Homogeneous solutions
 
-The homogeneous solutions are also easily computed. They can be extracted from the `mode` object above using `R = mode["Radial"]`. This returns a `TeukolskyRadialFunction[]` which can be evaluated at a given radius, i.e., `R[20.]`. The homogeneous solutions can also be computed directly via the `TeukolskyRadial[s, l, m, a, ω]` function.
+The homogeneous solutions are also easily computed. They can be extracted from the `ψ4` object above using `R = ψ4["RadialFunctions"]`. This returns a pair `TeukolskyRadialFunction` objects which can be evaluated at a given radius, i.e., `R["In"][10.]`. The homogeneous solutions can also be computed directly via the `TeukolskyRadial[s, l, m, a, ω]` function.
 
 ## Renormalized angular momentum
 
-Under the hood the Teukolsky package defaults to using the MST method for computing the homogeneous solutions (Sasaki-Nakamura methods are in development). A key part of the MST method is the calculation of the renormalized angular momentum, $\nu$. This can be computed directly via
+Under the hood the Teukolsky package uses the MST method for computing homogeneous solutions. A key part of the MST method is the calculation of the renormalized angular momentum, $\nu$. This can be computed directly via
 ```
  ν = RenormalizedAngularMomentum[s, l, m, a, ω]
 ```
 
 ### Further examples
 
-Example notebooks can be found in the [Mathematica Toolkit Examples](https://github.com/BlackHolePerturbationToolkit/MathematicaToolkitExamples) repository.
+See the Mathematica Documentation Centre for a tutorial and documentation on individual functions.
 
-## Installation
+## Citing
 
-We recommend users install the package using Mathematica's Paclet system. 
-For instructions see the [Mathematica package installation page](https://bhptoolkit.org/mathematica-install.html).
-This will install the latest version and automatically handle upgrades as new releases become available.
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.96558973.svg)](https://doi.org/10.5281/zenodo.96558973)
 
-Alternatively, the latest official release can be found at: [![DOI](https://zenodo.org/badge/96558973.svg)](https://zenodo.org/badge/latestdoi/96558973).
-We recommend only developers download the code directly from GitHub. 
-
-## Citation
-
-In addition to citing the Black Hole Perturbation Toolkit as suggested on the [front page](https://bhptoolkit.org/index.html)
-we also recommend citing the version of the specific package version you use via the citation information on the [package's Zenodo page](https://zenodo.org/badge/latestdoi/96558973).
+In addition to acknowledging the Black Hole Perturbation Toolkit as suggested on the [front page](https://bhptoolkit.org) we also recommend citing the specific package version you use via the citation information on the package’s Zenodo page linked from the above DOI.
 
 ## Authors and contributors
 
