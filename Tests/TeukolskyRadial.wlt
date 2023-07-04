@@ -132,11 +132,11 @@ VerificationTest[
 VerificationTest[
     TeukolskyRadial[2, 2, 2, 1/3, 0]["In"][10]
     ,
-    ((514105 + 77004 I) 2^(-(7/2) - I/Sqrt[2] + 1/2 (2 - I/(2 Sqrt[2])))
-        3^(3 + I/(2 Sqrt[2])) (9 - (2 Sqrt[2])/3)^(-2 + I/(
+    ((514105 + 77004 I) 2^(-(3/2) - I/Sqrt[2] + I Sqrt[2] + 
+        1/2 (2 - I/(2 Sqrt[2])) + 1/2 (-4 + I/Sqrt[2])) 3^(
+       3 - I/(2 Sqrt[2])) (9 - (2 Sqrt[2])/3)^(-2 + I/(
         2 Sqrt[2])) (1 - (3 (-9 + (2 Sqrt[2])/3))/(4 Sqrt[2]))^(-(I/(
-        2 Sqrt[2]))) E^(
-       1/3 I (1 + (2 Log[(2 Sqrt[2])/3])/(1 + (2 Sqrt[2])/3)))
+        2 Sqrt[2])))
         Gamma[-1 + I/Sqrt[2]])/((-2 I + Sqrt[2]) (2 I + Sqrt[2]) (-4 I + 
          Sqrt[2]) (4 + 27 Sqrt[2])^2 Gamma[1/2 I (2 I + Sqrt[2])])
     ,
@@ -146,11 +146,11 @@ VerificationTest[
 VerificationTest[
     TeukolskyRadial[2, 2, 2, 1/3, 0.0]["In"][10]
     ,
-    ((514105 + 77004 I) 2^(-(7/2) - I/Sqrt[2] + 1/2 (2 - I/(2 Sqrt[2])))
-        3^(3 + I/(2 Sqrt[2])) (9 - (2 Sqrt[2])/3)^(-2 + I/(
+    ((514105 + 77004 I) 2^(-(3/2) - I/Sqrt[2] + I Sqrt[2] + 
+        1/2 (2 - I/(2 Sqrt[2])) + 1/2 (-4 + I/Sqrt[2])) 3^(
+       3 - I/(2 Sqrt[2])) (9 - (2 Sqrt[2])/3)^(-2 + I/(
         2 Sqrt[2])) (1 - (3 (-9 + (2 Sqrt[2])/3))/(4 Sqrt[2]))^(-(I/(
-        2 Sqrt[2]))) E^(
-       1/3 I (1 + (2 Log[(2 Sqrt[2])/3])/(1 + (2 Sqrt[2])/3)))
+        2 Sqrt[2])))
         Gamma[-1 + I/Sqrt[2]])/((-2 I + Sqrt[2]) (2 I + Sqrt[2]) (-4 I + 
          Sqrt[2]) (4 + 27 Sqrt[2])^2 Gamma[1/2 I (2 I + Sqrt[2])])
     ,
@@ -160,11 +160,11 @@ VerificationTest[
 VerificationTest[
     TeukolskyRadial[2, 2, 2, 1/3, 0.0``32]["In"][10]
     ,
-    ((514105 + 77004 I) 2^(-(7/2) - I/Sqrt[2] + 1/2 (2 - I/(2 Sqrt[2])))
-        3^(3 + I/(2 Sqrt[2])) (9 - (2 Sqrt[2])/3)^(-2 + I/(
+    ((514105 + 77004 I) 2^(-(3/2) - I/Sqrt[2] + I Sqrt[2] + 
+        1/2 (2 - I/(2 Sqrt[2])) + 1/2 (-4 + I/Sqrt[2])) 3^(
+       3 - I/(2 Sqrt[2])) (9 - (2 Sqrt[2])/3)^(-2 + I/(
         2 Sqrt[2])) (1 - (3 (-9 + (2 Sqrt[2])/3))/(4 Sqrt[2]))^(-(I/(
-        2 Sqrt[2]))) E^(
-       1/3 I (1 + (2 Log[(2 Sqrt[2])/3])/(1 + (2 Sqrt[2])/3)))
+        2 Sqrt[2])))
         Gamma[-1 + I/Sqrt[2]])/((-2 I + Sqrt[2]) (2 I + Sqrt[2]) (-4 I + 
          Sqrt[2]) (4 + 27 Sqrt[2])^2 Gamma[1/2 I (2 I + Sqrt[2])])
     ,
@@ -174,7 +174,7 @@ VerificationTest[
 VerificationTest[
     TeukolskyRadial[2, 2, 0, 1/3, 0]["In"][10]
     ,
-    (243*(-9 + (2*Sqrt[2])/3)^2)/(256*(9 - (2*Sqrt[2])/3)^2)
+    (-9 + (2*Sqrt[2])/3)^2/(9 - (2*Sqrt[2])/3)^2
     ,
     TestID->"Static m=0 \"in\" mode"
 ]
@@ -182,7 +182,7 @@ VerificationTest[
 VerificationTest[
     TeukolskyRadial[2, 2, 0, 1/3, 0.0]["In"][10]
     ,
-    (243*(-9 + (2*Sqrt[2])/3)^2)/(256*(9 - (2*Sqrt[2])/3)^2)
+    (-9 + (2*Sqrt[2])/3)^2/(9 - (2*Sqrt[2])/3)^2
     ,
     TestID->"Static m=0 \"in\" mode (machine-precision omega)"
 ]
@@ -190,7 +190,7 @@ VerificationTest[
 VerificationTest[
     TeukolskyRadial[2, 2, 0, 1/3, 0.0``32]["In"][10]
     ,
-    (243*(-9 + (2*Sqrt[2])/3)^2)/(256*(9 - (2*Sqrt[2])/3)^2)
+    (-9 + (2*Sqrt[2])/3)^2/(9 - (2*Sqrt[2])/3)^2
     ,
     TestID->"Static m=0 \"in\" mode (high-accuracy omega)"
 ]
