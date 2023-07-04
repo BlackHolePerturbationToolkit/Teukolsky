@@ -320,8 +320,8 @@ Module[{orbitC = KerrGeoOrbit[0, 10.0, 0, 1]},
   VerificationTest[
       SetPrecision[TeukolskyPointParticleMode[-2, 2, 2, 0, 0, orbitC]["Amplitudes"], 6]
     ,
-    <|"\[ScriptCapitalI]" -> 0.0011206407919254166103293 - 0.0003057608384581628431873 I, 
-     "\[ScriptCapitalH]" -> 0.0014710247263310518147472 + 0.0003861305299246959983883 I|>
+    <|"\[ScriptCapitalI]" -> -0.0011206407919254166103293 + 0.0003057608384581628431873 I, 
+     "\[ScriptCapitalH]" -> -0.0014710247263310518147472 - 0.0003861305299246959983883 I|>
     ,
     TestID->"Circular orbit Schwarzschild amplitudes (s=-2)",
     SameTest->withinRoundoff
@@ -342,8 +342,8 @@ Module[{orbitS = KerrGeoOrbit[0, 10.0, 0, Cos[\[Pi]/4.]]},
   VerificationTest[
       SetPrecision[TeukolskyPointParticleMode[-2, 2, 2, 0, 0, orbitS]["Amplitudes"], 6]
     ,
-    <|"\[ScriptCapitalI]" -> 0.000816446648594393652746243 - 0.0002227630955693367815631962 I, 
-     "\[ScriptCapitalH]" -> 0.001071720052015030398567520 + 0.000281316706788214826313457 I|>
+    <|"\[ScriptCapitalI]" -> -0.000816446648594393652746243 + 0.0002227630955693367815631962 I, 
+     "\[ScriptCapitalH]" -> -0.001071720052015030398567520 - 0.000281316706788214826313457 I|>
     ,
     TestID->"Spherical orbit Schwarzschild amplitudes (s=-2)",
     SameTest->withinRoundoff
@@ -364,8 +364,8 @@ Module[{orbitE = KerrGeoOrbit[0, 10.0, 0.1, 1]},
   VerificationTest[
       SetPrecision[TeukolskyPointParticleMode[-2, 2, 2, 0, 0, orbitE]["Amplitudes"], 6]
     ,
-    <|"\[ScriptCapitalI]" -> 0.00102739509088208 - 0.00027888266315215 I, 
-     "\[ScriptCapitalH]" -> 0.00135207925401707 + 0.00035093350945876 I|>
+    <|"\[ScriptCapitalI]" -> -0.00102739509088208 + 0.00027888266315215 I, 
+     "\[ScriptCapitalH]" -> -0.00135207925401707 - 0.00035093350945876 I|>
     ,
     TestID->"Eccentric orbit Schwarzschild amplitudes (s=-2)",
     SameTest->withinRoundoff
@@ -386,8 +386,8 @@ Module[{orbitG = KerrGeoOrbit[0, 10.0, 0.1, Cos[\[Pi]/4.]]},
   VerificationTest[
       SetPrecision[TeukolskyPointParticleMode[-2, 2, 2, 0, 0, orbitG]["Amplitudes"], 6]
     ,
-    <|"\[ScriptCapitalI]" -> 0.00074851217701405 - 0.00020318090971475 I, 
-     "\[ScriptCapitalH]" -> 0.00098506192486100 + 0.00025567379818942 I|>
+    <|"\[ScriptCapitalI]" -> -0.00074851217701405 + 0.00020318090971475 I, 
+     "\[ScriptCapitalH]" -> -0.00098506192486100 - 0.00025567379818942 I|>
     ,
     TestID->"Generic orbit Schwarzschild amplitudes (s=-2)",
     SameTest->withinRoundoff
@@ -429,8 +429,8 @@ Module[{orbitC = KerrGeoOrbit[0.1, 10.0, 0, 1]},
   VerificationTest[
       SetPrecision[TeukolskyPointParticleMode[-2, 2, 2, 0, 0, orbitC]["Amplitudes"], 6]
     ,
-    <|"\[ScriptCapitalI]" -> 0.0011042513597484404673410 - 0.0003010513879342753094272 I, 
-     "\[ScriptCapitalH]" -> 0.0014748445457123321571078 + 0.0002289511157707928466590 I|>
+    <|"\[ScriptCapitalI]" -> -0.0011042513597484404673410 + 0.0003010513879342753094272 I, 
+     "\[ScriptCapitalH]" -> -0.0014748445457123321571078 - 0.0002289511157707928466590 I|>
     ,
     TestID->"Circular orbit Kerr amplitudes (s=-2)",
     SameTest->withinRoundoff
@@ -451,8 +451,8 @@ Module[{orbitS = KerrGeoOrbit[0.1, 10.0, 0, Cos[\[Pi]/4.]]},
   VerificationTest[
       SetPrecision[TeukolskyPointParticleMode[-2, 2, 2, 0, 0, orbitS]["Amplitudes"], 6]
     ,
-    <|"\[ScriptCapitalI]" -> 0.0008134090552314842569669 - 0.0002220559776171971048038 I, 
-     "\[ScriptCapitalH]" -> 0.0010818095010835464640668 + 0.0001687703221397815132785 I|>
+    <|"\[ScriptCapitalI]" -> -0.0008134090552314842569669 + 0.0002220559776171971048038 I, 
+     "\[ScriptCapitalH]" -> -0.0010818095010835464640668 - 0.0001687703221397815132785 I|>
     ,
     TestID->"Spherical orbit Kerr amplitudes (s=-2)",
     SameTest->withinRoundoff
@@ -471,8 +471,8 @@ Module[{orbitS = KerrGeoOrbit[0.1, 10.0, 0, Cos[\[Pi]/4.]]},
   VerificationTest[
       SetPrecision[TeukolskyPointParticleMode[-2, 2, 2, 0, 2, orbitS]["Amplitudes"], 6]
       ,
-      <|"\[ScriptCapitalI]" -> -1.8309226927939255*^-7 + 6.205049783176476*^-8*I,
-        "\[ScriptCapitalH]" -> -1.0285026158488626*^-7 - 5.12830201737232*^-8*I|>
+      <|"\[ScriptCapitalI]" -> 1.8309226927939255*^-7 - 6.205049783176476*^-8*I,
+        "\[ScriptCapitalH]" -> 1.0285026158488626*^-7 + 5.12830201737232*^-8*I|>
       ,
       TestID->"Spherical orbit amplitudes (s=-2)",
       SameTest->withinRoundoff
@@ -493,8 +493,8 @@ Module[{orbitE = KerrGeoOrbit[0.1, 10.0, 0.1, 1]},
   VerificationTest[
       SetPrecision[TeukolskyPointParticleMode[-2, 2, 2, 0, 0, orbitE]["Amplitudes"], 6]
     ,
-    <|"\[ScriptCapitalI]" -> 0.00101539073433068 - 0.00027535746450647 I, 
-     "\[ScriptCapitalH]" -> 0.001359631602157010 + 0.000207192301964262 I|>
+    <|"\[ScriptCapitalI]" -> -0.00101539073433068 + 0.00027535746450647 I, 
+     "\[ScriptCapitalH]" -> -0.001359631602157010 - 0.000207192301964262 I|>
     ,
     TestID->"Eccentric orbit Kerr amplitudes (s=-2)",
     SameTest->withinRoundoff
@@ -515,8 +515,8 @@ Module[{orbitG = KerrGeoOrbit[0.1, 10.0, 0.1, Cos[\[Pi]/4.]]},
   VerificationTest[
       SetPrecision[TeukolskyPointParticleMode[-2, 2, 2, 0, 0, orbitG]["Amplitudes"], 6]
     ,
-    <|"\[ScriptCapitalI]" -> 0.0007470184367075 - 0.0002028616424164 I, 
-     "\[ScriptCapitalH]" -> 0.0009960463270432 + 0.0001525666277914 I|>
+    <|"\[ScriptCapitalI]" -> -0.0007470184367075 + 0.0002028616424164 I, 
+     "\[ScriptCapitalH]" -> -0.0009960463270432 - 0.0001525666277914 I|>
     ,
     TestID->"Generic orbit Kerr amplitudes (s=-2)",
     SameTest->withinRoundoff
