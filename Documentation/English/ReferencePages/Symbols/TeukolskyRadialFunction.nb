@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[     18936,        520]
+NotebookDataLength[     18937,        520]
 NotebookOptionsPosition[     13095,        394]
-NotebookOutlinePosition[     13868,        420]
-CellTagsIndexPosition[     13789,        415]
+NotebookOutlinePosition[     13869,        420]
+CellTagsIndexPosition[     13790,        415]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -132,10 +132,10 @@ Cell[TextData[{
     "879628c2-6a9e-4818-9641-c1dbc5071c82"], 
    DynamicModuleBox[{$CellContext`nbobj$$ = NotebookObject[
     "9a3a9ce7-bc07-401b-b117-b0e3b02ad3dc", 
-     "35715f1b-32b9-4033-a0bd-64177a664153"], $CellContext`cellobj$$ = 
+     "d6c0dfc3-ab43-42c1-90ad-4dadba4b28fb"], $CellContext`cellobj$$ = 
     CellObject[
     "dcd3805f-d849-4160-9a01-64caaaa7b2b7", 
-     "7030837b-e258-49e6-b289-9bc2ed305875"]}, 
+     "496bef61-8922-4038-a5fd-5fb22b79b60e"]}, 
     TemplateBox[{
       GraphicsBox[{{
          Thickness[0.06], 
@@ -393,7 +393,7 @@ Cell[BoxData[""], "Template",
 }, Open  ]]
 },
 WindowSize->{700, 770},
-WindowMargins->{{73, Automatic}, {Automatic, 61}},
+WindowMargins->{{396, Automatic}, {Automatic, 56}},
 TaggingRules-><|"Paclet" -> "Teukolsky"|>,
 CellContext->"Global`",
 FrontEndVersion->"13.2 for Mac OS X x86 (64-bit) (January 30, 2023)",
@@ -414,7 +414,7 @@ CellTagsIndex->{
 *)
 (*CellTagsIndex
 CellTagsIndex->{
- {"ExtendedExamples", 13595, 408}
+ {"ExtendedExamples", 13596, 408}
  }
 *)
 (*NotebookFileOutline
