@@ -55,6 +55,9 @@ TeukolskyPointParticleMode::noret = "This package does not compute the retarded 
 TeukolskyPointParticleMode::type = "Only bound orbits supported but orbit type is: `1`.";
 
 
+TeukolskyPointParticleMode::mino = "Orbit parametrization \"`1`\" is not currently supported. Use \"Mino\" parametrization instead.";
+
+
 (* ::Subsection::Closed:: *)
 (*Begin Private section*)
 
@@ -77,6 +80,9 @@ TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer
  Module[{source, assoc, domain, Ruser, R, S, \[Omega], \[CapitalOmega]r, \[CapitalOmega]\[Phi], \[CapitalOmega]\[Theta], Z, \[Lambda], rmin, rmax, a, p, e, x},
   {a, p, e, x} = orbit /@ {"a", "p", "e", "Inclination"};  
 
+  If[orbit["Parametrization"] =!= "Mino",
+    Message[TeukolskyPointParticleMode::mino, orbit["Parametrization"]];
+    Return[$Failed]];
   If[!MatchQ[orbit["Type"], {"Bound", ___} | {"Unbound" | "MarginallyBound", "Circular", __}],
     Message[TeukolskyPointParticleMode::type, orbit["Type"]];
     Return[$Failed]];
