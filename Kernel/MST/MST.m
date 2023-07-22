@@ -363,6 +363,15 @@ Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_,
   \[Epsilon]p = 1/2 (\[Tau] + \[Epsilon]);
   \[Omega] = \[Epsilon] / 2;
 
+  (* At the horizon frequency (\[Epsilon]p=0) the amplitudes are not well-defined since
+     we have a totally reflecting mode and the transmission amplitude goes to zero,
+     but we are have by convention normalised to unit transmission amplitude. Perhaps a
+     suitable limit can be taken, but for now we simply return Indeterminate. *)
+  If[\[Epsilon]p == 0,
+    Return[<| "In" -> <| "Incidence" -> Indeterminate, "Transmission" -> SetPrecision[1,wp], "Reflection" -> Indeterminate|>,
+              "Up" -> <| "Incidence" -> Indeterminate, "Transmission" -> SetPrecision[1,wp], "Reflection" -> Indeterminate|>|>];
+  ];
+
   (* All of the formulae are taken from Sasaki & Tagoshi, Living Rev. Relativity 6:6 (ST)
      and Casals & Ottewill, Phys. Rev. D 92, 124055 (CO) *)
 
