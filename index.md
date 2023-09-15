@@ -19,7 +19,7 @@ $\lambda$ is the spin-weighted spheroidal eigenvalue
 $\omega$ is the mode frequency  
 $\mathcal{T}$ is the source
 
-Currently the source has been implemented for a point particle moving along a circular orbit in Kerr spacetime. As an example, the flux in this case for the $l=2,m=2$ mode is easily computed using:  
+Currently the source has been implemented for a point particle moving a generic bound orbit in Kerr spacetime for perturbations with spin-weight $s=\{0,\pm 1, \pm 2\}$. As an example, the gravitational wave flux for the $l=2,m=2$ mode for a circular, equatorial orbit is easily computed using:  
 ```Mathematica
 With[{a = 0.9, p = 10.0, e=0, x=1, s = -2, l = 2, m = 2},
   orbit = KerrGeoOrbit[a, p, e, x];
