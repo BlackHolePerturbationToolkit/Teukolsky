@@ -48,7 +48,7 @@ TeukolskyRadial::dm = "Option `1` is not valid with BoundaryConditions \[RightAr
 TeukolskyRadial::sopt = "Option `1` not supported for static (\[Omega]=0) modes.";
 TeukolskyRadial::hc = "Method HeunC is only supported with Mathematica version 12.1 and later.";
 TeukolskyRadial::hcopt = "Option `1` not supported for HeunC method.";
-TeukolskyRadialFunction::dmval = "Radius `1` lies outside the computational domain. Results may be incorrect.";
+TeukolskyRadialFunction::dmval = "Radius `1` lies outside the computational domain.";
 TeukolskyRadial::opti = "Options in set `1` are incompatible.";
 TeukolskyRadial::cmplx = "Only real frequencies are currently supported by TeukolskyRadial, but \[Omega]=`1` specified.";
 
@@ -628,6 +628,7 @@ TeukolskyRadialFunction[s_, l_, m_, a_, \[Omega]_, assoc_][r:(_?NumericQ|{_?Nume
   {rmin, rmax} = assoc["Domain"];
   If[outsideDomainQ[r, rmin, rmax],
     Message[TeukolskyRadialFunction::dmval, #]& /@ Select[Flatten[{r}], outsideDomainQ[#, rmin, rmax]&];
+    Return[Indeterminate];
   ];
   Quiet[assoc["RadialFunction"][r], InterpolatingFunction::dmval]
  ];
@@ -638,6 +639,7 @@ Derivative[n:1][TeukolskyRadialFunction[s_, l_, m_, a_, \[Omega]_, assoc_]][r:(_
   {rmin, rmax} = assoc["Domain"];
   If[outsideDomainQ[r, rmin, rmax],
     Message[TeukolskyRadialFunction::dmval, #]& /@ Select[Flatten[{r}], outsideDomainQ[#, rmin, rmax]&];
+    Return[Indeterminate];
   ];
   Quiet[Derivative[n][assoc["RadialFunction"]][r], InterpolatingFunction::dmval]
  ];

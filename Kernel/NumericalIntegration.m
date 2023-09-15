@@ -36,7 +36,7 @@ fr[r_]=1-2/r;
 
 
 (* ::Subsection::Closed:: *)
-(*Radial Teukolsky Equation*)
+(*Radial Bardeen-Press-Teukolsky Equation*)
 
 
 SetAttributes[psi, {NumericFunction}];
@@ -74,7 +74,8 @@ Integrator[s_,\[Lambda]_,m_,a_,\[Omega]_,y1BC_,y2BC_,rBC_,rmin_?NumericQ,rmax_?N
 		{Global`r, rmin, rmax},
 		ndsolveopts,
 		Method->"StiffnessSwitching",
-		MaxSteps->Infinity
+		MaxSteps->Infinity,
+		InterpolationOrder->All
 		], NDSolveValue::precw]
 	];
 
@@ -86,7 +87,8 @@ AllIntegrator[s_,\[Lambda]_,m_,a_,\[Omega]_,y1BC_,y2BC_,rBC_,H_?NumericQ,ndsolve
 		{Global`r, Min[rBC,rval], Max[rBC,rval]},
 		ndsolveopts,
 		Method->"StiffnessSwitching",
-		MaxSteps->Infinity
+		MaxSteps->Infinity,
+		InterpolationOrder->All
 		], NDSolveValue::precw]
 	];
 
@@ -97,7 +99,8 @@ Derivative[n_][AllIntegrator[s_,\[Lambda]_,m_,a_,\[Omega]_,y1BC_,y2BC_,rBC_,H_?N
 		{Global`r, Min[rBC,rval], Max[rBC,rval]},
 		ndsolveopts,
 		Method->"StiffnessSwitching",
-		MaxSteps->Infinity
+		MaxSteps->Infinity,
+		InterpolationOrder->All
 		], NDSolveValue::precw]
 	];
 
