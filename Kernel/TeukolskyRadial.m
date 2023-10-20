@@ -343,7 +343,7 @@ TeukolskyRadialStatic[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, \[Lambda]_
     TeukolskyRadialFunction[s, l, m, a, \[Omega],
      Association["s" -> s, "l" -> l, "m" -> m, "a" -> a, "\[Omega]" -> \[Omega], "Eigenvalue" -> \[Lambda], "RenormalizedAngularMomentum" -> \[Nu],
       "Method" -> {"Static"},
-      "BoundaryConditions" -> bc, "Amplitudes" -> amp,
+      "BoundaryConditions" -> bc, "Amplitudes" -> amp, "UnscaledAmplitudes" -> amp,
       "Domain" -> {rp[a, 1], \[Infinity]}, "RadialFunction" -> sf
      ]
     ];
