@@ -58,6 +58,9 @@ TeukolskyPointParticleMode::type = "Only bound orbits supported but orbit type i
 TeukolskyPointParticleMode::mino = "Orbit parametrization \"`1`\" is not currently supported. Use \"Mino\" parametrization instead.";
 
 
+TeukolskyPointParticleMode::sopt = "Option `1` not supported for static (\[Omega]=0) modes."
+
+
 (* ::Subsection::Closed:: *)
 (*Begin Private section*)
 
@@ -108,6 +111,7 @@ TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer
 
   domain = OptionValue["Domain"];
   If[MatchQ[domain, {_?NumericQ, _?NumericQ}],
+    If[\[Omega] == 0, Message[TeukolskyPointParticleMode::sout, "Domain"]; Return[$Failed]];
     R = Ruser = TeukolskyRadial[s, l, m, a, \[Omega], Method ->
       {"NumericalIntegration", "Domain"-> {"In" -> domain, "Up" -> domain}}];
   ,
@@ -118,9 +122,11 @@ TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer
     rmin = p/(1+e);
     rmax = p/(1-e);
     Module[{eps=2/10^Precision[{p,e}]}, rmin = (1-eps)rmin; rmax = (1+eps)rmax];
-    R = TeukolskyRadial[s, l, m, a, \[Omega], Method->{"NumericalIntegration","Domain"-> {"In"->{rmin,rmax}, "Up"->{rmin,rmax}}},
+    If[\[Omega] != 0,
+      R = TeukolskyRadial[s, l, m, a, \[Omega], Method->{"NumericalIntegration","Domain"-> {"In"->{rmin,rmax}, "Up"->{rmin,rmax}}},
         "Amplitudes" -> <|"In"-> R["In"]["UnscaledAmplitudes"], "Up"-> R["Up"]["UnscaledAmplitudes"]|>,
         "RenormalizedAngularMomentum"-> R["In"]["RenormalizedAngularMomentum"], "Eigenvalue" -> R["In"]["Eigenvalue"]];
+    ];
   ,
     rmin = rmax = p;
   ];
