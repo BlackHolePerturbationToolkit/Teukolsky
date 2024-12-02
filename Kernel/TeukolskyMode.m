@@ -58,7 +58,7 @@ TeukolskyPointParticleMode::type = "Only bound orbits supported but orbit type i
 TeukolskyPointParticleMode::mino = "Orbit parametrization \"`1`\" is not currently supported. Use \"Mino\" parametrization instead.";
 
 
-TeukolskyPointParticleMode::sopt = "Option `1` not supported for static (\[Omega]=0) modes."
+TeukolskyPointParticleMode::sopt = "Option `1` not supported for static (\[Omega]=0) modes.";
 
 
 (* ::Subsection::Closed:: *)
@@ -99,7 +99,7 @@ TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer
     Message[TeukolskyPointParticleMode::mode, n, k, "eccentric"];
     Return[$Failed]];
   If[!MemberQ[{-2,-1,0,1,2},s], 
-    Message[TeukolskyPointParticleMode::params,s];
+    Message[TeukolskyPointParticleMode::params, s, e, x];
     Return[$Failed];
     ];
 
