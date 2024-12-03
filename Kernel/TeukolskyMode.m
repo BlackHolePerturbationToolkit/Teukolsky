@@ -76,11 +76,11 @@ SyntaxInformation[TeukolskyPointParticleMode] =
  {"ArgumentsPattern" -> {_, _, _, _., _., _, OptionsPattern[]}};
 
 
-Options[TeukolskyPointParticleMode] = {"Domain" -> Automatic};
+Options[TeukolskyPointParticleMode] = {"Domain" -> Automatic, "SourceType" -> Automatic};
 
 
 TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer, orbit_KerrGeoOrbitFunction, opts:OptionsPattern[]] /; AllTrue[orbit["Frequencies"], InexactNumberQ] :=
- Module[{source, assoc, domain, Ruser, R, S, \[Omega], \[CapitalOmega]r, \[CapitalOmega]\[Phi], \[CapitalOmega]\[Theta], Z, \[Lambda], rmin, rmax, a, p, e, x},
+ Module[{source, type, assoc, domain, Ruser, R, S, \[Omega], \[CapitalOmega]r, \[CapitalOmega]\[Phi], \[CapitalOmega]\[Theta], Z, \[Lambda], rmin, rmax, a, p, e, x},
   {a, p, e, x} = orbit /@ {"a", "p", "e", "Inclination"};  
 
   If[orbit["Parametrization"] =!= "Mino",
@@ -102,12 +102,14 @@ TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer
     Message[TeukolskyPointParticleMode::params, s, e, x];
     Return[$Failed];
     ];
+  If[OptionValue["SourceType"] === Automatic,
+    type = Switch[s, -2|+2, "Weyl", -1|1, "Maxwell", 0, "Scalar"];,
+    type = OptionValue["SourceType"];
+  ];
 
   (*{\[CapitalOmega]r, \[CapitalOmega]\[Theta], \[CapitalOmega]\[Phi]} = orbit["Frequencies"];*) (*This gives Mino frequencies, need BL frequencies*)
   {\[CapitalOmega]r, \[CapitalOmega]\[Theta], \[CapitalOmega]\[Phi]} = {"\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(r\)]\)","\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Theta]\)]\)","\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"}/.KerrGeoFrequencies[orbit["a"], orbit["p"], orbit["e"], orbit["Inclination"]];
   \[Omega] = m \[CapitalOmega]\[Phi] + n \[CapitalOmega]r + k \[CapitalOmega]\[Theta];
-
-  source = Teukolsky`TeukolskySource`Private`TeukolskyPointParticleSource[s, orbit];
 
   domain = OptionValue["Domain"];
   If[MatchQ[domain, {_?NumericQ, _?NumericQ}],
@@ -132,7 +134,8 @@ TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer
   ];
   
   S = SpinWeightedSpheroidalHarmonicS[s, l, m, a \[Omega]];
-  Z = Teukolsky`ConvolveSource`Private`ConvolveSource[l, m, n, k, R, S, source];
+
+  Z = Teukolsky`ConvolveSource`Private`ConvolveSource[s, l, m, n, k, R, S, orbit];
 
   assoc = <| "s" -> s, 
 		     "l" -> l,
@@ -150,6 +153,7 @@ TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer
                True, {"PointParticleGeneric", "Semi-latus Rectum" -> p, "Eccentricity" -> e , "Inclination" -> x}],
  		    "rmin" -> rmin,
  		    "rmax" -> rmax,
+ 		    "SourceType" -> type,
  		    "Domain" -> domain,
 		     "RadialFunctions" -> Ruser,
 		     "AngularFunction" -> S,

@@ -28,7 +28,6 @@ Block[{MST`$MasterFunction = "Teukolsky"},
 
 Get["Teukolsky`SasakiNakamura`"];
 Get["Teukolsky`TeukolskyRadial`"];
-Get["Teukolsky`TeukolskySource`"];
 Get["Teukolsky`TeukolskyMode`"];
 Get["Teukolsky`NumericalIntegration`"];
 Get["Teukolsky`ConvolveSource`"];
