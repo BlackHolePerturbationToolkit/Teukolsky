@@ -50,7 +50,6 @@ TeukolskyRadial::hc = "Method HeunC is only supported with Mathematica version 1
 TeukolskyRadial::hcopt = "Option `1` not supported for HeunC method.";
 TeukolskyRadialFunction::dmval = "Radius `1` lies outside the computational domain.";
 TeukolskyRadial::opti = "Options in set `1` are incompatible.";
-TeukolskyRadial::cmplx = "Only real frequencies are currently supported by TeukolskyRadial, but \[Omega]=`1` specified.";
 
 
 (* ::Subsection::Closed:: *)
@@ -435,10 +434,6 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
 
 (* ::Subsubsection::Closed:: *)
 (*Non-static modes*)
-
-
-TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_Complex, opts:OptionsPattern[]] :=
- (Message[TeukolskyRadial::cmplx, \[Omega]]; $Failed);
 
 
 TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPattern[]] /; AllTrue[{a, \[Omega]}, NumericQ] && (InexactNumberQ[a] || InexactNumberQ[\[Omega]]) :=

@@ -70,8 +70,25 @@ Cos2\[Pi]\[Nu]Series[a_, \[Omega]_, s_, l_, m_] :=
   res
 ];
 
+(* Estimate precision of \[Nu] based on how well the continued fraction equation is satisfied. *)
+\[Nu]precision[Cos2\[Pi]\[Nu]_, q_, \[Epsilon]_Complex, \[Kappa]_, \[Tau]_, s_, \[Lambda]_, m_] :=
+ Module[{\[Alpha]\[Gamma], \[Beta], R, L, \[Nu]0, prec},
+  \[Alpha]\[Gamma][n_, \[Nu]_?InexactNumberQ] := \[Epsilon]^2 \[Kappa]^2 (n + \[Nu]) (2 + n + \[Nu]) ((1 + n + \[Nu] - s)^2 + \[Epsilon]^2) ((1 + n + \[Nu] + s)^2 + \[Epsilon]^2) (-1 + 2 n + 2 \[Nu]) (5 + 2 n + 2 \[Nu]) ((1 + n + \[Nu])^2 + \[Tau]^2);
+  \[Beta][n_, \[Nu]_?InexactNumberQ] := (2 n + 2 \[Nu] + 3) (2 n + 2 \[Nu] - 1) ((-\[Lambda] - s (s + 1) + (n + \[Nu]) (n + \[Nu] + 1) + \[Epsilon]^2 + \[Epsilon] (\[Epsilon] - m q)) ((n + \[Nu]) (n + \[Nu] + 1)) + (\[Epsilon] (\[Epsilon] - m q) (s^2 + \[Epsilon]^2)));
+  R[n_, \[Nu]_] := Module[{i}, Teukolsky`MST`MST`Private`CF[-\[Alpha]\[Gamma][i-1, \[Nu]], \[Beta][i, \[Nu]], {i, n}]];
+  L[n_, \[Nu]_] := Module[{i}, Teukolsky`MST`MST`Private`CF[-\[Alpha]\[Gamma][2n-i, \[Nu]], \[Beta][2n-i, \[Nu]], {i, n}]];
+  prec = With[{\[Nu] = ArcCos[Cos2\[Pi]\[Nu]]/(2\[Pi])}, -RealExponent[\[Beta][0, \[Nu]] + R[1, \[Nu]] + L[-1, \[Nu]]]];
+  Clear[\[Alpha]\[Gamma], \[Beta], R, L];
+  prec
+];
+
+(* Estimate precision of \[Nu] based on the complex part of Cos[2 \[Pi] \[Nu]]. This is only valid
+   for real frequencies where Cos[2 \[Pi] \[Nu]] is expected to be purely real. *)
+\[Nu]precision[Cos2\[Pi]\[Nu]_, q_, \[Epsilon]_, \[Kappa]_, \[Tau]_, s_, \[Lambda]_, m_] := -RealExponent[Im[Cos2\[Pi]\[Nu]]/Re[Cos2\[Pi]\[Nu]]];
+
+(* Find \[Nu] using monodromy of confluent Heun equation *)
 \[Nu]RCHMonodromy[a_, \[Omega]_, \[Lambda]_, s_, l_, m_, Npmax_] :=
- Module[{q, \[Epsilon], \[Kappa], \[Tau], \[Gamma]CH, \[Delta]CH, \[Epsilon]CH, \[Alpha]CH\[Epsilon]CH, qCH, \[Mu]1C, \[Mu]2C, a1, a2, a1sum, a2sum, Pochhammerp1m2, Pochhammerm1p2, Cos2\[Pi]\[Nu], nmax, Cos2\[Pi]\[Nu]precision, \[Nu]},
+ Module[{q, \[Epsilon], \[Kappa], \[Tau], \[Gamma]CH, \[Delta]CH, \[Epsilon]CH, \[Alpha]CH\[Epsilon]CH, qCH, \[Mu]1C, \[Mu]2C, a1, a2, a1sum, a2sum, Pochhammerp1m2, Pochhammerm1p2, Cos2\[Pi]\[Nu], nmax, precision, \[Nu]},
   q = a;
   \[Epsilon] = 2 \[Omega];
   \[Kappa] = Sqrt[1-q^2];
@@ -104,19 +121,19 @@ Cos2\[Pi]\[Nu]Series[a_, \[Omega]_, s_, l_, m_] :=
   a1sum[n_] := Gamma[-\[Mu]2C+\[Mu]1C] Sum[a1[j]Pochhammerp1m2[n-j], {j, 0, Ceiling[n/2]}]; 
   a2sum[n_] := Gamma[\[Mu]2C-\[Mu]1C] Sum[(-1)^j a2[j]Pochhammerm1p2[n-j], {j, 0, Ceiling[n/2]}];
 
-  (* Compute \[Nu], with error estimate (precision of output) based on the assumption that Cos[2\[Pi]\[Nu]] should be real. *)
+  (* Compute \[Nu]. *)
   Cos2\[Pi]\[Nu][nmax_] := Cos2\[Pi]\[Nu][nmax] = Cos[\[Pi](\[Mu]1C-\[Mu]2C)]+(2\[Pi]^2)/(a1sum[nmax] a2sum[nmax]) (-1)^(nmax-1) a1[nmax]a2[nmax];
   If[IntegerQ[Npmax],
     nmax = Npmax;
     If[Precision[Cos2\[Pi]\[Nu][nmax]] == 0, Return[$Failed]];
-    Cos2\[Pi]\[Nu]precision = -RealExponent[Im[Cos2\[Pi]\[Nu][nmax]/Re[Cos2\[Pi]\[Nu][nmax]]]];
   ,
     (* FIXME: we should be able to predict nmax based on the convergence for large nmax and the loss of precision in a1 and a2 *)
     nmax = 2 Ceiling[E^ProductLog[Precision[{a, \[Omega], \[Lambda]}] Log[100]]];
     If[Precision[Cos2\[Pi]\[Nu][nmax]] == 0, Return[$Failed]];
-    Cos2\[Pi]\[Nu]precision = 0;
+
     (* Increase nmax by 10% until the precision of the result decreases *)
-    While[Cos2\[Pi]\[Nu]precision < (Cos2\[Pi]\[Nu]precision = -RealExponent[Im[Cos2\[Pi]\[Nu][nmax]/Re[Cos2\[Pi]\[Nu][nmax]]]]),
+    precision = -Infinity;
+    While[precision < (precision = \[Nu]precision[Cos2\[Pi]\[Nu][nmax], q, \[Epsilon], \[Kappa], \[Tau], s, \[Lambda], m]),
       nmax = Round[11/10 nmax];
       If[Precision[Cos2\[Pi]\[Nu][nmax]] == 0, Return[$Failed]];
     ];
@@ -124,10 +141,12 @@ Cos2\[Pi]\[Nu]Series[a_, \[Omega]_, s_, l_, m_] :=
   ];
     
   If[Precision[Cos2\[Pi]\[Nu][nmax]]=!=MachinePrecision,
-    Cos2\[Pi]\[Nu][nmax] = N[Cos2\[Pi]\[Nu][nmax], Max[-RealExponent[Im[Cos2\[Pi]\[Nu][nmax]]/Re[Cos2\[Pi]\[Nu][nmax]]],0]];
+    Cos2\[Pi]\[Nu][nmax] = N[Cos2\[Pi]\[Nu][nmax], Max[\[Nu]precision[Cos2\[Pi]\[Nu][nmax], q, \[Epsilon], \[Kappa], \[Tau], s, \[Lambda], m],0]];
   ];
 
   \[Nu] = Which[
+    Im[\[Omega]] != 0,
+      ArcCos[Cos2\[Pi]\[Nu][nmax]]/(2\[Pi]),
     Re[Cos2\[Pi]\[Nu][nmax]]<-1, 
       1/2-Im[ArcCos[Re[Cos2\[Pi]\[Nu][nmax]]]/(2\[Pi])]I,
     -1<=Re[Cos2\[Pi]\[Nu][nmax]]<=1,
