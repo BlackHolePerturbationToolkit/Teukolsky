@@ -268,7 +268,7 @@ Options[TeukolskyRadialHeunC] = {};
 
 
 TeukolskyRadialHeunC[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, \[Lambda]_, \[Nu]_, BCs_, norms_, {wp_, prec_, acc_}, opts:OptionsPattern[]] :=
- Module[{amps, solFuncs, TRF},
+ Module[{amps, solFuncs, TRF, \[Omega]c, \[Lambda]c},
   (* The HeunC method is only supported on version 12.1 and newer *)
   If[$VersionNumber < 12.1,
     Message[TeukolskyRadial::hc];
@@ -291,10 +291,12 @@ TeukolskyRadialHeunC[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, \[Lambda]_,
   ];
 
   (* Solution functions for the specified boundary conditions *)
+  \[Omega]c = Conjugate[\[Omega]];
+  \[Lambda]c = Conjugate[\[Lambda]];
   solFuncs =
     <|"In" :> ((2^((-I a m-Sqrt[1-a^2] s+2 I \[Omega])/Sqrt[1-a^2]) (1-a^2)^((I a m)/(2 (1+Sqrt[1-a^2]))-s-I \[Omega]) E^(1/2 I (a m-2 # \[Omega])) ((-1-Sqrt[1-a^2]+#)/Sqrt[1-a^2])^((I a m)/(2 Sqrt[1-a^2])-s-I (1+1/Sqrt[1-a^2]) \[Omega]) ((-1+Sqrt[1-a^2]+#)/Sqrt[1-a^2])^((I (a m+2 (-1+Sqrt[1-a^2]) \[Omega]))/(2 Sqrt[1-a^2])) HeunC[s+s^2+\[Lambda]-(a m-2 \[Omega])^2/(-1+a^2)-4 \[Omega]^2+(I (-a m-4 (-1+s) \[Omega]+2 a^2 (-1+2 s) \[Omega]))/Sqrt[1-a^2],-4 \[Omega] (-I Sqrt[1-a^2]+a m+I Sqrt[1-a^2] s-2 \[Omega]+2 Sqrt[1-a^2] \[Omega]),1-s+(I (a m-2 \[Omega]))/Sqrt[1-a^2]-2 I \[Omega],1+s+(I (a m-2 \[Omega]))/Sqrt[1-a^2]+2 I \[Omega],4 I Sqrt[1-a^2] \[Omega],(1+Sqrt[1-a^2]-#)/(2 Sqrt[1-a^2])])&),
       "Up" :> (norms["Up"]["Reflection"]/norms["Up"]["Transmission"](2^((-I a m-Sqrt[1-a^2] s+2 I \[Omega])/Sqrt[1-a^2]) (1-a^2)^((I a m)/(2 (1+Sqrt[1-a^2]))-s-I \[Omega]) E^(1/2 I (a m-2 # \[Omega])) ((-1-Sqrt[1-a^2]+#)/Sqrt[1-a^2])^((I a m)/(2 Sqrt[1-a^2])-s-I (1+1/Sqrt[1-a^2]) \[Omega]) ((-1+Sqrt[1-a^2]+#)/Sqrt[1-a^2])^((I (a m+2 (-1+Sqrt[1-a^2]) \[Omega]))/(2 Sqrt[1-a^2])) HeunC[s+s^2+\[Lambda]-(a m-2 \[Omega])^2/(-1+a^2)-4 \[Omega]^2+(I (-a m-4 (-1+s) \[Omega]+2 a^2 (-1+2 s) \[Omega]))/Sqrt[1-a^2],-4 \[Omega] (-I Sqrt[1-a^2]+a m+I Sqrt[1-a^2] s-2 \[Omega]+2 Sqrt[1-a^2] \[Omega]),1-s+(I (a m-2 \[Omega]))/Sqrt[1-a^2]-2 I \[Omega],1+s+(I (a m-2 \[Omega]))/Sqrt[1-a^2]+2 I \[Omega],4 I Sqrt[1-a^2] \[Omega],(1+Sqrt[1-a^2]-#)/(2 Sqrt[1-a^2])])+
-              norms["Up"]["Incidence"]/norms["Up"]["Transmission"]Conjugate[(#^2-2 #+a^2)^-s (2^((-I a m-Sqrt[1-a^2] (-s)+2 I \[Omega])/Sqrt[1-a^2]) (1-a^2)^((I a m)/(2 (1+Sqrt[1-a^2]))-(-s)-I \[Omega]) E^(1/2 I (a m-2 # \[Omega])) ((-1-Sqrt[1-a^2]+#)/Sqrt[1-a^2])^((I a m)/(2 Sqrt[1-a^2])-(-s)-I (1+1/Sqrt[1-a^2]) \[Omega]) ((-1+Sqrt[1-a^2]+#)/Sqrt[1-a^2])^((I (a m+2 (-1+Sqrt[1-a^2]) \[Omega]))/(2 Sqrt[1-a^2])) HeunC[(-s)+(-s)^2+(\[Lambda]+2s)-(a m-2 \[Omega])^2/(-1+a^2)-4 \[Omega]^2+(I (-a m-4 (-1+(-s)) \[Omega]+2 a^2 (-1+2 (-s)) \[Omega]))/Sqrt[1-a^2],-4 \[Omega] (-I Sqrt[1-a^2]+a m+I Sqrt[1-a^2] (-s)-2 \[Omega]+2 Sqrt[1-a^2] \[Omega]),1-(-s)+(I (a m-2 \[Omega]))/Sqrt[1-a^2]-2 I \[Omega],1+(-s)+(I (a m-2 \[Omega]))/Sqrt[1-a^2]+2 I \[Omega],4 I Sqrt[1-a^2] \[Omega],(1+Sqrt[1-a^2]-#)/(2 Sqrt[1-a^2])])]&) |>;
+              norms["Up"]["Incidence"]/norms["Up"]["Transmission"](#^2-2 #+a^2)^-s (2^((I a m-Sqrt[1-a^2] (-s)-2 I \[Omega]c)/Sqrt[1-a^2]) (1-a^2)^((-I a m)/(2 (1+Sqrt[1-a^2]))-(-s)+I \[Omega]c) E^(-1/2 I (a m-2 # \[Omega]c)) ((-1-Sqrt[1-a^2]+#)/Sqrt[1-a^2])^((-I a m)/(2 Sqrt[1-a^2])-(-s)+I (1+1/Sqrt[1-a^2]) \[Omega]c) ((-1+Sqrt[1-a^2]+#)/Sqrt[1-a^2])^((-I (a m+2 (-1+Sqrt[1-a^2]) \[Omega]c))/(2 Sqrt[1-a^2])) HeunC[(-s)+(-s)^2+(\[Lambda]c+2s)-(a m-2 \[Omega]c)^2/(-1+a^2)-4 \[Omega]c^2+(-I (-a m-4 (-1+(-s)) \[Omega]c+2 a^2 (-1+2 (-s)) \[Omega]c))/Sqrt[1-a^2],-4 \[Omega]c (+I Sqrt[1-a^2]+a m-I Sqrt[1-a^2] (-s)-2 \[Omega]c+2 Sqrt[1-a^2] \[Omega]c),1-(-s)+(-I (a m-2 \[Omega]c))/Sqrt[1-a^2]+2 I \[Omega]c,1+(-s)+(-I (a m-2 \[Omega]c))/Sqrt[1-a^2]-2 I \[Omega]c,-4 I Sqrt[1-a^2] \[Omega]c,(1+Sqrt[1-a^2]-#)/(2 Sqrt[1-a^2])])&) |>;
   solFuncs = Lookup[solFuncs, BCs];
 
   (* Select normalisation coefficients for the specified boundary conditions *)
