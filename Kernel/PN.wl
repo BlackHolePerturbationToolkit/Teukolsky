@@ -171,7 +171,7 @@ ClearAttributes[{TeukolskyRadialPN, TeukolskyRadialFunctionPN,TeukolskyPointPart
 (*(*InvariantWronskian::usage="InvariantWronskian[\[ScriptS], \[ScriptL], \[ScriptM], a, \[Omega], {\[Eta], n}] gives the invariant Wronskian."*)*)
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Radial solutions*)
 
 
@@ -189,7 +189,7 @@ TeukolskyRadialFunctionPN::param\[Omega]="\[Omega]=`1`. Complex frequencies are 
 TeukolskyRadialFunctionPN::paramorder="order=`1`. The given number of terms has to be an Integer";
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Sourced things*)
 
 
@@ -197,7 +197,7 @@ TeukolskyRadialFunctionPN::paramorder="order=`1`. The given number of terms has 
 (*(*TeukolskySourceCircularOrbit::usage="TeukolskySource[\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{r,r\:2080}] gives an analytical expression for the Teukolsky point particle source for a given {\[ScriptS],\[ScriptL],\[ScriptM]} mode. "*)*)
 
 
-TeukolskyPointParticleModePN::usage="TeukolskyPointParticleMode[\[ScriptS], \[ScriptL], \[ScriptM], orbit] produces a TeukolskyModePN representing a PN expanded analyitcal solution to the radial Teukolsky equation with a point particle source."
+TeukolskyPointParticleModePN::usage="TeukolskyPointParticleModePN[s, l, m, orbit, {\[Eta], n}] produces a TeukolskyModePN representing a PN expanded analyitcal solution to the radial Teukolsky equation with a point particle source. s, l, and m specify the mode and need to be Integers. orbit needs to be a KerrGeoOrbitFunction (computed with KerrGeoOrbit[]). {\[Eta], n} specify the PN information. \[Eta] needs to be a symbol, while n is an integer specifying the amount of terms (including the Newtonian order), i.e., n=2 PNorder+1. "
 
 
 TeukolskyModePN::usage="aa"
@@ -1205,18 +1205,18 @@ ExpandSpheroidals[expr_Times,{\[Eta]_,n_}]:=ExpandSpheroidals[#,{\[Eta],n}]&/@ex
 ExpandSpheroidals[expr_,{\[Eta]_,n_}]:=expr;
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Tools for Series*)
 
 
 SeriesMinOrder[series_SeriesData]:=Block[{},
-series[[4]]
+series[[4]]/series[[6]]
 ]
 SeriesMinOrder[1]=0;
 Attributes[SeriesMinOrder]={Listable};
 
 SeriesMaxOrder[series_SeriesData]:=Block[{},
-series[[5]]
+series[[5]]/series[[6]]
 ]
 Attributes[SeriesMaxOrder]={Listable};
 
@@ -1253,7 +1253,8 @@ SeriesTerms[expr_,{x_,x0_,termOrder_}]:=Module[{aux,minOrder},
 minOrder=Series[expr,x->x0]//SeriesMinOrder;
 Series[expr,{x,x0,minOrder+termOrder-1}]
 ];
-SeriesTerms[expr___]:=Series[expr]
+SeriesTerms[expr___]:=Module[{aux},
+Series[expr]]
 
 
 polyToSeries[poly_,x_:\[Eta],x\:2080_:0]:=Block[{aux,maxPower},
@@ -1264,7 +1265,7 @@ polyToSeries[0,x_:\[Eta],x\:2080_:0]:=Block[{aux,maxPower},
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Tools for Logs, Gammas, and PolyGammas*)
 
 
@@ -1964,7 +1965,7 @@ ret
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Subscript[R, In]*)
 
 
@@ -2220,7 +2221,7 @@ ret
 (*,{status,n,j}]]*)*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Constructing Subscript[R, In]*)
 
 
@@ -2264,7 +2265,7 @@ RPN["In"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,aKerr_,0]:=O[\[Eta]] \[Eta]^(-\[Sc
 RPN["C\[Nu]"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,aKerr_,0]:=O[\[Eta]] \[Eta]^(-\[ScriptS]+\[ScriptL]-1)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Subscript[R, Up]*)
 
 
@@ -2355,7 +2356,7 @@ coeff table//SeriesTake[#,order\[Eta]]&
 *)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Constructing Subscript[R, up] from Subscript[R, C]*)
 
 
@@ -2395,7 +2396,7 @@ RPN["Up"][\[ScriptS]_/;\[ScriptS]<=0,\[ScriptL]_,\[ScriptM]Var_,aKerr_,0]:=O[\[E
 RPN["Up"][0,0,0,aKerr_,0]:=O[\[Eta]]^-1
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Normalization*)
 
 
@@ -2408,7 +2409,7 @@ RPN["Up"][0,0,0,aKerr_,0]:=O[\[Eta]]^-1
 (*]*)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Outputting Radial solutions as functions*)
 
 
@@ -2427,7 +2428,7 @@ ret
 (*Positive spins *)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Teukolsky-Starobinsky identities*)
 
 
@@ -2592,7 +2593,7 @@ icons = <|
 |>;
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*TeukolskyRadialPN*)
 
 
@@ -2609,7 +2610,7 @@ termCount=R[r]//SeriesLength;
 normalization=OptionValue["Normalization"];
 trans=If[OptionValue["Amplitudes"],TeukolskyAmplitudePN[Switch[sol,"In","Btrans","Up","Ctrans"],"Normalization"->OptionValue["Normalization"]][\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{varPN,order}],"Not Computed"];
 amplitudes=<|"Transmission"->trans|>;
-ret=<|"\[ScriptS]"->\[ScriptS],"\[ScriptL]"->\[ScriptL],"\[ScriptM]"->\[ScriptM],"a"->a,"PN"->{varPN,order},"RadialFunction"->R,"BoundaryCondition"->BC,"LeadingOrder"->lead,"TermCount"->termCount,"Normalization"->normalization,"Amplitudes"->amplitudes,"Simplified"->OptionValue["Simplify"]|>;
+ret=<|"s"->\[ScriptS],"l"->\[ScriptL],"m"->\[ScriptM],"a"->a,"PN"->{varPN,order},"RadialFunction"->R,"BoundaryCondition"->BC,"LeadingOrder"->lead,"TermCount"->termCount,"Normalization"->normalization,"Amplitudes"->amplitudes,"Simplified"->OptionValue["Simplify"]|>;
 ret
 ]
 
@@ -2623,7 +2624,7 @@ retUp=TeukolskyRadialFunctionPN[\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{var
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*TeukolskyRadialFunctionPN*)
 
 
@@ -2689,7 +2690,7 @@ sourceCoeffs=sourceCoeffs//PNScalings[#,{{r0,-2},{\[CapitalOmega]Kerr,3}},varPN,
 cIn=1/wronskian Total[sourceCoeffs {Rup[r0],-varPN^2dRup[r0],varPN^4 ddRup[r0]}]//SeriesTake[#,order]&;
 cUp=1/wronskian Total[sourceCoeffs {Rin[r0],-varPN^2dRin[r0],varPN^4 ddRin[r0]}]//SeriesTake[#,order]&;
 deltaCoeff=Coefficient[source[r],Derivative[2][DiracDelta][r-r0]]/Kerr\[CapitalDelta][a,r0];
-deltaCoeff=If[deltaCoeff===0,0,deltaCoeff//PNScalings[#,{{r0,-2},{\[CapitalOmega]Kerr,3}},varPN,"IgnoreHarmonics"->True]&//SeriesTerms[#,{varPN,0,order}]&];
+deltaCoeff=Assuming[{varPN>0},If[deltaCoeff===0,0,deltaCoeff//PNScalings[#,{{r0,-2},{\[CapitalOmega]Kerr,3}},varPN,"IgnoreHarmonics"->True]&//SeriesTerms[#,{varPN,0,order}]&]];
 innerF=cIn Rin[#]&;
 outerF=cUp Rup[#]&;
 radialF=innerF[#] HeavisideTheta[r0-#] + outerF[#] HeavisideTheta[#-r0]+deltaCoeff DiracDelta[#-r0]&;
@@ -2748,7 +2749,7 @@ ret
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Accessing functions and keys*)
 
 

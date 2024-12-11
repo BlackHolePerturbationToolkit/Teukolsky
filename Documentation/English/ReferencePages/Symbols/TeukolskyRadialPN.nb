@@ -1,0 +1,3694 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 14.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[    154621,       3686]
+NotebookOptionsPosition[    142129,       3414]
+NotebookOutlinePosition[    142914,       3440]
+CellTagsIndexPosition[    142833,       3435]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["TeukolskyRadialPN", "ObjectName",
+ CellID->2024991223,ExpressionUUID->"b39a84bd-6e05-45a1-8a43-1f68fc9bf855"],
+
+Cell[TextData[{
+ Cell["   ", "ModInfo",ExpressionUUID->"dde4c2fa-3238-4980-ae69-60aeac927121"],
+ "TeukolskyRadialPN[ \[ScriptS], \[ScriptL], \[ScriptM], a, \[Omega], \
+{\[Eta], n}]\[LineSeparator]gives the In and Up solution to the radial \
+Teukolsky equation for a given mode, ",
+ Cell[BoxData[
+  StyleBox["a", "TI"]], "InlineFormula",ExpressionUUID->
+  "477da857-d757-4120-8fe3-094759bf72f7"],
+ " is the Kerr spin parameter, ",
+ Cell[BoxData[
+  StyleBox["\[Omega]", "TI"]], "InlineFormula",ExpressionUUID->
+  "3d147233-f501-41ef-8ffd-832693dbd6c4"],
+ " is the frequency, \[Eta] is the PN expansion parameter and n the number of \
+terms."
+}], "Usage",
+ CellChangeTimes->{{3.942146008319547*^9, 3.942146008438014*^9}, {
+   3.9422227374162283`*^9, 3.942222782742009*^9}, 3.9422228636619577`*^9},
+ CellID->1226706735,ExpressionUUID->"860eeef6-58c4-4c2e-ba29-267e4b80d079"],
+
+Cell[TextData[{
+ "We compute ",
+ Cell[BoxData[
+  SubscriptBox["R", "In"]], "InlineFormula",
+  FormatType->StandardForm,ExpressionUUID->
+  "0ab18874-2e89-4e4c-b1e8-6d614322d6f0"],
+ " according to Eq.(147) of Sasaki, Tagoshi \
+https://arxiv.org/abs/gr-qc/0306120 where we divide out a factor of ",
+ Cell[BoxData[
+  SubscriptBox["K", "\[Nu]"]], "InlineFormula",
+  FormatType->StandardForm,ExpressionUUID->
+  "69332f75-3d13-4104-bcca-63654e495bea"],
+ ", i.e., ",
+ Cell[BoxData[
+  RowBox[{
+   SubscriptBox["R", "In"], "=", 
+   RowBox[{
+    SubsuperscriptBox["R", "C", "\[Nu]"], "+", 
+    RowBox[{
+     FractionBox[
+      SubscriptBox["K", 
+       RowBox[{
+        RowBox[{"-", "\[Nu]"}], "-", "1"}]], 
+      SubscriptBox["K", "\[Nu]"]], 
+     SubsuperscriptBox["R", "C", 
+      RowBox[{
+       RowBox[{"-", "\[Nu]"}], "-", "1"}]]}]}]}]], "InlineFormula",
+  FormatType->StandardForm,ExpressionUUID->
+  "22f03afe-7450-4da1-9be5-f80612788075"],
+ ".  ",
+ Cell[BoxData[
+  SubscriptBox["R", "Up"]], "InlineFormula",
+  FormatType->StandardForm,ExpressionUUID->
+  "442a549d-6804-49df-ade2-e854a7ce585d"],
+ " is computed after Eq.(B.7) of Throwe ,Hughes \
+https://dspace.mit.edu/handle/1721.1/61270. "
+}], "Notes",
+ CellChangeTimes->{{3.94223010417549*^9, 3.942230142224959*^9}, {
+   3.942230254892722*^9, 3.9422304701669703`*^9}, {3.942230511057706*^9, 
+   3.942230554319509*^9}, 3.942230599297515*^9, {3.942230711648521*^9, 
+   3.942230712881777*^9}},
+ CellID->1221797685,ExpressionUUID->"9593db7e-87cc-4897-928e-46f72ca9bb38"],
+
+Cell["\<\
+All occurrences of the PN counting parameter in the series coefficients are \
+set to 1. This is why you will find, e.g., Log[r \[Omega]] instead of Log[r \
+\[Omega] \[Eta]]. This is to prevent large loading times when exporting and \
+importing expressions.\
+\>", "Notes",
+ CellChangeTimes->{{3.942231598364758*^9, 3.94223171721447*^9}},
+ CellID->348370738,ExpressionUUID->"7ed92a67-c546-4b14-a994-e868c406cddf"],
+
+Cell["The following options can be given: ", "Notes",
+ CellID->800012652,ExpressionUUID->"a84acfe8-0383-490c-83e5-f90bde958621"],
+
+Cell[BoxData[GridBox[{
+   {Cell["   ", "ModInfo",ExpressionUUID->
+     "42680162-874f-4d15-a339-87a795cf9f8b"], "\"\<Normalization\>\"", 
+    "\"\<Default\>\"", Cell[TextData[{
+     "Determines the normalization for the In and Up solution. The \
+\"Default\" option is geared towards efficiency. \"SasakiTagoshi\" multiplies \
+",
+     Cell[BoxData[
+      SubscriptBox["R", "In"]], "InlineFormula",
+      FormatType->StandardForm,ExpressionUUID->
+      "e25fcfca-6b9f-425c-a0bb-840202144b28"],
+     " with a factor of ",
+     Cell[BoxData[
+      SubscriptBox["K", "\[Nu]"]], "InlineFormula",
+      FormatType->StandardForm,ExpressionUUID->
+      "0a678336-6d24-43d9-9c73-dd6508f677d1"],
+     ". \"UnitTransmission\" makes it such that the transmission coefficients \
+are 1. This is also the normalization used in TeukolskyRadial[] (no PN). "
+    }], "TableText",ExpressionUUID->"e02324e4-e763-4bba-9ac3-711147d5ef88"]},
+   {Cell["      ", "ModInfo",ExpressionUUID->
+     "2f974a1d-1d9e-4eff-98a8-fe47c90934a9"], "\"\<Simplify\>\"", 
+    "\"\<True\>\"", Cell["\<\
+Gives the solutions in Simplified form. False will speed up the computation \
+time, but increase the ByteCount by about a factor of 10.\
+\>", "TableText",ExpressionUUID->"32c6afca-4f58-46a2-b8d4-3a1dd3179b37"]},
+   {Cell["      ", "ModInfo",ExpressionUUID->
+     "d720dc96-d1e6-47ba-bef9-4f8e06257b7b"], "\"\<Amplitudes\>\"", 
+    "\"\<False\>\"", Cell["\<\
+Determines weather or not to compute the transmission Amplitudes.\
+\>", "TableText",ExpressionUUID->"df19df64-5e08-4573-bd66-f53298808fff"]}
+  }]], "3ColumnTableMod",
+ CellChangeTimes->{{3.942226969137558*^9, 3.9422269693066587`*^9}, {
+   3.942227056880557*^9, 3.942227076988049*^9}, 3.9422271393781767`*^9, {
+   3.942227185895194*^9, 3.94222734696238*^9}, {3.9422294995184526`*^9, 
+   3.94222955524142*^9}, {3.942230656164405*^9, 3.9422306623203297`*^9}, {
+   3.942230809279039*^9, 3.942230938905239*^9}, {3.9422309757673807`*^9, 
+   3.942230990215602*^9}},
+ CellID->276668925,ExpressionUUID->"7163bf51-103e-4897-892a-1cda9c934003"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[TextData[{
+ "See Also",
+ Cell[BoxData[
+  TemplateBox[{"SeeAlso", 
+    Cell[
+     BoxData[
+      FrameBox[
+       Cell[
+       "Insert links to any related reference (function) pages.", 
+        "MoreInfoText"], BaseStyle -> "IFrameBox"]], "MoreInfoTextOuter"]},
+   "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
+  "f3212868-5eb3-43ee-b1a3-c0756186fb0e"]
+}], "SeeAlsoSection",
+ CellID->1331677316,ExpressionUUID->"ef659ba9-3d34-447d-85a1-4115058827a5"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  TagBox[
+   FrameBox["\<\"XXXX\"\>"],
+   "FunctionPlaceholder"]], "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "012917e8-db0c-486a-86ac-46f2a07cba59"],
+ Cell[BoxData[
+  RowBox[{
+  Cell[TextData[StyleBox[
+   " \[FilledVerySmallSquare] ", "InlineSeparator"]],ExpressionUUID->
+    "10b7800f-16f4-4306-9eb8-92692ee5eb1a"], 
+   DynamicModuleBox[{$CellContext`nbobj$$ = NotebookObject[
+    "cb00ca4d-1fa2-41b6-98e6-832d08bd84d9", 
+     "332804b2-39d2-4bcb-8344-d71e6d3ba10d"], $CellContext`cellobj$$ = 
+    CellObject[
+    "44eaa3dc-4fda-45ae-8c12-c5c4bc64c656", 
+     "09411fbb-06f6-4de1-b0e2-ecea144dc49e"]}, 
+    TemplateBox[{
+      GraphicsBox[{{
+         Thickness[0.06], 
+         StrokeForm[
+          Hue[0.4167, 0.406, 0.502]], 
+         CircleBox[{0, 0}]}, {
+         Thickness[0.06], 
+         StrokeForm[
+          Hue[0.4167, 0.406, 0.502]], 
+         LineBox[{{0, 0.62}, {0, -0.62}}]}, {
+         Thickness[0.06], 
+         StrokeForm[
+          Hue[0.4167, 0.406, 0.502]], 
+         LineBox[{{-0.62, 0}, {0.62, 0}}]}}, 
+       ImagePadding -> {{1., 1.}, {2.4, 1.}}, ImageSize -> 16, 
+       PlotRange -> {{-1.06, 1.06}, {-1.06, 1.06}}, 
+       BaselinePosition -> (Center -> 
+        Center)], $CellContext`nbobj$$, $CellContext`cellobj$$},
+     "InlineListingAddButton"],
+    Initialization:>($CellContext`nbobj$$ = 
+      EvaluationNotebook[]; $CellContext`cellobj$$ = EvaluationCell[])]}]], 
+  "InlineListingAddButton",ExpressionUUID->
+  "44eaa3dc-4fda-45ae-8c12-c5c4bc64c656"]
+}], "SeeAlso",
+ CellID->1687169311,ExpressionUUID->"a220ed65-e9ff-4e90-87e4-373598f734be"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[TextData[{
+ "Tech Notes",
+ Cell[BoxData[
+  TemplateBox[{"TechNotes", 
+    Cell[
+     BoxData[
+      FrameBox[
+       Cell["Insert links to related tech notes.", "MoreInfoText"], BaseStyle -> 
+       "IFrameBox"]], "MoreInfoTextOuter"]},
+   "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
+  "3eaf176b-4fdf-41ff-84b7-a431f05d5f47"]
+}], "TechNotesSection",
+ CellID->609997485,ExpressionUUID->"e64b7478-f75d-4837-9cc3-508e01f2a857"],
+
+Cell["XXXX", "Tutorials",
+ CellID->780279882,ExpressionUUID->"c3b8e156-41bf-4a8f-a4ce-e94672653ddc"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Related Guides", "MoreAboutSection",
+ CellID->773070935,ExpressionUUID->"81ae2699-dc58-4fca-a2fa-8c2f7eada448"],
+
+Cell["XXXX", "MoreAbout",
+ CellID->135750557,ExpressionUUID->"edbe9004-b3ed-4aa6-b67a-e569de24f739"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[TextData[{
+ "Related Links",
+ Cell[BoxData[
+  TemplateBox[{"RelatedLinks", 
+    Cell[
+     BoxData[
+      FrameBox[
+       Cell[
+       "Insert links to any related page, including web pages.", 
+        "MoreInfoText"], BaseStyle -> "IFrameBox"]], "MoreInfoTextOuter"]},
+   "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
+  "a7410339-d93d-4c2d-8488-060074761d78"]
+}], "RelatedLinksSection",
+ CellID->1684505035,ExpressionUUID->"61704034-1135-453a-af12-604b1de9e926"],
+
+Cell["XXXX", "RelatedLinks",
+ CellID->978471105,ExpressionUUID->"6407d6ef-305e-4b83-959c-f1494e81a1f5"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[TextData[{
+ "Examples Initialization",
+ Cell[BoxData[
+  TemplateBox[{"ExamplesInitialization", 
+    Cell[
+     BoxData[
+      FrameBox[
+       Cell[
+       "Input that is to be evaluated before any examples are run, e.g. \
+Needs[\[Ellipsis]].", "MoreInfoText"], BaseStyle -> "IFrameBox"]], 
+     "MoreInfoTextOuter"]},
+   "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
+  "5fd0bae4-7318-445e-b5b2-2f50e8182d39"]
+}], "ExamplesInitializationSection",
+ CellID->699830455,ExpressionUUID->"7cb0a5f9-86b2-4507-a404-9a55fe2941d0"],
+
+Cell[BoxData[
+ RowBox[{"Needs", "[", "\"\<Teukolsky`PN`\>\"", 
+  "]"}]], "ExampleInitialization",
+ CellChangeTimes->{{3.942146478955165*^9, 3.942146497771613*^9}},
+ CellID->1582090681,ExpressionUUID->"8dccde0a-dc8e-4e53-828c-822e855954c5"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ InterpretationBox[GridBox[{
+    {
+     StyleBox[
+      RowBox[{"Basic", " ", "Examples"}], "PrimaryExamplesSection"], 
+     ButtonBox[
+      RowBox[{
+       RowBox[{"More", " ", "Examples"}], " ", "\[RightTriangle]"}],
+      BaseStyle->"ExtendedExamplesLink",
+      ButtonData:>"ExtendedExamples"]}
+   }],
+  $Line = 0; Null]], "PrimaryExamplesSection",
+ CellID->336632675,ExpressionUUID->"7ffeb3ad-6511-4c6a-adaf-258336a6fc70"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"test", "=", 
+  RowBox[{"TeukolskyRadialPN", "[", 
+   RowBox[{
+    RowBox[{"-", "2"}], ",", "2", ",", "2", ",", "a", ",", "\[Omega]", ",", 
+    RowBox[{"{", 
+     RowBox[{"\[Eta]", ",", "4"}], "}"}]}], "]"}]}]], "Input",
+ CellChangeTimes->{{3.942146462350701*^9, 3.942146474773769*^9}, {
+  3.9421465581906*^9, 3.942146558375171*^9}, {3.942146610065486*^9, 
+  3.94214663484762*^9}},
+ CellLabel->"In[3]:=",
+ CellID->1569970270,ExpressionUUID->"83e713ae-7909-403e-94c5-eac3d0f8f20c"],
+
+Cell[BoxData[
+ RowBox[{"\[LeftAssociation]", 
+  RowBox[{
+   RowBox[{"\<\"In\"\>", "\[Rule]", 
+    InterpretationBox[
+     RowBox[{
+      TagBox["TeukolskyRadialFunctionPN",
+       "SummaryHead"], "[", 
+      DynamicModuleBox[{Typeset`open$$ = False, Typeset`embedState$$ = 
+       "Ready"}, 
+       TemplateBox[{
+         PaneSelectorBox[{False -> GridBox[{{
+               PaneBox[
+                ButtonBox[
+                 DynamicBox[
+                  FEPrivate`FrontEndResource[
+                  "FEBitmaps", "SummaryBoxOpener"]], 
+                 ButtonFunction :> (Typeset`open$$ = True), Appearance -> 
+                 None, BaseStyle -> {}, Evaluator -> Automatic, Method -> 
+                 "Preemptive"], Alignment -> {Center, Center}, ImageSize -> 
+                Dynamic[{
+                  Automatic, 
+                   3.5 (CurrentValue["FontCapHeight"]/AbsoluteCurrentValue[
+                    Magnification])}]], 
+               GraphicsBox[{
+                 LineBox[
+                  NCache[{{0, 
+                    Rational[1, 2]}, {
+                    Rational[1, 2], 1}, {1, 
+                    Rational[1, 2]}, {
+                    Rational[1, 2], 0}, {0, 
+                    Rational[1, 2]}}, {{0, 0.5}, {0.5, 1}, {1, 0.5}, {
+                    0.5, 0}, {0, 0.5}}]], 
+                 LineBox[
+                  NCache[{{
+                    Rational[3, 4], 
+                    Rational[1, 4]}, {
+                    Rational[1, 2], 
+                    Rational[1, 2]}}, {{0.75, 0.25}, {0.5, 0.5}}]], {
+                  Arrowheads[0.2], 
+                  ArrowBox[
+                   LineBox[
+                    NCache[{{
+                    Rational[1, 2], 
+                    Rational[1, 2]}, {
+                    Rational[1, 4], 
+                    Rational[3, 4]}}, {{0.5, 0.5}, {0.25, 0.75}}]]]}, {
+                  Arrowheads[0.2], 
+                  ArrowBox[
+                   LineBox[
+                    NCache[{{
+                    Rational[1, 2], 
+                    Rational[1, 2]}, {
+                    Rational[3, 4], 
+                    Rational[3, 4]}}, {{0.5, 0.5}, {0.75, 0.75}}]]]}}, 
+                Background -> GrayLevel[1], ImageSize -> 
+                Dynamic[{
+                  Automatic, 
+                   3.5 (CurrentValue["FontCapHeight"]/AbsoluteCurrentValue[
+                    Magnification])}]], 
+               GridBox[{{
+                  TagBox[
+                   TemplateBox[{
+                    RowBox[{
+                    TagBox["\"s: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox[
+                    RowBox[{"-", "2"}], "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"l: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["2", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"m: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["2", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"a: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["a", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"\[Omega]: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["\[Omega]", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"PN parameter: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["\[Eta]", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"PN order: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox[
+                    RowBox[{"1.5`", " ", "\"PN\""}], "SummaryItem"]}]}, 
+                    "RowDefault"], "SummaryItem"]}, {
+                  RowBox[{
+                    TagBox[
+                    "\"Boundary Condition: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["\"In\"", "SummaryItem"]}]}}, 
+                GridBoxAlignment -> {
+                 "Columns" -> {{Left}}, "Rows" -> {{Automatic}}}, AutoDelete -> 
+                False, 
+                GridBoxItemSize -> {
+                 "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}, 
+                GridBoxSpacings -> {
+                 "Columns" -> {{2}}, "Rows" -> {{Automatic}}}, 
+                BaseStyle -> {
+                 ShowStringCharacters -> False, NumberMarks -> False, 
+                  PrintPrecision -> 3, ShowSyntaxStyles -> False}]}}, 
+             GridBoxAlignment -> {"Columns" -> {{Left}}, "Rows" -> {{Top}}}, 
+             AutoDelete -> False, 
+             GridBoxItemSize -> {
+              "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}, 
+             BaselinePosition -> {1, 1}], True -> GridBox[{{
+               PaneBox[
+                ButtonBox[
+                 DynamicBox[
+                  FEPrivate`FrontEndResource[
+                  "FEBitmaps", "SummaryBoxCloser"]], 
+                 ButtonFunction :> (Typeset`open$$ = False), Appearance -> 
+                 None, BaseStyle -> {}, Evaluator -> Automatic, Method -> 
+                 "Preemptive"], Alignment -> {Center, Center}, ImageSize -> 
+                Dynamic[{
+                  Automatic, 
+                   3.5 (CurrentValue["FontCapHeight"]/AbsoluteCurrentValue[
+                    Magnification])}]], 
+               GraphicsBox[{
+                 LineBox[
+                  NCache[{{0, 
+                    Rational[1, 2]}, {
+                    Rational[1, 2], 1}, {1, 
+                    Rational[1, 2]}, {
+                    Rational[1, 2], 0}, {0, 
+                    Rational[1, 2]}}, {{0, 0.5}, {0.5, 1}, {1, 0.5}, {
+                    0.5, 0}, {0, 0.5}}]], 
+                 LineBox[
+                  NCache[{{
+                    Rational[3, 4], 
+                    Rational[1, 4]}, {
+                    Rational[1, 2], 
+                    Rational[1, 2]}}, {{0.75, 0.25}, {0.5, 0.5}}]], {
+                  Arrowheads[0.2], 
+                  ArrowBox[
+                   LineBox[
+                    NCache[{{
+                    Rational[1, 2], 
+                    Rational[1, 2]}, {
+                    Rational[1, 4], 
+                    Rational[3, 4]}}, {{0.5, 0.5}, {0.25, 0.75}}]]]}, {
+                  Arrowheads[0.2], 
+                  ArrowBox[
+                   LineBox[
+                    NCache[{{
+                    Rational[1, 2], 
+                    Rational[1, 2]}, {
+                    Rational[3, 4], 
+                    Rational[3, 4]}}, {{0.5, 0.5}, {0.75, 0.75}}]]]}}, 
+                Background -> GrayLevel[1], ImageSize -> 
+                Dynamic[{
+                  Automatic, 
+                   3.5 (CurrentValue["FontCapHeight"]/AbsoluteCurrentValue[
+                    Magnification])}]], 
+               GridBox[{{
+                  TagBox[
+                   TemplateBox[{
+                    RowBox[{
+                    TagBox["\"s: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox[
+                    RowBox[{"-", "2"}], "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"l: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["2", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"m: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["2", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"a: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["a", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"\[Omega]: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["\[Omega]", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"PN parameter: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["\[Eta]", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"PN order: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox[
+                    RowBox[{"1.5`", " ", "\"PN\""}], "SummaryItem"]}]}, 
+                    "RowDefault"], "SummaryItem"]}, {
+                  RowBox[{
+                    TagBox[
+                    "\"Boundary Condition: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["\"In\"", "SummaryItem"]}]}, {
+                  RowBox[{
+                    TagBox["\"Leading order: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox[
+                    InterpretationBox[
+                    RowBox[{
+                    RowBox[{
+                    FractionBox["4", "5"], " ", 
+                    SuperscriptBox["\"r\"", "4"], " ", 
+                    SuperscriptBox["\[Omega]", "4"], " ", 
+                    SuperscriptBox["\[Eta]", "4"]}], "+", 
+                    InterpretationBox[
+                    SuperscriptBox[
+                    RowBox[{"O", "[", "\[Eta]", "]"}], "5"], 
+                    SeriesData[$CellContext`\[Eta], 0, {}, 4, 5, 1], Editable -> 
+                    False]}], 
+                    
+                    SeriesData[$CellContext`\[Eta], 0, {
+                    Rational[4, 5] "r"^4 $CellContext`\[Omega]^4}, 4, 5, 1], 
+                    Editable -> False], "SummaryItem"]}]}, {
+                  RowBox[{
+                    TagBox["\"Normalization: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["\"Default\"", "SummaryItem"]}]}, {
+                  RowBox[{
+                    TagBox["\"Simplified: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["True", "SummaryItem"]}]}, {
+                  RowBox[{
+                    TagBox["\"Number of terms: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["4", "SummaryItem"]}]}}, 
+                GridBoxAlignment -> {
+                 "Columns" -> {{Left}}, "Rows" -> {{Automatic}}}, AutoDelete -> 
+                False, GridBoxItemSize -> {
+                 "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}, 
+                GridBoxSpacings -> {
+                 "Columns" -> {{2}}, "Rows" -> {{Automatic}}}, 
+                BaseStyle -> {
+                 ShowStringCharacters -> False, NumberMarks -> False, 
+                  PrintPrecision -> 3, ShowSyntaxStyles -> False}]}}, 
+             GridBoxAlignment -> {"Columns" -> {{Left}}, "Rows" -> {{Top}}}, 
+             AutoDelete -> False, 
+             GridBoxItemSize -> {
+              "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}, 
+             BaselinePosition -> {1, 1}]}, 
+          Dynamic[Typeset`open$$], ImageSize -> Automatic]},
+        "SummaryPanel"],
+       DynamicModuleValues:>{}], "]"}],
+     Teukolsky`PN`TeukolskyRadialFunctionPN[-2, 2, 
+      2, $CellContext`a, $CellContext`\[Omega], {$CellContext`\[Eta], 4}, <|
+      "s" -> -2, "l" -> 2, "m" -> 2, "a" -> $CellContext`a, 
+       "PN" -> {$CellContext`\[Eta], 4}, "RadialFunction" -> 
+       Function[Teukolsky`PN`Private`r, 
+         SeriesData[$CellContext`\[Eta], 0, {
+          Rational[4, 5] Teukolsky`PN`Private`r^4 $CellContext`\[Omega]^4, 
+           Complex[0, 
+             Rational[8, 15]] 
+           Teukolsky`PN`Private`r^5 $CellContext`\[Omega]^5, 
+           Rational[-2, 105] 
+           Teukolsky`PN`Private`r^3 $CellContext`\[Omega]^4 (168 + 
+            Complex[0, 84] $CellContext`a + 
+            11 Teukolsky`PN`Private`r^3 $CellContext`\[Omega]^2), 
+           Rational[2, 105] 
+           Teukolsky`PN`Private`r^4 $CellContext`\[Omega]^5 (
+            56 $CellContext`a + 
+            Complex[0, 1] (35 + 28 (1 - $CellContext`a^2)^Rational[1, 2] - 84 
+              EulerGamma - 3 
+              Teukolsky`PN`Private`r^3 $CellContext`\[Omega]^2))}, 4, 8, 1]], 
+       "BoundaryCondition" -> "In", "LeadingOrder" -> 
+       Function[Teukolsky`PN`Private`r, 
+         SeriesData[$CellContext`\[Eta], 0, {
+          Rational[4, 5] Teukolsky`PN`Private`r^4 $CellContext`\[Omega]^4}, 4,
+           5, 1]], "TermCount" -> 4, "Normalization" -> "Default", 
+       "Amplitudes" -> <|"Transmission" -> "Not Computed"|>, "Simplified" -> 
+       True|>],
+     Editable->False,
+     SelectWithContents->True,
+     Selectable->False]}], ",", 
+   RowBox[{"\<\"Up\"\>", "\[Rule]", 
+    InterpretationBox[
+     RowBox[{
+      TagBox["TeukolskyRadialFunctionPN",
+       "SummaryHead"], "[", 
+      DynamicModuleBox[{Typeset`open$$ = False, Typeset`embedState$$ = 
+       "Ready"}, 
+       TemplateBox[{
+         PaneSelectorBox[{False -> GridBox[{{
+               PaneBox[
+                ButtonBox[
+                 DynamicBox[
+                  FEPrivate`FrontEndResource[
+                  "FEBitmaps", "SummaryBoxOpener"]], 
+                 ButtonFunction :> (Typeset`open$$ = True), Appearance -> 
+                 None, BaseStyle -> {}, Evaluator -> Automatic, Method -> 
+                 "Preemptive"], Alignment -> {Center, Center}, ImageSize -> 
+                Dynamic[{
+                  Automatic, 
+                   3.5 (CurrentValue["FontCapHeight"]/AbsoluteCurrentValue[
+                    Magnification])}]], 
+               GraphicsBox[{
+                 LineBox[
+                  NCache[{{0, 
+                    Rational[1, 2]}, {
+                    Rational[1, 2], 1}, {1, 
+                    Rational[1, 2]}, {
+                    Rational[1, 2], 0}, {0, 
+                    Rational[1, 2]}}, {{0, 0.5}, {0.5, 1}, {1, 0.5}, {
+                    0.5, 0}, {0, 0.5}}]], 
+                 LineBox[
+                  NCache[{{
+                    Rational[1, 4], 
+                    Rational[1, 4]}, {
+                    Rational[1, 2], 
+                    Rational[1, 2]}}, {{0.25, 0.25}, {0.5, 0.5}}]], {
+                  Arrowheads[0.2], 
+                  ArrowBox[
+                   LineBox[
+                    NCache[{{
+                    Rational[1, 2], 
+                    Rational[1, 2]}, {
+                    Rational[1, 4], 
+                    Rational[3, 4]}}, {{0.5, 0.5}, {0.25, 0.75}}]]]}, {
+                  Arrowheads[0.2], 
+                  ArrowBox[
+                   LineBox[
+                    NCache[{{
+                    Rational[1, 2], 
+                    Rational[1, 2]}, {
+                    Rational[3, 4], 
+                    Rational[3, 4]}}, {{0.5, 0.5}, {0.75, 0.75}}]]]}}, 
+                Background -> GrayLevel[1], ImageSize -> 
+                Dynamic[{
+                  Automatic, 
+                   3.5 (CurrentValue["FontCapHeight"]/AbsoluteCurrentValue[
+                    Magnification])}]], 
+               GridBox[{{
+                  TagBox[
+                   TemplateBox[{
+                    RowBox[{
+                    TagBox["\"s: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox[
+                    RowBox[{"-", "2"}], "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"l: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["2", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"m: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["2", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"a: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["a", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"\[Omega]: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["\[Omega]", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"PN parameter: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["\[Eta]", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"PN order: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox[
+                    RowBox[{"1.5`", " ", "\"PN\""}], "SummaryItem"]}]}, 
+                    "RowDefault"], "SummaryItem"]}, {
+                  RowBox[{
+                    TagBox[
+                    "\"Boundary Condition: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["\"Up\"", "SummaryItem"]}]}}, 
+                GridBoxAlignment -> {
+                 "Columns" -> {{Left}}, "Rows" -> {{Automatic}}}, AutoDelete -> 
+                False, GridBoxItemSize -> {
+                 "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}, 
+                GridBoxSpacings -> {
+                 "Columns" -> {{2}}, "Rows" -> {{Automatic}}}, 
+                BaseStyle -> {
+                 ShowStringCharacters -> False, NumberMarks -> False, 
+                  PrintPrecision -> 3, ShowSyntaxStyles -> False}]}}, 
+             GridBoxAlignment -> {"Columns" -> {{Left}}, "Rows" -> {{Top}}}, 
+             AutoDelete -> False, 
+             GridBoxItemSize -> {
+              "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}, 
+             BaselinePosition -> {1, 1}], True -> GridBox[{{
+               PaneBox[
+                ButtonBox[
+                 DynamicBox[
+                  FEPrivate`FrontEndResource[
+                  "FEBitmaps", "SummaryBoxCloser"]], 
+                 ButtonFunction :> (Typeset`open$$ = False), Appearance -> 
+                 None, BaseStyle -> {}, Evaluator -> Automatic, Method -> 
+                 "Preemptive"], Alignment -> {Center, Center}, ImageSize -> 
+                Dynamic[{
+                  Automatic, 
+                   3.5 (CurrentValue["FontCapHeight"]/AbsoluteCurrentValue[
+                    Magnification])}]], 
+               GraphicsBox[{
+                 LineBox[
+                  NCache[{{0, 
+                    Rational[1, 2]}, {
+                    Rational[1, 2], 1}, {1, 
+                    Rational[1, 2]}, {
+                    Rational[1, 2], 0}, {0, 
+                    Rational[1, 2]}}, {{0, 0.5}, {0.5, 1}, {1, 0.5}, {
+                    0.5, 0}, {0, 0.5}}]], 
+                 LineBox[
+                  NCache[{{
+                    Rational[1, 4], 
+                    Rational[1, 4]}, {
+                    Rational[1, 2], 
+                    Rational[1, 2]}}, {{0.25, 0.25}, {0.5, 0.5}}]], {
+                  Arrowheads[0.2], 
+                  ArrowBox[
+                   LineBox[
+                    NCache[{{
+                    Rational[1, 2], 
+                    Rational[1, 2]}, {
+                    Rational[1, 4], 
+                    Rational[3, 4]}}, {{0.5, 0.5}, {0.25, 0.75}}]]]}, {
+                  Arrowheads[0.2], 
+                  ArrowBox[
+                   LineBox[
+                    NCache[{{
+                    Rational[1, 2], 
+                    Rational[1, 2]}, {
+                    Rational[3, 4], 
+                    Rational[3, 4]}}, {{0.5, 0.5}, {0.75, 0.75}}]]]}}, 
+                Background -> GrayLevel[1], ImageSize -> 
+                Dynamic[{
+                  Automatic, 
+                   3.5 (CurrentValue["FontCapHeight"]/AbsoluteCurrentValue[
+                    Magnification])}]], 
+               GridBox[{{
+                  TagBox[
+                   TemplateBox[{
+                    RowBox[{
+                    TagBox["\"s: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox[
+                    RowBox[{"-", "2"}], "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"l: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["2", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"m: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["2", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"a: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["a", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"\[Omega]: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["\[Omega]", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"PN parameter: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["\[Eta]", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"PN order: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox[
+                    RowBox[{"1.5`", " ", "\"PN\""}], "SummaryItem"]}]}, 
+                    "RowDefault"], "SummaryItem"]}, {
+                  RowBox[{
+                    TagBox[
+                    "\"Boundary Condition: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["\"Up\"", "SummaryItem"]}]}, {
+                  RowBox[{
+                    TagBox["\"Leading order: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox[
+                    InterpretationBox[
+                    RowBox[{
+                    RowBox[{"-", 
+                    FractionBox[
+                    RowBox[{"3", " ", "\[ImaginaryI]"}], 
+                    RowBox[{"\"r\"", " ", "\[Omega]", " ", "\[Eta]"}]]}], "+", 
+                    InterpretationBox[
+                    SuperscriptBox[
+                    RowBox[{"O", "[", "\[Eta]", "]"}], "0"], 
+                    SeriesData[$CellContext`\[Eta], 0, {}, -1, 0, 1], 
+                    Editable -> False]}], 
+                    
+                    SeriesData[$CellContext`\[Eta], 0, {
+                    Complex[0, -3] "r"^(-1)/$CellContext`\[Omega]}, -1, 0, 1],
+                     Editable -> False], "SummaryItem"]}]}, {
+                  RowBox[{
+                    TagBox["\"Normalization: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["\"Default\"", "SummaryItem"]}]}, {
+                  RowBox[{
+                    TagBox["\"Simplified: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["True", "SummaryItem"]}]}, {
+                  RowBox[{
+                    TagBox["\"Number of terms: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["4", "SummaryItem"]}]}}, 
+                GridBoxAlignment -> {
+                 "Columns" -> {{Left}}, "Rows" -> {{Automatic}}}, AutoDelete -> 
+                False, GridBoxItemSize -> {
+                 "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}, 
+                GridBoxSpacings -> {
+                 "Columns" -> {{2}}, "Rows" -> {{Automatic}}}, 
+                BaseStyle -> {
+                 ShowStringCharacters -> False, NumberMarks -> False, 
+                  PrintPrecision -> 3, ShowSyntaxStyles -> False}]}}, 
+             GridBoxAlignment -> {"Columns" -> {{Left}}, "Rows" -> {{Top}}}, 
+             AutoDelete -> False, 
+             GridBoxItemSize -> {
+              "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}, 
+             BaselinePosition -> {1, 1}]}, 
+          Dynamic[Typeset`open$$], ImageSize -> Automatic]},
+        "SummaryPanel"],
+       DynamicModuleValues:>{}], "]"}],
+     Teukolsky`PN`TeukolskyRadialFunctionPN[-2, 2, 
+      2, $CellContext`a, $CellContext`\[Omega], {$CellContext`\[Eta], 4}, <|
+      "s" -> -2, "l" -> 2, "m" -> 2, "a" -> $CellContext`a, 
+       "PN" -> {$CellContext`\[Eta], 4}, "RadialFunction" -> 
+       Function[Teukolsky`PN`Private`r, 
+         SeriesData[$CellContext`\[Eta], 0, {
+          Complex[0, -3] 
+           Teukolsky`PN`Private`r^(-1)/$CellContext`\[Omega], -3, 
+           Rational[1, 2] 
+           Teukolsky`PN`Private`r^(-2) $CellContext`\[Omega]^(-1) (
+            8 $CellContext`a + 
+            Complex[0, 3] (-2 + 
+              Teukolsky`PN`Private`r^3 $CellContext`\[Omega]^2)), 
+           Rational[1, 6] 
+           Teukolsky`PN`Private`r^(-1) (Complex[0, -4] $CellContext`a + 
+            12 (1 - $CellContext`a^2)^Rational[1, 2] - 36 EulerGamma + 
+            Complex[0, 36] Pi + 
+            3 Teukolsky`PN`Private`r^3 $CellContext`\[Omega]^2)}, -1, 3, 1]], 
+       "BoundaryCondition" -> "Up", "LeadingOrder" -> 
+       Function[Teukolsky`PN`Private`r, 
+         SeriesData[$CellContext`\[Eta], 0, {
+          Complex[0, -3] 
+           Teukolsky`PN`Private`r^(-1)/$CellContext`\[Omega]}, -1, 0, 1]], 
+       "TermCount" -> 4, "Normalization" -> "Default", 
+       "Amplitudes" -> <|"Transmission" -> "Not Computed"|>, "Simplified" -> 
+       True|>],
+     Editable->False,
+     SelectWithContents->True,
+     Selectable->False]}]}], "\[RightAssociation]"}]], "Output",
+ CellChangeTimes->{{3.942146476518921*^9, 3.942146505601961*^9}, 
+   3.94214656684116*^9, {3.942146622616212*^9, 3.942146642585205*^9}, 
+   3.942388590247716*^9, 3.942388959260372*^9, 3.942388991878456*^9},
+ CellLabel->"Out[3]=",
+ CellID->170885151,ExpressionUUID->"1dd5883d-dd2d-4512-9520-b363380acb86"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"test", "[", "\"\<In\>\"", "]"}], "[", "r", "]"}], "//", 
+  "Simplify"}]], "Input",
+ CellChangeTimes->{{3.942146573661372*^9, 3.942146586725117*^9}},
+ CellLabel->"In[4]:=",
+ CellID->1260920295,ExpressionUUID->"855a404e-e30c-4792-9d64-473ea95e84f1"],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{
+   RowBox[{
+    FractionBox["4", "5"], " ", 
+    SuperscriptBox["r", "4"], " ", 
+    SuperscriptBox["\[Omega]", "4"], " ", 
+    SuperscriptBox["\[Eta]", "4"]}], "+", 
+   RowBox[{
+    FractionBox["8", "15"], " ", "\[ImaginaryI]", " ", 
+    SuperscriptBox["r", "5"], " ", 
+    SuperscriptBox["\[Omega]", "5"], " ", 
+    SuperscriptBox["\[Eta]", "5"]}], "-", 
+   RowBox[{
+    FractionBox["2", "105"], " ", 
+    RowBox[{"(", 
+     RowBox[{
+      SuperscriptBox["r", "3"], " ", 
+      SuperscriptBox["\[Omega]", "4"], " ", 
+      RowBox[{"(", 
+       RowBox[{"168", "+", 
+        RowBox[{"84", " ", "\[ImaginaryI]", " ", "a"}], "+", 
+        RowBox[{"11", " ", 
+         SuperscriptBox["r", "3"], " ", 
+         SuperscriptBox["\[Omega]", "2"]}]}], ")"}]}], ")"}], " ", 
+    SuperscriptBox["\[Eta]", "6"]}], "+", 
+   RowBox[{
+    FractionBox["2", "105"], " ", 
+    SuperscriptBox["r", "4"], " ", 
+    SuperscriptBox["\[Omega]", "5"], " ", 
+    RowBox[{"(", 
+     RowBox[{
+      RowBox[{"56", " ", "a"}], "+", 
+      RowBox[{"\[ImaginaryI]", " ", 
+       RowBox[{"(", 
+        RowBox[{"35", "+", 
+         RowBox[{"28", " ", 
+          SqrtBox[
+           RowBox[{"1", "-", 
+            SuperscriptBox["a", "2"]}]]}], "-", 
+         RowBox[{"84", " ", "EulerGamma"}], "-", 
+         RowBox[{"3", " ", 
+          SuperscriptBox["r", "3"], " ", 
+          SuperscriptBox["\[Omega]", "2"]}]}], ")"}]}]}], ")"}], " ", 
+    SuperscriptBox["\[Eta]", "7"]}], "+", 
+   InterpretationBox[
+    SuperscriptBox[
+     RowBox[{"O", "[", "\[Eta]", "]"}], "8"],
+    SeriesData[$CellContext`\[Eta], 0, {}, 4, 8, 1],
+    Editable->False]}],
+  SeriesData[$CellContext`\[Eta], 0, {
+   Rational[4, 5] $CellContext`r^4 $CellContext`\[Omega]^4, Complex[0, 
+      Rational[8, 15]] $CellContext`r^5 $CellContext`\[Omega]^5, 
+    Rational[-2, 105] $CellContext`r^3 $CellContext`\[Omega]^4 (168 + 
+     Complex[0, 84] $CellContext`a + 
+     11 $CellContext`r^3 $CellContext`\[Omega]^2), 
+    Rational[2, 105] $CellContext`r^4 $CellContext`\[Omega]^5 (
+     56 $CellContext`a + 
+     Complex[0, 1] (35 + 28 (1 - $CellContext`a^2)^Rational[1, 2] - 84 
+       EulerGamma - 3 $CellContext`r^3 $CellContext`\[Omega]^2))}, 4, 8, 1],
+  Editable->False]], "Output",
+ CellChangeTimes->{{3.942146578715905*^9, 3.942146587032299*^9}, {
+   3.942146622694558*^9, 3.942146642658656*^9}, 3.942388590323811*^9, 
+   3.9423889593325644`*^9, 3.9423889920466423`*^9},
+ CellLabel->"Out[4]=",
+ CellID->1675325000,ExpressionUUID->"4dfdbe58-bc1c-4d81-a016-be1b21ba8624"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"test", "[", "\"\<Up\>\"", "]"}], "[", "r", "]"}], "//", 
+  "Simplify"}]], "Input",
+ CellChangeTimes->{{3.94214664372406*^9, 3.942146648449054*^9}},
+ CellLabel->"In[5]:=",
+ CellID->1545593839,ExpressionUUID->"31ea1d30-efc1-4882-a0cf-f09829d65edb"],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{
+   RowBox[{"-", 
+    FractionBox[
+     RowBox[{"3", " ", "\[ImaginaryI]"}], 
+     RowBox[{"r", " ", "\[Omega]", " ", "\[Eta]"}]]}], "-", "3", "+", 
+   FractionBox[
+    RowBox[{
+     RowBox[{"(", 
+      RowBox[{
+       RowBox[{"8", " ", "a"}], "+", 
+       RowBox[{"3", " ", "\[ImaginaryI]", " ", 
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"-", "2"}], "+", 
+          RowBox[{
+           SuperscriptBox["r", "3"], " ", 
+           SuperscriptBox["\[Omega]", "2"]}]}], ")"}]}]}], ")"}], " ", 
+     "\[Eta]"}], 
+    RowBox[{"2", " ", 
+     SuperscriptBox["r", "2"], " ", "\[Omega]"}]], "+", 
+   FractionBox[
+    RowBox[{
+     RowBox[{"(", 
+      RowBox[{
+       RowBox[{
+        RowBox[{"-", "4"}], " ", "\[ImaginaryI]", " ", "a"}], "+", 
+       RowBox[{"12", " ", 
+        SqrtBox[
+         RowBox[{"1", "-", 
+          SuperscriptBox["a", "2"]}]]}], "-", 
+       RowBox[{"36", " ", "EulerGamma"}], "+", 
+       RowBox[{"36", " ", "\[ImaginaryI]", " ", "\[Pi]"}], "+", 
+       RowBox[{"3", " ", 
+        SuperscriptBox["r", "3"], " ", 
+        SuperscriptBox["\[Omega]", "2"]}]}], ")"}], " ", 
+     SuperscriptBox["\[Eta]", "2"]}], 
+    RowBox[{"6", " ", "r"}]], "+", 
+   InterpretationBox[
+    SuperscriptBox[
+     RowBox[{"O", "[", "\[Eta]", "]"}], "3"],
+    SeriesData[$CellContext`\[Eta], 0, {}, -1, 3, 1],
+    Editable->False]}],
+  SeriesData[$CellContext`\[Eta], 0, {
+   Complex[0, -3] $CellContext`r^(-1)/$CellContext`\[Omega], -3, 
+    Rational[1, 2] $CellContext`r^(-2) $CellContext`\[Omega]^(-1) (
+     8 $CellContext`a + 
+     Complex[0, 3] (-2 + $CellContext`r^3 $CellContext`\[Omega]^2)), 
+    Rational[1, 6] $CellContext`r^(-1) (Complex[0, -4] $CellContext`a + 
+     12 (1 - $CellContext`a^2)^Rational[1, 2] - 36 EulerGamma + 
+     Complex[0, 36] Pi + 3 $CellContext`r^3 $CellContext`\[Omega]^2)}, -1, 3, 
+   1],
+  Editable->False]], "Output",
+ CellChangeTimes->{3.942146648761879*^9, 3.942388590358964*^9, 
+  3.9423889593682127`*^9, 3.942388992086396*^9},
+ CellLabel->"Out[5]=",
+ CellID->279294719,ExpressionUUID->"d97c2471-9099-468d-8b62-ae2437fe1f17"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[TextData[{
+ "More Examples",
+ Cell[BoxData[
+  TemplateBox[{"MoreExamples", 
+    Cell[
+     BoxData[
+      FrameBox[
+       Cell["Extended examples in standardized sections.", "MoreInfoText"], 
+       BaseStyle -> "IFrameBox"]], "MoreInfoTextOuter"]},
+   "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
+  "fdff4eaf-b39c-431a-b545-4db7083d018f"]
+}], "ExtendedExamplesSection",
+ CellTags->"ExtendedExamples",
+ CellID->1166202043,ExpressionUUID->"ecafa9fb-f313-4153-a19b-c43239b4eb56"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "Scope", "ExampleSection",ExpressionUUID->
+   "6ccb4947-ed48-4db6-afd6-addfd95e8eec"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->1458198461,ExpressionUUID->"20f5d4a8-a69f-434b-888d-946f8ff93cdd"],
+
+Cell["\<\
+Here we want to go through the possible Keys we can query a \
+TeukolskyRadialFunctionPN for.\
+\>", "ExampleText",
+ CellChangeTimes->{{3.942389277599101*^9, 3.942389296377552*^9}},
+ CellID->1484792943,ExpressionUUID->"80ac1cd4-5cd4-4e34-92e6-f8f7bc6b6b2f"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"test", "[", "\"\<In\>\"", "]"}], "//", "Keys"}]], "Input",
+ CellChangeTimes->{{3.9423885701442223`*^9, 3.942388597647747*^9}},
+ CellLabel->"In[6]:=",
+ CellID->946679123,ExpressionUUID->"304c9bef-d103-433f-8a7b-5124afe67499"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"\<\"s\"\>", ",", "\<\"l\"\>", ",", "\<\"m\"\>", ",", "\<\"a\"\>", 
+   ",", "\<\"PN\"\>", ",", "\<\"RadialFunction\"\>", 
+   ",", "\<\"BoundaryCondition\"\>", ",", "\<\"LeadingOrder\"\>", 
+   ",", "\<\"TermCount\"\>", ",", "\<\"Normalization\"\>", 
+   ",", "\<\"Amplitudes\"\>", ",", "\<\"Simplified\"\>"}], "}"}]], "Output",
+ CellChangeTimes->{{3.9423885751187773`*^9, 3.942388597923132*^9}, 
+   3.942388959401473*^9, 3.942388992122604*^9},
+ CellLabel->"Out[6]=",
+ CellID->1969819808,ExpressionUUID->"8aeafbc5-80fb-4848-aad7-d40999d0234c"]
+}, Open  ]],
+
+Cell["\<\
+\"s\", \"l\", \"m\" and \"a\" give the respective values (or symbols used).\
+\>", "ExampleText",
+ CellChangeTimes->{{3.942389301264503*^9, 3.942389340134738*^9}},
+ CellID->1496033067,ExpressionUUID->"77ad06b9-1e41-4165-b837-bdc9e767640a"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{
+    RowBox[{"test", "[", "\"\<In\>\"", "]"}], "[", "#", "]"}], "&"}], "/@", 
+  RowBox[{"{", 
+   RowBox[{
+   "\"\<s\>\"", ",", "\"\<l\>\"", ",", "\"\<m\>\"", ",", "\"\<a\>\""}], 
+   "}"}]}]], "Input",
+ CellChangeTimes->{{3.942389213243572*^9, 3.942389264423088*^9}},
+ CellLabel->"In[8]:=",
+ CellID->918794442,ExpressionUUID->"76d91407-d515-441d-9e2f-c2a442dadbe8"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{
+   RowBox[{"-", "2"}], ",", "2", ",", "2"}], "}"}]], "Output",
+ CellChangeTimes->{{3.9423892239843597`*^9, 3.942389241907608*^9}},
+ CellLabel->"Out[8]=",
+ CellID->48613879,ExpressionUUID->"a3b8022d-14a7-4ece-8c40-be2249c81e11"]
+}, Open  ]],
+
+Cell["\"PN\" gives the PN expansion parameter and number of terms", \
+"ExampleText",
+ CellChangeTimes->{{3.942389351264551*^9, 3.942389365517869*^9}},
+ CellID->1673904291,ExpressionUUID->"6c1fef4c-3b47-499e-a7e0-0ae6d645789a"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"test", "[", "\"\<In\>\"", "]"}], "[", "\"\<PN\>\"", "]"}]], "Input",\
+
+ CellChangeTimes->{{3.942389248351698*^9, 3.9423892725947733`*^9}},
+ CellLabel->"In[11]:=",
+ CellID->1458245567,ExpressionUUID->"cd2bcf42-9a74-4acb-8c4b-c8322b27f0a4"],
+
+Cell[BoxData[
+ RowBox[{"{", 
+  RowBox[{"\[Eta]", ",", "4"}], "}"}]], "Output",
+ CellChangeTimes->{{3.9423892551165133`*^9, 3.9423892728312263`*^9}},
+ CellLabel->"Out[11]=",
+ CellID->221073614,ExpressionUUID->"aa75466c-1e9a-498c-8767-4109ba0142cd"]
+}, Open  ]],
+
+Cell["\<\
+\"RadialFunction\" is the most important Key. It gives the solution to the \
+Teukolsky equation. It can be shortcut by simply querying for a symbol or \
+number. \
+\>", "ExampleText",
+ CellChangeTimes->{{3.942389387917851*^9, 3.942389457072596*^9}},
+ CellID->1955714696,ExpressionUUID->"f4b0d4be-ddb7-4012-bf8c-9a18ad2a5b96"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"test", "[", "\"\<In\>\"", "]"}], "[", "\"\<RadialFunction\>\"", 
+   "]"}], "[", "r", "]"}]], "Input",
+ CellChangeTimes->{{3.942389459284617*^9, 3.942389466310264*^9}},
+ CellLabel->"In[12]:=",
+ CellID->2134775037,ExpressionUUID->"db939f69-4715-4698-bfa2-456877832e19"],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{
+   RowBox[{
+    FractionBox["4", "5"], " ", 
+    SuperscriptBox["r", "4"], " ", 
+    SuperscriptBox["\[Omega]", "4"], " ", 
+    SuperscriptBox["\[Eta]", "4"]}], "+", 
+   RowBox[{
+    FractionBox["8", "15"], " ", "\[ImaginaryI]", " ", 
+    SuperscriptBox["r", "5"], " ", 
+    SuperscriptBox["\[Omega]", "5"], " ", 
+    SuperscriptBox["\[Eta]", "5"]}], "-", 
+   RowBox[{
+    FractionBox["2", "105"], " ", 
+    RowBox[{"(", 
+     RowBox[{
+      SuperscriptBox["r", "3"], " ", 
+      SuperscriptBox["\[Omega]", "4"], " ", 
+      RowBox[{"(", 
+       RowBox[{"168", "+", 
+        RowBox[{"84", " ", "\[ImaginaryI]", " ", "a"}], "+", 
+        RowBox[{"11", " ", 
+         SuperscriptBox["r", "3"], " ", 
+         SuperscriptBox["\[Omega]", "2"]}]}], ")"}]}], ")"}], " ", 
+    SuperscriptBox["\[Eta]", "6"]}], "+", 
+   RowBox[{
+    FractionBox["2", "105"], " ", 
+    SuperscriptBox["r", "4"], " ", 
+    SuperscriptBox["\[Omega]", "5"], " ", 
+    RowBox[{"(", 
+     RowBox[{
+      RowBox[{"56", " ", "a"}], "+", 
+      RowBox[{"\[ImaginaryI]", " ", 
+       RowBox[{"(", 
+        RowBox[{"35", "+", 
+         RowBox[{"28", " ", 
+          SqrtBox[
+           RowBox[{"1", "-", 
+            SuperscriptBox["a", "2"]}]]}], "-", 
+         RowBox[{"84", " ", "EulerGamma"}], "-", 
+         RowBox[{"3", " ", 
+          SuperscriptBox["r", "3"], " ", 
+          SuperscriptBox["\[Omega]", "2"]}]}], ")"}]}]}], ")"}], " ", 
+    SuperscriptBox["\[Eta]", "7"]}], "+", 
+   InterpretationBox[
+    SuperscriptBox[
+     RowBox[{"O", "[", "\[Eta]", "]"}], "8"],
+    SeriesData[$CellContext`\[Eta], 0, {}, 4, 8, 1],
+    Editable->False]}],
+  SeriesData[$CellContext`\[Eta], 0, {
+   Rational[4, 5] $CellContext`r^4 $CellContext`\[Omega]^4, Complex[0, 
+      Rational[8, 15]] $CellContext`r^5 $CellContext`\[Omega]^5, 
+    Rational[-2, 105] $CellContext`r^3 $CellContext`\[Omega]^4 (168 + 
+     Complex[0, 84] $CellContext`a + 
+     11 $CellContext`r^3 $CellContext`\[Omega]^2), 
+    Rational[2, 105] $CellContext`r^4 $CellContext`\[Omega]^5 (
+     56 $CellContext`a + 
+     Complex[0, 1] (35 + 28 (1 - $CellContext`a^2)^Rational[1, 2] - 84 
+       EulerGamma - 3 $CellContext`r^3 $CellContext`\[Omega]^2))}, 4, 8, 1],
+  Editable->False]], "Output",
+ CellChangeTimes->{3.942389466596204*^9},
+ CellLabel->"Out[12]=",
+ CellID->94377112,ExpressionUUID->"d7bd8732-4f51-40df-89aa-7005a90adf59"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"test", "[", "\"\<In\>\"", "]"}], "[", "r", "]"}]], "Input",
+ CellChangeTimes->{{3.942389472070148*^9, 3.9423894747971897`*^9}},
+ CellLabel->"In[13]:=",
+ CellID->1225831924,ExpressionUUID->"f4cc0a2a-ea34-4eab-ade4-65dbd1b1a34f"],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{
+   RowBox[{
+    FractionBox["4", "5"], " ", 
+    SuperscriptBox["r", "4"], " ", 
+    SuperscriptBox["\[Omega]", "4"], " ", 
+    SuperscriptBox["\[Eta]", "4"]}], "+", 
+   RowBox[{
+    FractionBox["8", "15"], " ", "\[ImaginaryI]", " ", 
+    SuperscriptBox["r", "5"], " ", 
+    SuperscriptBox["\[Omega]", "5"], " ", 
+    SuperscriptBox["\[Eta]", "5"]}], "-", 
+   RowBox[{
+    FractionBox["2", "105"], " ", 
+    RowBox[{"(", 
+     RowBox[{
+      SuperscriptBox["r", "3"], " ", 
+      SuperscriptBox["\[Omega]", "4"], " ", 
+      RowBox[{"(", 
+       RowBox[{"168", "+", 
+        RowBox[{"84", " ", "\[ImaginaryI]", " ", "a"}], "+", 
+        RowBox[{"11", " ", 
+         SuperscriptBox["r", "3"], " ", 
+         SuperscriptBox["\[Omega]", "2"]}]}], ")"}]}], ")"}], " ", 
+    SuperscriptBox["\[Eta]", "6"]}], "+", 
+   RowBox[{
+    FractionBox["2", "105"], " ", 
+    SuperscriptBox["r", "4"], " ", 
+    SuperscriptBox["\[Omega]", "5"], " ", 
+    RowBox[{"(", 
+     RowBox[{
+      RowBox[{"56", " ", "a"}], "+", 
+      RowBox[{"\[ImaginaryI]", " ", 
+       RowBox[{"(", 
+        RowBox[{"35", "+", 
+         RowBox[{"28", " ", 
+          SqrtBox[
+           RowBox[{"1", "-", 
+            SuperscriptBox["a", "2"]}]]}], "-", 
+         RowBox[{"84", " ", "EulerGamma"}], "-", 
+         RowBox[{"3", " ", 
+          SuperscriptBox["r", "3"], " ", 
+          SuperscriptBox["\[Omega]", "2"]}]}], ")"}]}]}], ")"}], " ", 
+    SuperscriptBox["\[Eta]", "7"]}], "+", 
+   InterpretationBox[
+    SuperscriptBox[
+     RowBox[{"O", "[", "\[Eta]", "]"}], "8"],
+    SeriesData[$CellContext`\[Eta], 0, {}, 4, 8, 1],
+    Editable->False]}],
+  SeriesData[$CellContext`\[Eta], 0, {
+   Rational[4, 5] $CellContext`r^4 $CellContext`\[Omega]^4, Complex[0, 
+      Rational[8, 15]] $CellContext`r^5 $CellContext`\[Omega]^5, 
+    Rational[-2, 105] $CellContext`r^3 $CellContext`\[Omega]^4 (168 + 
+     Complex[0, 84] $CellContext`a + 
+     11 $CellContext`r^3 $CellContext`\[Omega]^2), 
+    Rational[2, 105] $CellContext`r^4 $CellContext`\[Omega]^5 (
+     56 $CellContext`a + 
+     Complex[0, 1] (35 + 28 (1 - $CellContext`a^2)^Rational[1, 2] - 84 
+       EulerGamma - 3 $CellContext`r^3 $CellContext`\[Omega]^2))}, 4, 8, 1],
+  Editable->False]], "Output",
+ CellChangeTimes->{3.9423894753629847`*^9},
+ CellLabel->"Out[13]=",
+ CellID->901051651,ExpressionUUID->"5780fb56-6f84-4eef-9edf-3a5ca0d01bc3"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"test", "[", "\"\<In\>\"", "]"}], "[", "2", "]"}]], "Input",
+ CellChangeTimes->{{3.9423894783214483`*^9, 3.942389482276389*^9}},
+ CellLabel->"In[14]:=",
+ CellID->939982762,ExpressionUUID->"c7dc13ce-5ac7-4640-919a-5f4b6f11983f"],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{
+   FractionBox[
+    RowBox[{"64", " ", 
+     SuperscriptBox["\[Omega]", "4"], " ", 
+     SuperscriptBox["\[Eta]", "4"]}], "5"], "+", 
+   RowBox[{
+    FractionBox["256", "15"], " ", "\[ImaginaryI]", " ", 
+    SuperscriptBox["\[Omega]", "5"], " ", 
+    SuperscriptBox["\[Eta]", "5"]}], "-", 
+   RowBox[{
+    FractionBox["16", "105"], " ", 
+    RowBox[{"(", 
+     RowBox[{
+      SuperscriptBox["\[Omega]", "4"], " ", 
+      RowBox[{"(", 
+       RowBox[{"168", "+", 
+        RowBox[{"84", " ", "\[ImaginaryI]", " ", "a"}], "+", 
+        RowBox[{"88", " ", 
+         SuperscriptBox["\[Omega]", "2"]}]}], ")"}]}], ")"}], " ", 
+    SuperscriptBox["\[Eta]", "6"]}], "+", 
+   RowBox[{
+    FractionBox["32", "105"], " ", 
+    SuperscriptBox["\[Omega]", "5"], " ", 
+    RowBox[{"(", 
+     RowBox[{
+      RowBox[{"56", " ", "a"}], "+", 
+      RowBox[{"\[ImaginaryI]", " ", 
+       RowBox[{"(", 
+        RowBox[{"35", "+", 
+         RowBox[{"28", " ", 
+          SqrtBox[
+           RowBox[{"1", "-", 
+            SuperscriptBox["a", "2"]}]]}], "-", 
+         RowBox[{"84", " ", "EulerGamma"}], "-", 
+         RowBox[{"24", " ", 
+          SuperscriptBox["\[Omega]", "2"]}]}], ")"}]}]}], ")"}], " ", 
+    SuperscriptBox["\[Eta]", "7"]}], "+", 
+   InterpretationBox[
+    SuperscriptBox[
+     RowBox[{"O", "[", "\[Eta]", "]"}], "8"],
+    SeriesData[$CellContext`\[Eta], 0, {}, 4, 8, 1],
+    Editable->False]}],
+  SeriesData[$CellContext`\[Eta], 0, {
+   Rational[64, 5] $CellContext`\[Omega]^4, Complex[0, 
+      Rational[256, 15]] $CellContext`\[Omega]^5, 
+    Rational[-16, 105] $CellContext`\[Omega]^4 (168 + 
+     Complex[0, 84] $CellContext`a + 88 $CellContext`\[Omega]^2), 
+    Rational[32, 105] $CellContext`\[Omega]^5 (56 $CellContext`a + 
+     Complex[0, 1] (35 + 28 (1 - $CellContext`a^2)^Rational[1, 2] - 84 
+       EulerGamma - 24 $CellContext`\[Omega]^2))}, 4, 8, 1],
+  Editable->False]], "Output",
+ CellChangeTimes->{3.942389482706994*^9},
+ CellLabel->"Out[14]=",
+ CellID->1129292565,ExpressionUUID->"f369bde7-5ed6-4670-bd42-5fd31f577220"]
+}, Open  ]],
+
+Cell["\<\
+\"BoundaryCondition\" returns the boundary condition, i.e., \"In\" or \"Up\"\
+\>", "ExampleText",
+ CellChangeTimes->{{3.942389658392248*^9, 3.9423897101254807`*^9}},
+ CellID->1332420548,ExpressionUUID->"5ef38a2a-4e43-480a-852e-fb3c23a91302"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"test", "[", "\"\<In\>\"", "]"}], "[", "\"\<BoundaryCondition\>\"", 
+  "]"}]], "Input",
+ CellChangeTimes->{{3.942389711001149*^9, 3.94238971771292*^9}},
+ CellLabel->"In[16]:=",
+ CellID->1148358653,ExpressionUUID->"8b72465f-5130-49c7-bfc3-2b65f94a5d2c"],
+
+Cell[BoxData["\<\"In\"\>"], "Output",
+ CellChangeTimes->{3.942389717964938*^9},
+ CellLabel->"Out[16]=",
+ CellID->362484305,ExpressionUUID->"1ca7d2c6-4aa9-46f5-b9f1-08075f09d748"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "Generalizations & Extensions", "ExampleSection",ExpressionUUID->
+   "42675099-1016-446c-9569-bc430b83567d"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->682034260,ExpressionUUID->"9f65b2d2-a4f8-45af-9cc8-77a03c1b35ca"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "Options", "ExampleSection",ExpressionUUID->
+   "f17df738-bed2-47a2-9dea-e292166f352f"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->1851421419,ExpressionUUID->"7c054047-7b42-491a-9e0e-effa132c7b11"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\"Normalization\"", "ExampleSubsection",ExpressionUUID->
+   "97dade14-bcda-463d-9283-6bbecd5d9c46"],
+  $Line = 0; Null]], "ExampleSubsection",
+ CellID->732970064,ExpressionUUID->"f4133172-0652-42bd-8691-8c8ba200d817"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"test", "=", 
+  RowBox[{"TeukolskyRadialPN", "[", 
+   RowBox[{
+    RowBox[{"-", "2"}], ",", "2", ",", "2", ",", "a", ",", "\[Omega]", ",", 
+    RowBox[{"{", 
+     RowBox[{"\[Eta]", ",", "4"}], "}"}], ",", 
+    RowBox[{"\"\<Normalization\>\"", "->", "\"\<UnitTransmission\>\""}]}], 
+   "]"}]}]], "Input",
+ CellChangeTimes->{{3.942146703702984*^9, 3.942146722501711*^9}, {
+  3.9421467558855658`*^9, 3.942146758339668*^9}, {3.942232068052496*^9, 
+  3.9422320731866093`*^9}},
+ CellLabel->"In[8]:=",
+ CellID->868942038,ExpressionUUID->"3c98cb94-0227-4f2b-b95a-fd8f9fa9e606"],
+
+Cell[BoxData[
+ RowBox[{"\[LeftAssociation]", 
+  RowBox[{
+   RowBox[{"\<\"In\"\>", "\[Rule]", 
+    InterpretationBox[
+     RowBox[{
+      TagBox["TeukolskyRadialFunctionPN",
+       "SummaryHead"], "[", 
+      DynamicModuleBox[{Typeset`open$$ = False, Typeset`embedState$$ = 
+       "Ready"}, 
+       TemplateBox[{
+         PaneSelectorBox[{False -> GridBox[{{
+               PaneBox[
+                ButtonBox[
+                 DynamicBox[
+                  FEPrivate`FrontEndResource[
+                  "FEBitmaps", "SummaryBoxOpener"]], 
+                 ButtonFunction :> (Typeset`open$$ = True), Appearance -> 
+                 None, BaseStyle -> {}, Evaluator -> Automatic, Method -> 
+                 "Preemptive"], Alignment -> {Center, Center}, ImageSize -> 
+                Dynamic[{
+                  Automatic, 
+                   3.5 (CurrentValue["FontCapHeight"]/AbsoluteCurrentValue[
+                    Magnification])}]], 
+               GraphicsBox[{
+                 LineBox[
+                  NCache[{{0, 
+                    Rational[1, 2]}, {
+                    Rational[1, 2], 1}, {1, 
+                    Rational[1, 2]}, {
+                    Rational[1, 2], 0}, {0, 
+                    Rational[1, 2]}}, {{0, 0.5}, {0.5, 1}, {1, 0.5}, {
+                    0.5, 0}, {0, 0.5}}]], 
+                 LineBox[
+                  NCache[{{
+                    Rational[3, 4], 
+                    Rational[1, 4]}, {
+                    Rational[1, 2], 
+                    Rational[1, 2]}}, {{0.75, 0.25}, {0.5, 0.5}}]], {
+                  Arrowheads[0.2], 
+                  ArrowBox[
+                   LineBox[
+                    NCache[{{
+                    Rational[1, 2], 
+                    Rational[1, 2]}, {
+                    Rational[1, 4], 
+                    Rational[3, 4]}}, {{0.5, 0.5}, {0.25, 0.75}}]]]}, {
+                  Arrowheads[0.2], 
+                  ArrowBox[
+                   LineBox[
+                    NCache[{{
+                    Rational[1, 2], 
+                    Rational[1, 2]}, {
+                    Rational[3, 4], 
+                    Rational[3, 4]}}, {{0.5, 0.5}, {0.75, 0.75}}]]]}}, 
+                Background -> GrayLevel[1], ImageSize -> 
+                Dynamic[{
+                  Automatic, 
+                   3.5 (CurrentValue["FontCapHeight"]/AbsoluteCurrentValue[
+                    Magnification])}]], 
+               GridBox[{{
+                  TagBox[
+                   TemplateBox[{
+                    RowBox[{
+                    TagBox["\"s: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox[
+                    RowBox[{"-", "2"}], "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"l: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["2", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"m: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["2", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"a: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["a", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"\[Omega]: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["\[Omega]", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"PN parameter: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["\[Eta]", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"PN order: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox[
+                    RowBox[{"1.5`", " ", "\"PN\""}], "SummaryItem"]}]}, 
+                    "RowDefault"], "SummaryItem"]}, {
+                  RowBox[{
+                    TagBox[
+                    "\"Boundary Condition: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["\"In\"", "SummaryItem"]}]}}, 
+                GridBoxAlignment -> {
+                 "Columns" -> {{Left}}, "Rows" -> {{Automatic}}}, AutoDelete -> 
+                False, 
+                GridBoxItemSize -> {
+                 "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}, 
+                GridBoxSpacings -> {
+                 "Columns" -> {{2}}, "Rows" -> {{Automatic}}}, 
+                BaseStyle -> {
+                 ShowStringCharacters -> False, NumberMarks -> False, 
+                  PrintPrecision -> 3, ShowSyntaxStyles -> False}]}}, 
+             GridBoxAlignment -> {"Columns" -> {{Left}}, "Rows" -> {{Top}}}, 
+             AutoDelete -> False, 
+             GridBoxItemSize -> {
+              "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}, 
+             BaselinePosition -> {1, 1}], True -> GridBox[{{
+               PaneBox[
+                ButtonBox[
+                 DynamicBox[
+                  FEPrivate`FrontEndResource[
+                  "FEBitmaps", "SummaryBoxCloser"]], 
+                 ButtonFunction :> (Typeset`open$$ = False), Appearance -> 
+                 None, BaseStyle -> {}, Evaluator -> Automatic, Method -> 
+                 "Preemptive"], Alignment -> {Center, Center}, ImageSize -> 
+                Dynamic[{
+                  Automatic, 
+                   3.5 (CurrentValue["FontCapHeight"]/AbsoluteCurrentValue[
+                    Magnification])}]], 
+               GraphicsBox[{
+                 LineBox[
+                  NCache[{{0, 
+                    Rational[1, 2]}, {
+                    Rational[1, 2], 1}, {1, 
+                    Rational[1, 2]}, {
+                    Rational[1, 2], 0}, {0, 
+                    Rational[1, 2]}}, {{0, 0.5}, {0.5, 1}, {1, 0.5}, {
+                    0.5, 0}, {0, 0.5}}]], 
+                 LineBox[
+                  NCache[{{
+                    Rational[3, 4], 
+                    Rational[1, 4]}, {
+                    Rational[1, 2], 
+                    Rational[1, 2]}}, {{0.75, 0.25}, {0.5, 0.5}}]], {
+                  Arrowheads[0.2], 
+                  ArrowBox[
+                   LineBox[
+                    NCache[{{
+                    Rational[1, 2], 
+                    Rational[1, 2]}, {
+                    Rational[1, 4], 
+                    Rational[3, 4]}}, {{0.5, 0.5}, {0.25, 0.75}}]]]}, {
+                  Arrowheads[0.2], 
+                  ArrowBox[
+                   LineBox[
+                    NCache[{{
+                    Rational[1, 2], 
+                    Rational[1, 2]}, {
+                    Rational[3, 4], 
+                    Rational[3, 4]}}, {{0.5, 0.5}, {0.75, 0.75}}]]]}}, 
+                Background -> GrayLevel[1], ImageSize -> 
+                Dynamic[{
+                  Automatic, 
+                   3.5 (CurrentValue["FontCapHeight"]/AbsoluteCurrentValue[
+                    Magnification])}]], 
+               GridBox[{{
+                  TagBox[
+                   TemplateBox[{
+                    RowBox[{
+                    TagBox["\"s: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox[
+                    RowBox[{"-", "2"}], "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"l: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["2", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"m: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["2", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"a: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["a", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"\[Omega]: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["\[Omega]", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"PN parameter: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["\[Eta]", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"PN order: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox[
+                    RowBox[{"1.5`", " ", "\"PN\""}], "SummaryItem"]}]}, 
+                    "RowDefault"], "SummaryItem"]}, {
+                  RowBox[{
+                    TagBox[
+                    "\"Boundary Condition: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["\"In\"", "SummaryItem"]}]}, {
+                  RowBox[{
+                    TagBox["\"Leading order: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox[
+                    InterpretationBox[
+                    RowBox[{
+                    FractionBox[
+                    RowBox[{"5", " ", 
+                    SuperscriptBox["\"r\"", "4"], " ", 
+                    SuperscriptBox["\[ExponentialE]", 
+                    RowBox[{"\[ImaginaryI]", " ", "a", " ", 
+                    RowBox[{"(", 
+                    RowBox[{"1", "+", 
+                    FractionBox[
+                    RowBox[{"Log", "[", 
+                    RowBox[{"1", "-", 
+                    SuperscriptBox["a", "2"]}], "]"}], 
+                    RowBox[{"1", "+", 
+                    SqrtBox[
+                    RowBox[{"1", "-", 
+                    SuperscriptBox["a", "2"]}]]}]]}], ")"}]}]]}], 
+                    RowBox[{"64", " ", 
+                    SuperscriptBox[
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "1"}], "+", 
+                    SuperscriptBox["a", "2"]}], ")"}], "2"], " ", 
+                    SuperscriptBox["\[Omega]", "4"], " ", 
+                    SuperscriptBox["\[Eta]", "20"]}]], "+", 
+                    InterpretationBox[
+                    FractionBox["1", 
+                    SuperscriptBox[
+                    RowBox[{"O", "[", "\[Eta]", "]"}], "19"]], 
+                    SeriesData[$CellContext`\[Eta], 0, {}, -20, -19, 1], 
+                    Editable -> False]}], 
+                    
+                    SeriesData[$CellContext`\[Eta], 0, {
+                    Rational[5, 64] "r"^4 (-1 + $CellContext`a^2)^(-2) 
+                    E^(Complex[0, 1] $CellContext`a (
+                    1 + (1 + (1 - $CellContext`a^2)^Rational[1, 2])^(-1) 
+                    Log[1 - $CellContext`a^2])) $CellContext`\[Omega]^(-4)}, \
+-20, -19, 1], Editable -> False], "SummaryItem"]}]}, {
+                  RowBox[{
+                    TagBox["\"Normalization: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["\"UnitTransmission\"", "SummaryItem"]}]}, {
+                  RowBox[{
+                    TagBox["\"Simplified: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["True", "SummaryItem"]}]}, {
+                  RowBox[{
+                    TagBox["\"Number of terms: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["4", "SummaryItem"]}]}}, 
+                GridBoxAlignment -> {
+                 "Columns" -> {{Left}}, "Rows" -> {{Automatic}}}, AutoDelete -> 
+                False, GridBoxItemSize -> {
+                 "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}, 
+                GridBoxSpacings -> {
+                 "Columns" -> {{2}}, "Rows" -> {{Automatic}}}, 
+                BaseStyle -> {
+                 ShowStringCharacters -> False, NumberMarks -> False, 
+                  PrintPrecision -> 3, ShowSyntaxStyles -> False}]}}, 
+             GridBoxAlignment -> {"Columns" -> {{Left}}, "Rows" -> {{Top}}}, 
+             AutoDelete -> False, 
+             GridBoxItemSize -> {
+              "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}, 
+             BaselinePosition -> {1, 1}]}, 
+          Dynamic[Typeset`open$$], ImageSize -> Automatic]},
+        "SummaryPanel"],
+       DynamicModuleValues:>{}], "]"}],
+     Teukolsky`PN`TeukolskyRadialFunctionPN[-2, 2, 
+      2, $CellContext`a, $CellContext`\[Omega], {$CellContext`\[Eta], 4}, <|
+      "\[ScriptS]" -> -2, "\[ScriptL]" -> 2, "\[ScriptM]" -> 2, 
+       "a" -> $CellContext`a, "PN" -> {$CellContext`\[Eta], 4}, 
+       "RadialFunction" -> Function[Teukolsky`PN`Private`r, 
+         SeriesData[$CellContext`\[Eta], 0, {
+          Rational[5, 64] (-1 + $CellContext`a^2)^(-2) 
+           E^(Complex[0, 1] $CellContext`a (
+              1 + (1 + (1 - $CellContext`a^2)^Rational[1, 2])^(-1) 
+               Log[1 - $CellContext`a^2])) 
+           Teukolsky`PN`Private`r^4 $CellContext`\[Omega]^(-4), Complex[0, 
+             Rational[5, 96]] (-1 + $CellContext`a^2)^(-2) 
+           E^(Complex[0, 1] $CellContext`a (
+              1 + (1 + (1 - $CellContext`a^2)^Rational[1, 2])^(-1) 
+               Log[1 - $CellContext`a^2])) 
+           Teukolsky`PN`Private`r^5 $CellContext`\[Omega]^(-3), 
+           Rational[-5, 2688] (-1 + $CellContext`a^2)^(-2) 
+           E^(Complex[0, 1] $CellContext`a (
+              1 + (1 + (1 - $CellContext`a^2)^Rational[1, 2])^(-1) 
+               Log[1 - $CellContext`a^2])) 
+           Teukolsky`PN`Private`r^3 $CellContext`\[Omega]^(-4) (168 + 
+            Complex[0, 84] $CellContext`a + 
+            11 Teukolsky`PN`Private`r^3 $CellContext`\[Omega]^2), 
+           Rational[-5, 
+             8064] $CellContext`a^(-1) (-1 + $CellContext`a^2)^(-2) (-1 + 
+             3 $CellContext`a^2 + 
+             Complex[0, -3] $CellContext`a (1 - $CellContext`a^2)^
+               Rational[1, 2])^(-1) 
+           E^(Complex[0, 1] $CellContext`a (
+              1 + (1 + (1 - $CellContext`a^2)^Rational[1, 2])^(-1) 
+               Log[1 - $CellContext`a^2])) 
+           Teukolsky`PN`Private`r^4 $CellContext`\[Omega]^(-3) (
+            Complex[0, -777] $CellContext`a + 532 $CellContext`a^2 + 
+            Complex[0, 819] $CellContext`a^3 - 588 $CellContext`a^4 - 
+            126 (1 - $CellContext`a^2)^Rational[1, 2] + 
+            Complex[0, -168] $CellContext`a (1 - $CellContext`a^2)^
+              Rational[1, 2] + 
+            945 $CellContext`a^2 (1 - $CellContext`a^2)^Rational[1, 2] + 
+            Complex[0, 588] $CellContext`a^3 (1 - $CellContext`a^2)^
+              Rational[1, 2] + Complex[0, -252] $CellContext`a EulerGamma + 
+            Complex[0, 756] $CellContext`a^3 EulerGamma + 
+            756 $CellContext`a^2 (1 - $CellContext`a^2)^Rational[1, 2] 
+             EulerGamma + 
+            Complex[0, -9] $CellContext`a 
+             Teukolsky`PN`Private`r^3 $CellContext`\[Omega]^2 + 
+            Complex[0, 27] $CellContext`a^3 
+             Teukolsky`PN`Private`r^3 $CellContext`\[Omega]^2 + 
+            27 $CellContext`a^2 (1 - $CellContext`a^2)^Rational[1, 2] 
+             Teukolsky`PN`Private`r^3 $CellContext`\[Omega]^2 + 
+            Complex[0, -126] $CellContext`a Log[1 - $CellContext`a^2] + 
+            Complex[0, 378] $CellContext`a^3 Log[1 - $CellContext`a^2] + 
+            378 $CellContext`a^2 (1 - $CellContext`a^2)^Rational[1, 2] 
+             Log[1 - $CellContext`a^2] + 
+            252 $CellContext`a (Complex[0, -1] + 
+              Complex[0, 3] $CellContext`a^2 + 
+              3 $CellContext`a (1 - $CellContext`a^2)^Rational[1, 2]) 
+             PolyGamma[
+              0, Complex[0, 2] $CellContext`a (1 - $CellContext`a^2)^
+                Rational[-1, 2]] + 
+            252 $CellContext`a (Complex[0, -1] + 
+              Complex[0, 3] $CellContext`a^2 + 
+              3 $CellContext`a (1 - $CellContext`a^2)^Rational[1, 2]) 
+             PolyGamma[
+              0, 3 + Complex[0, 2] $CellContext`a (1 - $CellContext`a^2)^
+                 Rational[-1, 2]])}, -20, -16, 1]], "BoundaryCondition" -> 
+       "In", "LeadingOrder" -> Function[Teukolsky`PN`Private`r, 
+         SeriesData[$CellContext`\[Eta], 0, {
+          Rational[5, 64] (-1 + $CellContext`a^2)^(-2) 
+           E^(Complex[0, 1] $CellContext`a (
+              1 + (1 + (1 - $CellContext`a^2)^Rational[1, 2])^(-1) 
+               Log[1 - $CellContext`a^2])) 
+           Teukolsky`PN`Private`r^4 $CellContext`\[Omega]^(-4)}, -20, -19, 
+          1]], "TermCount" -> 4, "Normalization" -> "UnitTransmission", 
+       "Amplitudes" -> <|"Transmission" -> "Not Computed"|>, "Simplified" -> 
+       True|>],
+     Editable->False,
+     SelectWithContents->True,
+     Selectable->False]}], ",", 
+   RowBox[{"\<\"Up\"\>", "\[Rule]", 
+    InterpretationBox[
+     RowBox[{
+      TagBox["TeukolskyRadialFunctionPN",
+       "SummaryHead"], "[", 
+      DynamicModuleBox[{Typeset`open$$ = False, Typeset`embedState$$ = 
+       "Ready"}, 
+       TemplateBox[{
+         PaneSelectorBox[{False -> GridBox[{{
+               PaneBox[
+                ButtonBox[
+                 DynamicBox[
+                  FEPrivate`FrontEndResource[
+                  "FEBitmaps", "SummaryBoxOpener"]], 
+                 ButtonFunction :> (Typeset`open$$ = True), Appearance -> 
+                 None, BaseStyle -> {}, Evaluator -> Automatic, Method -> 
+                 "Preemptive"], Alignment -> {Center, Center}, ImageSize -> 
+                Dynamic[{
+                  Automatic, 
+                   3.5 (CurrentValue["FontCapHeight"]/AbsoluteCurrentValue[
+                    Magnification])}]], 
+               GraphicsBox[{
+                 LineBox[
+                  NCache[{{0, 
+                    Rational[1, 2]}, {
+                    Rational[1, 2], 1}, {1, 
+                    Rational[1, 2]}, {
+                    Rational[1, 2], 0}, {0, 
+                    Rational[1, 2]}}, {{0, 0.5}, {0.5, 1}, {1, 0.5}, {
+                    0.5, 0}, {0, 0.5}}]], 
+                 LineBox[
+                  NCache[{{
+                    Rational[1, 4], 
+                    Rational[1, 4]}, {
+                    Rational[1, 2], 
+                    Rational[1, 2]}}, {{0.25, 0.25}, {0.5, 0.5}}]], {
+                  Arrowheads[0.2], 
+                  ArrowBox[
+                   LineBox[
+                    NCache[{{
+                    Rational[1, 2], 
+                    Rational[1, 2]}, {
+                    Rational[1, 4], 
+                    Rational[3, 4]}}, {{0.5, 0.5}, {0.25, 0.75}}]]]}, {
+                  Arrowheads[0.2], 
+                  ArrowBox[
+                   LineBox[
+                    NCache[{{
+                    Rational[1, 2], 
+                    Rational[1, 2]}, {
+                    Rational[3, 4], 
+                    Rational[3, 4]}}, {{0.5, 0.5}, {0.75, 0.75}}]]]}}, 
+                Background -> GrayLevel[1], ImageSize -> 
+                Dynamic[{
+                  Automatic, 
+                   3.5 (CurrentValue["FontCapHeight"]/AbsoluteCurrentValue[
+                    Magnification])}]], 
+               GridBox[{{
+                  TagBox[
+                   TemplateBox[{
+                    RowBox[{
+                    TagBox["\"s: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox[
+                    RowBox[{"-", "2"}], "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"l: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["2", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"m: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["2", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"a: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["a", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"\[Omega]: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["\[Omega]", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"PN parameter: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["\[Eta]", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"PN order: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox[
+                    RowBox[{"1.5`", " ", "\"PN\""}], "SummaryItem"]}]}, 
+                    "RowDefault"], "SummaryItem"]}, {
+                  RowBox[{
+                    TagBox[
+                    "\"Boundary Condition: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["\"Up\"", "SummaryItem"]}]}}, 
+                GridBoxAlignment -> {
+                 "Columns" -> {{Left}}, "Rows" -> {{Automatic}}}, AutoDelete -> 
+                False, GridBoxItemSize -> {
+                 "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}, 
+                GridBoxSpacings -> {
+                 "Columns" -> {{2}}, "Rows" -> {{Automatic}}}, 
+                BaseStyle -> {
+                 ShowStringCharacters -> False, NumberMarks -> False, 
+                  PrintPrecision -> 3, ShowSyntaxStyles -> False}]}}, 
+             GridBoxAlignment -> {"Columns" -> {{Left}}, "Rows" -> {{Top}}}, 
+             AutoDelete -> False, 
+             GridBoxItemSize -> {
+              "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}, 
+             BaselinePosition -> {1, 1}], True -> GridBox[{{
+               PaneBox[
+                ButtonBox[
+                 DynamicBox[
+                  FEPrivate`FrontEndResource[
+                  "FEBitmaps", "SummaryBoxCloser"]], 
+                 ButtonFunction :> (Typeset`open$$ = False), Appearance -> 
+                 None, BaseStyle -> {}, Evaluator -> Automatic, Method -> 
+                 "Preemptive"], Alignment -> {Center, Center}, ImageSize -> 
+                Dynamic[{
+                  Automatic, 
+                   3.5 (CurrentValue["FontCapHeight"]/AbsoluteCurrentValue[
+                    Magnification])}]], 
+               GraphicsBox[{
+                 LineBox[
+                  NCache[{{0, 
+                    Rational[1, 2]}, {
+                    Rational[1, 2], 1}, {1, 
+                    Rational[1, 2]}, {
+                    Rational[1, 2], 0}, {0, 
+                    Rational[1, 2]}}, {{0, 0.5}, {0.5, 1}, {1, 0.5}, {
+                    0.5, 0}, {0, 0.5}}]], 
+                 LineBox[
+                  NCache[{{
+                    Rational[1, 4], 
+                    Rational[1, 4]}, {
+                    Rational[1, 2], 
+                    Rational[1, 2]}}, {{0.25, 0.25}, {0.5, 0.5}}]], {
+                  Arrowheads[0.2], 
+                  ArrowBox[
+                   LineBox[
+                    NCache[{{
+                    Rational[1, 2], 
+                    Rational[1, 2]}, {
+                    Rational[1, 4], 
+                    Rational[3, 4]}}, {{0.5, 0.5}, {0.25, 0.75}}]]]}, {
+                  Arrowheads[0.2], 
+                  ArrowBox[
+                   LineBox[
+                    NCache[{{
+                    Rational[1, 2], 
+                    Rational[1, 2]}, {
+                    Rational[3, 4], 
+                    Rational[3, 4]}}, {{0.5, 0.5}, {0.75, 0.75}}]]]}}, 
+                Background -> GrayLevel[1], ImageSize -> 
+                Dynamic[{
+                  Automatic, 
+                   3.5 (CurrentValue["FontCapHeight"]/AbsoluteCurrentValue[
+                    Magnification])}]], 
+               GridBox[{{
+                  TagBox[
+                   TemplateBox[{
+                    RowBox[{
+                    TagBox["\"s: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox[
+                    RowBox[{"-", "2"}], "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"l: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["2", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"m: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["2", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"a: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["a", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"\[Omega]: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["\[Omega]", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"PN parameter: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["\[Eta]", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"PN order: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox[
+                    RowBox[{"1.5`", " ", "\"PN\""}], "SummaryItem"]}]}, 
+                    "RowDefault"], "SummaryItem"]}, {
+                  RowBox[{
+                    TagBox[
+                    "\"Boundary Condition: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["\"Up\"", "SummaryItem"]}]}, {
+                  RowBox[{
+                    TagBox["\"Leading order: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox[
+                    InterpretationBox[
+                    RowBox[{
+                    FractionBox["3", 
+                    RowBox[{"2", " ", "\"r\"", " ", 
+                    SuperscriptBox["\[Omega]", "4"], " ", 
+                    SuperscriptBox["\[Eta]", "10"]}]], "+", 
+                    InterpretationBox[
+                    FractionBox["1", 
+                    SuperscriptBox[
+                    RowBox[{"O", "[", "\[Eta]", "]"}], "9"]], 
+                    SeriesData[$CellContext`\[Eta], 0, {}, -10, -9, 1], 
+                    Editable -> False]}], 
+                    
+                    SeriesData[$CellContext`\[Eta], 0, {
+                    Rational[3, 2] 
+                    "r"^(-1) $CellContext`\[Omega]^(-4)}, -10, -9, 1], 
+                    Editable -> False], "SummaryItem"]}]}, {
+                  RowBox[{
+                    TagBox["\"Normalization: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["\"UnitTransmission\"", "SummaryItem"]}]}, {
+                  RowBox[{
+                    TagBox["\"Simplified: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["True", "SummaryItem"]}]}, {
+                  RowBox[{
+                    TagBox["\"Number of terms: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["4", "SummaryItem"]}]}}, 
+                GridBoxAlignment -> {
+                 "Columns" -> {{Left}}, "Rows" -> {{Automatic}}}, AutoDelete -> 
+                False, GridBoxItemSize -> {
+                 "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}, 
+                GridBoxSpacings -> {
+                 "Columns" -> {{2}}, "Rows" -> {{Automatic}}}, 
+                BaseStyle -> {
+                 ShowStringCharacters -> False, NumberMarks -> False, 
+                  PrintPrecision -> 3, ShowSyntaxStyles -> False}]}}, 
+             GridBoxAlignment -> {"Columns" -> {{Left}}, "Rows" -> {{Top}}}, 
+             AutoDelete -> False, 
+             GridBoxItemSize -> {
+              "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}, 
+             BaselinePosition -> {1, 1}]}, 
+          Dynamic[Typeset`open$$], ImageSize -> Automatic]},
+        "SummaryPanel"],
+       DynamicModuleValues:>{}], "]"}],
+     Teukolsky`PN`TeukolskyRadialFunctionPN[-2, 2, 
+      2, $CellContext`a, $CellContext`\[Omega], {$CellContext`\[Eta], 4}, <|
+      "\[ScriptS]" -> -2, "\[ScriptL]" -> 2, "\[ScriptM]" -> 2, 
+       "a" -> $CellContext`a, "PN" -> {$CellContext`\[Eta], 4}, 
+       "RadialFunction" -> Function[Teukolsky`PN`Private`r, 
+         SeriesData[$CellContext`\[Eta], 0, {
+          Rational[3, 2] 
+           Teukolsky`PN`Private`r^(-1) $CellContext`\[Omega]^(-4), 
+           Complex[0, 
+             Rational[-3, 2]] $CellContext`\[Omega]^(-3), Rational[1, 4] 
+           Teukolsky`PN`Private`r^(-2) $CellContext`\[Omega]^(-4) (6 + 
+            Complex[0, 8] $CellContext`a - 3 
+            Teukolsky`PN`Private`r^3 $CellContext`\[Omega]^2), Complex[0, 
+             Rational[1, 4]] 
+           Teukolsky`PN`Private`r^(-1) $CellContext`\[Omega]^(-3) (6 - 12 
+            EulerGamma + Complex[0, 6] Pi + 
+            Teukolsky`PN`Private`r^3 $CellContext`\[Omega]^2 - 12 Log[2] - 12 
+            Log[2 $CellContext`\[Omega]])}, -10, -6, 1]], "BoundaryCondition" -> 
+       "Up", "LeadingOrder" -> Function[Teukolsky`PN`Private`r, 
+         SeriesData[$CellContext`\[Eta], 0, {
+          Rational[3, 2] 
+           Teukolsky`PN`Private`r^(-1) $CellContext`\[Omega]^(-4)}, -10, -9, 
+          1]], "TermCount" -> 4, "Normalization" -> "UnitTransmission", 
+       "Amplitudes" -> <|"Transmission" -> "Not Computed"|>, "Simplified" -> 
+       True|>],
+     Editable->False,
+     SelectWithContents->True,
+     Selectable->False]}]}], "\[RightAssociation]"}]], "Output",
+ CellChangeTimes->{3.9421467318186274`*^9, 3.942146770079395*^9, 
+  3.9422320846656523`*^9},
+ CellLabel->"Out[8]=",
+ CellID->317740830,ExpressionUUID->"56f61ead-29d2-4990-8696-d670b0b26d02"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"test", "[", "\"\<In\>\"", "]"}], "[", "r", "]"}], "//", 
+  "Simplify"}]], "Input",
+ CellChangeTimes->{{3.9421467364582863`*^9, 3.942146741679969*^9}},
+ CellLabel->"In[9]:=",
+ CellID->1542802630,ExpressionUUID->"e9528d80-e03a-4ada-9c7d-332c8fcfc962"],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{
+   FractionBox[
+    RowBox[{"5", " ", 
+     SuperscriptBox["\[ExponentialE]", 
+      RowBox[{"\[ImaginaryI]", " ", "a", " ", 
+       RowBox[{"(", 
+        RowBox[{"1", "+", 
+         FractionBox[
+          RowBox[{"Log", "[", 
+           RowBox[{"1", "-", 
+            SuperscriptBox["a", "2"]}], "]"}], 
+          RowBox[{"1", "+", 
+           SqrtBox[
+            RowBox[{"1", "-", 
+             SuperscriptBox["a", "2"]}]]}]]}], ")"}]}]], " ", 
+     SuperscriptBox["r", "4"]}], 
+    RowBox[{"64", " ", 
+     SuperscriptBox[
+      RowBox[{"(", 
+       RowBox[{
+        RowBox[{"-", "1"}], "+", 
+        SuperscriptBox["a", "2"]}], ")"}], "2"], " ", 
+     SuperscriptBox["\[Omega]", "4"], " ", 
+     SuperscriptBox["\[Eta]", "20"]}]], "+", 
+   FractionBox[
+    RowBox[{"5", " ", "\[ImaginaryI]", " ", 
+     SuperscriptBox["\[ExponentialE]", 
+      RowBox[{"\[ImaginaryI]", " ", "a", " ", 
+       RowBox[{"(", 
+        RowBox[{"1", "+", 
+         FractionBox[
+          RowBox[{"Log", "[", 
+           RowBox[{"1", "-", 
+            SuperscriptBox["a", "2"]}], "]"}], 
+          RowBox[{"1", "+", 
+           SqrtBox[
+            RowBox[{"1", "-", 
+             SuperscriptBox["a", "2"]}]]}]]}], ")"}]}]], " ", 
+     SuperscriptBox["r", "5"]}], 
+    RowBox[{"96", " ", 
+     SuperscriptBox[
+      RowBox[{"(", 
+       RowBox[{
+        RowBox[{"-", "1"}], "+", 
+        SuperscriptBox["a", "2"]}], ")"}], "2"], " ", 
+     SuperscriptBox["\[Omega]", "3"], " ", 
+     SuperscriptBox["\[Eta]", "19"]}]], "-", 
+   FractionBox[
+    RowBox[{"5", " ", 
+     RowBox[{"(", 
+      RowBox[{
+       SuperscriptBox["\[ExponentialE]", 
+        RowBox[{"\[ImaginaryI]", " ", "a", " ", 
+         RowBox[{"(", 
+          RowBox[{"1", "+", 
+           FractionBox[
+            RowBox[{"Log", "[", 
+             RowBox[{"1", "-", 
+              SuperscriptBox["a", "2"]}], "]"}], 
+            RowBox[{"1", "+", 
+             SqrtBox[
+              RowBox[{"1", "-", 
+               SuperscriptBox["a", "2"]}]]}]]}], ")"}]}]], " ", 
+       SuperscriptBox["r", "3"], " ", 
+       RowBox[{"(", 
+        RowBox[{"168", "+", 
+         RowBox[{"84", " ", "\[ImaginaryI]", " ", "a"}], "+", 
+         RowBox[{"11", " ", 
+          SuperscriptBox["r", "3"], " ", 
+          SuperscriptBox["\[Omega]", "2"]}]}], ")"}]}], ")"}]}], 
+    RowBox[{"2688", " ", 
+     RowBox[{"(", 
+      RowBox[{
+       SuperscriptBox[
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"-", "1"}], "+", 
+          SuperscriptBox["a", "2"]}], ")"}], "2"], " ", 
+       SuperscriptBox["\[Omega]", "4"]}], ")"}], " ", 
+     SuperscriptBox["\[Eta]", "18"]}]], "-", 
+   RowBox[{
+    RowBox[{"(", 
+     RowBox[{"5", " ", 
+      RowBox[{"(", 
+       RowBox[{
+        SuperscriptBox["\[ExponentialE]", 
+         RowBox[{"\[ImaginaryI]", " ", "a", " ", 
+          RowBox[{"(", 
+           RowBox[{"1", "+", 
+            FractionBox[
+             RowBox[{"Log", "[", 
+              RowBox[{"1", "-", 
+               SuperscriptBox["a", "2"]}], "]"}], 
+             RowBox[{"1", "+", 
+              SqrtBox[
+               RowBox[{"1", "-", 
+                SuperscriptBox["a", "2"]}]]}]]}], ")"}]}]], " ", 
+        SuperscriptBox["r", "4"], " ", 
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"-", "777"}], " ", "\[ImaginaryI]", " ", "a"}], "+", 
+          RowBox[{"532", " ", 
+           SuperscriptBox["a", "2"]}], "+", 
+          RowBox[{"819", " ", "\[ImaginaryI]", " ", 
+           SuperscriptBox["a", "3"]}], "-", 
+          RowBox[{"588", " ", 
+           SuperscriptBox["a", "4"]}], "-", 
+          RowBox[{"126", " ", 
+           SqrtBox[
+            RowBox[{"1", "-", 
+             SuperscriptBox["a", "2"]}]]}], "-", 
+          RowBox[{"168", " ", "\[ImaginaryI]", " ", "a", " ", 
+           SqrtBox[
+            RowBox[{"1", "-", 
+             SuperscriptBox["a", "2"]}]]}], "+", 
+          RowBox[{"945", " ", 
+           SuperscriptBox["a", "2"], " ", 
+           SqrtBox[
+            RowBox[{"1", "-", 
+             SuperscriptBox["a", "2"]}]]}], "+", 
+          RowBox[{"588", " ", "\[ImaginaryI]", " ", 
+           SuperscriptBox["a", "3"], " ", 
+           SqrtBox[
+            RowBox[{"1", "-", 
+             SuperscriptBox["a", "2"]}]]}], "-", 
+          RowBox[{"252", " ", "\[ImaginaryI]", " ", "a", " ", "EulerGamma"}], 
+          "+", 
+          RowBox[{"756", " ", "\[ImaginaryI]", " ", 
+           SuperscriptBox["a", "3"], " ", "EulerGamma"}], "+", 
+          RowBox[{"756", " ", 
+           SuperscriptBox["a", "2"], " ", 
+           SqrtBox[
+            RowBox[{"1", "-", 
+             SuperscriptBox["a", "2"]}]], " ", "EulerGamma"}], "-", 
+          RowBox[{"9", " ", "\[ImaginaryI]", " ", "a", " ", 
+           SuperscriptBox["r", "3"], " ", 
+           SuperscriptBox["\[Omega]", "2"]}], "+", 
+          RowBox[{"27", " ", "\[ImaginaryI]", " ", 
+           SuperscriptBox["a", "3"], " ", 
+           SuperscriptBox["r", "3"], " ", 
+           SuperscriptBox["\[Omega]", "2"]}], "+", 
+          RowBox[{"27", " ", 
+           SuperscriptBox["a", "2"], " ", 
+           SqrtBox[
+            RowBox[{"1", "-", 
+             SuperscriptBox["a", "2"]}]], " ", 
+           SuperscriptBox["r", "3"], " ", 
+           SuperscriptBox["\[Omega]", "2"]}], "-", 
+          RowBox[{"126", " ", "\[ImaginaryI]", " ", "a", " ", 
+           RowBox[{"Log", "[", 
+            RowBox[{"1", "-", 
+             SuperscriptBox["a", "2"]}], "]"}]}], "+", 
+          RowBox[{"378", " ", "\[ImaginaryI]", " ", 
+           SuperscriptBox["a", "3"], " ", 
+           RowBox[{"Log", "[", 
+            RowBox[{"1", "-", 
+             SuperscriptBox["a", "2"]}], "]"}]}], "+", 
+          RowBox[{"378", " ", 
+           SuperscriptBox["a", "2"], " ", 
+           SqrtBox[
+            RowBox[{"1", "-", 
+             SuperscriptBox["a", "2"]}]], " ", 
+           RowBox[{"Log", "[", 
+            RowBox[{"1", "-", 
+             SuperscriptBox["a", "2"]}], "]"}]}], "+", 
+          RowBox[{"252", " ", "a", " ", 
+           RowBox[{"(", 
+            RowBox[{
+             RowBox[{"-", "\[ImaginaryI]"}], "+", 
+             RowBox[{"3", " ", "\[ImaginaryI]", " ", 
+              SuperscriptBox["a", "2"]}], "+", 
+             RowBox[{"3", " ", "a", " ", 
+              SqrtBox[
+               RowBox[{"1", "-", 
+                SuperscriptBox["a", "2"]}]]}]}], ")"}], " ", 
+           RowBox[{"PolyGamma", "[", 
+            RowBox[{"0", ",", 
+             FractionBox[
+              RowBox[{"2", " ", "\[ImaginaryI]", " ", "a"}], 
+              SqrtBox[
+               RowBox[{"1", "-", 
+                SuperscriptBox["a", "2"]}]]]}], "]"}]}], "+", 
+          RowBox[{"252", " ", "a", " ", 
+           RowBox[{"(", 
+            RowBox[{
+             RowBox[{"-", "\[ImaginaryI]"}], "+", 
+             RowBox[{"3", " ", "\[ImaginaryI]", " ", 
+              SuperscriptBox["a", "2"]}], "+", 
+             RowBox[{"3", " ", "a", " ", 
+              SqrtBox[
+               RowBox[{"1", "-", 
+                SuperscriptBox["a", "2"]}]]}]}], ")"}], " ", 
+           RowBox[{"PolyGamma", "[", 
+            RowBox[{"0", ",", 
+             RowBox[{"3", "+", 
+              FractionBox[
+               RowBox[{"2", " ", "\[ImaginaryI]", " ", "a"}], 
+               SqrtBox[
+                RowBox[{"1", "-", 
+                 SuperscriptBox["a", "2"]}]]]}]}], "]"}]}]}], ")"}]}], 
+       ")"}]}], ")"}], "/", 
+    RowBox[{"(", 
+     RowBox[{"8064", " ", 
+      RowBox[{"(", 
+       RowBox[{"a", " ", 
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{
+           RowBox[{"-", "1"}], "+", 
+           SuperscriptBox["a", "2"]}], ")"}], "2"], " ", 
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"-", "1"}], "+", 
+          RowBox[{"3", " ", 
+           SuperscriptBox["a", "2"]}], "-", 
+          RowBox[{"3", " ", "\[ImaginaryI]", " ", "a", " ", 
+           SqrtBox[
+            RowBox[{"1", "-", 
+             SuperscriptBox["a", "2"]}]]}]}], ")"}], " ", 
+        SuperscriptBox["\[Omega]", "3"]}], ")"}], " ", 
+      SuperscriptBox["\[Eta]", "17"]}], ")"}]}], "+", 
+   InterpretationBox[
+    FractionBox["1", 
+     SuperscriptBox[
+      RowBox[{"O", "[", "\[Eta]", "]"}], "16"]],
+    SeriesData[$CellContext`\[Eta], 0, {}, -20, -16, 1],
+    Editable->False]}],
+  SeriesData[$CellContext`\[Eta], 0, {
+   Rational[5, 64] (-1 + $CellContext`a^2)^(-2) 
+    E^(Complex[0, 1] $CellContext`a (
+       1 + (1 + (1 - $CellContext`a^2)^Rational[1, 2])^(-1) 
+        Log[1 - $CellContext`a^2])) $CellContext`r^4 \
+$CellContext`\[Omega]^(-4), Complex[0, 
+      Rational[5, 96]] (-1 + $CellContext`a^2)^(-2) 
+    E^(Complex[0, 1] $CellContext`a (
+       1 + (1 + (1 - $CellContext`a^2)^Rational[1, 2])^(-1) 
+        Log[1 - $CellContext`a^2])) $CellContext`r^5 \
+$CellContext`\[Omega]^(-3), Rational[-5, 2688] (-1 + $CellContext`a^2)^(-2) 
+    E^(Complex[0, 1] $CellContext`a (
+       1 + (1 + (1 - $CellContext`a^2)^Rational[1, 2])^(-1) 
+        Log[1 - $CellContext`a^2])) $CellContext`r^3 \
+$CellContext`\[Omega]^(-4) (168 + Complex[0, 84] $CellContext`a + 
+     11 $CellContext`r^3 $CellContext`\[Omega]^2), 
+    Rational[-5, 8064] $CellContext`a^(-1) (-1 + $CellContext`a^2)^(-2) (-1 + 
+      3 $CellContext`a^2 + 
+      Complex[0, -3] $CellContext`a (1 - $CellContext`a^2)^
+        Rational[1, 2])^(-1) 
+    E^(Complex[0, 1] $CellContext`a (
+       1 + (1 + (1 - $CellContext`a^2)^Rational[1, 2])^(-1) 
+        Log[1 - $CellContext`a^2])) $CellContext`r^4 \
+$CellContext`\[Omega]^(-3) (Complex[0, -777] $CellContext`a + 
+     532 $CellContext`a^2 + Complex[0, 819] $CellContext`a^3 - 
+     588 $CellContext`a^4 - 126 (1 - $CellContext`a^2)^Rational[1, 2] + 
+     Complex[0, -168] $CellContext`a (1 - $CellContext`a^2)^Rational[1, 2] + 
+     945 $CellContext`a^2 (1 - $CellContext`a^2)^Rational[1, 2] + 
+     Complex[0, 588] $CellContext`a^3 (1 - $CellContext`a^2)^Rational[1, 2] + 
+     Complex[0, -252] $CellContext`a EulerGamma + 
+     Complex[0, 756] $CellContext`a^3 EulerGamma + 
+     756 $CellContext`a^2 (1 - $CellContext`a^2)^Rational[1, 2] EulerGamma + 
+     Complex[0, -9] $CellContext`a $CellContext`r^3 $CellContext`\[Omega]^2 + 
+     Complex[0, 27] $CellContext`a^3 $CellContext`r^3 $CellContext`\[Omega]^2 + 
+     27 $CellContext`a^2 (1 - $CellContext`a^2)^
+       Rational[1, 2] $CellContext`r^3 $CellContext`\[Omega]^2 + 
+     Complex[0, -126] $CellContext`a Log[1 - $CellContext`a^2] + 
+     Complex[0, 378] $CellContext`a^3 Log[1 - $CellContext`a^2] + 
+     378 $CellContext`a^2 (1 - $CellContext`a^2)^Rational[1, 2] 
+      Log[1 - $CellContext`a^2] + 
+     252 $CellContext`a (Complex[0, -1] + Complex[0, 3] $CellContext`a^2 + 
+       3 $CellContext`a (1 - $CellContext`a^2)^Rational[1, 2]) 
+      PolyGamma[
+       0, Complex[0, 2] $CellContext`a (1 - $CellContext`a^2)^
+         Rational[-1, 2]] + 
+     252 $CellContext`a (Complex[0, -1] + Complex[0, 3] $CellContext`a^2 + 
+       3 $CellContext`a (1 - $CellContext`a^2)^Rational[1, 2]) 
+      PolyGamma[
+       0, 3 + Complex[0, 2] $CellContext`a (1 - $CellContext`a^2)^
+          Rational[-1, 2]])}, -20, -16, 1],
+  Editable->False]], "Output",
+ CellChangeTimes->{{3.942146738896213*^9, 3.9421467703437366`*^9}, 
+   3.94223208479324*^9},
+ CellLabel->"Out[9]=",
+ CellID->2135143376,ExpressionUUID->"c563df60-3f8b-43cf-9b7d-08d8456de69d"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"test", "=", 
+  RowBox[{"TeukolskyRadialPN", "[", 
+   RowBox[{
+    RowBox[{"-", "2"}], ",", "2", ",", "2", ",", "a", ",", "\[Omega]", ",", 
+    RowBox[{"{", 
+     RowBox[{"\[Eta]", ",", "4"}], "}"}], ",", 
+    RowBox[{"\"\<Normalization\>\"", "->", "\"\<SasakiTagoshi\>\""}]}], 
+   "]"}]}]], "Input",
+ CellChangeTimes->{{3.942146703702984*^9, 3.942146722501711*^9}, {
+  3.9421467558855658`*^9, 3.942146758339668*^9}, {3.942146809649659*^9, 
+  3.942146812470871*^9}},
+ CellLabel->"In[10]:=",
+ CellID->195039749,ExpressionUUID->"ca134646-273a-4846-9cd8-f42a2e972f06"],
+
+Cell[BoxData[
+ RowBox[{"\[LeftAssociation]", 
+  RowBox[{
+   RowBox[{"\<\"In\"\>", "\[Rule]", 
+    InterpretationBox[
+     RowBox[{
+      TagBox["TeukolskyRadialFunctionPN",
+       "SummaryHead"], "[", 
+      DynamicModuleBox[{Typeset`open$$ = False, Typeset`embedState$$ = 
+       "Ready"}, 
+       TemplateBox[{
+         PaneSelectorBox[{False -> GridBox[{{
+               PaneBox[
+                ButtonBox[
+                 DynamicBox[
+                  FEPrivate`FrontEndResource[
+                  "FEBitmaps", "SummaryBoxOpener"]], 
+                 ButtonFunction :> (Typeset`open$$ = True), Appearance -> 
+                 None, BaseStyle -> {}, Evaluator -> Automatic, Method -> 
+                 "Preemptive"], Alignment -> {Center, Center}, ImageSize -> 
+                Dynamic[{
+                  Automatic, 
+                   3.5 (CurrentValue["FontCapHeight"]/AbsoluteCurrentValue[
+                    Magnification])}]], 
+               GraphicsBox[{
+                 LineBox[
+                  NCache[{{0, 
+                    Rational[1, 2]}, {
+                    Rational[1, 2], 1}, {1, 
+                    Rational[1, 2]}, {
+                    Rational[1, 2], 0}, {0, 
+                    Rational[1, 2]}}, {{0, 0.5}, {0.5, 1}, {1, 0.5}, {
+                    0.5, 0}, {0, 0.5}}]], 
+                 LineBox[
+                  NCache[{{
+                    Rational[3, 4], 
+                    Rational[1, 4]}, {
+                    Rational[1, 2], 
+                    Rational[1, 2]}}, {{0.75, 0.25}, {0.5, 0.5}}]], {
+                  Arrowheads[0.2], 
+                  ArrowBox[
+                   LineBox[
+                    NCache[{{
+                    Rational[1, 2], 
+                    Rational[1, 2]}, {
+                    Rational[1, 4], 
+                    Rational[3, 4]}}, {{0.5, 0.5}, {0.25, 0.75}}]]]}, {
+                  Arrowheads[0.2], 
+                  ArrowBox[
+                   LineBox[
+                    NCache[{{
+                    Rational[1, 2], 
+                    Rational[1, 2]}, {
+                    Rational[3, 4], 
+                    Rational[3, 4]}}, {{0.5, 0.5}, {0.75, 0.75}}]]]}}, 
+                Background -> GrayLevel[1], ImageSize -> 
+                Dynamic[{
+                  Automatic, 
+                   3.5 (CurrentValue["FontCapHeight"]/AbsoluteCurrentValue[
+                    Magnification])}]], 
+               GridBox[{{
+                  TagBox[
+                   TemplateBox[{
+                    RowBox[{
+                    TagBox["\"s: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox[
+                    RowBox[{"-", "2"}], "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"l: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["2", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"m: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["2", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"a: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["a", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"\[Omega]: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["\[Omega]", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"PN parameter: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["\[Eta]", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"PN order: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox[
+                    RowBox[{"1.5`", " ", "\"PN\""}], "SummaryItem"]}]}, 
+                    "RowDefault"], "SummaryItem"]}, {
+                  RowBox[{
+                    TagBox[
+                    "\"Boundary Condition: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["\"In\"", "SummaryItem"]}]}}, 
+                GridBoxAlignment -> {
+                 "Columns" -> {{Left}}, "Rows" -> {{Automatic}}}, AutoDelete -> 
+                False, 
+                GridBoxItemSize -> {
+                 "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}, 
+                GridBoxSpacings -> {
+                 "Columns" -> {{2}}, "Rows" -> {{Automatic}}}, 
+                BaseStyle -> {
+                 ShowStringCharacters -> False, NumberMarks -> False, 
+                  PrintPrecision -> 3, ShowSyntaxStyles -> False}]}}, 
+             GridBoxAlignment -> {"Columns" -> {{Left}}, "Rows" -> {{Top}}}, 
+             AutoDelete -> False, 
+             GridBoxItemSize -> {
+              "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}, 
+             BaselinePosition -> {1, 1}], True -> GridBox[{{
+               PaneBox[
+                ButtonBox[
+                 DynamicBox[
+                  FEPrivate`FrontEndResource[
+                  "FEBitmaps", "SummaryBoxCloser"]], 
+                 ButtonFunction :> (Typeset`open$$ = False), Appearance -> 
+                 None, BaseStyle -> {}, Evaluator -> Automatic, Method -> 
+                 "Preemptive"], Alignment -> {Center, Center}, ImageSize -> 
+                Dynamic[{
+                  Automatic, 
+                   3.5 (CurrentValue["FontCapHeight"]/AbsoluteCurrentValue[
+                    Magnification])}]], 
+               GraphicsBox[{
+                 LineBox[
+                  NCache[{{0, 
+                    Rational[1, 2]}, {
+                    Rational[1, 2], 1}, {1, 
+                    Rational[1, 2]}, {
+                    Rational[1, 2], 0}, {0, 
+                    Rational[1, 2]}}, {{0, 0.5}, {0.5, 1}, {1, 0.5}, {
+                    0.5, 0}, {0, 0.5}}]], 
+                 LineBox[
+                  NCache[{{
+                    Rational[3, 4], 
+                    Rational[1, 4]}, {
+                    Rational[1, 2], 
+                    Rational[1, 2]}}, {{0.75, 0.25}, {0.5, 0.5}}]], {
+                  Arrowheads[0.2], 
+                  ArrowBox[
+                   LineBox[
+                    NCache[{{
+                    Rational[1, 2], 
+                    Rational[1, 2]}, {
+                    Rational[1, 4], 
+                    Rational[3, 4]}}, {{0.5, 0.5}, {0.25, 0.75}}]]]}, {
+                  Arrowheads[0.2], 
+                  ArrowBox[
+                   LineBox[
+                    NCache[{{
+                    Rational[1, 2], 
+                    Rational[1, 2]}, {
+                    Rational[3, 4], 
+                    Rational[3, 4]}}, {{0.5, 0.5}, {0.75, 0.75}}]]]}}, 
+                Background -> GrayLevel[1], ImageSize -> 
+                Dynamic[{
+                  Automatic, 
+                   3.5 (CurrentValue["FontCapHeight"]/AbsoluteCurrentValue[
+                    Magnification])}]], 
+               GridBox[{{
+                  TagBox[
+                   TemplateBox[{
+                    RowBox[{
+                    TagBox["\"s: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox[
+                    RowBox[{"-", "2"}], "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"l: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["2", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"m: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["2", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"a: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["a", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"\[Omega]: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["\[Omega]", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"PN parameter: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["\[Eta]", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"PN order: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox[
+                    RowBox[{"1.5`", " ", "\"PN\""}], "SummaryItem"]}]}, 
+                    "RowDefault"], "SummaryItem"]}, {
+                  RowBox[{
+                    TagBox[
+                    "\"Boundary Condition: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["\"In\"", "SummaryItem"]}]}, {
+                  RowBox[{
+                    TagBox["\"Leading order: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox[
+                    InterpretationBox[
+                    RowBox[{
+                    FractionBox[
+                    SuperscriptBox["\"r\"", "4"], 
+                    RowBox[{"16", " ", 
+                    SuperscriptBox[
+                    RowBox[{"(", 
+                    RowBox[{
+                    RowBox[{"-", "1"}], "+", 
+                    SuperscriptBox["a", "2"]}], ")"}], "2"], " ", 
+                    SuperscriptBox["\[Eta]", "8"]}]], "+", 
+                    InterpretationBox[
+                    FractionBox["1", 
+                    SuperscriptBox[
+                    RowBox[{"O", "[", "\[Eta]", "]"}], "7"]], 
+                    SeriesData[$CellContext`\[Eta], 0, {}, -8, -7, 1], 
+                    Editable -> False]}], 
+                    
+                    SeriesData[$CellContext`\[Eta], 0, {
+                    Rational[1, 16] 
+                    "r"^4 (-1 + $CellContext`a^2)^(-2)}, -8, -7, 1], Editable -> 
+                    False], "SummaryItem"]}]}, {
+                  RowBox[{
+                    TagBox["\"Normalization: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["\"SasakiTagoshi\"", "SummaryItem"]}]}, {
+                  RowBox[{
+                    TagBox["\"Simplified: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["True", "SummaryItem"]}]}, {
+                  RowBox[{
+                    TagBox["\"Number of terms: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["4", "SummaryItem"]}]}}, 
+                GridBoxAlignment -> {
+                 "Columns" -> {{Left}}, "Rows" -> {{Automatic}}}, AutoDelete -> 
+                False, GridBoxItemSize -> {
+                 "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}, 
+                GridBoxSpacings -> {
+                 "Columns" -> {{2}}, "Rows" -> {{Automatic}}}, 
+                BaseStyle -> {
+                 ShowStringCharacters -> False, NumberMarks -> False, 
+                  PrintPrecision -> 3, ShowSyntaxStyles -> False}]}}, 
+             GridBoxAlignment -> {"Columns" -> {{Left}}, "Rows" -> {{Top}}}, 
+             AutoDelete -> False, 
+             GridBoxItemSize -> {
+              "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}, 
+             BaselinePosition -> {1, 1}]}, 
+          Dynamic[Typeset`open$$], ImageSize -> Automatic]},
+        "SummaryPanel"],
+       DynamicModuleValues:>{}], "]"}],
+     Teukolsky`PN`TeukolskyRadialFunctionPN[-2, 2, 
+      2, $CellContext`a, $CellContext`\[Omega], {$CellContext`\[Eta], 4}, <|
+      "\[ScriptS]" -> -2, "\[ScriptL]" -> 2, "\[ScriptM]" -> 2, 
+       "a" -> $CellContext`a, "PN" -> {$CellContext`\[Eta], 4}, 
+       "RadialFunction" -> Function[Teukolsky`PN`Private`r, 
+         SeriesData[$CellContext`\[Eta], 0, {
+          Rational[1, 16] (-1 + $CellContext`a^2)^(-2) 
+           Teukolsky`PN`Private`r^4, Complex[0, 
+             Rational[1, 24]] (-1 + $CellContext`a^2)^(-2) 
+           Teukolsky`PN`Private`r^5 $CellContext`\[Omega], 
+           Rational[-1, 672] (-1 + $CellContext`a^2)^(-2) 
+           Teukolsky`PN`Private`r^3 (168 + Complex[0, 84] $CellContext`a + 
+            11 Teukolsky`PN`Private`r^3 $CellContext`\[Omega]^2), 
+           Rational[1, 2016] (-1 + $CellContext`a^2)^(-2) 
+           Teukolsky`PN`Private`r^4 $CellContext`\[Omega] (28 $CellContext`a + 
+            Complex[0, -126] $CellContext`a^2 (1 - $CellContext`a^2)^
+              Rational[-1, 2] + 
+            Complex[0, 9] (Rational[35, 3] + 
+              14 (1 - $CellContext`a^2)^Rational[-1, 2] - 28 EulerGamma - 
+              Teukolsky`PN`Private`r^3 $CellContext`\[Omega]^2) + 
+            Complex[0, -252] 
+             PolyGamma[
+              0, 3 + Complex[0, 2] $CellContext`a (1 - $CellContext`a^2)^
+                 Rational[-1, 2]])}, -8, -4, 1]], "BoundaryCondition" -> "In",
+        "LeadingOrder" -> Function[Teukolsky`PN`Private`r, 
+         SeriesData[$CellContext`\[Eta], 0, {
+          Rational[1, 16] (-1 + $CellContext`a^2)^(-2) 
+           Teukolsky`PN`Private`r^4}, -8, -7, 1]], "TermCount" -> 4, 
+       "Normalization" -> "SasakiTagoshi", 
+       "Amplitudes" -> <|"Transmission" -> "Not Computed"|>, "Simplified" -> 
+       True|>],
+     Editable->False,
+     SelectWithContents->True,
+     Selectable->False]}], ",", 
+   RowBox[{"\<\"Up\"\>", "\[Rule]", 
+    InterpretationBox[
+     RowBox[{
+      TagBox["TeukolskyRadialFunctionPN",
+       "SummaryHead"], "[", 
+      DynamicModuleBox[{Typeset`open$$ = False, Typeset`embedState$$ = 
+       "Ready"}, 
+       TemplateBox[{
+         PaneSelectorBox[{False -> GridBox[{{
+               PaneBox[
+                ButtonBox[
+                 DynamicBox[
+                  FEPrivate`FrontEndResource["FEBitmaps", "SummaryBoxOpener"],
+                   ImageSizeCache -> {
+                   10.299843749999999`, {0., 10.299843749999999`}}], 
+                 Appearance -> None, BaseStyle -> {}, 
+                 ButtonFunction :> (Typeset`open$$ = True), Evaluator -> 
+                 Automatic, Method -> "Preemptive"], 
+                Alignment -> {Center, Center}, ImageSize -> 
+                Dynamic[{
+                  Automatic, 
+                   3.5 (CurrentValue["FontCapHeight"]/AbsoluteCurrentValue[
+                    Magnification])}]], 
+               GraphicsBox[{
+                 LineBox[
+                  NCache[{{0, 
+                    Rational[1, 2]}, {
+                    Rational[1, 2], 1}, {1, 
+                    Rational[1, 2]}, {
+                    Rational[1, 2], 0}, {0, 
+                    Rational[1, 2]}}, {{0, 0.5}, {0.5, 1}, {1, 0.5}, {
+                    0.5, 0}, {0, 0.5}}]], 
+                 LineBox[
+                  NCache[{{
+                    Rational[1, 4], 
+                    Rational[1, 4]}, {
+                    Rational[1, 2], 
+                    Rational[1, 2]}}, {{0.25, 0.25}, {0.5, 0.5}}]], {
+                  Arrowheads[0.2], 
+                  ArrowBox[
+                   LineBox[
+                    NCache[{{
+                    Rational[1, 2], 
+                    Rational[1, 2]}, {
+                    Rational[1, 4], 
+                    Rational[3, 4]}}, {{0.5, 0.5}, {0.25, 0.75}}]]]}, {
+                  Arrowheads[0.2], 
+                  ArrowBox[
+                   LineBox[
+                    NCache[{{
+                    Rational[1, 2], 
+                    Rational[1, 2]}, {
+                    Rational[3, 4], 
+                    Rational[3, 4]}}, {{0.5, 0.5}, {0.75, 0.75}}]]]}}, 
+                Background -> GrayLevel[1], ImageSize -> 
+                Dynamic[{
+                  Automatic, 
+                   3.5 (CurrentValue["FontCapHeight"]/AbsoluteCurrentValue[
+                    Magnification])}]], 
+               GridBox[{{
+                  TagBox[
+                   TemplateBox[{
+                    RowBox[{
+                    TagBox["\"s: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox[
+                    RowBox[{"-", "2"}], "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"l: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["2", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"m: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["2", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"a: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["a", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"\[Omega]: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["\[Omega]", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"PN parameter: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["\[Eta]", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"PN order: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox[
+                    RowBox[{"1.5`", " ", "\"PN\""}], "SummaryItem"]}]}, 
+                    "RowDefault"], "SummaryItem"]}, {
+                  RowBox[{
+                    TagBox[
+                    "\"Boundary Condition: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["\"Up\"", "SummaryItem"]}]}}, AutoDelete -> False, 
+                BaseStyle -> {
+                 ShowStringCharacters -> False, NumberMarks -> False, 
+                  PrintPrecision -> 3, ShowSyntaxStyles -> False}, 
+                GridBoxAlignment -> {
+                 "Columns" -> {{Left}}, "Rows" -> {{Automatic}}}, 
+                GridBoxItemSize -> {
+                 "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}, 
+                GridBoxSpacings -> {
+                 "Columns" -> {{2}}, "Rows" -> {{Automatic}}}]}}, AutoDelete -> 
+             False, BaselinePosition -> {1, 1}, 
+             GridBoxAlignment -> {"Columns" -> {{Left}}, "Rows" -> {{Top}}}, 
+             GridBoxItemSize -> {
+              "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}], True -> 
+           GridBox[{{
+               PaneBox[
+                ButtonBox[
+                 DynamicBox[
+                  FEPrivate`FrontEndResource["FEBitmaps", "SummaryBoxCloser"],
+                   ImageSizeCache -> {
+                   10.299843749999999`, {0., 10.299843749999999`}}], 
+                 Appearance -> None, BaseStyle -> {}, 
+                 ButtonFunction :> (Typeset`open$$ = False), Evaluator -> 
+                 Automatic, Method -> "Preemptive"], 
+                Alignment -> {Center, Center}, ImageSize -> 
+                Dynamic[{
+                  Automatic, 
+                   3.5 (CurrentValue["FontCapHeight"]/AbsoluteCurrentValue[
+                    Magnification])}]], 
+               GraphicsBox[{
+                 LineBox[
+                  NCache[{{0, 
+                    Rational[1, 2]}, {
+                    Rational[1, 2], 1}, {1, 
+                    Rational[1, 2]}, {
+                    Rational[1, 2], 0}, {0, 
+                    Rational[1, 2]}}, {{0, 0.5}, {0.5, 1}, {1, 0.5}, {
+                    0.5, 0}, {0, 0.5}}]], 
+                 LineBox[
+                  NCache[{{
+                    Rational[1, 4], 
+                    Rational[1, 4]}, {
+                    Rational[1, 2], 
+                    Rational[1, 2]}}, {{0.25, 0.25}, {0.5, 0.5}}]], {
+                  Arrowheads[0.2], 
+                  ArrowBox[
+                   LineBox[
+                    NCache[{{
+                    Rational[1, 2], 
+                    Rational[1, 2]}, {
+                    Rational[1, 4], 
+                    Rational[3, 4]}}, {{0.5, 0.5}, {0.25, 0.75}}]]]}, {
+                  Arrowheads[0.2], 
+                  ArrowBox[
+                   LineBox[
+                    NCache[{{
+                    Rational[1, 2], 
+                    Rational[1, 2]}, {
+                    Rational[3, 4], 
+                    Rational[3, 4]}}, {{0.5, 0.5}, {0.75, 0.75}}]]]}}, 
+                Background -> GrayLevel[1], ImageSize -> 
+                Dynamic[{
+                  Automatic, 
+                   3.5 (CurrentValue["FontCapHeight"]/AbsoluteCurrentValue[
+                    Magnification])}]], 
+               GridBox[{{
+                  TagBox[
+                   TemplateBox[{
+                    RowBox[{
+                    TagBox["\"s: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox[
+                    RowBox[{"-", "2"}], "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"l: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["2", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"m: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["2", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"a: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["a", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"\[Omega]: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["\[Omega]", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"PN parameter: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["\[Eta]", "SummaryItem"]}], "\"  \"", 
+                    RowBox[{
+                    TagBox["\"PN order: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox[
+                    RowBox[{"1.5`", " ", "\"PN\""}], "SummaryItem"]}]}, 
+                    "RowDefault"], "SummaryItem"]}, {
+                  RowBox[{
+                    TagBox[
+                    "\"Boundary Condition: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["\"Up\"", "SummaryItem"]}]}, {
+                  RowBox[{
+                    TagBox["\"Leading order: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox[
+                    InterpretationBox[
+                    RowBox[{
+                    RowBox[{"-", 
+                    FractionBox[
+                    RowBox[{"3", " ", "\[ImaginaryI]"}], 
+                    RowBox[{"\"r\"", " ", "\[Omega]", " ", "\[Eta]"}]]}], "+", 
+                    InterpretationBox[
+                    SuperscriptBox[
+                    RowBox[{"O", "[", "\[Eta]", "]"}], "0"], 
+                    SeriesData[$CellContext`\[Eta], 0, {}, -1, 0, 1], 
+                    Editable -> False]}], 
+                    
+                    SeriesData[$CellContext`\[Eta], 0, {
+                    Complex[0, -3] ("r"^(-1)/$CellContext`\[Omega])}, -1, 0, 
+                    1], Editable -> False], "SummaryItem"]}]}, {
+                  RowBox[{
+                    TagBox["\"Normalization: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["\"SasakiTagoshi\"", "SummaryItem"]}]}, {
+                  RowBox[{
+                    TagBox["\"Simplified: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["True", "SummaryItem"]}]}, {
+                  RowBox[{
+                    TagBox["\"Number of terms: \"", "SummaryItemAnnotation"], 
+                    "\[InvisibleSpace]", 
+                    TagBox["4", "SummaryItem"]}]}}, AutoDelete -> False, 
+                BaseStyle -> {
+                 ShowStringCharacters -> False, NumberMarks -> False, 
+                  PrintPrecision -> 3, ShowSyntaxStyles -> False}, 
+                GridBoxAlignment -> {
+                 "Columns" -> {{Left}}, "Rows" -> {{Automatic}}}, 
+                GridBoxItemSize -> {
+                 "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}, 
+                GridBoxSpacings -> {
+                 "Columns" -> {{2}}, "Rows" -> {{Automatic}}}]}}, AutoDelete -> 
+             False, BaselinePosition -> {1, 1}, 
+             GridBoxAlignment -> {"Columns" -> {{Left}}, "Rows" -> {{Top}}}, 
+             GridBoxItemSize -> {
+              "Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}]}, 
+          Dynamic[Typeset`open$$], ImageSize -> Automatic]},
+        "SummaryPanel"],
+       DynamicModuleValues:>{}], "]"}],
+     Teukolsky`PN`TeukolskyRadialFunctionPN[-2, 2, 
+      2, $CellContext`a, $CellContext`\[Omega], {$CellContext`\[Eta], 4}, <|
+      "\[ScriptS]" -> -2, "\[ScriptL]" -> 2, "\[ScriptM]" -> 2, 
+       "a" -> $CellContext`a, "PN" -> {$CellContext`\[Eta], 4}, 
+       "RadialFunction" -> Function[Teukolsky`PN`Private`r, 
+         SeriesData[$CellContext`\[Eta], 0, {
+          Complex[0, -3] (
+            Teukolsky`PN`Private`r^(-1)/$CellContext`\[Omega]), -3, 
+           Rational[1, 2] 
+           Teukolsky`PN`Private`r^(-2) $CellContext`\[Omega]^(-1) (
+            8 $CellContext`a + 
+            Complex[0, 3] (-2 + 
+              Teukolsky`PN`Private`r^3 $CellContext`\[Omega]^2)), 
+           Rational[1, 6] 
+           Teukolsky`PN`Private`r^(-1) (Complex[0, -4] $CellContext`a + 
+            12 (1 - $CellContext`a^2)^Rational[1, 2] - 36 EulerGamma + 
+            Complex[0, 36] Pi + 
+            3 Teukolsky`PN`Private`r^3 $CellContext`\[Omega]^2)}, -1, 3, 1]], 
+       "BoundaryCondition" -> "Up", "LeadingOrder" -> 
+       Function[Teukolsky`PN`Private`r, 
+         SeriesData[$CellContext`\[Eta], 0, {
+          Complex[0, -3] (
+            Teukolsky`PN`Private`r^(-1)/$CellContext`\[Omega])}, -1, 0, 1]], 
+       "TermCount" -> 4, "Normalization" -> "SasakiTagoshi", 
+       "Amplitudes" -> <|"Transmission" -> "Not Computed"|>, "Simplified" -> 
+       True|>],
+     Editable->False,
+     SelectWithContents->True,
+     Selectable->False]}]}], "\[RightAssociation]"}]], "Output",
+ CellChangeTimes->{3.9421467318186274`*^9, 3.942146770079395*^9, 
+  3.942146822584934*^9, 3.942232094783301*^9},
+ CellLabel->"Out[10]=",
+ CellID->1160771538,ExpressionUUID->"03080245-79bd-45b0-a04e-b90e6c7a1ac2"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{
+   RowBox[{"test", "[", "\"\<In\>\"", "]"}], "[", "r", "]"}], "//", 
+  "Simplify"}]], "Input",
+ CellChangeTimes->{{3.9421467364582863`*^9, 3.942146741679969*^9}},
+ CellLabel->"In[11]:=",
+ CellID->994266304,ExpressionUUID->"19372a51-fc34-47a1-b16a-733ae6ffd23e"],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{
+   FractionBox[
+    SuperscriptBox["r", "4"], 
+    RowBox[{"16", " ", 
+     SuperscriptBox[
+      RowBox[{"(", 
+       RowBox[{
+        RowBox[{"-", "1"}], "+", 
+        SuperscriptBox["a", "2"]}], ")"}], "2"], " ", 
+     SuperscriptBox["\[Eta]", "8"]}]], "+", 
+   FractionBox[
+    RowBox[{"\[ImaginaryI]", " ", 
+     SuperscriptBox["r", "5"], " ", "\[Omega]"}], 
+    RowBox[{"24", " ", 
+     SuperscriptBox[
+      RowBox[{"(", 
+       RowBox[{
+        RowBox[{"-", "1"}], "+", 
+        SuperscriptBox["a", "2"]}], ")"}], "2"], " ", 
+     SuperscriptBox["\[Eta]", "7"]}]], "-", 
+   FractionBox[
+    RowBox[{
+     SuperscriptBox["r", "3"], " ", 
+     RowBox[{"(", 
+      RowBox[{"168", "+", 
+       RowBox[{"84", " ", "\[ImaginaryI]", " ", "a"}], "+", 
+       RowBox[{"11", " ", 
+        SuperscriptBox["r", "3"], " ", 
+        SuperscriptBox["\[Omega]", "2"]}]}], ")"}]}], 
+    RowBox[{"672", " ", 
+     SuperscriptBox[
+      RowBox[{"(", 
+       RowBox[{
+        RowBox[{"-", "1"}], "+", 
+        SuperscriptBox["a", "2"]}], ")"}], "2"], " ", 
+     SuperscriptBox["\[Eta]", "6"]}]], "+", 
+   RowBox[{
+    FractionBox["1", 
+     RowBox[{"2016", " ", 
+      SuperscriptBox[
+       RowBox[{"(", 
+        RowBox[{
+         RowBox[{"-", "1"}], "+", 
+         SuperscriptBox["a", "2"]}], ")"}], "2"], " ", 
+      SuperscriptBox["\[Eta]", "5"]}]], 
+    RowBox[{
+     SuperscriptBox["r", "4"], " ", "\[Omega]", " ", 
+     RowBox[{"(", 
+      RowBox[{
+       RowBox[{"28", " ", "a"}], "-", 
+       FractionBox[
+        RowBox[{"126", " ", "\[ImaginaryI]", " ", 
+         SuperscriptBox["a", "2"]}], 
+        SqrtBox[
+         RowBox[{"1", "-", 
+          SuperscriptBox["a", "2"]}]]], "+", 
+       RowBox[{"9", " ", "\[ImaginaryI]", " ", 
+        RowBox[{"(", 
+         RowBox[{
+          FractionBox["35", "3"], "+", 
+          FractionBox["14", 
+           SqrtBox[
+            RowBox[{"1", "-", 
+             SuperscriptBox["a", "2"]}]]], "-", 
+          RowBox[{"28", " ", "EulerGamma"}], "-", 
+          RowBox[{
+           SuperscriptBox["r", "3"], " ", 
+           SuperscriptBox["\[Omega]", "2"]}]}], ")"}]}], "-", 
+       RowBox[{"252", " ", "\[ImaginaryI]", " ", 
+        RowBox[{"PolyGamma", "[", 
+         RowBox[{"0", ",", 
+          RowBox[{"3", "+", 
+           FractionBox[
+            RowBox[{"2", " ", "\[ImaginaryI]", " ", "a"}], 
+            SqrtBox[
+             RowBox[{"1", "-", 
+              SuperscriptBox["a", "2"]}]]]}]}], "]"}]}]}], ")"}]}]}], "+", 
+   InterpretationBox[
+    FractionBox["1", 
+     SuperscriptBox[
+      RowBox[{"O", "[", "\[Eta]", "]"}], "4"]],
+    SeriesData[$CellContext`\[Eta], 0, {}, -8, -4, 1],
+    Editable->False]}],
+  SeriesData[$CellContext`\[Eta], 0, {
+   Rational[1, 16] (-1 + $CellContext`a^2)^(-2) $CellContext`r^4, Complex[0, 
+      Rational[
+      1, 24]] (-1 + $CellContext`a^2)^(-2) $CellContext`r^5 $CellContext`\
+\[Omega], 
+    Rational[-1, 672] (-1 + $CellContext`a^2)^(-2) $CellContext`r^3 (168 + 
+     Complex[0, 84] $CellContext`a + 
+     11 $CellContext`r^3 $CellContext`\[Omega]^2), 
+    Rational[1, 
+      2016] (-1 + $CellContext`a^2)^(-2) $CellContext`r^4 $CellContext`\
+\[Omega] (28 $CellContext`a + 
+     Complex[0, -126] $CellContext`a^2 (1 - $CellContext`a^2)^Rational[-1, 2] + 
+     Complex[0, 9] (Rational[35, 3] + 
+       14 (1 - $CellContext`a^2)^Rational[-1, 2] - 28 
+       EulerGamma - $CellContext`r^3 $CellContext`\[Omega]^2) + 
+     Complex[0, -252] 
+      PolyGamma[
+       0, 3 + Complex[0, 2] $CellContext`a (1 - $CellContext`a^2)^
+          Rational[-1, 2]])}, -8, -4, 1],
+  Editable->False]], "Output",
+ CellChangeTimes->{3.942146822727029*^9, 3.942232094879889*^9},
+ CellLabel->"Out[11]=",
+ CellID->1419831615,ExpressionUUID->"d617be55-97f0-4b55-8889-356c9ee9667a"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\"Simplify\"", "ExampleSubsection",ExpressionUUID->
+   "6b979cc7-1b59-41ef-ad84-cd0aa798bec8"],
+  $Line = 0; Null]], "ExampleSubsection",
+ CellChangeTimes->{{3.942227405781426*^9, 3.942227407143333*^9}},
+ CellID->606589711,ExpressionUUID->"d94d96fa-c362-480f-9a04-bb1d60da30e2"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"EchoTiming", "[", 
+  RowBox[{
+   RowBox[{"TeukolskyRadialPN", "[", 
+    RowBox[{
+     RowBox[{"-", "2"}], ",", "2", ",", "2", ",", "a", ",", "\[Omega]", ",", 
+     RowBox[{"{", 
+      RowBox[{"\[Eta]", ",", "15"}], "}"}], ",", 
+     RowBox[{"\"\<Simplify\>\"", "->", "True"}]}], "]"}], "//", "ByteCount"}],
+   "]"}]], "Input",
+ CellChangeTimes->{{3.942227414086315*^9, 3.942227440883704*^9}, {
+  3.942227495466867*^9, 3.942227498776565*^9}, {3.942227552086349*^9, 
+  3.942227552255632*^9}, {3.942227755158518*^9, 3.942227758297832*^9}},
+ CellLabel->"In[43]:=",
+ CellID->963852523,ExpressionUUID->"8dd7646e-3a58-4ae1-9d61-ac71074f2296"],
+
+Cell[BoxData["358.933479`"], "EchoTiming",
+ CellChangeTimes->{3.94222812063116*^9},
+ CellID->2078705270,ExpressionUUID->"ab2ab2ea-768e-4912-a383-e5318afe1836"],
+
+Cell[BoxData["1396256"], "Output",
+ CellChangeTimes->{3.942227487718238*^9, 3.942227524146584*^9, 
+  3.94222761802774*^9, 3.942228120633745*^9},
+ CellLabel->"Out[43]=",
+ CellID->278260318,ExpressionUUID->"9e826618-9f5f-4ed8-bc0a-83d06c1b56f4"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"EchoTiming", "[", 
+  RowBox[{
+   RowBox[{"TeukolskyRadialPN", "[", 
+    RowBox[{
+     RowBox[{"-", "2"}], ",", "2", ",", "2", ",", "a", ",", "\[Omega]", ",", 
+     RowBox[{"{", 
+      RowBox[{"\[Eta]", ",", "15"}], "}"}], ",", 
+     RowBox[{"\"\<Simplify\>\"", "->", "False"}]}], "]"}], "//", 
+   "ByteCount"}], "]"}]], "Input",
+ CellChangeTimes->{{3.942227450494788*^9, 3.9422274511288157`*^9}, {
+   3.942227500865038*^9, 3.942227504411446*^9}, {3.942227556616267*^9, 
+   3.9422275567884197`*^9}, 3.942227760462906*^9},
+ CellLabel->"In[44]:=",
+ CellID->598917638,ExpressionUUID->"20fec268-e277-4730-8ff4-5b1437a973de"],
+
+Cell[BoxData["233.508075`"], "EchoTiming",
+ CellChangeTimes->{3.9422283542894163`*^9},
+ CellID->1329562961,ExpressionUUID->"85c02258-beb5-4df9-9c82-172d03aec599"],
+
+Cell[BoxData["12638712"], "Output",
+ CellChangeTimes->{3.94222746960892*^9, 3.942227505878314*^9, 
+  3.9422275419688387`*^9, 3.942227677625445*^9, 3.942228354302698*^9},
+ CellLabel->"Out[44]=",
+ CellID->443252738,ExpressionUUID->"87c432a1-84ed-4757-a2df-1c7225b3c23c"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "\"Amplitudes\"", "ExampleSubsection",ExpressionUUID->
+   "aed3ebf2-2fed-4d88-a6f4-a978ea8333a5"],
+  $Line = 0; Null]], "ExampleSubsection",
+ CellChangeTimes->{{3.942227405781426*^9, 3.942227407143333*^9}, {
+  3.942229712473917*^9, 3.9422297143812943`*^9}},
+ CellID->480409232,ExpressionUUID->"4ab58f47-89fb-49a0-8aa9-88c85a6051a7"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"test", "=", 
+   RowBox[{"TeukolskyRadialPN", "[", 
+    RowBox[{
+     RowBox[{"-", "2"}], ",", "2", ",", "2", ",", "a", ",", "\[Omega]", ",", 
+     RowBox[{"{", 
+      RowBox[{"\[Eta]", ",", "4"}], "}"}], ",", 
+     RowBox[{"\"\<Amplitudes\>\"", "->", "False"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"test", "[", "\"\<Up\>\"", "]"}], "[", "\"\<Amplitudes\>\"", "]"}],
+   "[", "\"\<Transmission\>\"", "]"}]}], "Input",
+ CellChangeTimes->{{3.942229950641198*^9, 3.942229951317524*^9}},
+ CellLabel->"In[24]:=",
+ CellID->1622589751,ExpressionUUID->"ca761c31-846e-415c-a7fe-23bb0f15a315"],
+
+Cell[BoxData["\<\"Not Computed\"\>"], "Output",
+ CellChangeTimes->{3.942229960993266*^9},
+ CellLabel->"Out[25]=",
+ CellID->1743920229,ExpressionUUID->"f2222bb4-28ee-45a9-8a04-617b7535687d"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"test", "=", 
+   RowBox[{"TeukolskyRadialPN", "[", 
+    RowBox[{
+     RowBox[{"-", "2"}], ",", "2", ",", "2", ",", "a", ",", "\[Omega]", ",", 
+     RowBox[{"{", 
+      RowBox[{"\[Eta]", ",", "4"}], "}"}], ",", 
+     RowBox[{"\"\<Amplitudes\>\"", "->", "True"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"test", "[", "\"\<Up\>\"", "]"}], "[", "\"\<Amplitudes\>\"", "]"}],
+   "[", "\"\<Transmission\>\"", "]"}]}], "Input",
+ CellChangeTimes->{{3.942229721959876*^9, 3.942229798389739*^9}, {
+  3.9422298415064573`*^9, 3.9422298424130917`*^9}, {3.942229897035282*^9, 
+  3.942229897283437*^9}},
+ CellLabel->"In[26]:=",
+ CellID->1219781365,ExpressionUUID->"ccf980f3-a80b-4c7b-bbb0-f4deb8beb63f"],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{
+   RowBox[{"-", 
+    RowBox[{"2", " ", "\[ImaginaryI]", " ", 
+     SuperscriptBox["\[Omega]", "3"], " ", 
+     SuperscriptBox["\[Eta]", "9"]}]}], "+", 
+   RowBox[{
+    SuperscriptBox["\[Omega]", "3"], " ", 
+    RowBox[{"(", 
+     RowBox[{
+      RowBox[{"2", " ", 
+       RowBox[{"(", 
+        RowBox[{
+         RowBox[{
+          FractionBox["2", "5"], " ", "\[ImaginaryI]", " ", 
+          RowBox[{"(", 
+           RowBox[{
+            RowBox[{"-", 
+             FractionBox[
+              RowBox[{"5", " ", "a"}], "9"]}], "+", 
+            RowBox[{
+             FractionBox["5", "6"], " ", "\[ImaginaryI]", " ", 
+             SqrtBox[
+              RowBox[{"1", "-", 
+               SuperscriptBox["a", "2"]}]]}]}], ")"}], " ", "\[Omega]"}], "+", 
+         RowBox[{"\[ImaginaryI]", " ", "\[Pi]", " ", "\[Omega]"}]}], ")"}]}], 
+      "+", 
+      RowBox[{"4", " ", "\[Omega]", " ", 
+       RowBox[{"Log", "[", "2", "]"}]}], "+", 
+      RowBox[{"2", " ", 
+       RowBox[{"(", 
+        RowBox[{
+         RowBox[{"-", "\[Omega]"}], "+", 
+         RowBox[{
+          SqrtBox[
+           RowBox[{"1", "-", 
+            SuperscriptBox["a", "2"]}]], " ", "\[Omega]"}], "+", 
+         RowBox[{"2", " ", "\[Omega]", " ", 
+          RowBox[{"Log", "[", 
+           RowBox[{"2", " ", "\[Omega]"}], "]"}]}]}], ")"}]}]}], ")"}], " ", 
+    SuperscriptBox["\[Eta]", "12"]}], "+", 
+   InterpretationBox[
+    SuperscriptBox[
+     RowBox[{"O", "[", "\[Eta]", "]"}], "13"],
+    SeriesData[$CellContext`\[Eta], 0, {}, 9, 13, 1],
+    Editable->False]}],
+  SeriesData[$CellContext`\[Eta], 0, {
+   Complex[0, -2] $CellContext`\[Omega]^3, 0, 
+    0, $CellContext`\[Omega]^3 (2 (Complex[0, 
+          Rational[2, 5]] (Rational[-5, 9] $CellContext`a + Complex[0, 
+            Rational[5, 6]] (1 - $CellContext`a^2)^
+           Rational[1, 2]) $CellContext`\[Omega] + 
+       Complex[0, 1] Pi $CellContext`\[Omega]) + 
+     4 $CellContext`\[Omega] Log[2] + 
+     2 (-$CellContext`\[Omega] + (1 - $CellContext`a^2)^
+         Rational[1, 2] $CellContext`\[Omega] + 
+       2 $CellContext`\[Omega] Log[2 $CellContext`\[Omega]]))}, 9, 13, 1],
+  Editable->False]], "Output",
+ CellChangeTimes->{{3.942229800090707*^9, 3.942229813006441*^9}, 
+   3.9422298705354643`*^9, 3.942229907605174*^9, 3.9422299710300198`*^9},
+ CellLabel->"Out[27]=",
+ CellID->360957014,ExpressionUUID->"89eac2cc-3836-46a2-b06b-d49fa45fd1b7"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"test", "=", 
+   RowBox[{"TeukolskyRadialPN", "[", 
+    RowBox[{
+     RowBox[{"-", "2"}], ",", "2", ",", "2", ",", "a", ",", "\[Omega]", ",", 
+     RowBox[{"{", 
+      RowBox[{"\[Eta]", ",", "4"}], "}"}], ",", 
+     RowBox[{"\"\<Normalization\>\"", "->", "\"\<Toolkit\>\""}], ",", 
+     RowBox[{"\"\<Amplitudes\>\"", "->", "True"}]}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{
+   RowBox[{"test", "[", "\"\<Up\>\"", "]"}], "[", "\"\<Amplitudes\>\"", "]"}],
+   "[", "\"\<Transmission\>\"", "]"}]}], "Input",
+ CellChangeTimes->{{3.942229807667585*^9, 3.942229844993031*^9}, {
+  3.942229933984466*^9, 3.942229934257081*^9}},
+ CellLabel->"In[28]:=",
+ CellID->1694232369,ExpressionUUID->"f830ea44-2b7c-4ebd-8c4a-09e54831fdac"],
+
+Cell[BoxData[
+ InterpretationBox[
+  RowBox[{"1", "+", 
+   InterpretationBox[
+    SuperscriptBox[
+     RowBox[{"O", "[", "\[Eta]", "]"}], "4"],
+    SeriesData[$CellContext`\[Eta], 0, {}, 0, 4, 1],
+    Editable->False]}],
+  SeriesData[$CellContext`\[Eta], 0, {1}, 0, 4, 1],
+  Editable->False]], "Output",
+ CellChangeTimes->{{3.9422298307902517`*^9, 3.942229856680915*^9}, 
+   3.94222994534243*^9, 3.942229981906084*^9},
+ CellLabel->"Out[29]=",
+ CellID->635378293,ExpressionUUID->"f4ba469d-588e-48dd-bb29-50b2844d2ea1"]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "Applications", "ExampleSection",ExpressionUUID->
+   "5d833b42-04d6-40df-a6fc-d754a2990b24"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->1432538551,ExpressionUUID->"5d9a66b5-57eb-45c5-93c1-24d88904986f"],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "Properties & Relations", "ExampleSection",ExpressionUUID->
+   "8022f781-6949-4906-a2bf-e489668ca7e2"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->1359936896,ExpressionUUID->"291d5b25-4d7e-49e2-8ded-44a43aa5d7f1"],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "Possible Issues", "ExampleSection",ExpressionUUID->
+   "3c2af715-1201-43a4-9d6c-48e50b4b18f0"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->2043357575,ExpressionUUID->"2644f8aa-0d99-4516-ad6e-bd9380d2ed2a"],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "Interactive Examples", "ExampleSection",ExpressionUUID->
+   "00661863-bd35-4171-b591-abb48d165af1"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->99524524,ExpressionUUID->"63e63013-e191-42fa-b8cd-64d7240ecfa9"],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "Neat Examples", "ExampleSection",ExpressionUUID->
+   "365d2492-1823-4b69-a81c-88a6f028df9d"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->1283718040,ExpressionUUID->"f6a5eb39-7442-454c-92c7-d98d7fd15347"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Metadata", "MetadataSection",
+ CellID->1449408201,ExpressionUUID->"617404ad-9d11-433c-8123-1748a4a78611"],
+
+Cell[TextData[{
+ "New in: ",
+ Cell["XX", "HistoryData",
+  CellTags->"New",ExpressionUUID->"f5239d92-fdbc-4642-83d8-db60159fc6fc"],
+ " | Modified in: ",
+ Cell[" ", "HistoryData",
+  CellTags->"Modified",ExpressionUUID->"9342ab05-e2cd-41a3-9cca-e4aa758b9085"],
+ " | Obsolete in: ",
+ Cell[" ", "HistoryData",
+  CellTags->"Obsolete",ExpressionUUID->
+  "19da0699-4e6a-42f3-82c3-60f88a37d5d7"]
+}], "History",
+ CellID->816268076,ExpressionUUID->"2206a531-ebe9-462f-87ca-cda82323bf6c"],
+
+Cell[CellGroupData[{
+
+Cell[TextData[{
+ "Categorization",
+ Cell[BoxData[
+  TemplateBox[{"Metadata", 
+    Cell[
+     BoxData[
+      FrameBox[
+       Cell[
+       "Metadata such as page URI, context, and type of documentation page.", 
+        "MoreInfoText"], BaseStyle -> "IFrameBox"]], "MoreInfoTextOuter"]},
+   "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
+  "9b61303d-78db-42da-8b89-4b2485795958"]
+}], "CategorizationSection",
+ CellID->951496877,ExpressionUUID->"d3621185-084b-47e3-bb1b-f09d60be227f"],
+
+Cell["Symbol", "Categorization",
+ CellLabel->"Entity Type",
+ CellID->4768391,ExpressionUUID->"ed7da9b3-f65e-47ca-ab64-71e272309da4"],
+
+Cell["Teukolsky", "Categorization",
+ CellLabel->"Paclet Name",
+ CellID->51525159,ExpressionUUID->"d41d02a8-20b6-4b67-ae45-98ca6fc5e8ce"],
+
+Cell["Teukolsky`", "Categorization",
+ CellLabel->"Context",
+ CellID->403768227,ExpressionUUID->"afda294a-3702-46c8-9a36-30a99baa9b09"],
+
+Cell["Teukolsky/ref/TeukolskyRadialPN", "Categorization",
+ CellLabel->"URI",
+ CellID->167577097,ExpressionUUID->"9e37f126-5640-4242-8526-e7d16fe3a973"]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["Keywords", "KeywordsSection",
+ CellID->907781103,ExpressionUUID->"7ae9d985-90bc-43fc-a49e-196a9797d03f"],
+
+Cell["XXXX", "Keywords",
+ CellID->1105673377,ExpressionUUID->"acbe98e2-c2a2-4e52-9bcc-4922a0ef7726"]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["Syntax Templates", "TemplatesSection",
+ CellID->415668795,ExpressionUUID->"9a04630c-6cd5-40b9-838a-6725860db4da"],
+
+Cell[BoxData[""], "Template",
+ CellLabel->"Additional Function Template",
+ CellID->447466766,ExpressionUUID->"d70ffe31-cac2-4591-a2ba-32703b2e771f"],
+
+Cell[BoxData[""], "Template",
+ CellLabel->"Arguments Pattern",
+ CellID->1715670862,ExpressionUUID->"0bdc7a54-14f2-4e5d-82cb-d01cb3206f40"],
+
+Cell[BoxData[""], "Template",
+ CellLabel->"Local Variables",
+ CellID->1195948677,ExpressionUUID->"074a6791-46ce-46f7-ab01-5b08fc7160db"],
+
+Cell[BoxData[""], "Template",
+ CellLabel->"Color Equal Signs",
+ CellID->1220537702,ExpressionUUID->"c5e972c0-7706-446e-a514-90545f995ec6"]
+}, Closed]]
+}, Open  ]]
+},
+WindowSize->{633.75, 851.25},
+WindowMargins->{{Automatic, 6.75}, {6.75, Automatic}},
+TaggingRules-><|"Paclet" -> "Teukolsky"|>,
+CellContext->"Global`",
+FrontEndVersion->"14.0 for Linux x86 (64-bit) (December 12, 2023)",
+StyleDefinitions->FrontEnd`FileName[{"Wolfram"}, "FunctionPageStylesExt.nb", 
+  CharacterEncoding -> "UTF-8"],
+ExpressionUUID->"cb00ca4d-1fa2-41b6-98e6-832d08bd84d9"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{
+ "ExtendedExamples"->{
+  Cell[42500, 1021, 488, 13, 57, "ExtendedExamplesSection",ExpressionUUID->"ecafa9fb-f313-4153-a19b-c43239b4eb56",
+   CellTags->"ExtendedExamples",
+   CellID->1166202043]}
+ }
+*)
+(*CellTagsIndex
+CellTagsIndex->{
+ {"ExtendedExamples", 142637, 3428}
+ }
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[580, 22, 115, 1, 74, "ObjectName",ExpressionUUID->"b39a84bd-6e05-45a1-8a43-1f68fc9bf855",
+ CellID->2024991223],
+Cell[698, 25, 870, 17, 95, "Usage",ExpressionUUID->"860eeef6-58c4-4c2e-ba29-267e4b80d079",
+ CellID->1226706735],
+Cell[1571, 44, 1515, 41, 70, "Notes",ExpressionUUID->"9593db7e-87cc-4897-928e-46f72ca9bb38",
+ CellID->1221797685],
+Cell[3089, 87, 421, 7, 63, "Notes",ExpressionUUID->"7ed92a67-c546-4b14-a994-e868c406cddf",
+ CellID->348370738],
+Cell[3513, 96, 128, 1, 27, "Notes",ExpressionUUID->"a84acfe8-0383-490c-83e5-f90bde958621",
+ CellID->800012652],
+Cell[3644, 99, 2052, 37, 224, "3ColumnTableMod",ExpressionUUID->"7163bf51-103e-4897-892a-1cda9c934003",
+ CellID->276668925]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[5733, 141, 459, 13, 40, "SeeAlsoSection",ExpressionUUID->"ef659ba9-3d34-447d-85a1-4115058827a5",
+ CellID->1331677316],
+Cell[6195, 156, 1654, 42, 25, "SeeAlso",ExpressionUUID->"a220ed65-e9ff-4e90-87e4-373598f734be",
+ CellID->1687169311]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[7886, 203, 435, 12, 41, "TechNotesSection",ExpressionUUID->"e64b7478-f75d-4837-9cc3-508e01f2a857",
+ CellID->609997485],
+Cell[8324, 217, 100, 1, 20, "Tutorials",ExpressionUUID->"c3b8e156-41bf-4a8f-a4ce-e94672653ddc",
+ CellID->780279882]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[8461, 223, 117, 1, 40, "MoreAboutSection",ExpressionUUID->"81ae2699-dc58-4fca-a2fa-8c2f7eada448",
+ CellID->773070935],
+Cell[8581, 226, 100, 1, 20, "MoreAbout",ExpressionUUID->"edbe9004-b3ed-4aa6-b67a-e569de24f739",
+ CellID->135750557]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[8718, 232, 473, 13, 40, "RelatedLinksSection",ExpressionUUID->"61704034-1135-453a-af12-604b1de9e926",
+ CellID->1684505035],
+Cell[9194, 247, 103, 1, 20, "RelatedLinks",ExpressionUUID->"6407d6ef-305e-4b83-959c-f1494e81a1f5",
+ CellID->978471105]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[9334, 253, 530, 14, 69, "ExamplesInitializationSection",ExpressionUUID->"7cb0a5f9-86b2-4507-a404-9a55fe2941d0",
+ CellID->699830455],
+Cell[9867, 269, 239, 4, 46, "ExampleInitialization",ExpressionUUID->"8dccde0a-dc8e-4e53-828c-822e855954c5",
+ CellID->1582090681]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[10143, 278, 442, 12, 72, "PrimaryExamplesSection",ExpressionUUID->"7ffeb3ad-6511-4c6a-adaf-258336a6fc70",
+ CellID->336632675],
+Cell[CellGroupData[{
+Cell[10610, 294, 503, 11, 26, "Input",ExpressionUUID->"83e713ae-7909-403e-94c5-eac3d0f8f20c",
+ CellID->1569970270],
+Cell[11116, 307, 25983, 558, 174, "Output",ExpressionUUID->"1dd5883d-dd2d-4512-9520-b363380acb86",
+ CellID->170885151]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[37136, 870, 294, 7, 26, "Input",ExpressionUUID->"855a404e-e30c-4792-9d64-473ea95e84f1",
+ CellID->1260920295],
+Cell[37433, 879, 2558, 65, 75, "Output",ExpressionUUID->"4dfdbe58-bc1c-4d81-a016-be1b21ba8624",
+ CellID->1675325000]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[40028, 949, 293, 7, 26, "Input",ExpressionUUID->"31ea1d30-efc1-4882-a0cf-f09829d65edb",
+ CellID->1545593839],
+Cell[40324, 958, 2127, 57, 103, "Output",ExpressionUUID->"d97c2471-9099-468d-8b62-ae2437fe1f17",
+ CellID->279294719]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[42500, 1021, 488, 13, 57, "ExtendedExamplesSection",ExpressionUUID->"ecafa9fb-f313-4153-a19b-c43239b4eb56",
+ CellTags->"ExtendedExamples",
+ CellID->1166202043],
+Cell[CellGroupData[{
+Cell[43013, 1038, 242, 5, 35, "ExampleSection",ExpressionUUID->"20f5d4a8-a69f-434b-888d-946f8ff93cdd",
+ CellID->1458198461],
+Cell[43258, 1045, 265, 5, 24, "ExampleText",ExpressionUUID->"80ac1cd4-5cd4-4e34-92e6-f8f7bc6b6b2f",
+ CellID->1484792943],
+Cell[CellGroupData[{
+Cell[43548, 1054, 259, 5, 26, "Input",ExpressionUUID->"304c9bef-d103-433f-8a7b-5124afe67499",
+ CellID->946679123],
+Cell[43810, 1061, 579, 10, 44, "Output",ExpressionUUID->"8aeafbc5-80fb-4848-aad7-d40999d0234c",
+ CellID->1969819808]
+}, Open  ]],
+Cell[44404, 1074, 248, 4, 24, "ExampleText",ExpressionUUID->"77ad06b9-1e41-4165-b837-bdc9e767640a",
+ CellID->1496033067],
+Cell[CellGroupData[{
+Cell[44677, 1082, 410, 11, 26, "Input",ExpressionUUID->"76d91407-d515-441d-9e2f-c2a442dadbe8",
+ CellID->918794442],
+Cell[45090, 1095, 267, 6, 25, "Output",ExpressionUUID->"a3b8022d-14a7-4ece-8c40-be2249c81e11",
+ CellID->48613879]
+}, Open  ]],
+Cell[45372, 1104, 226, 3, 24, "ExampleText",ExpressionUUID->"6c1fef4c-3b47-499e-a7e0-0ae6d645789a",
+ CellID->1673904291],
+Cell[CellGroupData[{
+Cell[45623, 1111, 273, 6, 26, "Input",ExpressionUUID->"cd2bcf42-9a74-4acb-8c4b-c8322b27f0a4",
+ CellID->1458245567],
+Cell[45899, 1119, 247, 5, 25, "Output",ExpressionUUID->"aa75466c-1e9a-498c-8767-4109ba0142cd",
+ CellID->221073614]
+}, Open  ]],
+Cell[46161, 1127, 334, 6, 41, "ExampleText",ExpressionUUID->"f4b0d4be-ddb7-4012-bf8c-9a18ad2a5b96",
+ CellID->1955714696],
+Cell[CellGroupData[{
+Cell[46520, 1137, 314, 7, 26, "Input",ExpressionUUID->"db939f69-4715-4698-bfa2-456877832e19",
+ CellID->2134775037],
+Cell[46837, 1146, 2409, 63, 75, "Output",ExpressionUUID->"d7bd8732-4f51-40df-89aa-7005a90adf59",
+ CellID->94377112]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[49283, 1214, 262, 5, 26, "Input",ExpressionUUID->"f4cc0a2a-ea34-4eab-ade4-65dbd1b1a34f",
+ CellID->1225831924],
+Cell[49548, 1221, 2412, 63, 75, "Output",ExpressionUUID->"5780fb56-6f84-4eef-9edf-3a5ca0d01bc3",
+ CellID->901051651]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[51997, 1289, 261, 5, 26, "Input",ExpressionUUID->"c7dc13ce-5ac7-4640-919a-5f4b6f11983f",
+ CellID->939982762],
+Cell[52261, 1296, 2082, 55, 79, "Output",ExpressionUUID->"f369bde7-5ed6-4670-bd42-5fd31f577220",
+ CellID->1129292565]
+}, Open  ]],
+Cell[54358, 1354, 251, 4, 24, "ExampleText",ExpressionUUID->"5ef38a2a-4e43-480a-852e-fb3c23a91302",
+ CellID->1332420548],
+Cell[CellGroupData[{
+Cell[54634, 1362, 286, 6, 26, "Input",ExpressionUUID->"8b72465f-5130-49c7-bfc3-2b65f94a5d2c",
+ CellID->1148358653],
+Cell[54923, 1370, 178, 3, 25, "Output",ExpressionUUID->"1ca7d2c6-4aa9-46f5-b9f1-08075f09d748",
+ CellID->362484305]
+}, Open  ]]
+}, Open  ]],
+Cell[55128, 1377, 264, 5, 35, "ExampleSection",ExpressionUUID->"9f65b2d2-a4f8-45af-9cc8-77a03c1b35ca",
+ CellID->682034260],
+Cell[CellGroupData[{
+Cell[55417, 1386, 244, 5, 23, "ExampleSection",ExpressionUUID->"7c054047-7b42-491a-9e0e-effa132c7b11",
+ CellID->1851421419],
+Cell[CellGroupData[{
+Cell[55686, 1395, 259, 5, 26, "ExampleSubsection",ExpressionUUID->"f4133172-0652-42bd-8691-8c8ba200d817",
+ CellID->732970064],
+Cell[CellGroupData[{
+Cell[55970, 1404, 592, 13, 45, "Input",ExpressionUUID->"3c98cb94-0227-4f2b-b95a-fd8f9fa9e606",
+ CellID->868942038],
+Cell[56565, 1419, 29949, 628, 174, "Output",ExpressionUUID->"56f61ead-29d2-4990-8696-d670b0b26d02",
+ CellID->317740830]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[86551, 2052, 296, 7, 26, "Input",ExpressionUUID->"e9528d80-e03a-4ada-9c7d-332c8fcfc962",
+ CellID->1542802630],
+Cell[86850, 2061, 11347, 284, 487, "Output",ExpressionUUID->"c563df60-3f8b-43cf-9b7d-08d8456de69d",
+ CellID->2135143376]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[98234, 2350, 588, 13, 45, "Input",ExpressionUUID->"ca134646-273a-4846-9cd8-f42a2e972f06",
+ CellID->195039749],
+Cell[98825, 2365, 26716, 570, 174, "Output",ExpressionUUID->"03080245-79bd-45b0-a04e-b90e6c7a1ac2",
+ CellID->1160771538]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[125578, 2940, 296, 7, 26, "Input",ExpressionUUID->"19372a51-fc34-47a1-b16a-733ae6ffd23e",
+ CellID->994266304],
+Cell[125877, 2949, 3797, 107, 145, "Output",ExpressionUUID->"d617be55-97f0-4b55-8889-356c9ee9667a",
+ CellID->1419831615]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[129723, 3062, 320, 6, 26, "ExampleSubsection",ExpressionUUID->"d94d96fa-c362-480f-9a04-bb1d60da30e2",
+ CellID->606589711],
+Cell[CellGroupData[{
+Cell[130068, 3072, 659, 14, 45, "Input",ExpressionUUID->"8dd7646e-3a58-4ae1-9d61-ac71074f2296",
+ CellID->963852523],
+Cell[130730, 3088, 159, 2, 23, "EchoTiming",ExpressionUUID->"ab2ab2ea-768e-4912-a383-e5318afe1836",
+ CellID->2078705270],
+Cell[130892, 3092, 243, 4, 25, "Output",ExpressionUUID->"9e826618-9f5f-4ed8-bc0a-83d06c1b56f4",
+ CellID->278260318]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[131172, 3101, 643, 14, 45, "Input",ExpressionUUID->"20fec268-e277-4730-8ff4-5b1437a973de",
+ CellID->598917638],
+Cell[131818, 3117, 162, 2, 23, "EchoTiming",ExpressionUUID->"85c02258-beb5-4df9-9c82-172d03aec599",
+ CellID->1329562961],
+Cell[131983, 3121, 268, 4, 25, "Output",ExpressionUUID->"87c432a1-84ed-4757-a2df-1c7225b3c23c",
+ CellID->443252738]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[132300, 3131, 373, 7, 26, "ExampleSubsection",ExpressionUUID->"4ab58f47-89fb-49a0-8aa9-88c85a6051a7",
+ CellID->480409232],
+Cell[CellGroupData[{
+Cell[132698, 3142, 658, 16, 45, "Input",ExpressionUUID->"ca761c31-846e-415c-a7fe-23bb0f15a315",
+ CellID->1622589751],
+Cell[133359, 3160, 189, 3, 25, "Output",ExpressionUUID->"f2222bb4-28ee-45a9-8a04-617b7535687d",
+ CellID->1743920229]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[133585, 3168, 759, 18, 45, "Input",ExpressionUUID->"ccf980f3-a80b-4c7b-bbb0-f4deb8beb63f",
+ CellID->1219781365],
+Cell[134347, 3188, 2426, 62, 92, "Output",ExpressionUUID->"89eac2cc-3836-46a2-b06b-d49fa45fd1b7",
+ CellID->360957014]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[136810, 3255, 777, 18, 64, "Input",ExpressionUUID->"f830ea44-2b7c-4ebd-8c4a-09e54831fdac",
+ CellID->1694232369],
+Cell[137590, 3275, 516, 13, 25, "Output",ExpressionUUID->"f4ba469d-588e-48dd-bb29-50b2844d2ea1",
+ CellID->635378293]
+}, Open  ]]
+}, Open  ]]
+}, Open  ]],
+Cell[138145, 3293, 249, 5, 35, "ExampleSection",ExpressionUUID->"5d9a66b5-57eb-45c5-93c1-24d88904986f",
+ CellID->1432538551],
+Cell[138397, 3300, 259, 5, 23, "ExampleSection",ExpressionUUID->"291d5b25-4d7e-49e2-8ded-44a43aa5d7f1",
+ CellID->1359936896],
+Cell[138659, 3307, 252, 5, 23, "ExampleSection",ExpressionUUID->"2644f8aa-0d99-4516-ad6e-bd9380d2ed2a",
+ CellID->2043357575],
+Cell[138914, 3314, 255, 5, 23, "ExampleSection",ExpressionUUID->"63e63013-e191-42fa-b8cd-64d7240ecfa9",
+ CellID->99524524],
+Cell[139172, 3321, 250, 5, 23, "ExampleSection",ExpressionUUID->"f6a5eb39-7442-454c-92c7-d98d7fd15347",
+ CellID->1283718040]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[139459, 3331, 111, 1, 72, "MetadataSection",ExpressionUUID->"617404ad-9d11-433c-8123-1748a4a78611",
+ CellID->1449408201],
+Cell[139573, 3334, 476, 12, 27, "History",ExpressionUUID->"2206a531-ebe9-462f-87ca-cda82323bf6c",
+ CellID->816268076],
+Cell[CellGroupData[{
+Cell[140074, 3350, 484, 13, 21, "CategorizationSection",ExpressionUUID->"d3621185-084b-47e3-bb1b-f09d60be227f",
+ CellID->951496877],
+Cell[140561, 3365, 132, 2, 34, "Categorization",ExpressionUUID->"ed7da9b3-f65e-47ca-ab64-71e272309da4",
+ CellID->4768391],
+Cell[140696, 3369, 136, 2, 34, "Categorization",ExpressionUUID->"d41d02a8-20b6-4b67-ae45-98ca6fc5e8ce",
+ CellID->51525159],
+Cell[140835, 3373, 134, 2, 34, "Categorization",ExpressionUUID->"afda294a-3702-46c8-9a36-30a99baa9b09",
+ CellID->403768227],
+Cell[140972, 3377, 151, 2, 34, "Categorization",ExpressionUUID->"9e37f126-5640-4242-8526-e7d16fe3a973",
+ CellID->167577097]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[141160, 3384, 110, 1, 21, "KeywordsSection",ExpressionUUID->"7ae9d985-90bc-43fc-a49e-196a9797d03f",
+ CellID->907781103],
+Cell[141273, 3387, 100, 1, 70, "Keywords",ExpressionUUID->"acbe98e2-c2a2-4e52-9bcc-4922a0ef7726",
+ CellID->1105673377]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[141410, 3393, 119, 1, 21, "TemplatesSection",ExpressionUUID->"9a04630c-6cd5-40b9-838a-6725860db4da",
+ CellID->415668795],
+Cell[141532, 3396, 148, 2, 70, "Template",ExpressionUUID->"d70ffe31-cac2-4591-a2ba-32703b2e771f",
+ CellID->447466766],
+Cell[141683, 3400, 138, 2, 70, "Template",ExpressionUUID->"0bdc7a54-14f2-4e5d-82cb-d01cb3206f40",
+ CellID->1715670862],
+Cell[141824, 3404, 136, 2, 70, "Template",ExpressionUUID->"074a6791-46ce-46f7-ab01-5b08fc7160db",
+ CellID->1195948677],
+Cell[141963, 3408, 138, 2, 70, "Template",ExpressionUUID->"c5e972c0-7706-446e-a514-90545f995ec6",
+ CellID->1220537702]
+}, Closed]]
+}, Open  ]]
+}
+]
+*)
+
