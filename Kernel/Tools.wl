@@ -57,7 +57,7 @@ StyleBox[\"\[ScriptL]\",\nFontSlant->\"Italic\"]\), \!\(\*
 StyleBox[\"\[ScriptM]\",\nFontSlant->\"Italic\"]\)} mode up to \!\(\*SuperscriptBox[\(\[Epsilon]\), \(order\[Epsilon]\)]\). Where the relation to \[Eta] is given by \[Epsilon]=2 \[Omega] \!\(\*SuperscriptBox[\(\[Eta]\), \(3\)]\)."*)
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*General Tools for Series*)
 
 
@@ -70,11 +70,12 @@ SeriesTerms::usage="SeriesTerms[series, {x, x0, n}] works exactly like Series, w
 IgnoreExpansionParameter::usage="IgnoreExpansionParameter[series,x] sets all occurences of the expansion parameter in the series coefficients to x. If no value is entered x defaults to 1." 
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Tools for PN Scalings*)
 
 
-PNScalings::usage="PNScalings[expr,params,var] applies the given powercounting scalings to the expression. E.g. PNScalings[\[Omega] r,{{\[Omega],3},{r,-2},\[Eta]]"
+Scalings::usage="Scalings[params,var][expr] applies the given powercounting scalings to the expression. E.g. Scalings[{{\[Omega],3,r,-2},\[Eta]][\[Omega] r]"
+PNScalings::usage="Same as Scalings but with different input. Just here to not break my older code but you should use Scalings instead"
 RemovePN::usage="PNScalings[expr,var] takes the Normal[] and sets var to 1"
 Zero::usage="Zero[expr,vars] sets all vars in expr to 0"
 One::usage="One[expr,vars] sets all vars in expr to 1"
@@ -149,7 +150,7 @@ TeukolskySourceCircularOrbit::usage="TeukolskySource[\[ScriptS],\[ScriptL],\[Scr
 TeukolskyEquation::usage="TeukolskyEquation[\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{\[Eta],order},R[r]] gives the Teukolsky equation with for a given {\[ScriptS],\[ScriptL],\[ScriptM]} mode with included \[Eta] scalings. The {\[Eta],order} argument can be left out for a general expression."
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Private*)
 
 
@@ -176,11 +177,12 @@ SeriesTerms=Teukolsky`PN`Private`SeriesTerms
 IgnoreExpansionParameter=Teukolsky`PN`Private`IgnoreExpansionParameter
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Tools for PN Scalings*)
 
 
 PNScalings=Teukolsky`PN`Private`PNScalings
+Scalings=Teukolsky`PN`Private`Scalings
 RemovePN=Teukolsky`PN`Private`RemovePN
 Zero=Teukolsky`PN`Private`Zero
 One=Teukolsky`PN`Private`One
@@ -257,7 +259,10 @@ TeukolskyEquation=Teukolsky`PN`Private`TeukolskyEquation
 SetAttributes[{\[Nu]MST, aMST,MSTCoefficients}, {Protected, ReadProtected}];
 
 
-SetAttributes[{SeriesTake, SeriesMinOrder,SeriesMaxOrder,SeriesLength,SeriesCollect,SeriesTerms,IgnoreExpansionParameter}, {Protected, ReadProtected}];
+SetAttributes[{SeriesTake, SeriesMinOrder,SeriesMaxOrder,SeriesLength,SeriesTerms,IgnoreExpansionParameter}, {Protected, ReadProtected}];
+
+
+SetAttributes[{SeriesCollect}, {Protected, ReadProtected,Listable}];
 
 
 SetAttributes[{PNScalings, RemovePN,Zero,One}, {Protected, ReadProtected}];

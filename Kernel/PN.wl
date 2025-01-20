@@ -187,6 +187,7 @@ TeukolskyRadialFunctionPN::paramaC="a=`1`. What do you even mean by a complex Ke
 TeukolskyRadialFunctionPN::parama="a=`1`. Numeric values for the Kerr parameter a have to be within [0,1]. It can however be left arbitrary.";
 TeukolskyRadialFunctionPN::param\[Omega]="\[Omega]=`1`. Complex frequencies are not yet supported";
 TeukolskyRadialFunctionPN::paramorder="order=`1`. The given number of terms has to be an Integer";
+TeukolskyRadialFunctionPN::PNInput="Input String does not contain \"PN\". Assume PN orders are desired (calulate `1` terms in the Series).";
 
 
 (* ::Subsection:: *)
@@ -1063,7 +1064,7 @@ MST=Append[MST,Table[a[i]->aMST[i]+If[i==0,0,O[\[Epsilon]]^(ExpOrder+1)],{i,-Exp
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Definitions, replacements and auxiliary functions*)
 
 
@@ -1156,6 +1157,19 @@ aux//PNScalings[#,arguments,\[Eta],opt]&//SeriesTerms[#,{\[Eta],0,termOrder}]&
 ]
 
 
+Scalings[list_List,\[Eta]_Symbol][expr_]:=Module[{aux,repls,arguments},
+arguments=list//Partition[#,2]&;
+repls=(#[[1]]->#[[1]]\[Eta]^#[[2]]&)/@arguments;
+expr/.\[Eta]->1/.repls
+]
+Scalings[arguments_List,\[Eta]_Symbol][series_SeriesData]:=Module[{aux,termOrder},
+termOrder=series//SeriesLength;
+aux=series//RemovePN[#,\[Eta]]&;
+aux//Scalings[arguments,\[Eta]]//SeriesTerms[#,{\[Eta],0,termOrder}]&
+]
+Scalings[arguments_List,\[Eta]_Symbol][list_List]:=Scalings[arguments,\[Eta]][#]&/@list;
+
+
 IgnoreExpansionParameter[series_SeriesData,symbol_:1]:=Module[{aux,param,newList},
 param=series[[1]];
 newList=series[[3]]/.param->symbol;
@@ -1163,16 +1177,16 @@ ReplacePart[series,3->newList]
 ]
 
 
-Zero[expr_,var_Symbol]:=Module[{aux,repls},
+Zero[var_Symbol][expr_]:=Module[{aux,repls},
 repls=var->0;
 expr/.repls]
-Zero[expr_,vars_List]:=Module[{aux,repls},
+Zero[vars_List][expr_]:=Module[{aux,repls},
 repls=vars->0//Thread;
 expr/.repls]
-One[expr_,var_Symbol]:=Module[{aux,repls},
+One[var_Symbol][expr_]:=Module[{aux,repls},
 repls=var->1;
 expr/.repls]
-One[expr_,vars_List]:=Module[{aux,repls},
+One[vars_List][expr_]:=Module[{aux,repls},
 repls=vars->1//Thread;
 expr/.repls]
 
@@ -1205,7 +1219,7 @@ ExpandSpheroidals[expr_Times,{\[Eta]_,n_}]:=ExpandSpheroidals[#,{\[Eta],n}]&/@ex
 ExpandSpheroidals[expr_,{\[Eta]_,n_}]:=expr;
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Tools for Series*)
 
 
@@ -1228,6 +1242,8 @@ Attributes[SeriesLenght]={Listable};
 
 
 SeriesCollect[series_SeriesData,var__,func_:Identity]:=Collect[#,var,func]&/@series;
+SeriesCollect[list_List,var__,func_:Identity]:=SeriesCollect[#,var,func]&/@list;
+SeriesCollect[expr_,var__,func_:Identity]:=Collect[#,var,func]&@expr;
 
 
 SeriesTake[series_SeriesData,order_Integer:1]:=Block[{aux},
@@ -1315,10 +1331,18 @@ ret=\!\(
 ret
 ]
 
+ExpandDiracDelta[expr_List,x_]:=ExpandDiracDelta[#,x]&/@expr;
+
 ExpandDiracDelta[expr_,x_]/;!FreeQ[expr,DiracDelta[a_]/;!FreeQ[a,x]]:=Module[{aux,ret},
 aux=expr//Collect[#,{DiracDelta[__],Derivative[__][DiracDelta][__]}]&;
 ExpandDiracDelta[#,x]&/@aux
 ]
+
+ExpandDiracDelta[expr_SeriesData,x_]/;!FreeQ[expr,DiracDelta[a_]/;!FreeQ[a,x]]:=Module[{aux,ret},
+aux=expr//SeriesCollect[#,{DiracDelta[__],Derivative[__][DiracDelta][__]}]&;
+ExpandDiracDelta[#,x]&/@aux
+]
+
 
 ExpandDiracDelta[expr_Plus,x_]:=(ExpandDiracDelta[#,x]&/@expr);
 ExpandDiracDelta[expr_,x_]:=expr;
@@ -1688,7 +1712,7 @@ Derivative[n_][\[Theta]][arg_]:=Derivative[n-1][\[Delta]][arg];
 \[Delta]''[\[Eta]^-2 a_]:=\[Eta]^2 \[Delta]''[a];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Amplitudes*)
 
 
@@ -1736,7 +1760,7 @@ aux/.MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]+3]//
 (*These are the amplitudes Subscript[B, trans] and Subscript[B, inc] from Sasaki Tagoshi Eq.(167-169) TODO: Add Subscript[B, ref]*)
 
 
-Options[BAmplitude]={"Normalization"->"SFPN"}
+Options[BAmplitude]={"Normalization"->"Default"}
 
 
 BAmplitude["Inc",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,\[CurlyEpsilon],\[Kappa],\[CurlyEpsilon]p,\[Tau],\[ScriptCapitalK]1,\[ScriptCapitalK]2,A},
@@ -1747,22 +1771,16 @@ BAmplitude["Inc",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\
 aux=\[Omega]^-1 (\[ScriptCapitalK]1 -I E^(-I \[Pi] \[Nu]MST) Sin[\[Pi](\[Nu]MST-\[ScriptS]+I \[CurlyEpsilon])]/Sin[\[Pi](\[Nu]MST+\[ScriptS]-I \[CurlyEpsilon])] \[ScriptCapitalK]2) A E^(-I(\[CurlyEpsilon] Log[\[CurlyEpsilon]]-(1-\[Kappa])/2 \[CurlyEpsilon]))//PNScalingsInternal;
 aux=aux/.MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]+3]//IgnoreExpansionParameter;
 \[ScriptCapitalK]1=Switch[OptionValue["Normalization"],
-	"SFPN",1,
+	"Default",1,
 	"SasakiTagoshi",\[ScriptCapitalK]Amplitude["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]//ExpandPolyGamma//ExpandGamma//SeriesCollect[#,PolyGamma[__,__]]&
 ];
 \[ScriptCapitalK]2=Switch[OptionValue["Normalization"],
-	"SFPN",\[ScriptCapitalK]Amplitude["Ratio"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]//ExpandPolyGamma//ExpandGamma//SeriesCollect[#,PolyGamma[__,__]]&,
+	"Default",\[ScriptCapitalK]Amplitude["Ratio"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]//ExpandPolyGamma//ExpandGamma//SeriesCollect[#,PolyGamma[__,__]]&,
 	"SasakiTagoshi",\[ScriptCapitalK]Amplitude["-\[Nu]-1"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]//ExpandPolyGamma//ExpandGamma//SeriesCollect[#,PolyGamma[__,__]]&
 ];
 A=AAmplitude["+"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]//SeriesCollect[#,Log[__]]&//IgnoreExpansionParameter;
 aux//SeriesTake[#,order\[Eta]]&//IgnoreExpansionParameter
 ]
-
-
-BAmplitude["Inc","Normalization"->"Toolkit"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=BAmplitude["Inc"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/BAmplitude["Trans"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]];
-
-
-BAmplitude["Trans","Normalization"->"Toolkit"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=1 (1+O[\[Eta]] \[Eta]^(order\[Eta]-1));
 
 
 BAmplitude["Trans",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,\[CurlyEpsilon],\[Kappa],\[CurlyEpsilon]p,\[Tau],\[ScriptCapitalK],nMin,nMax},
@@ -1773,7 +1791,7 @@ BAmplitude["Trans",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,orde
 nMax=order\[Eta]/3//Ceiling;
 nMin=-(order\[Eta]/3+2)//Floor;
 \[ScriptCapitalK]=Switch[OptionValue["Normalization"],
-	"SFPN",\[ScriptCapitalK]Amplitude["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]//ExpandPolyGamma//ExpandGamma//SeriesCollect[#,PolyGamma[__,__]]&,
+	"Default",\[ScriptCapitalK]Amplitude["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]//ExpandPolyGamma//ExpandGamma//SeriesCollect[#,PolyGamma[__,__]]&,
 	"SasakiTagoshi",1
 ];
 aux=((\[CurlyEpsilon] \[Kappa])/\[Omega])^(2\[ScriptS]) E^(I \[Kappa] \[CurlyEpsilon]p(1+(2 Log[\[Kappa]])/(1+\[Kappa]))) \!\(
@@ -1784,7 +1802,25 @@ aux//IgnoreExpansionParameter
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+BAmplitude["Ref",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,\[CurlyEpsilon],\[Kappa],\[CurlyEpsilon]p,\[Tau],\[ScriptCapitalK]1,\[ScriptCapitalK]2,A},
+\[CurlyEpsilon]=2 \[Omega];
+\[Kappa]=Sqrt[1-a^2];
+\[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;
+\[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];
+aux=(\[Omega]^(-1-2 \[ScriptS]) E^(-I \[CurlyEpsilon](Log[\[CurlyEpsilon]]-(1-\[Kappa])/2)) (\[ScriptCapitalK]1+I E^(I \[Pi] \[Nu]MST) \[ScriptCapitalK]2) A)/\[Omega]//PNScalingsInternal;
+aux=IgnoreExpansionParameter[aux/. MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]+3]];
+\[ScriptCapitalK]1=Switch[OptionValue["Normalization"],"Default",1,"SasakiTagoshi",(SeriesCollect[#1,PolyGamma[__,__]]&)[ExpandGamma[ExpandPolyGamma[\[ScriptCapitalK]Amplitude["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]]]]];
+\[ScriptCapitalK]2=Switch[OptionValue["Normalization"],"Default",(SeriesCollect[#1,PolyGamma[__,__]]&)[ExpandGamma[ExpandPolyGamma[\[ScriptCapitalK]Amplitude["Ratio"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]]]],"SasakiTagoshi",(SeriesCollect[#1,PolyGamma[__,__]]&)[ExpandGamma[ExpandPolyGamma[\[ScriptCapitalK]Amplitude["-\[Nu]-1"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]]]]];
+A=IgnoreExpansionParameter[(SeriesCollect[#1,Log[__]]&)[AAmplitude["-"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]]];
+IgnoreExpansionParameter[(SeriesTake[#1,order\[Eta]]&)[aux]]]
+
+
+BAmplitude["Inc","Normalization"->"UnitTransmission"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=BAmplitude["Inc"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/BAmplitude["Trans"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]];
+BAmplitude["Ref","Normalization"->"UnitTransmission"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=BAmplitude["Ref"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/BAmplitude["Trans"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]];
+BAmplitude["Trans","Normalization"->"UnitTransmission"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=1 (1+O[\[Eta]] \[Eta]^(order\[Eta]-1));
+
+
+(* ::Subsubsection:: *)
 (*C Amplitude*)
 
 
@@ -1792,10 +1828,10 @@ aux//IgnoreExpansionParameter
 (*These is the amplitudes Subscript[C, trans] from Sasaki Tagoshi Eq.(170) TODO: Add Subscript[C, ref] and Subscript[C, inc]*)
 
 
-Options[CAmplitude]={"Normalization"->"SFPN"}
+Options[CAmplitude]={"Normalization"->"Default"}
 
 
-CAmplitude["Trans","Normalization"->"Toolkit"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=1 (1+O[\[Eta]] \[Eta]^(order\[Eta]-1));
+CAmplitude["Trans","Normalization"->"UnitTransmission"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=1 (1+O[\[Eta]] \[Eta]^(order\[Eta]-1));
 
 
 CAmplitude["Trans",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,\[CurlyEpsilon],\[Kappa],\[CurlyEpsilon]p,\[Tau],\[ScriptCapitalK],A},
@@ -1807,6 +1843,16 @@ aux=\[Omega]^(-1-2\[ScriptS]) A E^(I (\[CurlyEpsilon] Log[\[CurlyEpsilon]]-(1-\[
 aux=aux/.MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]+3];
 A=AAmplitude["-"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]];
 aux//SeriesTake[#,order\[Eta]]&//IgnoreExpansionParameter
+]
+
+
+CAmplitude["Inc",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,\[CurlyEpsilon],\[Kappa],\[CurlyEpsilon]p,\[Tau],\[ScriptCapitalK],A},
+"Not Computed"
+]
+
+
+CAmplitude["Ref",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,\[CurlyEpsilon],\[Kappa],\[CurlyEpsilon]p,\[Tau],\[ScriptCapitalK],A},
+"Not Computed"
 ]
 
 
@@ -1925,11 +1971,11 @@ ret//SeriesTake[#,order\[Eta]]&
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Interface*)
 
 
-Options[TeukolskyAmplitudePN]={"Normalization"->"SFPN"}
+Options[TeukolskyAmplitudePN]={"Normalization"->"Default"}
 
 
 TeukolskyAmplitudePN["A+",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_}] :=AAmplitude["+"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/.{\[Omega]->\[Omega]Var,\[Eta]->\[Eta]Var};
@@ -1938,9 +1984,12 @@ TeukolskyAmplitudePN["A-",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[Script
 
 TeukolskyAmplitudePN["Binc",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_}] :=BAmplitude["Inc",opt][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/.{\[Omega]->\[Omega]Var,\[Eta]->\[Eta]Var};
 TeukolskyAmplitudePN["Btrans",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_}] :=BAmplitude["Trans",opt][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/.{\[Omega]->\[Omega]Var,\[Eta]->\[Eta]Var};
+TeukolskyAmplitudePN["Bref",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_}] :=BAmplitude["Ref",opt][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/.{\[Omega]->\[Omega]Var,\[Eta]->\[Eta]Var};
 
 
 TeukolskyAmplitudePN["Ctrans",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_}] :=CAmplitude["Trans",opt][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/.{\[Omega]->\[Omega]Var,\[Eta]->\[Eta]Var};
+TeukolskyAmplitudePN["Cinc",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_}] :=CAmplitude["Inc",opt][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/.{\[Omega]->\[Omega]Var,\[Eta]->\[Eta]Var};
+TeukolskyAmplitudePN["Cref",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_}] :=CAmplitude["Ref",opt][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/.{\[Omega]->\[Omega]Var,\[Eta]->\[Eta]Var};
 
 
 TeukolskyAmplitudePN["\[ScriptCapitalK]\[Nu]",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_}] :=\[ScriptCapitalK]Amplitude["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/.{\[Omega]->\[Omega]Var,\[Eta]->\[Eta]Var};
@@ -2235,7 +2284,7 @@ InGap[0,0]=0;
 InGap[\[ScriptL]_,0]:=4\[ScriptL]+2;
 
 
-Options[RPN]={"Normalization"->"SFPN"}
+Options[RPN]={"Normalization"->"Default"}
 
 
 RPN["In",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,ret,gap,\[ScriptCapitalK],secondTerm,secondR,normalization},
@@ -2247,7 +2296,7 @@ aux=RPN["C\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]+secondTerm;
 normalization=Switch[OptionValue["Normalization"],
 	"Default",1,
 	"SasakiTagoshi",\[ScriptCapitalK]Amplitude["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]],
-	"UnitTransmission",\[ScriptCapitalK]Amplitude["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/BAmplitude["Trans"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]
+	"UnitTransmission",1/BAmplitude["Trans"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]
 ];
 ret=normalization aux;
 ret//IgnoreExpansionParameter
@@ -2299,7 +2348,7 @@ c["Up"][z_]:=2^\[Nu] E^(-\[Pi] \[Epsilon]) E^(-I \[Pi](\[Nu]+1+s)) E^(I z) (z-\[
 element["Up"][n_,j_,z_]:=2^n (I z)^n Pochhammer[1+s-I \[Epsilon]+\[Nu],n]/Pochhammer[1-s+I \[Epsilon]+\[Nu],n] ((2^(-1+j-2 n-2 \[Nu]) (-I z)^(-1+j-2 n-2 \[Nu]) Gamma[1+2 n+2 \[Nu]] Pochhammer[-n+s-I \[Epsilon]-\[Nu],j])/(j! Gamma[1+n+s-I \[Epsilon]+\[Nu]] Pochhammer[-2 n-2 \[Nu],j])+(2^j (-I z)^j Gamma[-1-2 n-2 \[Nu]] Pochhammer[1+n+s-I \[Epsilon]+\[Nu],j])/(j! Gamma[-n+s-I \[Epsilon]-\[Nu]] Pochhammer[2+2 n+2 \[Nu],j]))*)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Constructions (depreciated)*)
 
 
@@ -2593,7 +2642,7 @@ icons = <|
 |>;
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*TeukolskyRadialPN*)
 
 
@@ -2601,7 +2650,7 @@ Options[RadialAssociation]={"Normalization"->"Default", "Amplitudes"->False, "Si
 Options[TeukolskyRadialPN]={"Normalization"->"Default", "Amplitudes"->False, "Simplify"->True}
 
 
-RadialAssociation[sol_String,opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]_,{varPN_,order_}]/;MemberQ[PossibleSols,sol]:=Module[{aux,ret,R,BC,lead,termCount,normalization,amplitudes,trans},
+RadialAssociation[sol_String,opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]_,{varPN_,order_}]/;MemberQ[PossibleSols,sol]:=Module[{aux,ret,R,BC,lead,termCount,normalization,amplitudes,trans,inc,ref},
 CheckInput[sol,\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{varPN,order}];
 R=RPNF[sol,"Normalization"->OptionValue["Normalization"],"Simplify"->OptionValue["Simplify"]][\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{varPN,order}];
 BC=sol;
@@ -2609,9 +2658,31 @@ lead=RPNF[sol,"Normalization"->OptionValue["Normalization"],"Simplify"->OptionVa
 termCount=R[r]//SeriesLength;
 normalization=OptionValue["Normalization"];
 trans=If[OptionValue["Amplitudes"],TeukolskyAmplitudePN[Switch[sol,"In","Btrans","Up","Ctrans"],"Normalization"->OptionValue["Normalization"]][\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{varPN,order}],"Not Computed"];
-amplitudes=<|"Transmission"->trans|>;
-ret=<|"s"->\[ScriptS],"l"->\[ScriptL],"m"->\[ScriptM],"a"->a,"PN"->{varPN,order},"RadialFunction"->R,"BoundaryCondition"->BC,"LeadingOrder"->lead,"TermCount"->termCount,"Normalization"->normalization,"Amplitudes"->amplitudes,"Simplified"->OptionValue["Simplify"]|>;
+inc=If[OptionValue["Amplitudes"],TeukolskyAmplitudePN[Switch[sol,"In","Binc","Up","Cinc"],"Normalization"->OptionValue["Normalization"]][\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{varPN,order}],"Not Computed"];
+ref=If[OptionValue["Amplitudes"],TeukolskyAmplitudePN[Switch[sol,"In","Bref","Up","Cref"],"Normalization"->OptionValue["Normalization"]][\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{varPN,order}],"Not Computed"];
+If[OptionValue["Simplify"],{trans,inc,ref}={trans,inc,ref}//Simplify];
+amplitudes=<|"Incidence"->inc,"Transmission"->trans,"Reflection"->ref|>;
+ret=<|"s"->\[ScriptS],"l"->\[ScriptL],"m"->\[ScriptM],"a"->a,"PN"->{varPN,order},"RadialFunction"->R,"BoundaryCondition"->BC,"LeadingOrder"->lead,"TermCount"->termCount,"Normalization"->normalization,"Amplitudes"->amplitudes,"Simplify"->OptionValue["Simplify"]|>;
 ret
+]
+
+
+PNStringToOrder[pn_String]:=Module[{aux,ret,check1,check2},
+check1=StringContainsQ[pn,"PN"];
+aux=pn//StringReplace[#,"PN"->""]&;
+aux=aux//ToExpression;
+aux=2aux+1;
+ret=aux//IntegerPart;
+check2=ret-aux===0`;
+If[!check1,Message[TeukolskyRadialFunctionPN::PNInput,ret]];
+If[!check2,ret=aux];
+ret
+]
+
+
+TeukolskyRadialPN[\[ScriptS]_, \[ScriptL]_, \[ScriptM]_, a_, \[Omega]_,{varPN_,order_String},opt:OptionsPattern[]]:=Module[{aux},
+aux=order//PNStringToOrder;
+TeukolskyRadialPN[\[ScriptS], \[ScriptL], \[ScriptM], a, \[Omega],{varPN,aux},opt]
 ]
 
 
@@ -2624,7 +2695,7 @@ retUp=TeukolskyRadialFunctionPN[\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{var
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*TeukolskyRadialFunctionPN*)
 
 
@@ -2646,7 +2717,7 @@ TeukolskyRadialFunctionPN /:
              BoxForm`SummaryItem[{"Boundary Condition: ", assoc["BoundaryCondition"]}]};           
   extended = {BoxForm`SummaryItem[{"Leading order: ",assoc["LeadingOrder"]["r"]}],
   BoxForm`SummaryItem[{"Normalization: ",assoc["Normalization"]}],
-  BoxForm`SummaryItem[{"Simplified: ",assoc["Simplified"]}],
+  BoxForm`SummaryItem[{"Simplify: ",assoc["Simplify"]}],
   BoxForm`SummaryItem[{"Number of terms: ",assoc["TermCount"]}]};
 
   BoxForm`ArrangeSummaryBox[
@@ -2670,19 +2741,21 @@ ret
 (*TeukolskyPointParticleModePN*)
 
 
-Options[RadialSourcedAssociation]={"Normalization"->"Default"}
+Options[RadialSourcedAssociation]={"Normalization"->"Default","Simplify"->True}
 
 
-RadialSourcedAssociation["CO",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,r0_,{varPN_,order_}]:=Assuming[{varPN>0,r0>0,r>0,1>a>=0,\[ScriptA]>=0},Module[{aux,ret,Rin,dRin,ddRin,Rup,dRup,ddRup,wronskian,source,sourceCoeffs,cUp,cIn,deltaCoeff,innerF,outerF,radialF},
-CheckInput["Up",\[ScriptS],\[ScriptL],\[ScriptM],a,\[ScriptM]/Sqrt[r0^3],{varPN,order}];
-aux=TeukolskyRadialPN[\[ScriptS],\[ScriptL],\[ScriptM],a,If[\[ScriptM]!=0,\[ScriptM],Style["0",Red]]\[CapitalOmega]Kerr,{varPN,order},"Normalization"->OptionValue["Normalization"]];
+RadialSourcedAssociation["CO",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,aVar_,r0Var_,{varPN_,order_}]:=Assuming[{varPN>0,r0>0,r>0,1>a>=0,\[ScriptA]>=0},Module[{aux,ret,Rin,dRin,ddRin,Rup,dRup,ddRup,wronskian,source,sourceCoeffs,cUp,cIn,deltaCoeff,innerF,outerF,inner,outer,radialF,ampAssoc},
+CheckInput["Up",\[ScriptS],\[ScriptL],\[ScriptM],aVar,\[ScriptM]/Sqrt[r0Var^3],{varPN,order}];
+aux=TeukolskyRadialPN[\[ScriptS],\[ScriptL],\[ScriptM],aVar,If[\[ScriptM]!=0,\[ScriptM],Style["0",Red]]\[CapitalOmega]Kerr,{varPN,order},"Normalization"->OptionValue["Normalization"]];
 Rin=aux["In"]["RadialFunction"];
 Rup=aux["Up"]["RadialFunction"];
 dRup=Rup';
 dRin=Rin';
 ddRup=dRup';
 ddRin=dRin';
-wronskian=(Simplify[#1,Assumptions->r>2]&)[Kerr\[CapitalDelta][a,r/varPN^2]^(\[ScriptS]+1) varPN^2 (Rin[r] dRup[r]-dRin[r] Rup[r])];
+(*The replacements in the wronskian are a quick fix for non vanishing r dependence in case a has a numerical value*)
+wronskian=(Simplify[#1,Assumptions->r>2]&)[Kerr\[CapitalDelta][aVar,r/varPN^2]^(\[ScriptS]+1) varPN^2 (Rin[r] dRup[r]-dRin[r] Rup[r])];
+wronskian=wronskian/.Log[__ r]->0/.r^a_/;a<0:>r^-a/.r->0;
 source=TeukolskySourceCircularOrbit[\[ScriptS],\[ScriptL],\[ScriptM],a,{#,r0},"Form"->"InvariantWronskian"]&;
 sourceCoeffs=source[r]//Coefficient[#,{DiracDelta[r-r0],Derivative[1][DiracDelta][r-r0],Derivative[2][DiracDelta][r-r0]}]&;
 sourceCoeffs=Collect[#,{SpinWeightedSpheroidalHarmonicS[__][__],Derivative[__][SpinWeightedSpheroidalHarmonicS[__]][__]},Simplify]&/@sourceCoeffs;
@@ -2691,10 +2764,17 @@ cIn=1/wronskian Total[sourceCoeffs {Rup[r0],-varPN^2dRup[r0],varPN^4 ddRup[r0]}]
 cUp=1/wronskian Total[sourceCoeffs {Rin[r0],-varPN^2dRin[r0],varPN^4 ddRin[r0]}]//SeriesTake[#,order]&;
 deltaCoeff=Coefficient[source[r],Derivative[2][DiracDelta][r-r0]]/Kerr\[CapitalDelta][a,r0];
 deltaCoeff=Assuming[{varPN>0},If[deltaCoeff===0,0,deltaCoeff//PNScalings[#,{{r0,-2},{\[CapitalOmega]Kerr,3}},varPN,"IgnoreHarmonics"->True]&//SeriesTerms[#,{varPN,0,order}]&]];
-innerF=cIn Rin[#]&;
-outerF=cUp Rup[#]&;
-radialF=innerF[#] HeavisideTheta[r0-#] + outerF[#] HeavisideTheta[#-r0]+deltaCoeff DiracDelta[#-r0]&;
-ret=<|"s"->\[ScriptS],"l"->\[ScriptL],"m"->\[ScriptM],"a"->a,"r0"->r0,"PN"->{varPN,order},"RadialFunction"->radialF,("ExtendedHomogeneous"->"\[ScriptCapitalI]")->innerF,("ExtendedHomogeneous"->"\[ScriptCapitalH]")->outerF,"\[Delta]"->deltaCoeff,"cUp"->cUp,"cIn"->cIn,"Wronskian"->wronskian,"Source"->source,"In"->aux["In"],"Up"->aux["Up"]|>;
+{cIn,cUp,deltaCoeff,source}={cIn,cUp,deltaCoeff,source}/.r0->r0Var/.a->aVar;
+If[OptionValue["Simplify"],{cIn,cUp,deltaCoeff,source}={cIn,cUp,deltaCoeff,source}//SeriesCollect[#,{SpinWeightedSpheroidalHarmonicS[__],Derivative[__][SpinWeightedSpheroidalHarmonicS][__]},(Simplify[#,{aVar>=0,r0Var>0,varPN>0}]&)]&];
+inner=cIn Rin[r];
+outer=cUp Rup[r];
+If[OptionValue["Simplify"],{inner,outer}={inner,outer}//SeriesCollect[#,{SpinWeightedSpheroidalHarmonicS[__],Derivative[__][SpinWeightedSpheroidalHarmonicS][__]},(Simplify[#,{aVar>=0,r0Var>0,varPN>0}]&)]&];
+innerF=inner/.r->#&;
+outerF=outer/.r->#&;
+
+ampAssoc=<|"\[ScriptCapitalI]"->cUp,"\[ScriptCapitalH]"->cIn|>;
+radialF=innerF[#] HeavisideTheta[r0Var-#] + outerF[#] HeavisideTheta[#-r0Var]+deltaCoeff DiracDelta[#-r0Var]&;
+ret=<|"s"->\[ScriptS],"l"->\[ScriptL],"m"->\[ScriptM],"a"->aVar,"r0"->r0Var,"PN"->{varPN,order},"RadialFunction"->radialF,("ExtendedHomogeneous"->"\[ScriptCapitalI]")->innerF,("ExtendedHomogeneous"->"\[ScriptCapitalH]")->outerF,"\[Delta]"->deltaCoeff,"Amplitudes"->ampAssoc,"Wronskian"->wronskian,"Source"->source,"In"->aux["In"],"Up"->aux["Up"],"Simplify"->OptionValue["Simplify"],"Normalization"->OptionValue["Normalization"]|>;
 ret
 ]
 ]
@@ -2710,7 +2790,7 @@ ret
 (*RadialSourcedAssociation["CO"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,r0Var_,{varPN_,order_}]/;NumericQ[r0Var]:=RadialSourcedAssociation["CO"][\[ScriptS],\[ScriptL],\[ScriptM],a,r0,{varPN,order}]/.r0->r0Var;*)*)
 
 
-Options[TeukolskyPointParticleModePN]={"Normalization"->"Default"}
+Options[TeukolskyPointParticleModePN]={"Normalization"->"Default","Simplify"->True}
 
 
 TeukolskyModePN /:
@@ -2727,7 +2807,8 @@ TeukolskyModePN /:
  BoxForm`SummaryItem[{"PN order: ", N[(order-1)/2]"PN"}]
 }],
              BoxForm`SummaryItem[{"Orbit: ", "Circular Equatorial"}]};           
-  extended = {};
+  extended = {BoxForm`SummaryItem[{"Simplify: ",assoc["Simplify"]}],
+  BoxForm`SummaryItem[{"Homogeneous Normalization: ",assoc["Normalization"]}]};
 
   BoxForm`ArrangeSummaryBox[
     TeukolskyModePN,
@@ -2749,7 +2830,13 @@ ret
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+TeukolskyPointParticleModePN[\[ScriptS]_, \[ScriptL]_, \[ScriptM]_,orbit_KerrGeodesics`KerrGeoOrbit`KerrGeoOrbitFunction,{varPN_,order_String},opt:OptionsPattern[]]:=Module[{aux},
+aux=order//PNStringToOrder;
+TeukolskyPointParticleModePN[\[ScriptS], \[ScriptL], \[ScriptM],orbit,{varPN,aux},opt]
+]
+
+
+(* ::Subsubsection:: *)
 (*Accessing functions and keys*)
 
 
