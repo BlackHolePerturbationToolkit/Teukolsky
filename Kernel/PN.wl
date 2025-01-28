@@ -26,157 +26,12 @@ ClearAttributes[{TeukolskyRadialPN, TeukolskyRadialFunctionPN,TeukolskyPointPart
 (*Public *)
 
 
-(* ::Subsection::Closed:: *)
-(*MST Coefficients*)
-
-
-(* ::Input:: *)
-(*(*\[Nu]MST::usage="\[Nu]MST is representative of the \[Nu] coefficient in the MST solutions"*)
-(*aMST::usage="aMST[\!\(\**)
-(*StyleBox[\"n\",\nFontSlant->\"Italic\"]\)] is the \!\(\*SuperscriptBox[*)
-(*StyleBox[\"n\",\nFontSlant->\"Italic\"], \(th\)]\) MST coefficient";*)
-(*MSTCoefficients::usage="MSTCoefficients[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]] gives the PN expanded MST coefficients aMST[n] for a given {\!\(\**)
-(*StyleBox[\"\[ScriptS]\",\nFontSlant->\"Italic\"]\),\!\(\**)
-(*StyleBox[\"\[ScriptL]\",\nFontSlant->\"Italic\"]\),\!\(\**)
-(*StyleBox[\"\[ScriptM]\",\nFontSlant->\"Italic\"]\)} mode up to \!\(\*SuperscriptBox[\(\[Eta]\), \(\!\(\**)
-(*StyleBox[\"order\[Eta]\",\nFontSlant->\"Italic\"]\)\)]\)."*)
-(*KerrMSTSeries::usage="KerrMSTSeries[\!\(\**)
-(*StyleBox[\"\[ScriptS]\",\nFontSlant->\"Italic\"]\),\!\(\**)
-(*StyleBox[\"\[ScriptL]\",\nFontSlant->\"Italic\"]\),\!\(\**)
-(*StyleBox[\"\[ScriptM]\",\nFontSlant->\"Italic\"]\),\!\(\**)
-(*StyleBox[\"order\[Epsilon]\",\nFontSlant->\"Italic\"]\)] gives the PN expanded MST coefficients a[n] for a given {\!\(\**)
-(*StyleBox[\"\[ScriptS]\",\nFontSlant->\"Italic\"]\), \!\(\**)
-(*StyleBox[\"\[ScriptL]\",\nFontSlant->\"Italic\"]\), \!\(\**)
-(*StyleBox[\"\[ScriptM]\",\nFontSlant->\"Italic\"]\)} mode up to \!\(\*SuperscriptBox[\(\[Epsilon]\), \(order\[Epsilon]\)]\). Where the relation to \[Eta] is given by \[Epsilon]=2 \[Omega] \!\(\*SuperscriptBox[\(\[Eta]\), \(3\)]\)."*)*)
-
-
-(* ::Subsection::Closed:: *)
-(*Spacetime replacements*)
-
-
-(* ::Input:: *)
-(*(*Kerr\[CapitalDelta]::usage="Kerr\[CapitalDelta][a,r] gives the Kerr \[CapitalDelta] \!\(\*SuperscriptBox[\(r\), \(2\)]\)-2r+\!\(\*SuperscriptBox[\(a\), \(2\)]\)"*)*)
-
-
-(* ::Input:: *)
-(*(*(*replsKerr::usage="a list of replacements for a Kerr spacetime."*)
-(*replsSchwarzschild::usage="a list of replacements for Schwarzschild spacetime."*)*)
-(*(*Schwarzschild::usage="Schwarzschild[\!\(\**)
-(*StyleBox[\"expr\",\nFontSlant->\"Italic\"]\)] will set a to 0 in \!\(\**)
-(*StyleBox[\"expr\",\nFontSlant->\"Italic\"]\)."*)
-(**)*)*)
-
-
-(* ::Subsection::Closed:: *)
-(*Tools for Series*)
-
-
-(* ::Subsubsection::Closed:: *)
-(*General Tools for Series*)
-
-
-(* ::Input:: *)
-(*(*SeriesTake::usage="SeriesTake[series, n] takes the first n terms of series"*)
-(*SeriesMinOrder::usage="SeriesMinOrder[series] gives the leading order of series"*)
-(*SeriesMaxOrder::usage="SeriesMaxOrder[series] gives the first surpressed order of series"*)
-(*SeriesLength::usage="SeriesLenght[series] gives the number of terms in series"*)
-(*SeriesCollect::usage="SeriesCollect[expr, var, func] works like Collect but applied to each order individually. Crucially, unlike Collect it keeps the SeriesData structure."*)
-(*SeriesTerms::usage="SeriesTerms[series, {x, \!\(\*SubscriptBox[\(x\), \(0\)]\), n}] works exactly like Series, with the difference that n gives the desired number of terms instead of a maximum order"*)
-(*IgnoreExpansionParameter::usage="IgnoreExpansionParameter[series,x] sets all occurences of the expansion parameter in the series coefficients to x. If no value is entered x defaults to 1." *)*)
-
-
-(* ::Subsubsection::Closed:: *)
-(*Tools for PN Scalings*)
-
-
-(* ::Input:: *)
-(*(*PNScalings::usage="PNScalings[expr,params,var] applies the given powercounting scalings to the expression. E.g. PNScalings[\[Omega] r,{{\[Omega],3},{r,-2},\[Eta]]"*)
-(*RemovePN::usage="PNScalings[expr,var] takes the Normal[] and sets var to 1"*)
-(*Zero::usage="Zero[expr,vars] sets all vars in expr to 0"*)
-(*One::usage="One[expr,vars] sets all vars in expr to 1"*)*)
-
-
-(* ::Input:: *)
-(*(*ExpandSpheroidals::usage="ExpandSpheroidal[expr,{param,order}] returns a all SpinWeightedSpheroidalHarmonicS in expr have been Series expanded around param->0 to order."*)*)
-
-
-(* ::Input:: *)
-(*(*CollectDerivatives::usage="CollectDerivatives[expr,f] works exactly like Collect[] but also collects for derivatives of f."*)*)
-
-
-(* ::Subsection::Closed:: *)
-(*Tools for Logs, Gammas, and PolyGammas*)
-
-
-(* ::Input:: *)
-(*(*ExpandLog::usage="ExpandLog[\!\(\**)
-(*StyleBox[\"expr\",\nFontSlant->\"Italic\"]\)] replaces all Logs in \!\(\**)
-(*StyleBox[\"expr\",\nFontSlant->\"Italic\"]\)\!\(\**)
-(*StyleBox[\" \",\nFontSlant->\"Italic\"]\)with a PowerExpanded version"*)
-(*ExpandGamma::usage="ExpandGamma[\!\(\**)
-(*StyleBox[\"expr\",\nFontSlant->\"Italic\"]\)] factors out all Integer facors out of the Gammas in \!\(\**)
-(*StyleBox[\"expr\",\nFontSlant->\"Italic\"]\). E.g. Gamma[x+1]->x Gamma[x]"*)
-(*ExpandPolyGamma::usage="ExpandPolyGamma[\!\(\**)
-(*StyleBox[\"expr\",\nFontSlant->\"Italic\"]\)] factors out all Integer facors out of the PolyGammas in \!\(\**)
-(*StyleBox[\"expr\",\nFontSlant->\"Italic\"]\). E.g. PolyGamma[x+1]->\!\(\*FractionBox[\(1\), \(x\)]\) PolyGamma[x]"*)
-(*PochhammerToGamma::usage="PochhammerToGamma[\!\(\**)
-(*StyleBox[\"expr\",\nFontSlant->\"Italic\"]\)] replaces all Pochhammer in \!\(\**)
-(*StyleBox[\"expr\",\nFontSlant->\"Italic\"]\) with the respecive Gamma."*)
-(*GammaToPochhammer::usage="PochhammerToGamma[\!\(\**)
-(*StyleBox[\"expr\",\nFontSlant->\"Italic\"]\),\!\(\**)
-(*StyleBox[\"n\",\nFontSlant->\"Italic\"]\)] replaces all Gamma in \!\(\**)
-(*StyleBox[\"expr\",\nFontSlant->\"Italic\"]\)\!\(\**)
-(*StyleBox[\" \",\nFontSlant->\"Italic\"]\)that contain \!\(\**)
-(*StyleBox[\"n\",\nFontSlant->\"Italic\"]\) with the respective Pochhammer[__,\!\(\**)
-(*StyleBox[\"n\",\nFontSlant->\"Italic\"]\)]"*)
-(**)*)
-
-
-(* ::Subsection::Closed:: *)
-(*Tools for DiracDelta*)
-
-
-(* ::Input:: *)
-(*(*ExpandDiracDelta::usage="ExpandDiracDelta[expr,r] applies identities for Dirac deltas and it's derivatives to expr."*)*)
-
-
-(* ::Subsection::Closed:: *)
-(*Amplitudes*)
-
-
-(* ::Input:: *)
-(*(*AAmplitude::usage="AAmplitude[\"+\"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]] gives the factor \!\(\*SubscriptBox[\(A\), \(+\)]\) from Sasaki Tagoshi Eq.(157). Likewise for [\"-\"]"*)
-(*BAmplitude::usage="BAmplitude[\"trans\"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]] gives the factor \!\(\*SuperscriptBox[\(B\), \(trans\)]\) from Sasaki Tagoshi Eq.(167). Likewise for [\"inc\"]"*)
-(*CAmplitude::usage="CAmplitude[\"trans\"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]] gives the factor \!\(\*SuperscriptBox[\(C\), \(trans\)]\) from Sasaki Tagoshi Eq.(170)."*)
-(*\[ScriptCapitalK]Amplitude::usage="\[ScriptCapitalK]Amplitude[\"\[Nu]\"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]] gives the \!\(\*SuperscriptBox[\(\[ScriptCapitalK]\), \(\[Nu]\)]\) factor for \!\(\*SubscriptBox[\(R\), \(In\)]\). Likewise for \[ScriptCapitalK]Amplitude[\"-\[Nu]-1\"]. \[ScriptCapitalK]Amplitude[\"Ratio\"] gives the tidal response function \!\(\*FractionBox[SuperscriptBox[\(\[ScriptCapitalK]\), \(\(-\[Nu]\) - 1\)], SuperscriptBox[\(\[ScriptCapitalK]\), \(\[Nu]\)]]\)."*)*)
-
-
-(* ::Input:: *)
-(*(*TeukolskyAmplitudePN::usage="TeukolskyAmplitudePN[\"sol\"][\[ScriptS], \[ScriptL], \[ScriptM], a, \[Omega], {\[Eta], n}] gives the desired PN expanded amplitude. Options for sol are as follows: *)
-(*\"A+\": Sasaki Tagoshi Eq.(157), *)
-(*\"A-\": ST Eq.(158), *)
-(*\"Btrans\": ST Eq.(167), *)
-(*\"Binc\": ST Eq.(168) divided by \!\(\*SubscriptBox[\(\[ScriptCapitalK]\), \(\[Nu]\)]\), *)
-(*\"Ctrans\": Eq.(170) ST, *)
-(*\"\[ScriptCapitalK]\": , *)
-(*\"\[ScriptCapitalK]\[Nu]\": , *)
-(*\"\[ScriptCapitalK]-\[Nu]-1\": "*)*)
-
-
-(* ::Subsection::Closed:: *)
-(*Wronskian*)
-
-
-(* ::Input:: *)
-(*(*InvariantWronskian::usage="InvariantWronskian[\[ScriptS], \[ScriptL], \[ScriptM], a, \[Omega], {\[Eta], n}] gives the invariant Wronskian."*)*)
-
-
-(* ::Subsection::Closed:: *)
-(*Radial solutions*)
+(* ::Subsection:: *)
+(*Homogeneous solutions*)
 
 
 TeukolskyRadialPN::usage="TeukolskyRadialPN[\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{\[Eta],n}] gives the In and Up solution to the radial Teukolsky equation. {\[ScriptS],\[ScriptL],\[ScriptM]} specify the mode, a is the Kerr spin parameter, \[Omega] is the frequency, \[Eta] is the PN expansion parameter and n the number of terms."
-TeukolskyRadialFunctionPN::usage="TeukolskyRadialFunctionPN[\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{\[Eta],n},\"sol\"] gives the specified solution to the radial Teukolsky equation. {\[ScriptS],\[ScriptL],\[ScriptM]} specify the mode, a is the Kerr spin parameter, \[Omega] is the frequency, \[Eta] is the PN expansion parameter and n the number of terms. Possible options for sol are In, Up, C\[Nu], and C-\[Nu]-1"
+TeukolskyRadialFunctionPN::usage="is an object representing a PN expanded homogeneous solution to the radial Teukolsky equation."
 
 
 TeukolskyRadialFunctionPN::optx="`1` is not a valid boundary condition. Possible options are In, Up, C\[Nu], and C-\[Nu]-1";
@@ -190,108 +45,18 @@ TeukolskyRadialFunctionPN::paramorder="order=`1`. The given number of terms has 
 TeukolskyRadialFunctionPN::PNInput="Input String does not contain \"PN\". Assume PN orders are desired (calulate `1` terms in the Series).";
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Sourced things*)
-
-
-(* ::Input:: *)
-(*(*TeukolskySourceCircularOrbit::usage="TeukolskySource[\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{r,r\:2080}] gives an analytical expression for the Teukolsky point particle source for a given {\[ScriptS],\[ScriptL],\[ScriptM]} mode. "*)*)
 
 
 TeukolskyPointParticleModePN::usage="TeukolskyPointParticleModePN[s, l, m, orbit, {\[Eta], n}] produces a TeukolskyModePN representing a PN expanded analyitcal solution to the radial Teukolsky equation with a point particle source. s, l, and m specify the mode and need to be Integers. orbit needs to be a KerrGeoOrbitFunction (computed with KerrGeoOrbit[]). {\[Eta], n} specify the PN information. \[Eta] needs to be a symbol, while n is an integer specifying the amount of terms (including the Newtonian order), i.e., n=2 PNorder+1. "
 
 
-TeukolskyModePN::usage="aa"
+TeukolskyModePN::usage="is an object which represents a PN expanded Teukolsky mode."
 
 
 TeukolskyPointParticleModePN::orbit="As of now TeukolskyPointParticleModePN only supports circular equatorial orbits, i.e., e=0 and x=1.";
-TeukolskyPointParticleModePN::particle="TeukolskyPointParticleModePN cannot be evaluated at the particle.";
-
-
-\[CapitalOmega]Kerr::usage="This is here as a quick fix. It is the particles orbital frequency, i.e., \!\(\*SqrtBox[FractionBox[\(1\), SuperscriptBox[SubscriptBox[\(r\), \(0\)], \(3\)]]]\) in Schwarzschild."
-
-
-(* ::Subsection::Closed:: *)
-(*Teukolsky Equation*)
-
-
-(* ::Input:: *)
-(*(*TeukolskyEquation::usage="TeukolskyEquation[\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{\[Eta],order},R[r]] gives the Teukolsky equation with for a given {\[ScriptS],\[ScriptL],\[ScriptM]} mode with included \[Eta] scalings. The {\[Eta],order} argument can be left out for a general expression."*)*)
-
-
-(* ::Subsection::Closed:: *)
-(*Developer options*)
-
-
-(* ::Input:: *)
-(*(*integrateDelta::usage="aala"*)
-(*\[Delta]*)
-(*\[Theta]*)
-(**)
-(*PNScalings*)*)
-
-
-(* ::Input:: *)
-(*(*z::usage="iuaeouia"*)
-(*\[CapitalDelta]::usage="\[CapitalDelta][\!\(\**)
-(*StyleBox[\"a\",\nFontSlant->\"Italic\"]\),\!\(\**)
-(*StyleBox[\"M\",\nFontSlant->\"Italic\"]\),\!\(\**)
-(*StyleBox[\"r\",\nFontSlant->\"Italic\"]\)] is the usual length scale of the Kerr spacetime"*)*)
-
-
-(* ::Subsubsection::Closed:: *)
-(*Post Newtonian Scalings*)
-
-
-(* ::Input:: *)
-(*(*replsPN="Replacements for PN scalings"*)
-(*PNScalingsInternal::usage="PNScalingsInternal[\!\(\**)
-(*StyleBox[\"expr\",\nFontSlant->\"Italic\"]\)] reapplies the PN scalings to \!\(\**)
-(*StyleBox[\"expr\",\nFontSlant->\"Italic\"]\). Should not be used on SeriesData objects. "*)
-(*redo\[Eta]Repls::usage="iuaeuiae"*)
-(*RemovePNInternal::usage="RemovePNInternal[expr] removes all PN scalings in the expression, i.e., taking the Normal and setting \[Eta]->1"*)
-(*polyToSeries*)
-(*IgnoreLog\[Eta]::usage="IgnoreLog\[Eta][\!\(\**)
-(*StyleBox[\"expr\",\nFontSlant->\"Italic\"]\)] sets all \[Eta] factors within \!\(\**)
-(*StyleBox[\"expr\",\nFontSlant->\"Italic\"]\) to 1. This can be helpful when using SeriesCollect"*)*)
-
-
-(* ::Subsubsection::Closed:: *)
-(*Radial functions*)
-
-
-(* ::Input:: *)
-(*(*RPN::usage="RPN[\"In\"][\!\(\**)
-(*StyleBox[\"\[ScriptS]\",\nFontSlant->\"Italic\"]\),\!\(\**)
-(*StyleBox[\"\[ScriptL]\",\nFontSlant->\"Italic\"]\),\!\(\**)
-(*StyleBox[\"\[ScriptM]\",\nFontSlant->\"Italic\"]\),\!\(\**)
-(*StyleBox[\"a\",\nFontSlant->\"Italic\"]\),\!\(\**)
-(*StyleBox[\"order\[Eta]\",\nFontSlant->\"Italic\"]\)] Gives the In solution to the radial Teukolsky equation. Analogously for \"Up\", \"C\", or \"secondTerm\". The inhomogeneous solution for a circular orbit can be obtained with \"CO\""*)
-(*RPNF::usage="RPNF[\!\(\**)
-(*StyleBox[\"\[ScriptS]\",\nFontSlant->\"Italic\"]\),\!\(\**)
-(*StyleBox[\"\[ScriptL]\",\nFontSlant->\"Italic\"]\),\!\(\**)
-(*StyleBox[\"\[ScriptM]\",\nFontSlant->\"Italic\"]\),\!\(\**)
-(*StyleBox[\"a\",\nFontSlant->\"Italic\"]\),\!\(\**)
-(*StyleBox[\"\[Omega]\",\nFontSlant->\"Italic\"]\),{\!\(\**)
-(*StyleBox[\"\[Eta]\",\nFontSlant->\"Italic\"]\),order\[Eta]}] gives a function"*)
-(*integrateDelta::usage="Function that integrates Dirac delta distributions. Used when getting the inhomogeneous solutions."*)
-(*Normalization::usage="Normalization[\"In\"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]] gives a PN expanded normaliztion coefficient. If you divide RPN by it it will match the result of the toolkit"*)*)
-
-
-(* ::Input:: *)
-(*(*CCoefficient::usage="CCoefficient[\"In\"][\!\(\**)
-(*StyleBox[\"\[ScriptS]\",\nFontSlant->\"Italic\"]\),\!\(\**)
-(*StyleBox[\"\[ScriptL]\",\nFontSlant->\"Italic\"]\),\!\(\**)
-(*StyleBox[\"\[ScriptM]\",\nFontSlant->\"Italic\"]\),\!\(\**)
-(*StyleBox[\"a\",\nFontSlant->\"Italic\"]\),\!\(\**)
-(*StyleBox[\"order\[Eta]\",\nFontSlant->\"Italic\"]\)] gives the \!\(\*SubscriptBox[\(c\), \(\(in\)\(\\\ \)\)]\)coefficient for the sourced solution R=\!\(\*SubscriptBox[\(c\), \(in\)]\) \!\(\*SubscriptBox[\(R\), \(in\)]\) + \!\(\*SubscriptBox[\(c\), \(up\)]\) \!\(\*SubscriptBox[\(R\), \(up\)]\). Likewise for [\"Up\"]"*)
-(*InvariantWronskian::usage="InvariantWronskian[\!\(\**)
-(*StyleBox[\"\[ScriptS]\",\nFontSlant->\"Italic\"]\),\!\(\**)
-(*StyleBox[\"\[ScriptL]\",\nFontSlant->\"Italic\"]\),\!\(\**)
-(*StyleBox[\"\[ScriptM]\",\nFontSlant->\"Italic\"]\),\!\(\**)
-(*StyleBox[\"a\",\nFontSlant->\"Italic\"]\),\!\(\**)
-(*StyleBox[\"order\[Eta]\",\nFontSlant->\"Italic\"]\)] gives the invariant Wronskian. C.f. Sasaki Tagoshi Eq.(23)"*)
-(**)*)
+TeukolskyPointParticleModePN::particle="TeukolskyPointParticleModePN cannot be evaluated directly at the particle. Try the Keys \"ExtendedHomogeneous\"\[Rule]\"\[ScriptCapitalI]\",\"ExtendedHomogeneous\"\[Rule]\"\[ScriptCapitalH]\" and \"\[Delta]\" ";
 
 
 (* ::Section:: *)
