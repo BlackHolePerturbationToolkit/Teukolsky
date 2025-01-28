@@ -625,7 +625,7 @@ Keys[m_TeukolskyRadialFunction] ^:= DeleteCases[Join[Keys[m[[-1]]], {}], "Radial
 (*Numerical evaluation*)
 
 
-SetAttributes[TeukolskyRadialFunction, {NumericFunction}];
+SetAttributes[TeukolskyRadialFunction, {NHoldAll}];
 
 
 outsideDomainQ[r_, rmin_, rmax_] := Min[r]<rmin || Max[r]>rmax;
