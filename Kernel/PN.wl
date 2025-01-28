@@ -2575,12 +2575,10 @@ Keys[trfpn_TeukolskyRadialFunctionPN] ^:= DeleteElements[Join[Keys[trfpn[[-1]]],
 Options[RadialSourcedAssociation]={"Normalization"->"Default","Simplify"->True}
 
 
-SeriesToSCoeffs[expr_SeriesData]:=Module[{aux},
-aux=expr[[3]];
-aux=aux/.Derivative[n_,0][SpinWeightedSpheroidalHarmonicS[a___]][b___]:>(SS)^n;
-aux=aux/.SpinWeightedSpheroidalHarmonicS[a___][b___]:>(1)//Simplify;
-aux=aux//CoefficientList[#,SS]&//Simplify;
-aux=aux//.{}->Nothing;
+SeriesToSCoeffs[series_SeriesData]:=Module[{aux},
+aux=series/.SpinWeightedSpheroidalHarmonicS[___]->SS;aux=Table[aux//Coefficient[#,Derivative[i,0][SS][\[Pi]/2,0]]&,{i,0,2}];
+aux=aux//Series[#,{series[[1]],series[[2]],SeriesMaxOrder[series]-1}]&;
+aux=Association[{C["S"],C["S'"],C["S''"]}->aux//Thread];
 aux
 ]
 
@@ -2617,7 +2615,7 @@ radialF=innerF[#] HeavisideTheta[r0Var-#] + outerF[#] HeavisideTheta[#-r0Var]+de
 minOrder=radialF[r]//SeriesMinOrder;
 sourceF=source[r]/.\[CapitalOmega]Kerr->Inactive[KerrGeodesics`OrbitalFrequencies`KerrGeoFrequencies][aVar,r0Var,0,1]["\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"]/.r->#&;
 Scoeffs=SeriesToSCoeffs[radialF[r]]/.r->#&;
-ret=<|"s"->\[ScriptS],"l"->\[ScriptL],"m"->\[ScriptM],"a"->aVar,"r0"->r0Var,"PN"->{varPN,order},"RadialFunction"->radialF,"CoefficientList"->Scoeffs,("ExtendedHomogeneous"->"\[ScriptCapitalI]")->innerF,("ExtendedHomogeneous"->"\[ScriptCapitalH]")->outerF,"\[Delta]"->deltaCoeff,"Amplitudes"->ampAssoc,"Wronskian"->wronskian,"Source"->sourceF,"SeriesMinOrder"->minOrder,"In"->aux["In"],"Up"->aux["Up"],"Simplify"->OptionValue["Simplify"],"Normalization"->OptionValue["Normalization"]|>;
+ret=<|"s"->\[ScriptS],"l"->\[ScriptL],"m"->\[ScriptM],"a"->aVar,"r0"->r0Var,"PN"->{varPN,order},"RadialFunction"->radialF,"CoefficientList"->Scoeffs,("ExtendedHomogeneous"->"\[ScriptCapitalI]")->innerF,("ExtendedHomogeneous"->"\[ScriptCapitalH]")->outerF,"\[Delta]"->deltaCoeff,"Amplitudes"->ampAssoc,"Wronskian"->wronskian,"Source"->sourceF,"SeriesMinOrder"->minOrder,"RadialFunctions"->aux,"Simplify"->OptionValue["Simplify"],"Normalization"->OptionValue["Normalization"]|>;
 ret
 ]
 ]
@@ -2693,7 +2691,7 @@ TeukolskyPointParticleModePN[\[ScriptS], \[ScriptL], \[ScriptM],orbit,{varPN,aux
 (*Accessing functions and keys*)
 
 
-TeukolskyModePN[s_, l_, m_, a_, r0_,{varPN_,order_},assoc_][y_String]/;!MemberQ[{"RadialFunction","ExtendedHomogeneous"->"\[ScriptCapitalH]","ExtendedHomogeneous"->"\[ScriptCapitalH]","Source"}, y]:=
+TeukolskyModePN[s_, l_, m_, a_, r0_,{varPN_,order_},assoc_][y_String]/;!MemberQ[{"RadialFunction","ExtendedHomogeneous"->"\[ScriptCapitalH]","ExtendedHomogeneous"->"\[ScriptCapitalH]","Source","CoefficientList"}, y]:=
   assoc[y];
 
 
@@ -2708,6 +2706,8 @@ TeukolskyModePN[s_, l_, m_, a_, r0_,{varPN_,order_},assoc_]["ExtendedHomogeneous
 TeukolskyModePN[s_, l_, m_, a_, r0_,{varPN_,order_},assoc_]["ExtendedHomogeneous"->"\[ScriptCapitalI]"][r_/;NumericQ[r]] :=assoc["ExtendedHomogeneous"->"\[ScriptCapitalI]"][r]
 TeukolskyModePN[s_, l_, m_, a_, r0_,{varPN_,order_},assoc_]["Source"][r_Symbol] :=assoc["Source"][r]
 TeukolskyModePN[s_, l_, m_, a_, r0_,{varPN_,order_},assoc_]["Source"][r_/;NumericQ[r]] :=assoc["Source"][r]
+TeukolskyModePN[s_, l_, m_, a_, r0_,{varPN_,order_},assoc_]["CoefficientList"][r_Symbol] :=assoc["CoefficientList"][r]
+TeukolskyModePN[s_, l_, m_, a_, r0_,{varPN_,order_},assoc_]["CoefficientList"][r_/;NumericQ[r]] :=assoc["CoefficientList"][r]
 
 
 Keys[trfpn_TeukolskyModePN]^:= DeleteElements[Join[Keys[trfpn[[-1]]], {}], {"RadialFunction"}];
