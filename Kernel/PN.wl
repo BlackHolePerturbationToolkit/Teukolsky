@@ -2414,8 +2414,8 @@ If[!MatchQ[order,_Integer],Message[TeukolskyRadialFunctionPN::paramorder,order];
 ]
 
 
-(* ::Subsection::Closed:: *)
-(*TeukolskyRadialFunctionPN*)
+(* ::Subsection:: *)
+(*TeukolskyRadialPN*)
 
 
 (* ::Subsubsection::Closed:: *)
@@ -2444,19 +2444,20 @@ icons = <|
 |>;
 
 
-(* ::Subsubsection::Closed:: *)
-(*TeukolskyRadialPN*)
+(* ::Subsubsection:: *)
+(*Getting internal association*)
 
 
 Options[RadialAssociation]={"Normalization"->"Default", "Amplitudes"->False, "Simplify"->True}
 Options[TeukolskyRadialPN]={"Normalization"->"Default", "Amplitudes"->False, "Simplify"->True}
 
 
-RadialAssociation[sol_String,opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]_,{varPN_,order_}]/;MemberQ[PossibleSols,sol]:=Module[{aux,ret,R,BC,lead,termCount,normalization,amplitudes,trans,inc,ref},
+RadialAssociation[sol_String,opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]_,{varPN_,order_}]/;MemberQ[PossibleSols,sol]:=Module[{aux,ret,R,BC,lead,minOrder,termCount,normalization,amplitudes,trans,inc,ref},
 CheckInput[sol,\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{varPN,order}];
 R=RPNF[sol,"Normalization"->OptionValue["Normalization"],"Simplify"->OptionValue["Simplify"]][\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{varPN,order}];
 BC=sol;
 lead=RPNF[sol,"Normalization"->OptionValue["Normalization"],"Simplify"->OptionValue["Simplify"]][\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{varPN,1}];
+minOrder=lead[r]//SeriesMinOrder;
 termCount=R[r]//SeriesLength;
 normalization=OptionValue["Normalization"];
 trans=If[OptionValue["Amplitudes"],TeukolskyAmplitudePN[Switch[sol,"In","Btrans","Up","Ctrans"],"Normalization"->OptionValue["Normalization"]][\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{varPN,order}],Missing["NotComputed"]];
@@ -2464,9 +2465,13 @@ inc=If[OptionValue["Amplitudes"],TeukolskyAmplitudePN[Switch[sol,"In","Binc","Up
 ref=If[OptionValue["Amplitudes"],TeukolskyAmplitudePN[Switch[sol,"In","Bref","Up","Cref"],"Normalization"->OptionValue["Normalization"]][\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{varPN,order}],Missing["NotComputed"]];
 If[OptionValue["Simplify"],{trans,inc,ref}={trans,inc,ref}//Simplify];
 amplitudes=<|"Incidence"->inc,"Transmission"->trans,"Reflection"->ref|>;
-ret=<|"s"->\[ScriptS],"l"->\[ScriptL],"m"->\[ScriptM],"a"->a,"PN"->{varPN,order},"RadialFunction"->R,"BoundaryCondition"->BC,"LeadingOrder"->lead,"TermCount"->termCount,"Normalization"->normalization,"Amplitudes"->amplitudes,"Simplify"->OptionValue["Simplify"]|>;
+ret=<|"s"->\[ScriptS],"l"->\[ScriptL],"m"->\[ScriptM],"a"->a,"PN"->{varPN,order},"RadialFunction"->R,"BoundaryCondition"->BC,"SeriesMinOrder"->minOrder,"LeadingOrder"->lead,"TermCount"->termCount,"Normalization"->normalization,"Amplitudes"->amplitudes,"Simplify"->OptionValue["Simplify"],"AmplitudesBool"->OptionValue["Amplitudes"]|>;
 ret
 ]
+
+
+(* ::Subsubsection::Closed:: *)
+(*TeukolskyRadialPN*)
 
 
 PNStringToOrder[pn_String]:=Module[{aux,ret,check1,check2},
@@ -2518,9 +2523,11 @@ TeukolskyRadialFunctionPN /:
 }],
              BoxForm`SummaryItem[{"Boundary Condition: ", assoc["BoundaryCondition"]}]};           
   extended = {BoxForm`SummaryItem[{"Leading order: ",assoc["LeadingOrder"]["r"]}],
+    BoxForm`SummaryItem[{"Min order: ",assoc["SeriesMinOrder"]}],
+  BoxForm`SummaryItem[{"Number of terms: ",assoc["TermCount"]}],
   BoxForm`SummaryItem[{"Normalization: ",assoc["Normalization"]}],
   BoxForm`SummaryItem[{"Simplify: ",assoc["Simplify"]}],
-  BoxForm`SummaryItem[{"Number of terms: ",assoc["TermCount"]}]};
+    BoxForm`SummaryItem[{"Amplitudes: ",assoc["AmplitudesBool"]}]};
 
   BoxForm`ArrangeSummaryBox[
     TeukolskyRadialFunctionPN,
@@ -2540,7 +2547,29 @@ ret
 
 
 (* ::Subsubsection::Closed:: *)
+(*Accessing functions and keys*)
+
+
+TeukolskyRadialFunctionPN[s_, l_, m_, a_, r0_,{varPN_,order_},assoc_][y_String]/;!MemberQ[{"RadialFunction","AmplitudesBool","TermCount"}, y]:=
+  assoc[y];
+
+
+TeukolskyRadialFunctionPN[s_, l_, m_, a_, r0_,{varPN_,order_},assoc_][r_Symbol] :=assoc["RadialFunction"][r]
+TeukolskyRadialFunctionPN[s_, l_, m_, a_, r0_,{varPN_,order_},assoc_][r_/;NumericQ[r]] :=assoc["RadialFunction"][r]
+
+
+Derivative[n_Integer][trf_TeukolskyRadialFunctionPN][r_Symbol]:=trf[[6,1]]^(2 n) Derivative[n][trf["RadialFunction"]][r]
+
+
+Keys[trfpn_TeukolskyRadialFunctionPN] ^:= DeleteElements[Join[Keys[trfpn[[-1]]], {}], {"RadialFunction","AmplitudesBool","TermCount"}];
+
+
+(* ::Subsection:: *)
 (*TeukolskyPointParticleModePN*)
+
+
+(* ::Subsubsection:: *)
+(*Getting internal association*)
 
 
 Options[RadialSourcedAssociation]={"Normalization"->"Default","Simplify"->True}
@@ -2556,11 +2585,11 @@ aux
 ]
 
 
-RadialSourcedAssociation["CO",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,aVar_,r0Var_,{varPN_,order_}]:=Assuming[{varPN>0,r0>0,r>0,1>a>=0,\[ScriptA]>=0},Module[{aux,ret,Scoeffs,Rin,dRin,ddRin,Rup,dRup,ddRup,wronskian,source,sourceCoeffs,cUp,cIn,deltaCoeff,innerF,outerF,inner,outer,radialF,ampAssoc},
+RadialSourcedAssociation["CO",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,aVar_,r0Var_,{varPN_,order_}]:=Assuming[{varPN>0,r0>0,r>0,1>a>=0,\[ScriptA]>=0},Module[{aux,ret,Scoeffs,Rin,dRin,ddRin,Rup,dRup,ddRup,wronskian,source,sourceF,sourceCoeffs,minOrder,cUp,cIn,deltaCoeff,innerF,outerF,inner,outer,radialF,ampAssoc},
 CheckInput["Up",\[ScriptS],\[ScriptL],\[ScriptM],aVar,\[ScriptM]/Sqrt[r0Var^3],{varPN,order}];
 aux=TeukolskyRadialPN[\[ScriptS],\[ScriptL],\[ScriptM],aVar,If[\[ScriptM]!=0,\[ScriptM],Style["0",Red]]Inactive[KerrGeodesics`OrbitalFrequencies`KerrGeoFrequencies][aVar,r0Var,0,1]["\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"],{varPN,order},"Normalization"->OptionValue["Normalization"]];
-Rin=aux["In"]["RadialFunction"];
-Rup=aux["Up"]["RadialFunction"];
+Rin=aux["In"][[-1]]["RadialFunction"];
+Rup=aux["Up"][[-1]]["RadialFunction"];
 dRup=Rup';
 dRin=Rin';
 ddRup=dRup';
@@ -2583,11 +2612,12 @@ outer=cUp Rup[r];
 If[OptionValue["Simplify"],{inner,outer}={inner,outer}//SeriesCollect[#,{SpinWeightedSpheroidalHarmonicS[__],Derivative[__][SpinWeightedSpheroidalHarmonicS][__]},(Simplify[#,{aVar>=0,r0Var>0,varPN>0}]&)]&];
 innerF=inner/.r->#&;
 outerF=outer/.r->#&;
-
 ampAssoc=<|"\[ScriptCapitalI]"->cUp,"\[ScriptCapitalH]"->cIn|>;
 radialF=innerF[#] HeavisideTheta[r0Var-#] + outerF[#] HeavisideTheta[#-r0Var]+deltaCoeff DiracDelta[#-r0Var]&;
+minOrder=radialF[r]//SeriesMinOrder;
+sourceF=source[r]/.\[CapitalOmega]Kerr->Inactive[KerrGeodesics`OrbitalFrequencies`KerrGeoFrequencies][aVar,r0Var,0,1]["\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"]/.r->#&;
 Scoeffs=SeriesToSCoeffs[radialF[r]]/.r->#&;
-ret=<|"s"->\[ScriptS],"l"->\[ScriptL],"m"->\[ScriptM],"a"->aVar,"r0"->r0Var,"PN"->{varPN,order},"RadialFunction"->radialF,"CoefficientList"->Scoeffs,("ExtendedHomogeneous"->"\[ScriptCapitalI]")->innerF,("ExtendedHomogeneous"->"\[ScriptCapitalH]")->outerF,"\[Delta]"->deltaCoeff,"Amplitudes"->ampAssoc,"Wronskian"->wronskian,"Source"->source,"In"->aux["In"],"Up"->aux["Up"],"Simplify"->OptionValue["Simplify"],"Normalization"->OptionValue["Normalization"]|>;
+ret=<|"s"->\[ScriptS],"l"->\[ScriptL],"m"->\[ScriptM],"a"->aVar,"r0"->r0Var,"PN"->{varPN,order},"RadialFunction"->radialF,"CoefficientList"->Scoeffs,("ExtendedHomogeneous"->"\[ScriptCapitalI]")->innerF,("ExtendedHomogeneous"->"\[ScriptCapitalH]")->outerF,"\[Delta]"->deltaCoeff,"Amplitudes"->ampAssoc,"Wronskian"->wronskian,"Source"->sourceF,"SeriesMinOrder"->minOrder,"In"->aux["In"],"Up"->aux["Up"],"Simplify"->OptionValue["Simplify"],"Normalization"->OptionValue["Normalization"]|>;
 ret
 ]
 ]
@@ -2603,7 +2633,8 @@ ret
 (*RadialSourcedAssociation["CO"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,r0Var_,{varPN_,order_}]/;NumericQ[r0Var]:=RadialSourcedAssociation["CO"][\[ScriptS],\[ScriptL],\[ScriptM],a,r0,{varPN,order}]/.r0->r0Var;*)*)
 
 
-Options[TeukolskyPointParticleModePN]={"Normalization"->"Default","Simplify"->True}
+(* ::Subsubsection:: *)
+(*TeukolskyModePN*)
 
 
 TeukolskyModePN /:
@@ -2620,7 +2651,9 @@ TeukolskyModePN /:
  BoxForm`SummaryItem[{"PN order: ", N[(order-1)/2]"PN"}]
 }],
              BoxForm`SummaryItem[{"Orbit: ", "Circular Equatorial"}]};           
-  extended = {BoxForm`SummaryItem[{"Simplify: ",assoc["Simplify"]}],
+  extended = {
+  BoxForm`SummaryItem[{"Min order: ",assoc["SeriesMinOrder"]}],
+  BoxForm`SummaryItem[{"Simplify: ",assoc["Simplify"]}],
   BoxForm`SummaryItem[{"Homogeneous Normalization: ",assoc["Normalization"]}]};
 
   BoxForm`ArrangeSummaryBox[
@@ -2631,6 +2664,13 @@ TeukolskyModePN /:
     extended,
     form]
 ];
+
+
+(* ::Subsubsection::Closed:: *)
+(*TeukolskyPointParticleModePN*)
+
+
+Options[TeukolskyPointParticleModePN]={"Normalization"->"Default","Simplify"->True}
 
 
 TeukolskyPointParticleModePN[\[ScriptS]_, \[ScriptL]_, \[ScriptM]_,orbit_KerrGeodesics`KerrGeoOrbit`KerrGeoOrbitFunction,{varPN_,order_},opt:OptionsPattern[]]:=Module[{aux,assoc,ret,a,r0Var,eccentricity,inclination},
@@ -2649,25 +2689,11 @@ TeukolskyPointParticleModePN[\[ScriptS], \[ScriptL], \[ScriptM],orbit,{varPN,aux
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Accessing functions and keys*)
 
 
-TeukolskyRadialFunctionPN[s_, l_, m_, a_, r0_,{varPN_,order_},assoc_][y_String]:=
-  assoc[y];
-
-
-TeukolskyRadialFunctionPN[s_, l_, m_, a_, r0_,{varPN_,order_},assoc_][r_Symbol] :=assoc["RadialFunction"][r]
-TeukolskyRadialFunctionPN[s_, l_, m_, a_, r0_,{varPN_,order_},assoc_][r_/;NumericQ[r]] :=assoc["RadialFunction"][r]
-
-
-Derivative[n_Integer][trf_TeukolskyRadialFunctionPN][r_Symbol]:=trf[[6,1]]^(2 n) Derivative[n][trf["RadialFunction"]][r]
-
-
-Keys[trfpn_TeukolskyRadialFunctionPN]^:=trfpn[[-1]]//Keys
-
-
-TeukolskyModePN[s_, l_, m_, a_, r0_,{varPN_,order_},assoc_][y:(_String|("ExtendedHomogeneous"->"\[ScriptCapitalH]")|("ExtendedHomogeneous"->"\[ScriptCapitalI]"))]:=
+TeukolskyModePN[s_, l_, m_, a_, r0_,{varPN_,order_},assoc_][y_String]/;!MemberQ[{"RadialFunction","ExtendedHomogeneous"->"\[ScriptCapitalH]","ExtendedHomogeneous"->"\[ScriptCapitalH]","Source"}, y]:=
   assoc[y];
 
 
@@ -2676,7 +2702,15 @@ TeukolskyModePN[s_, l_, m_, a_, r0_,{varPN_,order_},assoc_][r_Symbol] :=assoc["R
 TeukolskyModePN[s_, l_, m_, a_, r0_,{varPN_,order_},assoc_][r_/;NumericQ[r]] :=assoc["RadialFunction"][r]
 
 
-Keys[trfpn_TeukolskyModePN]^:=trfpn[[-1]]//Keys
+TeukolskyModePN[s_, l_, m_, a_, r0_,{varPN_,order_},assoc_]["ExtendedHomogeneous"->"\[ScriptCapitalH]"][r_Symbol] :=assoc["ExtendedHomogeneous"->"\[ScriptCapitalH]"][r]
+TeukolskyModePN[s_, l_, m_, a_, r0_,{varPN_,order_},assoc_]["ExtendedHomogeneous"->"\[ScriptCapitalH]"][r_/;NumericQ[r]] :=assoc["ExtendedHomogeneous"->"\[ScriptCapitalH]"][r]
+TeukolskyModePN[s_, l_, m_, a_, r0_,{varPN_,order_},assoc_]["ExtendedHomogeneous"->"\[ScriptCapitalI]"][r_Symbol] :=assoc["ExtendedHomogeneous"->"\[ScriptCapitalI]"][r]
+TeukolskyModePN[s_, l_, m_, a_, r0_,{varPN_,order_},assoc_]["ExtendedHomogeneous"->"\[ScriptCapitalI]"][r_/;NumericQ[r]] :=assoc["ExtendedHomogeneous"->"\[ScriptCapitalI]"][r]
+TeukolskyModePN[s_, l_, m_, a_, r0_,{varPN_,order_},assoc_]["Source"][r_Symbol] :=assoc["Source"][r]
+TeukolskyModePN[s_, l_, m_, a_, r0_,{varPN_,order_},assoc_]["Source"][r_/;NumericQ[r]] :=assoc["Source"][r]
+
+
+Keys[trfpn_TeukolskyModePN]^:= DeleteElements[Join[Keys[trfpn[[-1]]], {}], {"RadialFunction"}];
 
 
 Derivative[n_Integer][tppm_TeukolskyModePN][r_Symbol]:=tppm[[6,1]]^(2 n) Derivative[n][tppm["RadialFunction"]][r]
