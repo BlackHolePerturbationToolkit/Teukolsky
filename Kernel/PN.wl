@@ -2558,7 +2558,7 @@ TeukolskyRadialFunctionPN[s_, l_, m_, a_, r0_,{varPN_,order_},assoc_][r_Symbol] 
 TeukolskyRadialFunctionPN[s_, l_, m_, a_, r0_,{varPN_,order_},assoc_][r_/;NumericQ[r]] :=assoc["RadialFunction"][r]
 
 
-Derivative[n_Integer][trf_TeukolskyRadialFunctionPN][r_Symbol]:=trf[[6,1]]^(2 n) Derivative[n][trf["RadialFunction"]][r]
+Derivative[n_Integer][trf_TeukolskyRadialFunctionPN][r_Symbol]:=trf[[6,1]]^(2 n) Derivative[n][trf[[-1]]["RadialFunction"]][r]
 
 
 Keys[trfpn_TeukolskyRadialFunctionPN] ^:= DeleteElements[Join[Keys[trfpn[[-1]]], {}], {"RadialFunction","AmplitudesBool","TermCount"}];
