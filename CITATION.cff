@@ -56,14 +56,22 @@ authors:
     family-names: Torres
     email: t.torres-vicente@sheffield.ac.uk
     affiliation: University of Sheffield
+  - given-names: Jakob
+    family-names: Neef
+    email: jakob.neef@ucdconnect.ie
+    affiliation: University College Dublin
+  - given-names: Susanna
+    family-names: Barsanti
+    email: susanna.barsanti@ucd.ie
+    affiliation: University College Dublin
 identifiers:
   - type: doi
     value: 10.5281/zenodo.7037850
     description: Latest release on Zenodo
 repository-code: 'https://github.com/BlackHolePerturbationToolkit/Teukolsky'
-date-released: 2023-10-25
+date-released: 2025-01-29
 abstract: >-
   A Mathematica package for computing solutions to the
   Teukolsky equation.
 license: MIT
-version: 1.0.4
+version: 1.1.0
