@@ -2582,14 +2582,14 @@ Options[RadialSourcedAssociation]={"Normalization"->"Default","Simplify"->True}
 
 
 SeriesToSCoeffs[series_SeriesData]:=Module[{aux},
-aux=series/.SpinWeightedSpheroidalHarmonicS[___]->SS;aux=Table[aux//Coefficient[#,Derivative[i,0][SS][\[Pi]/2,0]]&,{i,0,2}];
+aux=series/.SpinWeightedSpheroidalHarmonicS[___]->SS/.Inactive[SpinWeightedSpheroidalHarmonicS][___]->SS;aux=Table[aux//Coefficient[#,Derivative[i,0][SS][\[Pi]/2,0]]&,{i,0,2}];
 aux=aux//Series[#,{series[[1]],series[[2]],SeriesMaxOrder[series]-1}]&;
 aux=Association[{C["S"],C["S'"],C["S''"]}->aux//Thread];
 aux
 ]
 
 
-RadialSourcedAssociation["CO",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,aVar_,r0Var_,{varPN_,order_}]:=Assuming[{varPN>0,r0>0,r>0,1>a>=0,\[ScriptA]>=0},Module[{aux,ret,Scoeffs,Rin,dRin,ddRin,Rup,dRup,ddRup,wronskian,source,sourceF,sourceCoeffs,minOrder,cUp,cIn,deltaCoeff,innerF,outerF,inner,outer,radialF,ampAssoc},
+RadialSourcedAssociation["CO",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,aVar_,r0Var_,{varPN_,order_}]:=Assuming[{varPN>0,r0>0,r>0,1>a>=0,\[ScriptA]>=0},Module[{aux,ret,Scoeffs,SCoeffsF,Rin,dRin,ddRin,Rup,dRup,ddRup,wronskian,source,sourceF,sourceCoeffs,minOrder,cUp,cIn,deltaCoeff,innerF,outerF,inner,outer,radialF,radial,ampAssoc},
 CheckInput["Up",\[ScriptS],\[ScriptL],\[ScriptM],aVar,\[ScriptM]/Sqrt[r0Var^3],{varPN,order}];
 aux=TeukolskyRadialPN[\[ScriptS],\[ScriptL],\[ScriptM],aVar,If[\[ScriptM]!=0,\[ScriptM],Style["0",Red]]Inactive[KerrGeodesics`OrbitalFrequencies`KerrGeoFrequencies][aVar,r0Var,0,1]["\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"],{varPN,order},"Normalization"->OptionValue["Normalization"]];
 Rin=aux["In"][[-1]]["RadialFunction"];
@@ -2609,19 +2609,23 @@ cIn=1/wronskian Total[sourceCoeffs {Rup[r0],-varPN^2dRup[r0],varPN^4 ddRup[r0]}]
 cUp=1/wronskian Total[sourceCoeffs {Rin[r0],-varPN^2dRin[r0],varPN^4 ddRin[r0]}]//SeriesTake[#,order]&;
 deltaCoeff=Coefficient[source[r],Derivative[2][DiracDelta][r-r0]]/Kerr\[CapitalDelta][a,r0];
 deltaCoeff=Assuming[{varPN>0},If[deltaCoeff===0,0,deltaCoeff//PNScalings[#,{{r0,-2},{\[CapitalOmega]Kerr,3}},varPN,"IgnoreHarmonics"->True]&//SeriesTerms[#,{varPN,0,order}]&]];
+If[aVar===0,{cIn,cUp,deltaCoeff,source}=(Inactivate[#,SpinWeightedSpheroidalHarmonicS]&/@#)&/@{cIn,cUp,deltaCoeff,source}];
 {cIn,cUp,deltaCoeff,source}={cIn,cUp,deltaCoeff,source}/.r0->r0Var/.a->aVar/.\[CapitalOmega]Kerr->Inactive[KerrGeodesics`OrbitalFrequencies`KerrGeoFrequencies][aVar,r0Var,0,1]["\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"];
 If[OptionValue["Simplify"],{cIn,cUp,deltaCoeff,source}={cIn,cUp,deltaCoeff,source}//SeriesCollect[#,{SpinWeightedSpheroidalHarmonicS[__],Derivative[__][SpinWeightedSpheroidalHarmonicS][__]},(Simplify[#,{aVar>=0,r0Var>0,varPN>0}]&)]&];
 inner=cIn Rin[r];
 outer=cUp Rup[r];
 If[OptionValue["Simplify"],{inner,outer}={inner,outer}//SeriesCollect[#,{SpinWeightedSpheroidalHarmonicS[__],Derivative[__][SpinWeightedSpheroidalHarmonicS][__]},(Simplify[#,{aVar>=0,r0Var>0,varPN>0}]&)]&];
+ampAssoc=<|"\[ScriptCapitalI]"->cUp,"\[ScriptCapitalH]"->cIn|>;
+radial=inner HeavisideTheta[r0Var-r] + outer HeavisideTheta[r-r0Var]+deltaCoeff DiracDelta[r-r0Var];
+Scoeffs=SeriesToSCoeffs[radial];
+minOrder=radial//SeriesMinOrder;
+If[aVar===0,radial=Activate[#]&/@radial];
+radialF=radial/.r->#&;
 innerF=inner/.r->#&;
 outerF=outer/.r->#&;
-ampAssoc=<|"\[ScriptCapitalI]"->cUp,"\[ScriptCapitalH]"->cIn|>;
-radialF=innerF[#] HeavisideTheta[r0Var-#] + outerF[#] HeavisideTheta[#-r0Var]+deltaCoeff DiracDelta[#-r0Var]&;
-minOrder=radialF[r]//SeriesMinOrder;
 sourceF=source[r]/.\[CapitalOmega]Kerr->Inactive[KerrGeodesics`OrbitalFrequencies`KerrGeoFrequencies][aVar,r0Var,0,1]["\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"]/.r->#&;
-Scoeffs=SeriesToSCoeffs[radialF[r]]/.r->#&;
-ret=<|"s"->\[ScriptS],"l"->\[ScriptL],"m"->\[ScriptM],"a"->aVar,"r0"->r0Var,"PN"->{varPN,order},"RadialFunction"->radialF,"CoefficientList"->Scoeffs,("ExtendedHomogeneous"->"\[ScriptCapitalI]")->outerF,("ExtendedHomogeneous"->"\[ScriptCapitalH]")->innerF,"\[Delta]"->deltaCoeff,"Amplitudes"->ampAssoc,"Wronskian"->wronskian,"Source"->sourceF,"SeriesMinOrder"->minOrder,"RadialFunctions"->aux,"Simplify"->OptionValue["Simplify"],"Normalization"->OptionValue["Normalization"]|>;
+SCoeffsF=Scoeffs/.r->#&;
+ret=<|"s"->\[ScriptS],"l"->\[ScriptL],"m"->\[ScriptM],"a"->aVar,"r0"->r0Var,"PN"->{varPN,order},"RadialFunction"->radialF,"CoefficientList"->SCoeffsF,("ExtendedHomogeneous"->"\[ScriptCapitalI]")->outerF,("ExtendedHomogeneous"->"\[ScriptCapitalH]")->innerF,"\[Delta]"->deltaCoeff,"Amplitudes"->ampAssoc,"Wronskian"->wronskian,"Source"->sourceF,"SeriesMinOrder"->minOrder,"RadialFunctions"->aux,"Simplify"->OptionValue["Simplify"],"Normalization"->OptionValue["Normalization"]|>;
 ret
 ]
 ]
