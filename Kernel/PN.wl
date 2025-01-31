@@ -1520,7 +1520,7 @@ aux/.MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]+3]//
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*B Amplitudes*)
 
 
@@ -1623,14 +1623,25 @@ nMax=order\[Eta]/3//Ceiling;
 nMin=-(order\[Eta]/3+2)//Floor;
 D1=E^(-I \[Kappa](\[CurlyEpsilon]+\[Tau])(1/2+Log[\[Kappa]]/(1+\[Kappa]))) (Sin[\[Pi](\[Nu]MST+I \[CurlyEpsilon])]Sin[\[Pi](\[Nu]MST+I \[Tau])]Gamma[1-\[ScriptS]-I(\[CurlyEpsilon]+\[Tau])])/(Sin[2 \[Pi] \[Nu]MST]Sin[I \[Pi](\[CurlyEpsilon]+\[Tau])]Gamma[1+\[ScriptS]+I(\[CurlyEpsilon]+\[Tau])]);
 D2=D1/.\[Nu]MST->-\[Nu]MST-1;
+(*\[ScriptCapitalK]1=\[ScriptCapitalK]Amplitude["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]^-1//ExpandPolyGamma//ExpandGamma//SeriesCollect[#,PolyGamma[___],Simplify]&;
+\[ScriptCapitalK]2=\[ScriptCapitalK]Amplitude["Ratio"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]^-1//ExpandPolyGamma//ExpandGamma//SeriesCollect[#,PolyGamma[___],Simplify]&;
+aa=PNScalingsInternal[(E^(-I \[Pi] \[Nu]MST) Sin[\[Pi](\[Nu]MST-\[ScriptS]-I \[CurlyEpsilon])]) D1]/.repls\[Nu]//IgnoreExpansionParameter//ExpandGamma//ExpandPolyGamma;
+bb=PNScalingsInternal[-(I Sin[\[Pi](\[Nu]MST+\[ScriptS]-I \[CurlyEpsilon])]) D2]/.repls\[Nu]//IgnoreExpansionParameter//ExpandGamma//ExpandPolyGamma;
+cc=bb \[ScriptCapitalK]2;
+sum=( \!\(
+\*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(nMax\)]\(aMST[n]\)\))/.repls//IgnoreExpansionParameter//ExpandGamma//ExpandPolyGamma;
+aux=aa+cc;
+aux=\[ScriptCapitalK]1 coeff aux sum;*)
+
 coeff=E^-(\[Pi] \[CurlyEpsilon]+I\[NonBreakingSpace]\[Pi] \[ScriptS])/Sin[2 \[Pi] \[Nu]MST];
-aux=(PNScalingsInternal[coeff ((E^(-I \[Pi] \[Nu]MST) Sin[\[Pi](\[Nu]MST-\[ScriptS]-I \[CurlyEpsilon])])/\[ScriptCapitalK]1 D1-(I Sin[\[Pi](\[Nu]MST+\[ScriptS]-I \[CurlyEpsilon])])/\[ScriptCapitalK]2 D2)]/.repls\[Nu])(( \!\(
+aux=(PNScalingsInternal[coeff/\[ScriptCapitalK]1 ((E^(-I \[Pi] \[Nu]MST) Sin[\[Pi](\[Nu]MST-\[ScriptS]-I \[CurlyEpsilon])]) D1-(I Sin[\[Pi](\[Nu]MST+\[ScriptS]-I \[CurlyEpsilon])])/\[ScriptCapitalK]2 D2)]/.repls\[Nu])(( \!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(nMax\)]\(aMST[n]\)\))/.repls)//IgnoreExpansionParameter//ExpandGamma//ExpandPolyGamma;
 aux=aux//Normal;
-\[ScriptCapitalK]1=\[ScriptCapitalK]Amplitude["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]//ExpandPolyGamma//ExpandGamma//SeriesCollect[#,PolyGamma[__,__]]&;
-aux=aux//Normal;
-\[ScriptCapitalK]2=\[ScriptCapitalK]Amplitude["-\[Nu]-1"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]//ExpandPolyGamma//ExpandGamma//SeriesCollect[#,PolyGamma[__,__]]&;
-aux//SeriesTake[#,order\[Eta]]&//IgnoreExpansionParameter
+aux=aux/.\[ScriptCapitalK]1->(\[ScriptCapitalK]Amplitude["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]//ExpandPolyGamma//ExpandGamma//SeriesCollect[#,PolyGamma[__,__]]&);
+aux=aux//IgnoreExpansionParameter//Normal;
+aux=aux/.\[ScriptCapitalK]2->(\[ScriptCapitalK]Amplitude["Ratio"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]//ExpandPolyGamma//ExpandGamma//SeriesCollect[#,PolyGamma[__,__]]&);
+aux=aux//IgnoreExpansionParameter;
+aux//SeriesTake[#,order\[Eta]]&
 ]
 
 
@@ -1662,7 +1673,7 @@ CAmplitude["Ref","Normalization"->"UnitTransmission"][\[ScriptS]_,\[ScriptL]_,\[
 CAmplitude["Trans","Normalization"->"UnitTransmission"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=1 (1+O[\[Eta]] \[Eta]^(order\[Eta]-1));
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*\[ScriptCapitalK] Amplitude*)
 
 
@@ -2465,8 +2476,10 @@ minOrder=lead[r]//SeriesMinOrder;
 termCount=R[r]//SeriesLength;
 normalization=OptionValue["Normalization"];
 trans=If[OptionValue["Amplitudes"],TeukolskyAmplitudePN[Switch[sol,"In","Btrans","Up","Ctrans"],"Normalization"->OptionValue["Normalization"]][\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{varPN,order}],Missing["NotComputed"]];
-inc=If[OptionValue["Amplitudes"],TeukolskyAmplitudePN[Switch[sol,"In","Binc","Up","Cinc"],"Normalization"->OptionValue["Normalization"]][\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{varPN,order}],Missing["NotComputed"]];
-ref=If[OptionValue["Amplitudes"],TeukolskyAmplitudePN[Switch[sol,"In","Bref","Up","Cref"],"Normalization"->OptionValue["Normalization"]][\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{varPN,order}],Missing["NotComputed"]];
+(*inc=If[OptionValue["Amplitudes"],TeukolskyAmplitudePN[Switch[sol,"In","Binc","Up","Cinc"],"Normalization"->OptionValue["Normalization"]][\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{varPN,order}],Missing["NotComputed"]];
+ref=If[OptionValue["Amplitudes"],TeukolskyAmplitudePN[Switch[sol,"In","Bref","Up","Cref"],"Normalization"->OptionValue["Normalization"]][\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{varPN,order}],Missing["NotComputed"]];*)
+inc=If[OptionValue["Amplitudes"],If[sol=="In",TeukolskyAmplitudePN["Binc","Normalization"->OptionValue["Normalization"]][\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{varPN,order}],Missing["NotAvailable"]],Missing["NotComputed"]];
+ref=If[OptionValue["Amplitudes"],If[sol=="In",TeukolskyAmplitudePN["Bref","Normalization"->OptionValue["Normalization"]][\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{varPN,order}],Missing["NotAvailable"]],Missing["NotComputed"]];
 If[OptionValue["Simplify"],{trans,inc,ref}={trans,inc,ref}//Simplify];
 amplitudes=<|"Incidence"->inc,"Transmission"->trans,"Reflection"->ref|>;
 ret=<|"s"->\[ScriptS],"l"->\[ScriptL],"m"->\[ScriptM],"a"->a,"PN"->{varPN,order},"RadialFunction"->R,"BoundaryCondition"->BC,"SeriesMinOrder"->minOrder,"LeadingOrder"->lead,"TermCount"->termCount,"Normalization"->normalization,"Amplitudes"->amplitudes,"Simplify"->OptionValue["Simplify"],"AmplitudesBool"->OptionValue["Amplitudes"]|>;
