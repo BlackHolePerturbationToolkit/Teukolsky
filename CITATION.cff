@@ -1,10 +1,9 @@
 cff-version: 1.2.0
 title: Teukolsky
 message: >-
-  If you use this software, please cite it using the
-  metadata from this file and by including the
-  acknowledgment "This work makes use of the Black Hole
-  Perturbation Toolkit." in any papers.
+  If you use this software, please cite its Zenodo record
+  and include the acknowledgment "This work makes use of
+  the Black Hole Perturbation Toolkit." in any papers.
 type: software
 authors:
   - given-names: Barry
