@@ -58,10 +58,12 @@ authors:
     affiliation: University of Sheffield
   - given-names: Jakob
     family-names: Neef
+    orcid: 'https://orcid.org/0000-0002-3215-5694'
     email: jakob.neef@ucdconnect.ie
     affiliation: University College Dublin
   - given-names: Susanna
     family-names: Barsanti
+    orcid: 'https://orcid.org/0000-0001-7321-2512'
     email: susanna.barsanti@ucd.ie
     affiliation: University College Dublin
 identifiers:
