@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2025-01-29
+
+### Added
+ - Support for complex frequencies.
+ - Post-Newtonian series expansions.
+ - Support for computing homogeneous solutions using confluent Heun functions.
+ - Tutorial on self-force calculations.
+
+### Fixed
+ - Various numerical corner cases addressed
+
+
 ## [1.0.0] - 2022-09-17
 
 ### Added

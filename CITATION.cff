@@ -1,0 +1,79 @@
+cff-version: 1.2.0
+title: Teukolsky
+message: >-
+  If you use this software, please cite its Zenodo record
+  and include the acknowledgment "This work makes use of
+  the Black Hole Perturbation Toolkit." in any papers.
+type: software
+authors:
+  - given-names: Barry
+    family-names: Wardell
+    email: barry.wardell@gmail.com
+    orcid: 'https://orcid.org/0000-0001-6176-9006'
+    affiliation: University College Dublin
+  - given-names: Niels
+    family-names: Warburton
+    email: niels.warburton@ucd.ie
+    affiliation: University College Dublin
+    orcid: 'https://orcid.org/0000-0003-0914-8645'
+  - given-names: Kevin
+    family-names: Cunningham
+    email: kevin.cunningham1@ucdconnect.ie
+    orcid: 'https://orcid.org/0000-0002-1094-2267'
+    affiliation: University College Dublin
+  - given-names: Leanne
+    family-names: Durkan
+    orcid: 'https://orcid.org/0000-0001-8593-5793'
+    email: lcdurkan@gmail.com
+    affiliation: University College Dublin
+  - orcid: 'https://orcid.org/0000-0001-6186-7271'
+    given-names: Benjamin
+    family-names: Leather
+    email: benjamin.leather@aei.mpg.de
+    affiliation: Max Planck Institute for Gravitational Physics
+  - given-names: Zachary
+    family-names: Nasipak
+    orcid: 'https://orcid.org/0000-0002-5109-9704'
+    affiliation: University of Southampton
+    email: Z.Nasipak@soton.ac.uk
+  - given-names: Chris
+    family-names: Kavanagh
+    email: chris.kavanagh1@ucd.ie
+    affiliation: University College Dublin
+    orcid: 'https://orcid.org/0000-0002-2874-9780'
+  - given-names: Adrian
+    family-names: Ottewill
+    email: adrian.ottewill@ucd.ie
+    affiliation: University College Dublin
+    orcid: 'https://orcid.org/0000-0003-3293-8450'
+  - given-names: Marc
+    family-names: Casals
+    orcid: 'https://orcid.org/0000-0002-8914-4072'
+    affiliation: Leipzig University
+    email: marc.casals@uni-leipzig.de
+  - given-names: Theo
+    family-names: Torres
+    orcid: 'https://orcid.org/0000-0001-7720-1669'
+    email: t.torres-vicente@sheffield.ac.uk
+    affiliation: University of Sheffield
+  - given-names: Jakob
+    family-names: Neef
+    orcid: 'https://orcid.org/0000-0002-3215-5694'
+    email: jakob.neef@ucdconnect.ie
+    affiliation: University College Dublin
+  - given-names: Susanna
+    family-names: Barsanti
+    orcid: 'https://orcid.org/0000-0001-7321-2512'
+    email: susanna.barsanti@ucd.ie
+    affiliation: University College Dublin
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.7037850
+    description: Latest release on Zenodo
+repository-code: 'https://github.com/BlackHolePerturbationToolkit/Teukolsky'
+date-released: 2025-01-29
+abstract: >-
+  A Mathematica package for computing solutions to the
+  Teukolsky equation.
+license: MIT
+version: 1.1.0
