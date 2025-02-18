@@ -67,7 +67,9 @@ TeukolskyPointParticleModePN::particle="TeukolskyPointParticleModePN cannot be e
 aMST
 \[Omega]
 a
-
+\[CurlyEpsilon]
+MSTCoefficientsInternal\[CurlyEpsilon]
+KerrMSTSeries
 
 
 (* ::Section:: *)
@@ -851,21 +853,9 @@ MST=Append[MST,Table[a[i]->aMST[i]+If[i==0,0,O[\[Epsilon]]^(ExpOrder+1)],{i,-Exp
 assumps={r>2,r0>2,a>=0,\[Eta]>0,\[Omega]>=0}
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*MST Coefficients*)
 
-
-(*replsMST[]:=Module[{aux,values,order\[Eta]=30},
-aux=Normal/@Block[{Print},KerrMSTSeries[-2,2,2,order\[Eta]/3//Ceiling]//.replsKerr];
-values=Replace[#,a_:>a+O[\[Eta]]^Ceiling[order\[Eta]+1,3]]&/@(Values@aux/.\[Epsilon]->2\[Omega]/.replsPN);
-AssociationThread[Keys[aux]->values]];*)
-(*
-replsMST[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,order\[Eta]_]:=Module[{aux,values,res,\[Nu]Value},
-aux=Normal/@Block[{Print},KerrMSTSeries[\[ScriptS],\[ScriptL],\[ScriptM],order\[Eta]/3+1//Ceiling]//.replsKerr/.q->a];
-\[Nu]Value=Replace[#,a_:>a+O[\[Eta]]^Ceiling[order\[Eta]+1,3]]&@(aux[\[Nu]]/.\[Epsilon]->2\[Omega]/.replsPN);
-values=Replace[#,a_:>a+O[\[Eta]]^Ceiling[order\[Eta]+1,3]]&/@(Values@KeyDrop[#,\[Nu]]&@aux/.\[Epsilon]->2\[Omega]/.replsPN);
-values=Insert[values,\[Nu]Value,1];
-res=AssociationThread[Keys[aux]->values]];*)
 
 replsMST[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,order\[Eta]_]:=Module[{aux,values,res,\[Nu]Value},
 aux=Normal/@Block[{Print},KerrMSTSeries[\[ScriptS],\[ScriptL],\[ScriptM],order\[Eta]/3+1//Ceiling]//.replsKerr/.q->a];
@@ -883,10 +873,28 @@ keys->values//Thread//Association
 ]
 
 
-MSTCoefficientsInternal\[CurlyEpsilon][\[ScriptS]_Integer,\[ScriptL]_Integer,\[ScriptM]_,aKerr_,order\[CurlyEpsilon]_Integer]:=ChangeSeriesParameter[#,\[CurlyEpsilon]^(1/3)]&/@MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],aKerr,3order\[CurlyEpsilon]-1];
+MSTCoefficientsInternal\[CurlyEpsilon][\[ScriptS]_Integer,\[ScriptL]_Integer,\[ScriptM]_,aKerr_,order\[CurlyEpsilon]_Integer]:=Module[{aux,repls,keys,values,ret},
+repls=Block[{Print},KerrMSTSeries[\[ScriptS],\[ScriptL],\[ScriptM],order\[CurlyEpsilon]-1]];
+keys=repls//Keys;
+keys=keys/.{a[n_]:>aMST[n],\[Nu]->\[Nu]MST};
+values=repls//Values;
+values=values//.replsKerr/.q->aKerr/.\[Epsilon]->\[CurlyEpsilon];
+ret=keys->values//Thread//Association;
+ret
+]
 
 
-MSTCoefficients[\[ScriptS]_Integer,\[ScriptL]_Integer,\[ScriptM]_,aKerr_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_Integer}]:=MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],aKerr,order\[Eta]]/.{\[Omega]->\[Omega]Var,\[Eta]->\[Eta]Var}
+MSTCoefficients[\[ScriptS]_Integer,\[ScriptL]_Integer,\[ScriptM]_,aKerr_,\[Omega]Var_,{expVar_,order_Integer}]:=Module[{aux},
+aux=MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],aKerr,order];
+aux=aux/.{\[Omega]->\[Omega]Var,\[Eta]->expVar};
+aux
+]
+
+MSTCoefficients[\[ScriptS]_Integer,\[ScriptL]_Integer,\[ScriptM]_,aKerr_,{expVar_,order_Integer}]:=Module[{aux},
+aux=MSTCoefficientsInternal\[CurlyEpsilon][\[ScriptS],\[ScriptL],\[ScriptM],aKerr,order];
+aux=aux/.{\[CurlyEpsilon]->expVar};
+aux
+]
 
 
 (* ::Subsubsection::Closed:: *)
@@ -998,7 +1006,7 @@ ExpandSpheroidals[expr_Times,{\[Eta]_,n_}]:=ExpandSpheroidals[#,{\[Eta],n}]&/@ex
 ExpandSpheroidals[expr_,{\[Eta]_,n_}]:=expr;
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Tools for Series*)
 
 
@@ -1073,20 +1081,30 @@ aux
 ChangeSeriesParameter[series_SeriesData,var_/;MatchQ[var,__ _Symbol]]:=Module[{aux,sym,fac,oldCoeffs,oldMin,oldMax,oldDen,oldList,exps,newCoeffs},
 {fac,sym}=var/.b__ c_Symbol:>{b,c};
 {oldCoeffs,oldMin,oldMax,oldDen}=series[[#]]&/@{3,4,5,6};
-exps=Range[oldMin/oldDen,oldMin/oldDen+Length[oldCoeffs]-1,oldDen];
+exps=Range[oldMin/oldDen,oldMin/oldDen+(Length[oldCoeffs]-1)/oldDen,1/oldDen];
 newCoeffs=oldCoeffs (fac^#&/@exps);
-aux=ReplacePart[series,{3->newCoeffs}];
+aux=ReplacePart[series,{1->sym,3->newCoeffs}];
 aux
 ]
 ChangeSeriesParameter[series_SeriesData,var_/;MatchQ[var,__ Power[_Symbol,__]]]:=Module[{aux,sym,fac,pow,oldCoeffs,oldMin,oldMax,oldDen,oldList,exps,newCoeffs},
 {fac,sym,pow}=var/.a__ Power[b_Symbol,c__]:>{a,b,c};
 {oldCoeffs,oldMin,oldMax,oldDen}=series[[#]]&/@{3,4,5,6};
-exps=Range[oldMin/oldDen,oldMin/oldDen+Length[oldCoeffs]-1,oldDen];
+exps=Range[oldMin/oldDen,oldMin/oldDen+(Length[oldCoeffs]-1)/oldDen,1/oldDen];
 newCoeffs=oldCoeffs (fac^#&/@exps);
-aux=ReplacePart[series,{1->sym,3->newCoeffs,4->oldMin,5->oldMax,6->oldDen/pow}];
+aux=ReplacePart[series,{1->sym,3->newCoeffs,6->oldDen/pow}];
 aux
 ]
 ChangeSeriesParameter[a_,b_]:=a;
+
+
+PowerCounting[series_SeriesData,var_]:=Module[{aux,sym,fac,pow,oldCoeffs,oldMin,oldMax,oldDen,oldList,exps,newCoeffs},{
+sym,oldCoeffs,oldMin,oldMax,oldDen}=(series[[#1]]&)/@{1,3,4,5,6};
+
+exps=Range[oldMin/oldDen,oldMin/oldDen+(Length[oldCoeffs]-1)/oldDen,1/oldDen];
+newCoeffs=oldCoeffs (sym^#1&)/@exps;
+aux=ReplacePart[series,{1->var,3->newCoeffs}];
+aux
+]
 
 
 (* ::Subsubsection::Closed:: *)
@@ -1523,7 +1541,7 @@ Derivative[n_][\[Theta]][arg_]:=Derivative[n-1][\[Delta]][arg];
 \[Delta]''[\[Eta]^-2 a_]:=\[Eta]^2 \[Delta]''[a];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Amplitudes*)
 
 
@@ -1563,7 +1581,7 @@ aux/.MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]+3]//
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*B Amplitudes*)
 
 
@@ -1716,7 +1734,7 @@ CAmplitude["Ref","Normalization"->"UnitTransmission"][\[ScriptS]_,\[ScriptL]_,\[
 CAmplitude["Trans","Normalization"->"UnitTransmission"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=1 (1+O[\[Eta]] \[Eta]^(order\[Eta]-1));
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*\[ScriptCapitalK] Amplitude*)
 
 
@@ -1859,11 +1877,11 @@ TeukolskyAmplitudePN["\[ScriptCapitalK]-\[Nu]-1",opt:OptionsPattern[]][\[ScriptS
 TeukolskyAmplitudePN["\[ScriptCapitalK]",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_}] :=\[ScriptCapitalK]Amplitude["Ratio"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/.{\[Omega]->\[Omega]Var,\[Eta]->\[Eta]Var};
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Wronskian*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Invariant Wronskian*)
 
 
@@ -1876,7 +1894,7 @@ ret
 ]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Subscript[R, In]*)
 
 
@@ -1916,7 +1934,7 @@ ret
 \*SuperscriptBox[\((\(-1\))\), \(n\)]\ Pochhammer[\[Nu] + 1 + s - I\ \[Epsilon], n]\ a[\(-n\)]\), \(\((\(\((rInt - n)\)!\)\ Pochhammer[rInt + 2\ \[Nu] + 2, n])\)\ Pochhammer[\[Nu] + 1 - s + I\ \[Epsilon], n]\)]\))/. {rInt->0,\[Nu]->-\[Nu]-1};*)*)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Alternative Definitions*)
 
 
@@ -2319,7 +2337,7 @@ RPN["Up"][0,0,0,aKerr_,0]:=O[\[Eta]]^-1
 (*]*)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Outputting Radial solutions as functions*)
 
 
@@ -2473,7 +2491,7 @@ If[!MatchQ[order,_Integer],Message[TeukolskyRadialFunctionPN::paramorder,order];
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*TeukolskyRadialPN*)
 
 
@@ -2503,7 +2521,7 @@ icons = <|
 |>;
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Getting internal association*)
 
 
@@ -2531,7 +2549,7 @@ ret
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Getting internal association faster*)
 
 
@@ -2599,7 +2617,7 @@ ret=<|"In"->ret["In"],"Up"->ret["Up"]|>
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*TeukolskyRadialPN*)
 
 
@@ -2630,7 +2648,7 @@ retUp=TeukolskyRadialFunctionPN[\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{var
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*TeukolskyRadialFunctionPN*)
 
 
@@ -2674,7 +2692,7 @@ ret
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Accessing functions and keys*)
 
 
@@ -2694,11 +2712,11 @@ Derivative[n_Integer][trf_TeukolskyRadialFunctionPN][r_Symbol]:=trf[[6,1]]^(2 n)
 Keys[trfpn_TeukolskyRadialFunctionPN] ^:= DeleteElements[Join[Keys[trfpn[[-1]]], {}], {"RadialFunction","AmplitudesBool"}];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*TeukolskyPointParticleModePN*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Getting internal association*)
 
 
@@ -2765,7 +2783,7 @@ ret
 (*RadialSourcedAssociation["CO"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,r0Var_,{varPN_,order_}]/;NumericQ[r0Var]:=RadialSourcedAssociation["CO"][\[ScriptS],\[ScriptL],\[ScriptM],a,r0,{varPN,order}]/.r0->r0Var;*)*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*TeukolskyModePN*)
 
 
@@ -2821,7 +2839,7 @@ TeukolskyPointParticleModePN[\[ScriptS], \[ScriptL], \[ScriptM],orbit,{varPN,aux
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Accessing functions and keys*)
 
 
