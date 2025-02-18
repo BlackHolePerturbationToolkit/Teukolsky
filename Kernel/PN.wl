@@ -853,7 +853,7 @@ MST=Append[MST,Table[a[i]->aMST[i]+If[i==0,0,O[\[Epsilon]]^(ExpOrder+1)],{i,-Exp
 assumps={r>2,r0>2,a>=0,\[Eta]>0,\[Omega]>=0}
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*MST Coefficients*)
 
 
@@ -1072,10 +1072,12 @@ ChangeSeriesParameter[series_SeriesData,var_Symbol]:=Module[{aux},
 aux=ReplacePart[series,1->var];
 aux
 ]
-ChangeSeriesParameter[series_SeriesData,var_/;MatchQ[var,Power[_Symbol,__]]]:=Module[{aux,sym,pow,oldMin,oldMax,oldDen},
+ChangeSeriesParameter[series_SeriesData,var_/;MatchQ[var,Power[_Symbol,__]]]:=Module[{aux,sym,pow,powNum,powDen,oldMin,oldMax,oldDen,oldCoeffs,newCoeffs},
 {sym,pow}=var/.Power[b_Symbol,c__]:>{b,c};
-{oldMin,oldMax,oldDen}=series[[#]]&/@{4,5,6};
-aux=ReplacePart[series,{1->sym,4->oldMin,5->oldMax,6->oldDen/pow}];
+{powNum,powDen}={pow//Numerator,pow//Denominator};
+{oldCoeffs,oldMin,oldMax,oldDen}=series[[#]]&/@{3,4,5,6};
+newCoeffs={oldCoeffs}~Join~ConstantArray[ConstantArray[0,Length[oldCoeffs]],powNum-1]//Transpose//Flatten;
+aux=ReplacePart[series,{1->sym,3->newCoeffs,4->oldMin powNum,5->oldMax powNum,6->oldDen powDen}];
 aux
 ]
 ChangeSeriesParameter[series_SeriesData,var_/;MatchQ[var,__ _Symbol]]:=Module[{aux,sym,fac,oldCoeffs,oldMin,oldMax,oldDen,oldList,exps,newCoeffs},
@@ -1086,12 +1088,14 @@ newCoeffs=oldCoeffs (fac^#&/@exps);
 aux=ReplacePart[series,{1->sym,3->newCoeffs}];
 aux
 ]
-ChangeSeriesParameter[series_SeriesData,var_/;MatchQ[var,__ Power[_Symbol,__]]]:=Module[{aux,sym,fac,pow,oldCoeffs,oldMin,oldMax,oldDen,oldList,exps,newCoeffs},
+ChangeSeriesParameter[series_SeriesData,var_/;MatchQ[var,__ Power[_Symbol,__]]]:=Module[{aux,sym,fac,pow,powDen,powNum,oldCoeffs,oldMin,oldMax,oldDen,oldList,exps,newCoeffs},
 {fac,sym,pow}=var/.a__ Power[b_Symbol,c__]:>{a,b,c};
+{powNum,powDen}={pow//Numerator,pow//Denominator};
 {oldCoeffs,oldMin,oldMax,oldDen}=series[[#]]&/@{3,4,5,6};
 exps=Range[oldMin/oldDen,oldMin/oldDen+(Length[oldCoeffs]-1)/oldDen,1/oldDen];
 newCoeffs=oldCoeffs (fac^#&/@exps);
-aux=ReplacePart[series,{1->sym,3->newCoeffs,6->oldDen/pow}];
+newCoeffs={newCoeffs}~Join~ConstantArray[ConstantArray[0,Length[newCoeffs]],powNum-1]//Transpose//Flatten;
+aux=ReplacePart[series,{1->sym,3->newCoeffs,4->oldMin powNum,5->oldMax powNum,6->oldDen powDen}];
 aux
 ]
 ChangeSeriesParameter[a_,b_]:=a;
@@ -1894,7 +1898,7 @@ ret
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Subscript[R, In]*)
 
 
@@ -1934,7 +1938,7 @@ ret
 \*SuperscriptBox[\((\(-1\))\), \(n\)]\ Pochhammer[\[Nu] + 1 + s - I\ \[Epsilon], n]\ a[\(-n\)]\), \(\((\(\((rInt - n)\)!\)\ Pochhammer[rInt + 2\ \[Nu] + 2, n])\)\ Pochhammer[\[Nu] + 1 - s + I\ \[Epsilon], n]\)]\))/. {rInt->0,\[Nu]->-\[Nu]-1};*)*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Alternative Definitions*)
 
 
