@@ -22,7 +22,7 @@ BeginPackage["Teukolsky`PN`Tools`",{"Teukolsky`","Teukolsky`PN`"}]
 ClearAttributes[{\[Nu]MST, aMST,MSTCoefficients}, {Protected, ReadProtected}];
 
 
-ClearAttributes[{SeriesTake, SeriesMinOrder,SeriesMaxOrder,SeriesLength,SeriesCollect,SeriesTerms,IgnoreExpansionParameter}, {Protected, ReadProtected}];
+ClearAttributes[{SeriesTake, SeriesMinOrder,SeriesMaxOrder,SeriesLength,SeriesCollect,SeriesTerms,IgnoreExpansionParameter,ChangeSeriesParameter}, {Protected, ReadProtected}];
 
 
 ClearAttributes[{PNScalings, RemovePN,Zero,One}, {Protected, ReadProtected}];
@@ -67,7 +67,8 @@ SeriesMaxOrder::usage="SeriesMaxOrder[series] gives the first surpressed order o
 SeriesLength::usage="SeriesLenght[series] gives the number of terms in series"
 SeriesCollect::usage="SeriesCollect[expr, var, func] works like Collect but applied to each order individually. Crucially, unlike Collect it keeps the SeriesData structure."
 SeriesTerms::usage="SeriesTerms[series, {x, x0, n}] works exactly like Series, with the difference that n gives the desired number of terms instead of a maximum order"
-IgnoreExpansionParameter::usage="IgnoreExpansionParameter[series,x] sets all occurences of the expansion parameter in the series coefficients to x. If no value is entered x defaults to 1." 
+IgnoreExpansionParameter::usage="IgnoreExpansionParameter[series,x] sets all occurences of the expansion parameter in the series coefficients to x. If no value is entered x defaults to 1."
+ChangeSeriesParameter::usage="ChangeSeriesParameter[series,expr] changes the expansion parameter in series to be expr." 
 
 
 (* ::Subsection:: *)
@@ -175,6 +176,7 @@ SeriesLength=Teukolsky`PN`Private`SeriesLength
 SeriesCollect=Teukolsky`PN`Private`SeriesCollect
 SeriesTerms=Teukolsky`PN`Private`SeriesTerms
 IgnoreExpansionParameter=Teukolsky`PN`Private`IgnoreExpansionParameter
+ChangeSeriesParameter=Teukolsky`PN`Private`ChangeSeriesParameter
 
 
 (* ::Subsection:: *)
@@ -259,7 +261,7 @@ TeukolskyEquation=Teukolsky`PN`Private`TeukolskyEquation
 SetAttributes[{\[Nu]MST, aMST,MSTCoefficients}, {Protected, ReadProtected}];
 
 
-SetAttributes[{SeriesTake, SeriesMinOrder,SeriesMaxOrder,SeriesLength,SeriesTerms,IgnoreExpansionParameter}, {Protected, ReadProtected}];
+SetAttributes[{SeriesTake, SeriesMinOrder,SeriesMaxOrder,SeriesLength,SeriesTerms,IgnoreExpansionParameter,ChangeSeriesParameter}, {Protected, ReadProtected}];
 
 
 SetAttributes[{SeriesCollect}, {Protected, ReadProtected,Listable}];
