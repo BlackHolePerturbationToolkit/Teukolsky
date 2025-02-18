@@ -851,7 +851,7 @@ MST=Append[MST,Table[a[i]->aMST[i]+If[i==0,0,O[\[Epsilon]]^(ExpOrder+1)],{i,-Exp
 assumps={r>2,r0>2,a>=0,\[Eta]>0,\[Omega]>=0}
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*MST Coefficients*)
 
 
@@ -881,6 +881,9 @@ values=Values[aux]/.a->aKerr;
 keys=Keys[aux]/.{a[n_]:>aMST[n],\[Nu]->\[Nu]MST};
 keys->values//Thread//Association
 ]
+
+
+MSTCoefficientsInternal\[CurlyEpsilon][\[ScriptS]_Integer,\[ScriptL]_Integer,\[ScriptM]_,aKerr_,order\[CurlyEpsilon]_Integer]:=ChangeSeriesParameter[#,\[CurlyEpsilon]^(1/3)]&/@MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],aKerr,3order\[CurlyEpsilon]-1];
 
 
 MSTCoefficients[\[ScriptS]_Integer,\[ScriptL]_Integer,\[ScriptM]_,aKerr_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_Integer}]:=MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],aKerr,order\[Eta]]/.{\[Omega]->\[Omega]Var,\[Eta]->\[Eta]Var}
@@ -1055,6 +1058,35 @@ poly+O[(x-x\:2080)]^(maxPower+1)]
 polyToSeries[0,x_:\[Eta],x\:2080_:0]:=Block[{aux,maxPower},
 0
 ]
+
+
+ChangeSeriesParameter[series_SeriesData,var_Symbol]:=Module[{aux},
+aux=ReplacePart[series,1->var];
+aux
+]
+ChangeSeriesParameter[series_SeriesData,var_/;MatchQ[var,Power[_Symbol,__]]]:=Module[{aux,sym,pow,oldMin,oldMax,oldDen},
+{sym,pow}=var/.Power[b_Symbol,c__]:>{b,c};
+{oldMin,oldMax,oldDen}=series[[#]]&/@{4,5,6};
+aux=ReplacePart[series,{1->sym,4->oldMin,5->oldMax,6->oldDen/pow}];
+aux
+]
+ChangeSeriesParameter[series_SeriesData,var_/;MatchQ[var,__ _Symbol]]:=Module[{aux,sym,fac,oldCoeffs,oldMin,oldMax,oldDen,oldList,exps,newCoeffs},
+{fac,sym}=var/.b__ c_Symbol:>{b,c};
+{oldCoeffs,oldMin,oldMax,oldDen}=series[[#]]&/@{3,4,5,6};
+exps=Range[oldMin/oldDen,oldMin/oldDen+Length[oldCoeffs]-1,oldDen];
+newCoeffs=oldCoeffs (fac^#&/@exps);
+aux=ReplacePart[series,{3->newCoeffs}];
+aux
+]
+ChangeSeriesParameter[series_SeriesData,var_/;MatchQ[var,__ Power[_Symbol,__]]]:=Module[{aux,sym,fac,pow,oldCoeffs,oldMin,oldMax,oldDen,oldList,exps,newCoeffs},
+{fac,sym,pow}=var/.a__ Power[b_Symbol,c__]:>{a,b,c};
+{oldCoeffs,oldMin,oldMax,oldDen}=series[[#]]&/@{3,4,5,6};
+exps=Range[oldMin/oldDen,oldMin/oldDen+Length[oldCoeffs]-1,oldDen];
+newCoeffs=oldCoeffs (fac^#&/@exps);
+aux=ReplacePart[series,{1->sym,3->newCoeffs,4->oldMin,5->oldMax,6->oldDen/pow}];
+aux
+]
+ChangeSeriesParameter[a_,b_]:=a;
 
 
 (* ::Subsubsection::Closed:: *)
@@ -1531,7 +1563,7 @@ aux/.MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]+3]//
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*B Amplitudes*)
 
 
@@ -1740,7 +1772,7 @@ jump[2]=1+\[ScriptS]+\[ScriptL]<=n;
 jump[3]=1-\[ScriptS]+\[ScriptL]<=n;
 jumpCount=1+(jump[#]&/@Range[3]//Boole//Total);
 repls=MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]+3+3];
-repls\[Nu]=<|\[Nu]MST->(repls[\[Nu]MST]//SeriesTake[#,order\[Eta]-Floor[n/3]+3jumpCount]&)|>;
+repls\[Nu]=<|\[Nu]MST->(repls[\[Nu]MST]//SeriesTake[#,order\[Eta]-Floor[Abs[n]/3]+3jumpCount]&)|>;
 coeff=I^-\[ScriptR] 2^(1+\[Nu]MST) E^(I \[CurlyEpsilon] \[Kappa]) (\[CurlyEpsilon] \[Kappa])^(1-\[ScriptR]+\[ScriptS]+\[Nu]MST) ( \[CapitalGamma][1-\[ScriptS]-2 I \[CurlyEpsilon]p] \[CapitalGamma][\[ScriptR]-2 \[Nu]MST])/\[CapitalGamma][\[ScriptR]-\[ScriptS]+I \[CurlyEpsilon]-\[Nu]MST]  If[\[ScriptR]==0&&OptionValue["PochhammerForm"],1,1/(\[CapitalGamma][\[ScriptR]-\[Nu]MST+I \[Tau]]\[CapitalGamma][\[ScriptR]+\[ScriptS]+I \[CurlyEpsilon]-\[Nu]MST] )]//IgnoreExpansionParameter;
 nMax=Ceiling[order\[Eta]/3];
 nMin=Ceiling[-(order\[Eta]/3)-2];
@@ -1769,34 +1801,34 @@ ret//SeriesTake[#,order\[Eta]]&
 \[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;
 \[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];
 jumpCount=1;
+
 repls=MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]+6];
-repls\[Nu]=<|\[Nu]MST->(repls[\[Nu]MST]//SeriesTake[#,order\[Eta]-Floor[n/3]+6jumpCount]&)|>;
-EchoTiming[coeff=2^(1+2 \[Nu]MST) \[CurlyEpsilon] \[Kappa] (\[CurlyEpsilon] \[Kappa])^(2 \[Nu]MST) (\[CapitalGamma][\[ScriptR]-2 \[Nu]MST] \[CapitalGamma][1+\[ScriptR]-\[ScriptS]+I \[CurlyEpsilon]+\[Nu]MST])/(\[CapitalGamma][\[ScriptR]-\[ScriptS]+I \[CurlyEpsilon]-\[Nu]MST] \[CapitalGamma][2+\[ScriptR]+2 \[Nu]MST]) If[\[ScriptR]==0,1,(\[CapitalGamma][\[ScriptR]+\[Nu]MST+1+\[ScriptS]+I \[CurlyEpsilon]] \[CapitalGamma][\[ScriptR]+\[Nu]MST+1+I \[Tau]])/(\[CapitalGamma][\[ScriptR]-\[Nu]MST+I \[Tau]]\[CapitalGamma][\[ScriptR]+\[ScriptS]+I \[CurlyEpsilon]-\[Nu]MST] )]//IgnoreExpansionParameter//SeriesTake[#,order\[Eta]]&,"coeff"];
+repls\[Nu]=<|\[Nu]MST->(repls[\[Nu]MST]//SeriesTake[#,order\[Eta]-Floor[Abs[n]/3]+6jumpCount]&)|>;
+coeff=2^(1+2 \[Nu]MST) \[CurlyEpsilon] \[Kappa] (\[CurlyEpsilon] \[Kappa])^(2 \[Nu]MST) (\[CapitalGamma][\[ScriptR]-2 \[Nu]MST] \[CapitalGamma][1+\[ScriptR]-\[ScriptS]+I \[CurlyEpsilon]+\[Nu]MST])/(\[CapitalGamma][\[ScriptR]-\[ScriptS]+I \[CurlyEpsilon]-\[Nu]MST] \[CapitalGamma][2+\[ScriptR]+2 \[Nu]MST]) If[\[ScriptR]==0,1,(\[CapitalGamma][\[ScriptR]+\[Nu]MST+1+\[ScriptS]+I \[CurlyEpsilon]] \[CapitalGamma][\[ScriptR]+\[Nu]MST+1+I \[Tau]])/(\[CapitalGamma][\[ScriptR]-\[Nu]MST+I \[Tau]]\[CapitalGamma][\[ScriptR]+\[ScriptS]+I \[CurlyEpsilon]-\[Nu]MST] )];
+coeff=coeff/.replsPN/.repls//IgnoreExpansionParameter//SeriesTake[#,order\[Eta]]&;
 nMax=Ceiling[order\[Eta]/3];
 nMin=Ceiling[-(order\[Eta]/3)-2];
-EchoTiming[sumUpPH=\!\(
+sumUpPH=\!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(-\[ScriptR]\)]\(\((\(
 \*FractionBox[\(
-\*SuperscriptBox[\((\(-1\))\), \(-n\)]\  PH[\(-1\) + \[ScriptR] - 2\  \[Nu]MST, \(-n\)]\  PH[\[ScriptS] + I\  \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\  PH[\(-\[Nu]MST\) + I\  \[Tau], \(-n\)]\), \(\(\((\(-n\) - \[ScriptR])\)!\)\  PH[\(-\[ScriptS]\) - I\  \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\  PH[\(-\[Nu]MST\) - I\  \[Tau], \(-n\)]\)] /. replsPN\) /. repls\[Nu])\) \((aMST[n]\  /. repls)\)\)\)//IgnoreExpansionParameter//SeriesTake[#,order\[Eta]]&,"sumup1"];
-sumUpPH//Print;
-EchoTiming[sumUp2=\!\(
+\*SuperscriptBox[\((\(-1\))\), \(-n\)]\  PH[\(-1\) + \[ScriptR] - 2\  \[Nu]MST, \(-n\)]\  PH[\[ScriptS] + I\  \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\  PH[\(-\[Nu]MST\) + I\  \[Tau], \(-n\)]\), \(\(\((\(-n\) - \[ScriptR])\)!\)\  PH[\(-\[ScriptS]\) - I\  \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\  PH[\(-\[Nu]MST\) - I\  \[Tau], \(-n\)]\)] /. replsPN\) /. repls\[Nu])\) \((aMST[n]\  /. repls)\)\)\)//IgnoreExpansionParameter//SeriesTake[#,order\[Eta]]&;
+sumUp2=\!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(\[ScriptR]\)]\(\((\(
 \*FractionBox[
 SuperscriptBox[\((\(-1\))\), \(n\)], \(\(\((\[ScriptR] - n)\)!\) PH[\[ScriptR] + 2\  \[Nu]MST + 2, n]\)] 
-\*FractionBox[\(PH[\[Nu]MST + 1 + \[ScriptS] - I\  \[CurlyEpsilon], n]\), \(PH[\[Nu]MST + 1 - \[ScriptS] + I\  \[CurlyEpsilon], n]\)] /. replsPN\) /. repls\[Nu])\) \((aMST[n] /. repls)\)\)\)//IgnoreExpansionParameter//SeriesTake[#,order\[Eta]]&,"sumup2"];
-sumUp2//Print;
-EchoTiming[sumUpPHCoeff=(Gamma[-1+\[ScriptR]-2 \[Nu]MST] Gamma[1-\[ScriptS]-I \[CurlyEpsilon]+\[Nu]MST] Gamma[1+\[Nu]MST-I \[Tau]])/(Gamma[-\[ScriptS]-I \[CurlyEpsilon]-\[Nu]MST] Gamma[1+\[ScriptR]+2 \[Nu]MST] Gamma[-\[Nu]MST-I \[Tau]]) If[\[ScriptR]==0,1,(Gamma[\[ScriptS]+I \[CurlyEpsilon]-\[Nu]MST] Gamma[-\[Nu]MST+I \[Tau]])/(Gamma[1+\[ScriptS]+I \[CurlyEpsilon]+\[Nu]MST] Gamma[1+\[Nu]MST+I \[Tau]])]//IgnoreExpansionParameter//SeriesTake[#,order\[Eta]]&,"uuuu"];
-EchoTiming[coeff=(coeff sumUpPHCoeff)/.replsPN/.repls//IgnoreExpansionParameter,"aaa"];
-
-EchoTiming[sumDown=\!\(
+\*FractionBox[\(PH[\[Nu]MST + 1 + \[ScriptS] - I\  \[CurlyEpsilon], n]\), \(PH[\[Nu]MST + 1 - \[ScriptS] + I\  \[CurlyEpsilon], n]\)] /. replsPN\) /. repls\[Nu])\) \((aMST[n] /. repls)\)\)\)//IgnoreExpansionParameter//SeriesTake[#,order\[Eta]]&;
+sumUpPHCoeff=(Gamma[-1+\[ScriptR]-2 \[Nu]MST] Gamma[1-\[ScriptS]-I \[CurlyEpsilon]+\[Nu]MST] Gamma[1+\[Nu]MST-I \[Tau]])/(Gamma[-\[ScriptS]-I \[CurlyEpsilon]-\[Nu]MST] Gamma[1+\[ScriptR]+2 \[Nu]MST] Gamma[-\[Nu]MST-I \[Tau]]) If[\[ScriptR]==0,1,(Gamma[\[ScriptS]+I \[CurlyEpsilon]-\[Nu]MST] Gamma[-\[Nu]MST+I \[Tau]])/(Gamma[1+\[ScriptS]+I \[CurlyEpsilon]+\[Nu]MST] Gamma[1+\[Nu]MST+I \[Tau]])];
+sumUpPHCoeff=sumUpPHCoeff/.replsPN/.repls//IgnoreExpansionParameter//SeriesTake[#,order\[Eta]]&;
+coeff=(coeff sumUpPHCoeff);
+sumDown=\!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(n = \(-\[ScriptR]\)\), \(nMax\)]\(\((\(
 \*FractionBox[\(
-\*SuperscriptBox[\((\(-1\))\), \(-n\)]\  PH[\[ScriptS] - I\  \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\), \(\(\((n + \[ScriptR])\)!\)\  PH[\[ScriptR] - 2\  \[Nu]MST, \(-n\)]\  PH[\(-\[ScriptS]\) + I\  \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\)] /. replsPN\) /. repls\[Nu])\) \((aMST[n] /. repls)\)\)\)//IgnoreExpansionParameter//SeriesTake[#,order\[Eta]]&,"sumDown1"];
-EchoTiming[sumDown2=\!\(
+\*SuperscriptBox[\((\(-1\))\), \(-n\)]\  PH[\[ScriptS] - I\  \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\), \(\(\((n + \[ScriptR])\)!\)\  PH[\[ScriptR] - 2\  \[Nu]MST, \(-n\)]\  PH[\(-\[ScriptS]\) + I\  \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\)] /. replsPN\) /. repls\[Nu])\) \((aMST[n] /. repls)\)\)\)//IgnoreExpansionParameter//SeriesTake[#,order\[Eta]]&;
+sumDown2=\!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(n = \[ScriptR]\), \(nMax\)]\(\((\(
 \*FractionBox[\(
-\*SuperscriptBox[\((\(-1\))\), \(n\)]\  PH[1 + \[ScriptS] + I\  \[CurlyEpsilon] + \[Nu]MST, n]\  PH[1 + \[ScriptR] + 2\  \[Nu]MST, n]\  PH[1 + \[Nu]MST + I\  \[Tau], n]\), \(\(\((n - \[ScriptR])\)!\)\  PH[1 - \[ScriptS] - I\  \[CurlyEpsilon] + \[Nu]MST, n]\  PH[1 + \[Nu]MST - I\  \[Tau], n]\)] /. replsPN\) /. repls\[Nu])\) \((aMST[n]\  /. repls)\)\)\)//IgnoreExpansionParameter//SeriesTake[#,order\[Eta]]&,"sumDown2"];
-EchoTiming[ret=coeff  sumUp2/sumDown  sumUpPH/sumDown2//IgnoreExpansionParameter,"ret"];
+\*SuperscriptBox[\((\(-1\))\), \(n\)]\  PH[1 + \[ScriptS] + I\  \[CurlyEpsilon] + \[Nu]MST, n]\  PH[1 + \[ScriptR] + 2\  \[Nu]MST, n]\  PH[1 + \[Nu]MST + I\  \[Tau], n]\), \(\(\((n - \[ScriptR])\)!\)\  PH[1 - \[ScriptS] - I\  \[CurlyEpsilon] + \[Nu]MST, n]\  PH[1 + \[Nu]MST - I\  \[Tau], n]\)] /. replsPN\) /. repls\[Nu])\) \((aMST[n]\  /. repls)\)\)\)//IgnoreExpansionParameter//SeriesTake[#,order\[Eta]]&;
+ret=coeff  sumUp2/sumDown  sumUpPH/sumDown2//IgnoreExpansionParameter;
 ret//SeriesTake[#,order\[Eta]]&
 ]
 
@@ -1836,9 +1868,9 @@ TeukolskyAmplitudePN["\[ScriptCapitalK]",opt:OptionsPattern[]][\[ScriptS]_,\[Scr
 
 
 InvariantWronskian[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_}]:=Module[{aux,Rup,Rin,B,C,ret},
-EchoTiming[C=CAmplitude["Trans"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]//ExpandPolyGamma//ExpandGamma,"CTrans"];
-EchoTiming[B=BAmplitude["Inc"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]//ExpandPolyGamma//ExpandGamma,"BInc"];
-EchoTiming[aux=PNScalingsInternal[2 I \[Omega]]B C//ExpandLog//SeriesCollect[#,Log[__]]&,"combining"];
+C=CAmplitude["Trans"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]//ExpandPolyGamma//ExpandGamma;
+B=BAmplitude["Inc"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]//ExpandPolyGamma//ExpandGamma;
+aux=PNScalingsInternal[2 I \[Omega]]B C//ExpandLog//SeriesCollect[#,Log[__]]&;
 ret=aux/.{\[Omega]->\[Omega]Var,\[Eta]->\[Eta]Var};
 ret
 ]
