@@ -67,9 +67,10 @@ TeukolskyPointParticleModePN::particle="TeukolskyPointParticleModePN cannot be e
 aMST
 \[Omega]
 a
-\[CurlyEpsilon]
-MSTCoefficientsInternal\[CurlyEpsilon]
+\[Gamma]
+MSTCoefficientsInternalFreq
 KerrMSTSeries
+pIn
 
 
 (* ::Section:: *)
@@ -842,7 +843,7 @@ MST=Append[MST,Table[a[i]->aMST[i]+If[i==0,0,O[\[Epsilon]]^(ExpOrder+1)],{i,-Exp
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Definitions, replacements and auxiliary functions*)
 
 
@@ -853,7 +854,7 @@ MST=Append[MST,Table[a[i]->aMST[i]+If[i==0,0,O[\[Epsilon]]^(ExpOrder+1)],{i,-Exp
 assumps={r>2,r0>2,a>=0,\[Eta]>0,\[Omega]>=0}
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*MST Coefficients*)
 
 
@@ -873,26 +874,30 @@ keys->values//Thread//Association
 ]
 
 
-MSTCoefficientsInternal\[CurlyEpsilon][\[ScriptS]_Integer,\[ScriptL]_Integer,\[ScriptM]_,aKerr_,order\[CurlyEpsilon]_Integer]:=Module[{aux,repls,keys,values,ret},
+MSTCoefficientsInternalFreq[\[ScriptS]_Integer,\[ScriptL]_Integer,\[ScriptM]_,aKerr_,order\[CurlyEpsilon]_Integer]:=Module[{aux,repls,keys,values,ret},
 repls=Block[{Print},KerrMSTSeries[\[ScriptS],\[ScriptL],\[ScriptM],order\[CurlyEpsilon]-1]];
+repls[a[0]]=repls[a[0]](1+O[\[Epsilon]]^order\[CurlyEpsilon]);
 keys=repls//Keys;
 keys=keys/.{a[n_]:>aMST[n],\[Nu]->\[Nu]MST};
 values=repls//Values;
-values=values//.replsKerr/.q->aKerr/.\[Epsilon]->\[CurlyEpsilon];
+values=values//.replsKerr/.q->aKerr;
+values=values//ChangeSeriesParameter[#,2\[Omega]]&//PowerCounting[#,\[Gamma]]&;
 ret=keys->values//Thread//Association;
 ret
 ]
 
 
-MSTCoefficients[\[ScriptS]_Integer,\[ScriptL]_Integer,\[ScriptM]_,aKerr_,\[Omega]Var_,{expVar_,order_Integer}]:=Module[{aux},
+Options[MSTCoefficients]={"FrequencyRep"->False}
+
+
+MSTCoefficients[\[ScriptS]_Integer,\[ScriptL]_Integer,\[ScriptM]_,aKerr_,\[Omega]Var_,{expVar_,order_Integer},OptionsPattern[]]:=Module[{aux},
 aux=MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],aKerr,order];
 aux=aux/.{\[Omega]->\[Omega]Var,\[Eta]->expVar};
 aux
 ]
-
-MSTCoefficients[\[ScriptS]_Integer,\[ScriptL]_Integer,\[ScriptM]_,aKerr_,{expVar_,order_Integer}]:=Module[{aux},
-aux=MSTCoefficientsInternal\[CurlyEpsilon][\[ScriptS],\[ScriptL],\[ScriptM],aKerr,order];
-aux=aux/.{\[CurlyEpsilon]->expVar};
+MSTCoefficients[\[ScriptS]_Integer,\[ScriptL]_Integer,\[ScriptM]_,aKerr_,\[Omega]Var_,{expVar_,order_Integer},"FrequencyRep"->True]:=Module[{aux},
+aux=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],aKerr,order];
+aux=aux/.{\[Omega]->\[Omega]Var,\[Eta]->expVar};
 aux
 ]
 
@@ -1006,7 +1011,7 @@ ExpandSpheroidals[expr_Times,{\[Eta]_,n_}]:=ExpandSpheroidals[#,{\[Eta],n}]&/@ex
 ExpandSpheroidals[expr_,{\[Eta]_,n_}]:=expr;
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Tools for Series*)
 
 
@@ -1099,6 +1104,8 @@ aux=ReplacePart[series,{1->sym,3->newCoeffs,4->oldMin powNum,5->oldMax powNum,6-
 aux
 ]
 ChangeSeriesParameter[a_,b_]:=a;
+ChangeSeriesParameter[list_List,var_]:=ChangeSeriesParameter[#,var]&/@list;
+ChangeSeriesParameter[list_Association,var_]:=ChangeSeriesParameter[#,var]&/@list;
 
 
 PowerCounting[series_SeriesData,var_]:=Module[{aux,sym,fac,pow,oldCoeffs,oldMin,oldMax,oldDen,oldList,exps,newCoeffs},{
@@ -1109,6 +1116,8 @@ newCoeffs=oldCoeffs (sym^#1&)/@exps;
 aux=ReplacePart[series,{1->var,3->newCoeffs}];
 aux
 ]
+PowerCounting[list_List,var_]:=PowerCounting[#,var]&/@list;
+PowerCounting[list_Association,var_]:=PowerCounting[#,var]&/@list;
 
 
 (* ::Subsubsection::Closed:: *)
@@ -1898,44 +1907,8 @@ ret
 ]
 
 
-(* ::Subsection::Closed:: *)
-(*Subscript[R, In]*)
-
-
-(* ::Text:: *)
-(*To construct Subscript[R, In] we follow Eq.166 in Sasaki Tagoshi ( https://doi.org/10.12942/lrr-2003-6 ). Subscript[R, in]=Subscript[R, C]^\[Nu]+Subscript[\[ScriptCapitalK], -\[Nu]-1]/Subscript[\[ScriptCapitalK], \[Nu]] Subscript[R, C]^(-\[Nu]-1). Notice that we have divided out a factor of Subscript[\[ScriptCapitalK], \[Nu]], which is allowed since Subscript[\[ScriptCapitalK], \[Nu]] does not depend on r. This is helpful as the second term now dies off drastically with the increase of \[ScriptL]. \[ScriptCapitalK]^\[Nu] ~\[Omega]^-\[ScriptL]. \[ScriptCapitalK]^(-\[Nu]-1) ~\[Omega]^\[ScriptL] (Schwarzschild?)*)
-
-
-(* ::Subsubsection::Closed:: *)
-(*Definitions (depreciated)*)
-
-
-(* ::Text:: *)
-(*We start by typing up the definitions given in Sasaki Tagoshi Eq.162 - Eq.165. Notice that we use the symmetry Subscript[a, n]^(-\[Nu]-1)=Subscript[a, -n]^\[Nu] for the MST coefficients. One key challenge is figuring out where to truncate the infinite sums for a given scaling in \[Eta] most efficiently. This will be solved later in tableOverNJ[]. *)
-
-
-(*c["In"][z_]:=E^(-I z) 2^\[Nu] z^\[Nu] (z-\[Epsilon] \[Kappa])^-s (1-(\[Epsilon] \[Kappa])/z)^(-I \[Epsilon]p);
-\[Epsilon]p=(\[Epsilon]+\[Tau])/2;
-\[ConstantC]D[\[Nu],n_,j_]:=((-1)^n (2 I)^(n+j) Gamma[n+\[Nu]+1-s+I \[Epsilon]] Pochhammer[\[Nu]+1+s-I \[Epsilon],n] Pochhammer[n+\[Nu]+1-s+I \[Epsilon],j] a[n])/(Gamma[2 n+2 \[Nu]+2] Pochhammer[\[Nu]+1-s+I \[Epsilon],n] Pochhammer[2 n+2 \[Nu]+2,j] j!);
-\[ConstantC]D[-\[Nu]-1,n_,j_]:=((-1)^n (2 I)^(n+j) Gamma[n+\[Nu]+1-s+I \[Epsilon]] Pochhammer[\[Nu]+1+s-I \[Epsilon],n] Pochhammer[n+\[Nu]+1-s+I \[Epsilon],j] a[-n])/(Gamma[2 n+2 \[Nu]+2] Pochhammer[\[Nu]+1-s+I \[Epsilon],n] Pochhammer[2 n+2 \[Nu]+2,j] j!)/. \[Nu]->-\[Nu]-1;
-(*\[ScriptCapitalK][\[Nu],order\[Eta]_]:=((E^(I \[Epsilon] \[Kappa]) (2 \[Epsilon] \[Kappa])^(s-\[Nu]-rInt) 2^-s I^rInt Gamma[1-s-2 I \[Epsilon]p] Gamma[rInt+2 \[Nu]+2]) \!\(
-\*UnderoverscriptBox[\(\[Sum]\), \(n = rInt\), \(Ceiling[
-\*FractionBox[\(order\[Eta]\), \(3\)]]\)]
-\*FractionBox[\(
-\*SuperscriptBox[\((\(-1\))\), \(n\)]\ Gamma[n + rInt + 2\ \[Nu] + 1]\ Gamma[n + \[Nu] + 1 + s + I\ \[Epsilon]]\ Gamma[n + \[Nu] + 1 + I\ \[Tau]]\ a[n]\), \(\(\((n - rInt)\)!\)\ Gamma[n + \[Nu] + 1 - s - I\ \[Epsilon]]\ Gamma[n + \[Nu] + 1 - I\ \[Tau]]\)]\))/((Gamma[rInt+\[Nu]+1-s+I \[Epsilon]] Gamma[rInt+\[Nu]+1+I \[Tau]] Gamma[rInt+\[Nu]+1+s+I \[Epsilon]]) \!\(
-\*UnderoverscriptBox[\(\[Sum]\), \(n = Floor[\(-
-\*FractionBox[\(1\), \(3\)]\)\ \((order\[Eta] + 6)\)]\), \(rInt\)]
-\*FractionBox[\(
-\*SuperscriptBox[\((\(-1\))\), \(n\)]\ Pochhammer[\[Nu] + 1 + s - I\ \[Epsilon], n]\ a[n]\), \(\((\(\((rInt - n)\)!\)\ Pochhammer[rInt + 2\ \[Nu] + 2, n])\)\ Pochhammer[\[Nu] + 1 - s + I\ \[Epsilon], n]\)]\))/. rInt->Ceiling[order\[Eta]/3];
-\[ScriptCapitalK][-\[Nu]-1,order\[Eta]_]:=((E^(I \[Epsilon] \[Kappa]) (2 \[Epsilon] \[Kappa])^(s-\[Nu]-rInt) 2^-s I^rInt Gamma[1-s-2 I \[Epsilon]p] Gamma[rInt+2 \[Nu]+2]) \!\(
-\*UnderoverscriptBox[\(\[Sum]\), \(n = rInt\), \(Ceiling[
-\*FractionBox[\(order\[Eta] + 6\), \(3\)]]\)]
-\*FractionBox[\(
-\*SuperscriptBox[\((\(-1\))\), \(n\)]\ Gamma[n + rInt + 2\ \[Nu] + 1]\ Gamma[n + \[Nu] + 1 + s + I\ \[Epsilon]]\ Gamma[n + \[Nu] + 1 + I\ \[Tau]]\ a[\(-n\)]\), \(\(\((n - rInt)\)!\)\ Gamma[n + \[Nu] + 1 - s - I\ \[Epsilon]]\ Gamma[n + \[Nu] + 1 - I\ \[Tau]]\)]\))/((Gamma[rInt+\[Nu]+1-s+I \[Epsilon]] Gamma[rInt+\[Nu]+1+I \[Tau]] Gamma[rInt+\[Nu]+1+s+I \[Epsilon]]) \!\(
-\*UnderoverscriptBox[\(\[Sum]\), \(n = Floor[\(-
-\*FractionBox[\(order\[Eta]\), \(3\)]\)]\), \(rInt\)]
-\*FractionBox[\(
-\*SuperscriptBox[\((\(-1\))\), \(n\)]\ Pochhammer[\[Nu] + 1 + s - I\ \[Epsilon], n]\ a[\(-n\)]\), \(\((\(\((rInt - n)\)!\)\ Pochhammer[rInt + 2\ \[Nu] + 2, n])\)\ Pochhammer[\[Nu] + 1 - s + I\ \[Epsilon], n]\)]\))/. {rInt->0,\[Nu]->-\[Nu]-1};*)*)
+(* ::Subsection:: *)
+(*Constructing Rc*)
 
 
 (* ::Subsubsection::Closed:: *)
@@ -2154,7 +2127,15 @@ ret
 (*,{status,n,j}]]*)*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsection:: *)
+(*Subscript[R, In]*)
+
+
+(* ::Text:: *)
+(*To construct Subscript[R, In] we follow Eq.166 in Sasaki Tagoshi ( https://doi.org/10.12942/lrr-2003-6 ). Subscript[R, in]=Subscript[R, C]^\[Nu]+Subscript[\[ScriptCapitalK], -\[Nu]-1]/Subscript[\[ScriptCapitalK], \[Nu]] Subscript[R, C]^(-\[Nu]-1). Notice that we have divided out a factor of Subscript[\[ScriptCapitalK], \[Nu]], which is allowed since Subscript[\[ScriptCapitalK], \[Nu]] does not depend on r. This is helpful as the second term now dies off drastically with the increase of \[ScriptL]. \[ScriptCapitalK]^\[Nu] ~\[Omega]^-\[ScriptL]. \[ScriptCapitalK]^(-\[Nu]-1) ~\[Omega]^\[ScriptL] (Schwarzschild?)*)
+
+
+(* ::Subsubsection::Closed:: *)
 (*Constructing Subscript[R, In]*)
 
 
@@ -2198,6 +2179,26 @@ RPN["In"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,aKerr_,0]:=O[\[Eta]] \[Eta]^(-\[Sc
 RPN["C\[Nu]"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,aKerr_,0]:=O[\[Eta]] \[Eta]^(-\[ScriptS]+\[ScriptL]-1)
 
 
+(* ::Subsubsection:: *)
+(*Constructing p_In (tangential)*)
+
+
+pIn[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,aVar_,order_][r_]:=Module[{aux,repls,nMin,nMax,\[CurlyEpsilon],\[Tau],\[Kappa],x,table1,table2},
+\[CurlyEpsilon]=2\[Omega];
+x=1-(r \[Omega])/\[CurlyEpsilon];
+\[Kappa]=Sqrt[1-aVar^2];
+\[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];
+repls=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],aVar,order];
+nMax=order-1;
+nMin=-order-1;
+
+aux=\!\(
+\*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(nMax\)]\(aMST[n] Hypergeometric2F1[n + \[Nu] + 1 - I\ \[Tau], \(-n\) - \[Nu] - I\ \[Tau], 1 - \[ScriptS] - I\ \[CurlyEpsilon] - I\ \[Tau], x]\)\)/.repls;
+aux=aux/.\[Nu]->\[Nu]MST;
+aux
+]
+
+
 (* ::Subsection::Closed:: *)
 (*Subscript[R, Up]*)
 
@@ -2207,89 +2208,6 @@ RPN["C\[Nu]"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,aKerr_,0]:=O[\[Eta]] \[Eta]^(-
 
 
 (* ::Subsubsection::Closed:: *)
-(*Definitions (depreciated)*)
-
-
-(* ::Text:: *)
-(*We expand the Hypergeometrics in Kummer functions (c.f. Eq.13.2.42 in the Digital Library of Mathematical Functions https://dlmf.nist.gov/13.2#E42 ) and then expand the Kummer functions in Pochhammers ( c.f. https://dlmf.nist.gov/13.2#E2 ). The result of this are the individual elements over which we will table again, just as we did for Subscript[R, in].*)
-
-
-(*(*z[r_]:=\[Omega](r-(1-\[Kappa]))*)
-
-(*kummerM[a_,b_,z_,order_]:=\!\(
-\*UnderoverscriptBox[\(\[Sum]\), \(i = 0\), \(order\)]\(
-\*FractionBox[\(Pochhammer[a, i]\), \(Pochhammer[b, i]\)]
-\*FractionBox[\(1\), \(i!\)]
-\*SuperscriptBox[\(z\), \(i\)]\)\);
-UtoM[order_]:=(HypergeometricU[a_,b_,z_]:>
-Gamma[1-b]/Gamma[a-b+1]kummerM[a,b,z,order]+Gamma[b-1]/Gamma[a]z^(1-b) kummerM[a-b+1,2-b,z,order]);
-
-term["up"][n_,z_,order_]:=a[n](2 \[ImaginaryI] z)^nPochhammer[1+s+\[Nu]-\[ImaginaryI] \[Epsilon],n]/Pochhammer[1+s+\[Nu]+\[ImaginaryI] \[Epsilon]-2s,n]HypergeometricU[n+1+s+\[Nu]-\[ImaginaryI] \[Epsilon],2n+2+2\[Nu],-2\[ImaginaryI] z]/.UtoM[order];
-R["up"][z_,order_]:=c["up"][z](*Gamma[\[Nu]-s+1+\[ImaginaryI] \[Epsilon]]/Gamma[\[Nu]+s+1-\[ImaginaryI] \[Epsilon]]*)\!\(
-\*UnderoverscriptBox[\(\[Sum]\), \(n = \(-\((order + 2)\)\)\), \(order\)]\(\(term["\<up\>"]\)[n, z, order]\)\)*)
-(*c["up"][z_]:=2^\[Nu]\[ExponentialE]^(-\[Pi] \[Epsilon])\[ExponentialE]^(-\[ImaginaryI] \[Pi](\[Nu]+1+s))\[ExponentialE]^(\[ImaginaryI] z)z^(\[Nu]+\[ImaginaryI](\[Epsilon]+\[Tau])/2)/(z-\[Epsilon] \[Kappa])^(s+\[ImaginaryI] (\[Epsilon]+\[Tau])/2);*)
-c["Up"][z_]:=2^\[Nu] E^(-\[Pi] \[Epsilon]) E^(-I \[Pi](\[Nu]+1+s)) E^(I z) (z-\[Epsilon] \[Kappa])^-s z^\[Nu] (1-(\[Epsilon] \[Kappa])/z)^(-I \[Epsilon]p)
-element["Up"][n_,j_,z_]:=2^n (I z)^n Pochhammer[1+s-I \[Epsilon]+\[Nu],n]/Pochhammer[1-s+I \[Epsilon]+\[Nu],n] ((2^(-1+j-2 n-2 \[Nu]) (-I z)^(-1+j-2 n-2 \[Nu]) Gamma[1+2 n+2 \[Nu]] Pochhammer[-n+s-I \[Epsilon]-\[Nu],j])/(j! Gamma[1+n+s-I \[Epsilon]+\[Nu]] Pochhammer[-2 n-2 \[Nu],j])+(2^j (-I z)^j Gamma[-1-2 n-2 \[Nu]] Pochhammer[1+n+s-I \[Epsilon]+\[Nu],j])/(j! Gamma[-n+s-I \[Epsilon]-\[Nu]] Pochhammer[2+2 n+2 \[Nu],j]))*)
-
-
-(* ::Subsubsection:: *)
-(*Constructions (depreciated)*)
-
-
-(* ::Text:: *)
-(*The construction of Subscript[R, up] is very much like the one for Subscript[R, C]. To execute the sums we use tableOverNJ[] which constructs a table of all needed terms. Again you can find some plots illustrating the variables nMin, nMax and firstRegularj in the Hyperlink["plot section",{NotebookObject["c6ff3b79-aebc-4585-b130-dd1a930b511b", "9e23625d-8944-48d8-a536-bca7efa5e050"], "plotsUp"}]. These are essential in telling you where to truncate the sums. *)
-
-
-(*tableOverNJ["Up"][\[ScriptL]_,term_,repls_,order\[Eta]_]:=Block[{table,tableNeg,tablePos,aux,aux2,finalj,firstRegularj,firstRegular\[Eta],leading\[Eta]OrderTerm,leading\[Eta]Order,goal\[Eta]Order,aux\[Eta],replsAux,replsLeading,auxOrder,nMin,nMax,status},
-	status="tableing setup";
-replsLeading=SeriesTake[#,7]&/@repls;
-firstRegularj=Min[Abs[2+2\[ScriptL]+2 n]+1,Abs[-2 n-2 \[ScriptL]]+1];
-leading\[Eta]Order=(term/.j->#/.n->0/.replsLeading//SeriesMinOrder)&/@{0,firstRegularj}//Min;
-goal\[Eta]Order=order\[Eta]+leading\[Eta]Order;
-nMin=Min[1/4 (-1-goal\[Eta]Order-2 \[ScriptL]),1/2 (-3-goal\[Eta]Order)]//Ceiling;
-nMax=1/2 (1+goal\[Eta]Order+2 \[ScriptL])//Floor;
-table=Table[
-status="getting finalj";
-firstRegular\[Eta]=(term/.j->firstRegularj/.replsLeading//SeriesMinOrder);
-finalj=firstRegularj+(goal\[Eta]Order-firstRegular\[Eta]);
-Table[
-status="j table";
-leading\[Eta]OrderTerm=term/.replsLeading//SeriesMinOrder;
-If[leading\[Eta]OrderTerm<=goal\[Eta]Order,
-status="entered doing something";
-auxOrder=goal\[Eta]Order-leading\[Eta]OrderTerm+6//Max[#,7]&;
-replsAux=SeriesTake[#,auxOrder]&/@repls;
-status="doing something";
-aux=term/.replsAux;,
-(*else*)
-status="entered doing nothing";
-aux=Quiet[O[\[Eta]]^(goal\[Eta]Order+1)];
-];
-aux
-,{j,0,finalj}]
-,{n,nMin,nMax}];
-table]
-
-RPN["Up"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]Var_,aKerr_,order\[Eta]_]:=Block[{s=\[ScriptS],l=\[ScriptL],m=\[ScriptM]Var,\[ScriptM]=\[ScriptM]Var,\[ScriptA]=aKerr,a=aKerr,aux,aux2,repls,replsCoeff,coeff,table,tableNeg,tablePos,status,list,term},
-Monitor[
-	status="repls";
-repls=replsMST[\[ScriptS],\[ScriptL],\[ScriptM],Max[Ceiling[order\[Eta],3]+9,7]];
-	status="coeff";
-replsCoeff=SeriesTake[#,Max[order\[Eta],7]]&/@repls;
-coeff=(c["Up"][z[r]]//.replsKerr/.\[Epsilon]->2\[Omega]/.replsPN//Simplify)/.replsCoeff;
-	status="constructing term";
-term=element["Up"][n,j,z[r]]a[n]//.replsKerr/.\[Epsilon]->2\[Omega]/.replsPN;
-	status="tableing";
-table=tableOverNJ["Up"][\[ScriptL],term,repls,order\[Eta]];
-	status="flattening";
-table=Total@Flatten@table;
-	status="assembling";
-coeff table//SeriesTake[#,order\[Eta]]&
-,{status,n,j}]]
-*)
-
-
-(* ::Subsubsection:: *)
 (*Constructing Subscript[R, up] from Subscript[R, C]*)
 
 
