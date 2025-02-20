@@ -1554,11 +1554,11 @@ Derivative[n_][\[Theta]][arg_]:=Derivative[n-1][\[Delta]][arg];
 \[Delta]''[\[Eta]^-2 a_]:=\[Eta]^2 \[Delta]''[a];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Amplitudes*)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*A Amplitudes*)
 
 
@@ -1566,31 +1566,69 @@ Derivative[n_][\[Theta]][arg_]:=Derivative[n-1][\[Delta]][arg];
 (*These are the amplitudes \!\(\*SubscriptBox[\(A\), \(\[PlusMinus]\)]\) from Sasaki Tagoshi Eq.(157-158)*)
 
 
-AAmplitude["+"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,\[CurlyEpsilon],\[Kappa],\[CurlyEpsilon]p,\[Tau],nMax,nMin},
-\[CurlyEpsilon]=2 \[Omega];
+(* ::Input:: *)
+(*(*AAmplitude["+"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,\[CurlyEpsilon],\[Kappa],\[CurlyEpsilon]p,\[Tau],nMax,nMin},*)
+(*\[CurlyEpsilon]=2 \[Omega];*)
+(*\[Kappa]=Sqrt[1-a^2];*)
+(*\[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;*)
+(*\[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];*)
+(*nMax=order\[Eta]/3//Ceiling;*)
+(*nMin=-(order\[Eta]/3+2)//Floor;*)
+(*aux=E^(-(\[Pi]/2)\[CurlyEpsilon]) E^(\[Pi]/2 I(\[Nu]MST+1+\[ScriptS])) 2^(-1+\[ScriptS]-I \[CurlyEpsilon]) Gamma[\[Nu]MST+1-\[ScriptS]+I \[CurlyEpsilon]]/Gamma[\[Nu]MST+1+\[ScriptS]-I \[CurlyEpsilon]] \!\( *)
+(*\*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(nMax\)]\(aMST[n]\)\)//PNScalingsInternal;*)
+(*aux/.MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]+3]//SeriesTake[#,order\[Eta]]&//IgnoreExpansionParameter*)
+(*]*)*)
+
+
+AAmplitude["+"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[CurlyEpsilon]_]:=Module[{aux,\[CurlyEpsilon],\[Kappa],\[CurlyEpsilon]p,\[Tau],nMax,nMin,repls,coeff,sum,order},
+order=order\[CurlyEpsilon]+If[\[ScriptL]+\[ScriptS]+1===0,1,0]; (*This can't actually happen since \[ScriptL]>|\[ScriptS]|*)
+repls=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order];
+\[CurlyEpsilon]=2 \[Omega] \[Gamma];
 \[Kappa]=Sqrt[1-a^2];
 \[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;
 \[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];
-nMax=order\[Eta]/3//Ceiling;
-nMin=-(order\[Eta]/3+2)//Floor;
-aux=E^(-(\[Pi]/2)\[CurlyEpsilon]) E^(\[Pi]/2 I(\[Nu]MST+1+\[ScriptS])) 2^(-1+\[ScriptS]-I \[CurlyEpsilon]) Gamma[\[Nu]MST+1-\[ScriptS]+I \[CurlyEpsilon]]/Gamma[\[Nu]MST+1+\[ScriptS]-I \[CurlyEpsilon]] \!\(
-\*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(nMax\)]\(aMST[n]\)\)//PNScalingsInternal;
-aux/.MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]+3]//SeriesTake[#,order\[Eta]]&//IgnoreExpansionParameter
+nMax=order-1;
+nMin=-(order+1);
+coeff=(E^(1/2 (-\[Pi]) \[CurlyEpsilon]) E^(1/2 \[Pi] I (\[Nu]MST+1+\[ScriptS])) 2^(-1+\[ScriptS]-I \[CurlyEpsilon]) Gamma[\[Nu]MST+1-\[ScriptS]+I \[CurlyEpsilon]])/Gamma[\[Nu]MST+1+\[ScriptS]-I \[CurlyEpsilon]]/.repls//SeriesTake[#,order\[CurlyEpsilon]]&//IgnoreExpansionParameter;
+sum=\!\(
+\*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(nMax\)]\(aMST[n]\)\)/.repls//SeriesTake[#,order\[CurlyEpsilon]]&//IgnoreExpansionParameter;
+aux=sum coeff;
+aux
 ]
 
 
-AAmplitude["-"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,\[CurlyEpsilon],\[Kappa],\[CurlyEpsilon]p,\[Tau],nMax,nMin},
-\[CurlyEpsilon]=2 \[Omega];
+(* ::Input:: *)
+(*(*AAmplitude["-"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,\[CurlyEpsilon],\[Kappa],\[CurlyEpsilon]p,\[Tau],nMax,nMin},*)
+(*\[CurlyEpsilon]=2 \[Omega];*)
+(*\[Kappa]=Sqrt[1-a^2];*)
+(*\[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;*)
+(*\[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];*)
+(*nMax=order\[Eta]/3//Ceiling;*)
+(*nMin=-(order\[Eta]/3+2)//Floor;*)
+(*aux=(2^(-1-\[ScriptS]+\[ImaginaryI] \[CurlyEpsilon]) \[ExponentialE]^(1/2 (-\[Pi]) \[ImaginaryI] (\[Nu]MST+1+\[ScriptS])) \[ExponentialE]^(1/2 (-\[Pi]) \[CurlyEpsilon])) \!\( *)
+(*\*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(nMax\)]\( *)
+(*\*SuperscriptBox[\((\(-1\))\), \(n\)]*)
+(*\*FractionBox[\(Pochhammer[\[Nu]MST + 1 + \[ScriptS] - I\ \[CurlyEpsilon], n]\), \(Pochhammer[\[Nu]MST + 1 - \[ScriptS] + I\ \[CurlyEpsilon], n]\)]aMST[n]\)\)//PNScalingsInternal;*)
+(*aux/.MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]+3]//SeriesTake[#,order\[Eta]]&//IgnoreExpansionParameter*)
+(*]*)*)
+
+
+AAmplitude["-"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[CurlyEpsilon]_]:=Module[{aux,\[CurlyEpsilon],\[Kappa],\[CurlyEpsilon]p,\[Tau],nMax,nMin,repls,coeff,sum,order},
+order=order\[CurlyEpsilon]+If[\[ScriptL]+\[ScriptS]+1<=order\[CurlyEpsilon]+1,1,0];
+repls=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order];
+\[CurlyEpsilon]=2 \[Omega] \[Gamma];
 \[Kappa]=Sqrt[1-a^2];
 \[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;
 \[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];
-nMax=order\[Eta]/3//Ceiling;
-nMin=-(order\[Eta]/3+2)//Floor;
-aux=2^(-1-\[ScriptS]+I \[CurlyEpsilon]) E^(-(\[Pi]/2)I(\[Nu]MST+1+\[ScriptS])) E^(-(\[Pi]/2)\[CurlyEpsilon]) \!\(
+nMax=order-1;
+nMin=-(order+1);
+coeff=2^(-1-\[ScriptS]+I \[CurlyEpsilon]) E^(1/2 (-\[Pi]) I (\[Nu]MST+1+\[ScriptS])) E^(1/2 (-\[Pi]) \[CurlyEpsilon])/.repls//SeriesTake[#,order\[CurlyEpsilon]]&//IgnoreExpansionParameter;
+sum=\!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(nMax\)]\(
 \*SuperscriptBox[\((\(-1\))\), \(n\)] 
-\*FractionBox[\(Pochhammer[\[Nu]MST + 1 + \[ScriptS] - I\  \[CurlyEpsilon], n]\), \(Pochhammer[\[Nu]MST + 1 - \[ScriptS] + I\  \[CurlyEpsilon], n]\)] aMST[n]\)\)//PNScalingsInternal;
-aux/.MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]+3]//SeriesTake[#,order\[Eta]]&//IgnoreExpansionParameter
+\*FractionBox[\(Pochhammer[\[Nu]MST + 1 + \[ScriptS] - I\  \[CurlyEpsilon], n]\), \(Pochhammer[\[Nu]MST + 1 - \[ScriptS] + I\  \[CurlyEpsilon], n]\)] aMST[n]\)\)/.repls//SeriesTake[#,order\[CurlyEpsilon]]&//IgnoreExpansionParameter;
+aux=sum coeff;
+aux
 ]
 
 
@@ -1864,7 +1902,7 @@ ret//SeriesTake[#,order\[Eta]]&
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Interface*)
 
 
@@ -1907,7 +1945,7 @@ ret
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Constructing Rc*)
 
 
@@ -2127,7 +2165,7 @@ ret
 (*,{status,n,j}]]*)*)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Subscript[R, In]*)
 
 
@@ -2179,7 +2217,7 @@ RPN["In"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,aKerr_,0]:=O[\[Eta]] \[Eta]^(-\[Sc
 RPN["C\[Nu]"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,aKerr_,0]:=O[\[Eta]] \[Eta]^(-\[ScriptS]+\[ScriptL]-1)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Constructing p_In (tangential)*)
 
 
@@ -2193,7 +2231,7 @@ nMax=order-1;
 nMin=-order-1;
 
 aux=\!\(
-\*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(nMax\)]\(aMST[n] Hypergeometric2F1[n + \[Nu] + 1 - I\ \[Tau], \(-n\) - \[Nu] - I\ \[Tau], 1 - \[ScriptS] - I\ \[CurlyEpsilon] - I\ \[Tau], x]\)\)/.repls;
+\*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(nMax\)]\(aMST[n] Hypergeometric2F1[n + \[Nu] + 1 - I\  \[Tau], \(-n\) - \[Nu] - I\  \[Tau], 1 - \[ScriptS] - I\  \[CurlyEpsilon] - I\  \[Tau], x]\)\)/.repls;
 aux=aux/.\[Nu]->\[Nu]MST;
 aux
 ]
