@@ -63,17 +63,16 @@ TeukolskyPointParticleModePN::particle="TeukolskyPointParticleModePN cannot be e
 (*Developer options*)
 
 
-(* ::Input:: *)
-(*(*\[Nu]MST*)
-(*aMST*)
-(*\[Omega]*)
-(*a*)
-(*\[Kappa]*)
-(*\[Gamma]*)
-(*MSTCoefficientsInternalFreq*)
-(*KerrMSTSeries*)
-(*pIn*)
-(*rstar*)*)
+\[Nu]MST
+aMST
+\[Omega]
+a
+\[Kappa]
+\[Gamma]
+MSTCoefficientsInternalFreq
+KerrMSTSeries
+pIn
+rstar
 
 
 (* ::Section:: *)
@@ -1582,7 +1581,7 @@ Derivative[n_][\[Theta]][arg_]:=Derivative[n-1][\[Delta]][arg];
 (*Amplitudes*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*A Amplitudes*)
 
 
@@ -1672,7 +1671,7 @@ aux
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*B Amplitudes*)
 
 
@@ -1788,7 +1787,7 @@ BAmplitudeFreq["Ref",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,or
 \[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];
 DoABunchOfStuff=(#//IgnoreExpansionParameter//SeriesTake[#,order\[CurlyEpsilon]]&)&;
 repls=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]+1//Max[#,2]&];
-coeff=(\[CurlyEpsilon]/2)^(-2(\[ScriptS]+1)) E^(-I \[CurlyEpsilon] (Log[\[CurlyEpsilon]]-(1-\[Kappa])/2)) //SeriesTerms[#,{\[Gamma],0,order\[CurlyEpsilon]}]&//DoABunchOfStuff;
+coeff=(\[CurlyEpsilon]/2)^(-2 \[ScriptS]-1) E^(I \[CurlyEpsilon] (Log[\[CurlyEpsilon]]-(1-\[Kappa])/2))//SeriesTerms[#,{\[Gamma],0,order\[CurlyEpsilon]}]&//DoABunchOfStuff;
 \[ScriptCapitalK]2coeff=I E^(I \[Pi] \[Nu]MST)/.repls//DoABunchOfStuff;
 \[ScriptCapitalK]1=Switch[OptionValue["Normalization"],
 	"Default",1,
@@ -1824,7 +1823,7 @@ aux
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*C Amplitude*)
 
 
@@ -1942,7 +1941,7 @@ aux
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*\[ScriptCapitalK] Amplitude*)
 
 
