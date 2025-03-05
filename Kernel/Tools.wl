@@ -28,7 +28,7 @@ ClearAttributes[{SeriesTake, SeriesMinOrder,SeriesMaxOrder,SeriesLength,SeriesCo
 ClearAttributes[{PNScalings, RemovePN,Zero,One}, {Protected, ReadProtected}];
 
 
-ClearAttributes[{ExpandLog, ExpandGamma,ExpandPolyGamma,PochhammerToGamma,GammaToPochhammer,ExpandDiracDelta,ExpandSpheroidals,CollectDerivatives}, {Protected, ReadProtected}];
+ClearAttributes[{ExpandLog, ExpandGamma,ExpandPolyGamma,PochhammerToGamma,GammaToPochhammer,ExpandDiracDelta,ExpandSpheroidals,CollectDerivatives,Paint}, {Protected, ReadProtected}];
 
 
 ClearAttributes[{TeukolskyAmplitudePN, InvariantWronskian,TeukolskySourceCircularOrbit,TeukolskyEquation}, {Protected, ReadProtected}];
@@ -110,10 +110,11 @@ ExpandSpheroidals::usage="ExpandSpheroidal[expr,{param,order}] returns a all Spi
 
 
 (* ::Subsection:: *)
-(*Other Tools*)
+(*Misc*)
 
 
 CollectDerivatives::usage="CollectDerivatives[expr,f] works exactly like Collect[] but also collects for derivatives of f."
+Paint::usage="Paint[expr,var] paints all occurences of var in expr Red."
 
 
 (* ::Subsection:: *)
@@ -217,11 +218,12 @@ ExpandDiracDelta=Teukolsky`PN`Private`ExpandDiracDelta
 ExpandSpheroidals=Teukolsky`PN`Private`ExpandSpheroidals
 
 
-(* ::Subsection::Closed:: *)
-(*Other Tools*)
+(* ::Subsection:: *)
+(*Misc*)
 
 
 CollectDerivatives=Teukolsky`PN`Private`CollectDerivatives
+Paint=Teukolsky`PN`Private`Paint
 
 
 (* ::Subsection::Closed:: *)
@@ -272,7 +274,7 @@ SetAttributes[{SeriesCollect}, {Protected, ReadProtected,Listable}];
 SetAttributes[{PNScalings, RemovePN,Zero,One}, {Protected, ReadProtected}];
 
 
-SetAttributes[{ExpandLog, ExpandGamma,ExpandPolyGamma,PochhammerToGamma,GammaToPochhammer,ExpandDiracDelta,ExpandSpheroidals,CollectDerivatives}, {Protected, ReadProtected}];
+SetAttributes[{ExpandLog, ExpandGamma,ExpandPolyGamma,PochhammerToGamma,GammaToPochhammer,ExpandDiracDelta,ExpandSpheroidals,CollectDerivatives,Paint}, {Protected, ReadProtected}];
 
 
 SetAttributes[{TeukolskyAmplitudePN, InvariantWronskian,TeukolskySourceCircularOrbit,TeukolskyEquation}, {Protected, ReadProtected}];
