@@ -1122,16 +1122,20 @@ PowerCounting[list_List,var_]:=PowerCounting[#,var]&/@list;
 PowerCounting[list_Association,var_]:=PowerCounting[#,var]&/@list;
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Tools for Logs, Gammas, and PolyGammas*)
 
 
 IgnoreLog\[Eta][expr_]:=expr/.Log[x_]/;!FreeQ[x,\[Eta]]:>Log[x/.\[Eta]->1];
 ExpandLog[expr_]:=(expr/.Log[a_]:>PowerExpand[Log[a]]);
+
+
 ExpandGamma[expr_]:=(expr/. Gamma[n_Integer+x_]:>(\!\(
 \*UnderoverscriptBox[\(\[Product]\), \(i = 0\), \(n - 1\)]\((x + i)\)\))(\!\(
 \*UnderoverscriptBox[\(\[Product]\), \(i = n\), \(-1\)]
 \*SuperscriptBox[\((x + i)\), \(-1\)]\))  Gamma[x]);
+
+
 ExpandPolyGamma[expr_]:=(expr/.PolyGamma[m_Integer,n_Integer+x_]:>(-1)^m (m!)(\!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(i = 0\), \(n - 1\)]
 \*FractionBox[\(1\), 
@@ -1139,7 +1143,17 @@ SuperscriptBox[\((x + i)\), \(m + 1\)]]\)-\!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(i = n\), \(-1\)]
 \*FractionBox[\(1\), 
 SuperscriptBox[\((x + i)\), \(m + 1\)]]\))+PolyGamma[m,x]);
+ExpandPolyGamma[expr_,n_Integer]:=Module[{aux,\[ScriptN]},
+aux=expr/.{PolyGamma[x_,arg_]:>PolyGamma[x,arg-n+\[ScriptN]]};
+aux=ExpandPolyGamma[aux];
+aux=aux/.\[ScriptN]->n;
+aux
+]
+
+
 PochhammerToGamma[expr_]:=(expr/.Pochhammer[x_,n_]:>Gamma[x+n]/Gamma[x]);
+
+
 GammaToPochhammer[expr_,n_]:=expr/.(Gamma[x_+sign_. n]:>Pochhammer[x,sign n]Gamma[x]);
 
 
@@ -1189,7 +1203,7 @@ ExpandDiracDelta[expr_Plus,x_]:=(ExpandDiracDelta[#,x]&/@expr);
 ExpandDiracDelta[expr_,x_]:=expr;
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Misc*)
 
 
