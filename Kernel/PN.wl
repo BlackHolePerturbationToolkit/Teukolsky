@@ -1134,6 +1134,12 @@ ExpandGamma[expr_]:=(expr/. Gamma[n_Integer+x_]:>(\!\(
 \*UnderoverscriptBox[\(\[Product]\), \(i = 0\), \(n - 1\)]\((x + i)\)\))(\!\(
 \*UnderoverscriptBox[\(\[Product]\), \(i = n\), \(-1\)]
 \*SuperscriptBox[\((x + i)\), \(-1\)]\))  Gamma[x]);
+ExpandGamma[expr_,n_Integer]:=Module[{aux,\[ScriptN]},
+aux=expr/.{Gamma[arg_]:>Gamma[arg-n+\[ScriptN]]};
+aux=ExpandGamma[aux];
+aux=aux/.\[ScriptN]->n;
+aux
+]
 
 
 ExpandPolyGamma[expr_]:=(expr/.PolyGamma[m_Integer,n_Integer+x_]:>(-1)^m (m!)(\!\(
