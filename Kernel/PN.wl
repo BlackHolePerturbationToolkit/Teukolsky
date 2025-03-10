@@ -65,14 +65,14 @@ TeukolskyPointParticleModePN::particle="TeukolskyPointParticleModePN cannot be e
 
 \[Nu]MST
 aMST
-\[Omega]
+(*\[Omega]
 a
 \[Kappa]
 \[Gamma]
 MSTCoefficientsInternalFreq
 KerrMSTSeries
 pIn
-rstar
+rstar*)
 
 
 (* ::Section:: *)
@@ -1122,7 +1122,7 @@ PowerCounting[list_List,var_]:=PowerCounting[#,var]&/@list;
 PowerCounting[list_Association,var_]:=PowerCounting[#,var]&/@list;
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Tools for Logs, Gammas, and PolyGammas*)
 
 
@@ -1130,31 +1130,82 @@ IgnoreLog\[Eta][expr_]:=expr/.Log[x_]/;!FreeQ[x,\[Eta]]:>Log[x/.\[Eta]->1];
 ExpandLog[expr_]:=(expr/.Log[a_]:>PowerExpand[Log[a]]);
 
 
-ExpandGamma[expr_]:=(expr/. Gamma[n_Integer+x_]:>(\!\(
-\*UnderoverscriptBox[\(\[Product]\), \(i = 0\), \(n - 1\)]\((x + i)\)\))(\!\(
-\*UnderoverscriptBox[\(\[Product]\), \(i = n\), \(-1\)]
-\*SuperscriptBox[\((x + i)\), \(-1\)]\))  Gamma[x]);
-ExpandGamma[expr_,n_Integer]:=Module[{aux,\[ScriptN]},
-aux=expr/.{Gamma[arg_]:>Gamma[arg-n+\[ScriptN]]};
-aux=ExpandGamma[aux];
-aux=aux/.\[ScriptN]->n;
-aux
-]
+(* ::Input:: *)
+(*(*ExpandGamma[expr_]:=(expr/. Gamma[n_Integer+x_]:>(\!\( *)
+(*\*UnderoverscriptBox[\(\[Product]\), \(i = 0\), \(n - 1\)]\((x + i)\)\))(\!\( *)
+(*\*UnderoverscriptBox[\(\[Product]\), \(i = n\), \(-1\)]*)
+(*\*SuperscriptBox[\((x + i)\), \(-1\)]\))  Gamma[x]);*)
+(*ExpandGamma[expr_,n_Integer]:=Module[{aux,\[ScriptN]},*)
+(*aux=expr/.{Gamma[arg_]:>Gamma[arg-n+\[ScriptN]]};*)
+(*aux=ExpandGamma[aux];*)
+(*aux=aux/.\[ScriptN]->n;*)
+(*aux*)
+(*]*)
+(*ExpandGamma[expr_,0]:=ExpandGamma[expr];*)*)
 
 
-ExpandPolyGamma[expr_]:=(expr/.PolyGamma[m_Integer,n_Integer+x_]:>(-1)^m (m!)(\!\(
-\*UnderoverscriptBox[\(\[Sum]\), \(i = 0\), \(n - 1\)]
-\*FractionBox[\(1\), 
-SuperscriptBox[\((x + i)\), \(m + 1\)]]\)-\!\(
-\*UnderoverscriptBox[\(\[Sum]\), \(i = n\), \(-1\)]
-\*FractionBox[\(1\), 
-SuperscriptBox[\((x + i)\), \(m + 1\)]]\))+PolyGamma[m,x]);
-ExpandPolyGamma[expr_,n_Integer]:=Module[{aux,\[ScriptN]},
-aux=expr/.{PolyGamma[x_,arg_]:>PolyGamma[x,arg-n+\[ScriptN]]};
-aux=ExpandPolyGamma[aux];
-aux=aux/.\[ScriptN]->n;
+(* ::Input:: *)
+(*(*ExpandGamma[expr_,j_Integer:0]:=(expr/. Gamma[n_Integer+x_]:>(\!\( *)
+(*\*UnderoverscriptBox[\(\[Product]\), \(i = 0\), \(n - j - 1\)]\((x + j + i)\)\))(\!\( *)
+(*\*UnderoverscriptBox[\(\[Product]\), \(i = n - j\), \(-1\)]*)
+(*\*SuperscriptBox[\((x + j + i)\), \(-1\)]\))  Gamma[x+j]);*)*)
+
+
+ExpandGamma[expr_Gamma,j_Integer:0]:=Module[{aux,arg,m,x,n},
+arg=expr/.Gamma[argg_]:>argg;
+{n,x}=If[MatchQ[arg,a_Integer+b__],arg/.\[ScriptN]_Integer + \[ScriptX]__:>{\[ScriptN],\[ScriptX]},{0,arg}];
+aux=(\!\(
+\*UnderoverscriptBox[\(\[Product]\), \(i = 0\), \(n - j - 1\)]\((x + j + i)\)\))(\!\(
+\*UnderoverscriptBox[\(\[Product]\), \(i = n - j\), \(-1\)]
+\*SuperscriptBox[\((x + j + i)\), \(-1\)]\))  Gamma[x+j];
 aux
 ]
+ExpandGamma[expr_,j_Integer:0]/;FreeQ[expr,Gamma]:=expr;
+ExpandGamma[expr_,j_Integer:0]:=ExpandGamma[#,j]&/@expr;
+
+
+(* ::Input:: *)
+(*(*ExpandPolyGamma[expr_]:=(expr/.PolyGamma[m_Integer,n_Integer+x_]:>(-1)^m (m!)(\!\( *)
+(*\*UnderoverscriptBox[\(\[Sum]\), \(i = 0\), \(n - 1\)]*)
+(*\*FractionBox[\(1\), *)
+(*SuperscriptBox[\((x + i)\), \(m + 1\)]]\)-\!\( *)
+(*\*UnderoverscriptBox[\(\[Sum]\), \(i = n\), \(-1\)]*)
+(*\*FractionBox[\(1\), *)
+(*SuperscriptBox[\((x + i)\), \(m + 1\)]]\))+PolyGamma[m,x]);*)
+(*ExpandPolyGamma[expr_,n_Integer]:=Module[{aux,\[ScriptN]},*)
+(*aux=expr/.{PolyGamma[x_,arg_]:>PolyGamma[x,arg-n+\[ScriptN]]};*)
+(*aux=ExpandPolyGamma[aux];*)
+(*aux=aux/.\[ScriptN]->n;*)
+(*aux*)
+(*]*)
+(*ExpandPolyGamma[expr_,0]:=ExpandPolyGamma[expr];*)
+(**)*)
+
+
+(* ::Input:: *)
+(*(*ExpandPolyGamma[expr_,j_Integer:0]:=(expr/.PolyGamma[m_Integer,n_Integer+x_]:>(-1)^m (m!)(\!\( *)
+(*\*UnderoverscriptBox[\(\[Sum]\), \(i = 0\), \(n - j - 1\)]*)
+(*\*FractionBox[\(1\), *)
+(*SuperscriptBox[\((x + j + i)\), \(m + 1\)]]\)-\!\( *)
+(*\*UnderoverscriptBox[\(\[Sum]\), \(i = n - j\), \(-1\)]*)
+(*\*FractionBox[\(1\), *)
+(*SuperscriptBox[\((x + j + i)\), \(m + 1\)]]\))+PolyGamma[m,x+j]);*)*)
+
+
+ExpandPolyGamma[expr_PolyGamma,j_Integer:0]:=Module[{aux,arg,x,m,n},
+{m,arg}=expr/.PolyGamma[\[ScriptM]_,argg_]:>{\[ScriptM],argg};
+{n,x}=If[MatchQ[arg,a_Integer+b__],arg/.\[ScriptN]_Integer + \[ScriptX]__:>{\[ScriptN],\[ScriptX]},{0,arg}];
+aux=(-1)^m (m!)(\!\(
+\*UnderoverscriptBox[\(\[Sum]\), \(i = 0\), \(n - j - 1\)]
+\*FractionBox[\(1\), 
+SuperscriptBox[\((x + j + i)\), \(m + 1\)]]\)-\!\(
+\*UnderoverscriptBox[\(\[Sum]\), \(i = n - j\), \(-1\)]
+\*FractionBox[\(1\), 
+SuperscriptBox[\((x + j + i)\), \(m + 1\)]]\))+PolyGamma[m,x+j];
+aux
+]
+ExpandPolyGamma[expr_,j_Integer:0]/;FreeQ[expr,PolyGamma]:=expr;
+ExpandPolyGamma[expr_,j_Integer:0]:=ExpandPolyGamma[#,j]&/@expr;
 
 
 PochhammerToGamma[expr_]:=(expr/.Pochhammer[x_,n_]:>Gamma[x+n]/Gamma[x]);
@@ -1691,7 +1742,7 @@ aux
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*B Amplitudes*)
 
 
@@ -2008,32 +2059,34 @@ ret//SeriesTake[#,order\[Eta]]&
 ]*)
 
 
-\[ScriptCapitalK]AmplitudeFreq["\[Nu]",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[CurlyEpsilon]_,OptionsPattern[]]:=Module[{\[ScriptR]=0,ret,\[CapitalGamma]=Gamma,PH=Pochhammer,order,coeff,sumUpPHCoeff,sumUp,sumDown,\[CurlyEpsilon]p,\[Tau],\[CurlyEpsilon],\[Kappa]=Sqrt[1-a^2],nMax,nMin,jump,jumpCount,repls,repls\[Nu]},
+\[ScriptCapitalK]AmplitudeFreq["\[Nu]",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[CurlyEpsilon]_,OptionsPattern[]]:=Module[{\[ScriptR]=0,ret,\[CapitalGamma]=Gamma,PH=Pochhammer,SeriesStuff,GammaStuff,order,coeff,sumUpPHCoeff,sumUp,sumDown,\[CurlyEpsilon]p,\[Tau],\[CurlyEpsilon],\[Kappa]=Sqrt[1-a^2],nMax,nMin,jump,jumpCount,repls,repls\[Nu]},
 \[CurlyEpsilon]=2 \[Omega] \[Gamma];
 \[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;
 \[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];
+SeriesStuff=(#//IgnoreExpansionParameter//SeriesTake[#,order\[CurlyEpsilon]]&)&;
+GammaStuff=(#//ExpandGamma[#,\[ScriptL]+1]&//ExpandPolyGamma[#,\[ScriptL]+1]&)&;
 jump[1]=\[ScriptS]+\[ScriptL]+1+n<=0;(*This is the upper Pochhammer in sumDown*)
 jumpCount=1+(jump[1]//Boole//Total);
 order=order\[CurlyEpsilon]+1//Max[#,2]&;
 repls=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order];
 repls\[Nu][n_]:=<|\[Nu]MST->(repls[\[Nu]MST]//SeriesTake[#,SeriesLength[repls[aMST[n]]]+jumpCount]&)|>;
-coeff=((E^(I \[CurlyEpsilon] \[Kappa])) ((\[CurlyEpsilon] \[Kappa])^(\[ScriptS]-\[Nu]MST-\[ScriptR])) (2^-\[Nu]MST) (I^-\[ScriptR]) (\[CapitalGamma][1-\[ScriptS]-2 I \[CurlyEpsilon]p] \[CapitalGamma][\[ScriptR]+2 \[Nu]MST+2]) )/\[CapitalGamma][\[ScriptR]+\[Nu]MST+1-\[ScriptS]+I \[CurlyEpsilon]]/.repls//IgnoreExpansionParameter;
+coeff=((E^(I \[CurlyEpsilon] \[Kappa])) ((\[CurlyEpsilon] \[Kappa])^(\[ScriptS]-\[Nu]MST-\[ScriptR])) (2^-\[Nu]MST) (I^-\[ScriptR]) (\[CapitalGamma][1-\[ScriptS]-2 I \[CurlyEpsilon]p] \[CapitalGamma][\[ScriptR]+2 \[Nu]MST+2]) )/\[CapitalGamma][\[ScriptR]+\[Nu]MST+1-\[ScriptS]+I \[CurlyEpsilon]]/.repls//SeriesStuff;
 nMax=order-1;
 nMin=-(order+1);
 sumUp=\!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(n = \[ScriptR]\), \(nMax\)]\(\((
 \*FractionBox[\(
-\*SuperscriptBox[\((\(-1\))\), \(n\)]\  PH[1 + \[ScriptS] + I\  \[CurlyEpsilon] + \[Nu]MST, n]\  PH[1 + \[ScriptR] + 2\  \[Nu]MST, n]\  PH[1 + \[Nu]MST + I\  \[Tau], n]\), \(\(\((n - \[ScriptR])\)!\)\  PH[1 - \[ScriptS] - I\  \[CurlyEpsilon] + \[Nu]MST, n]\  PH[1 + \[Nu]MST - I\  \[Tau], n]\)] /. repls\[Nu][n])\) \((aMST[n]\  /. repls)\)\)\)//IgnoreExpansionParameter;
-sumUpPHCoeff=Gamma[1+\[ScriptR]+2 \[Nu]MST]/(Gamma[1-\[ScriptS]-I \[CurlyEpsilon]+\[Nu]MST] Gamma[1+\[Nu]MST-I \[Tau]])/.repls//IgnoreExpansionParameter;
+\*SuperscriptBox[\((\(-1\))\), \(n\)]\  PH[1 + \[ScriptS] + I\  \[CurlyEpsilon] + \[Nu]MST, n]\  PH[1 + \[ScriptR] + 2\  \[Nu]MST, n]\  PH[1 + \[Nu]MST + I\  \[Tau], n]\), \(\(\((n - \[ScriptR])\)!\)\  PH[1 - \[ScriptS] - I\  \[CurlyEpsilon] + \[Nu]MST, n]\  PH[1 + \[Nu]MST - I\  \[Tau], n]\)] /. repls\[Nu][n])\) \((aMST[n]\  /. repls)\)\)\)//SeriesStuff;
+sumUpPHCoeff=Gamma[1+\[ScriptR]+2 \[Nu]MST]/(Gamma[1-\[ScriptS]-I \[CurlyEpsilon]+\[Nu]MST] Gamma[1+\[Nu]MST-I \[Tau]])/.repls//SeriesStuff;
 coeff=(coeff sumUpPHCoeff);
 
 sumDown=\!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(\[ScriptR]\)]\(\((
 \*FractionBox[
 SuperscriptBox[\((\(-1\))\), \(n\)], \(\(\((\[ScriptR] - n)\)!\) PH[\[ScriptR] + 2\  \[Nu]MST + 2, n]\)] 
-\*FractionBox[\(PH[\[Nu]MST + 1 + \[ScriptS] - I\  \[CurlyEpsilon], n]\), \(PH[\[Nu]MST + 1 - \[ScriptS] + I\  \[CurlyEpsilon], n]\)] /. repls\[Nu][n])\) \((aMST[n] /. repls)\)\)\)//IgnoreExpansionParameter;
-ret=coeff sumUp/sumDown //IgnoreExpansionParameter;
-ret//SeriesTake[#,order\[CurlyEpsilon]]&
+\*FractionBox[\(PH[\[Nu]MST + 1 + \[ScriptS] - I\  \[CurlyEpsilon], n]\), \(PH[\[Nu]MST + 1 - \[ScriptS] + I\  \[CurlyEpsilon], n]\)] /. repls\[Nu][n])\) \((aMST[n] /. repls)\)\)\)//SeriesStuff;
+ret=coeff sumUp/sumDown //SeriesStuff//GammaStuff;
+ret
 ]
 
 
@@ -2071,11 +2124,12 @@ ret//SeriesTake[#,order\[CurlyEpsilon]]&
 (*]*)*)
 
 
-\[ScriptCapitalK]AmplitudeFreq["-\[Nu]-1",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[CurlyEpsilon]_,OptionsPattern[]]:=Module[{\[ScriptR]=0,ret,\[CapitalGamma]=Gamma,PH=Pochhammer,order,coeff,DoABunchOfStuff,sumUpPHCoeff,sumUp,sumDown,\[CurlyEpsilon]p,\[Tau],\[CurlyEpsilon],\[Kappa]=Sqrt[1-a^2],nMax,nMin,jump,jumpCount,repls,repls\[Nu]},
+\[ScriptCapitalK]AmplitudeFreq["-\[Nu]-1",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[CurlyEpsilon]_,OptionsPattern[]]:=Module[{\[ScriptR]=0,ret,\[CapitalGamma]=Gamma,PH=Pochhammer,order,coeff,DoABunchOfStuff,SeriesStuff,GammaStuff,sumUpPHCoeff,sumUp,sumDown,\[CurlyEpsilon]p,\[Tau],\[CurlyEpsilon],\[Kappa]=Sqrt[1-a^2],nMax,nMin,jump,jumpCount,repls,repls\[Nu]},
 \[CurlyEpsilon]=2 \[Omega] \[Gamma];
 \[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;
 \[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];
-DoABunchOfStuff=(#//IgnoreExpansionParameter//SeriesTake[#,order\[CurlyEpsilon]]&//ExpandGamma//ExpandPolyGamma)&;
+SeriesStuff=(#//IgnoreExpansionParameter//SeriesTake[#,order\[CurlyEpsilon]]&)&;
+GammaStuff=(#//ExpandPolyGamma[#,\[ScriptL]]&//ExpandGamma[#,\[ScriptL]]&//ExpandPolyGamma[#,-\[ScriptL]]&//ExpandGamma[#,-\[ScriptL]]&)&;
 jump[1]=2+2\[ScriptL]+\[ScriptR]-n<=0;
 jump[2]=1+\[ScriptS]+\[ScriptL]-n<=0;
 jump[3]=1-\[ScriptS]+\[ScriptL]-n<=0;
@@ -2083,21 +2137,21 @@ jumpCount=(jump[#]&/@Range[3]//Boole//Total);
 order=order\[CurlyEpsilon]+2//Max[#,2]&;
 repls=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order];
 repls\[Nu][n_]:=<|\[Nu]MST->(repls[\[Nu]MST]//SeriesTake[#,SeriesLength[repls[aMST[n]]]+jumpCount]&)|>;
-coeff=(I^-\[ScriptR] 2^(1+\[Nu]MST) E^(I \[CurlyEpsilon] \[Kappa]) (\[CurlyEpsilon] \[Kappa])^(1-\[ScriptR]+\[ScriptS]+\[Nu]MST) (\[CapitalGamma][1-\[ScriptS]-2 I \[CurlyEpsilon]p] \[CapitalGamma][\[ScriptR]-2 \[Nu]MST]))/\[CapitalGamma][\[ScriptR]-\[ScriptS]+I \[CurlyEpsilon]-\[Nu]MST]/.repls//DoABunchOfStuff;
+coeff=(I^-\[ScriptR] 2^(1+\[Nu]MST) E^(I \[CurlyEpsilon] \[Kappa]) (\[CurlyEpsilon] \[Kappa])^(1-\[ScriptR]+\[ScriptS]+\[Nu]MST) (\[CapitalGamma][1-\[ScriptS]-2 I \[CurlyEpsilon]p] \[CapitalGamma][\[ScriptR]-2 \[Nu]MST]))/\[CapitalGamma][\[ScriptR]-\[ScriptS]+I \[CurlyEpsilon]-\[Nu]MST]/.repls//SeriesStuff;
 nMax=order-1;
 nMin=-(order+1);
 sumUp=\!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(-\[ScriptR]\)]\(\((
 \*FractionBox[\(
-\*SuperscriptBox[\((\(-1\))\), \(-n\)]\  PH[\(-1\) + \[ScriptR] - 2\  \[Nu]MST, \(-n\)]\  PH[\[ScriptS] + I\  \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\  PH[\(-\[Nu]MST\) + I\  \[Tau], \(-n\)]\), \(\(\((\(-n\) - \[ScriptR])\)!\)\  PH[\(-\[ScriptS]\) - I\  \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\  PH[\(-\[Nu]MST\) - I\  \[Tau], \(-n\)]\)] /. repls\[Nu][n])\) \((aMST[n]\  /. repls)\)\)\)//DoABunchOfStuff;
-sumUpPHCoeff=(Gamma[-1+\[ScriptR]-2 \[Nu]MST]/(Gamma[-\[ScriptS]-I \[CurlyEpsilon]-\[Nu]MST] Gamma[-\[Nu]MST-I \[Tau]]))/.repls//DoABunchOfStuff;
+\*SuperscriptBox[\((\(-1\))\), \(-n\)]\  PH[\(-1\) + \[ScriptR] - 2\  \[Nu]MST, \(-n\)]\  PH[\[ScriptS] + I\  \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\  PH[\(-\[Nu]MST\) + I\  \[Tau], \(-n\)]\), \(\(\((\(-n\) - \[ScriptR])\)!\)\  PH[\(-\[ScriptS]\) - I\  \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\  PH[\(-\[Nu]MST\) - I\  \[Tau], \(-n\)]\)] /. repls\[Nu][n])\) \((aMST[n]\  /. repls)\)\)\)//SeriesStuff;
+sumUpPHCoeff=(Gamma[-1+\[ScriptR]-2 \[Nu]MST]/(Gamma[-\[ScriptS]-I \[CurlyEpsilon]-\[Nu]MST] Gamma[-\[Nu]MST-I \[Tau]]))/.repls//SeriesStuff;
 coeff=(coeff sumUpPHCoeff);
 sumDown=\!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(n = \(-\[ScriptR]\)\), \(nMax\)]\(\((
 \*FractionBox[\(
-\*SuperscriptBox[\((\(-1\))\), \(-n\)]\  PH[\[ScriptS] - I\  \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\), \(\(\((n + \[ScriptR])\)!\)\  PH[\[ScriptR] - 2\  \[Nu]MST, \(-n\)]\  PH[\(-\[ScriptS]\) + I\  \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\)] /. repls\[Nu][n])\) \((aMST[n] /. repls)\)\)\)//DoABunchOfStuff;
+\*SuperscriptBox[\((\(-1\))\), \(-n\)]\  PH[\[ScriptS] - I\  \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\), \(\(\((n + \[ScriptR])\)!\)\  PH[\[ScriptR] - 2\  \[Nu]MST, \(-n\)]\  PH[\(-\[ScriptS]\) + I\  \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\)] /. repls\[Nu][n])\) \((aMST[n] /. repls)\)\)\)//SeriesStuff;
 
-ret=coeff sumUp/sumDown //DoABunchOfStuff;
+ret=coeff sumUp/sumDown //SeriesStuff//GammaStuff;
 ret
 ]
 
@@ -2139,40 +2193,41 @@ ret//SeriesTake[#,order\[Eta]]&
 ]*)
 
 
-\[ScriptCapitalK]AmplitudeFreq["Ratio"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[CurlyEpsilon]_,OptionsPattern[]]:=Module[{\[ScriptR]=0,ret,\[CapitalGamma]=Gamma,PH=Pochhammer,coeff,DoABunchOfStuff,\[Kappa],order,sumUp,sumUp2,sumUpPHCoeff,sumUpPH,sumDown,sumDown2,\[CurlyEpsilon]p,\[Tau],\[CurlyEpsilon],nMax,nMin,repls,repls\[Nu]},
+\[ScriptCapitalK]AmplitudeFreq["Ratio"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[CurlyEpsilon]_,OptionsPattern[]]:=Module[{\[ScriptR]=0,ret,\[CapitalGamma]=Gamma,PH=Pochhammer,coeff,SeriesStuff,GammaStuff,\[Kappa],order,sumUp,sumUp2,sumUpPHCoeff,sumUpPH,sumDown,sumDown2,\[CurlyEpsilon]p,\[Tau],\[CurlyEpsilon],nMax,nMin,repls,repls\[Nu]},
 \[CurlyEpsilon]=2 \[Omega] \[Gamma];
 \[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;
 \[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];
 \[Kappa]=Sqrt[1-a^2];
 order=order\[CurlyEpsilon]+2//Max[#,3]&;
-DoABunchOfStuff=(#//IgnoreExpansionParameter//SeriesTake[#,order\[CurlyEpsilon]]&//ExpandGamma//ExpandPolyGamma)&;
+SeriesStuff=(#//IgnoreExpansionParameter//SeriesTake[#,order\[CurlyEpsilon]]&)&;
+GammaStuff=(#//ExpandPolyGamma[#,\[ScriptL]]&//ExpandGamma[#,\[ScriptL]]&//ExpandPolyGamma[#,-\[ScriptL]]&//ExpandGamma[#,-\[ScriptL]]&)&;
 repls=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order];
 repls\[Nu][n_]:=<|\[Nu]MST->(repls[\[Nu]MST]//SeriesTake[#,SeriesLength[repls[aMST[n]]]+1]&)|>;
 coeff=((2^(1+2 \[Nu]MST)) \[CurlyEpsilon] \[Kappa] ((\[CurlyEpsilon] \[Kappa])^(2 \[Nu]MST)) (\[CapitalGamma][\[ScriptR]-2 \[Nu]MST] \[CapitalGamma][1+\[ScriptR]-\[ScriptS]+I \[CurlyEpsilon]+\[Nu]MST]) )/(\[CapitalGamma][\[ScriptR]-\[ScriptS]+I \[CurlyEpsilon]-\[Nu]MST] \[CapitalGamma][2+\[ScriptR]+2 \[Nu]MST]);
-coeff=coeff/.repls//DoABunchOfStuff;
+coeff=coeff/.repls//SeriesStuff;
 nMax=order-1;
 nMin=-(order+1);
 sumUpPH=\!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(-\[ScriptR]\)]\(\((
 \*FractionBox[\(
-\*SuperscriptBox[\((\(-1\))\), \(-n\)]\  PH[\(-1\) + \[ScriptR] - 2\  \[Nu]MST, \(-n\)]\  PH[\[ScriptS] + I\  \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\  PH[\(-\[Nu]MST\) + I\  \[Tau], \(-n\)]\), \(\(\((\(-n\) - \[ScriptR])\)!\)\  PH[\(-\[ScriptS]\) - I\  \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\  PH[\(-\[Nu]MST\) - I\  \[Tau], \(-n\)]\)] /. repls\[Nu][n])\) \((aMST[n]\  /. repls)\)\)\)//DoABunchOfStuff;
+\*SuperscriptBox[\((\(-1\))\), \(-n\)]\  PH[\(-1\) + \[ScriptR] - 2\  \[Nu]MST, \(-n\)]\  PH[\[ScriptS] + I\  \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\  PH[\(-\[Nu]MST\) + I\  \[Tau], \(-n\)]\), \(\(\((\(-n\) - \[ScriptR])\)!\)\  PH[\(-\[ScriptS]\) - I\  \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\  PH[\(-\[Nu]MST\) - I\  \[Tau], \(-n\)]\)] /. repls\[Nu][n])\) \((aMST[n]\  /. repls)\)\)\)//SeriesStuff;
 sumUp2=\!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(\[ScriptR]\)]\(\((
 \*FractionBox[
 SuperscriptBox[\((\(-1\))\), \(n\)], \(\(\((\[ScriptR] - n)\)!\) PH[\[ScriptR] + 2\  \[Nu]MST + 2, n]\)] 
-\*FractionBox[\(PH[\[Nu]MST + 1 + \[ScriptS] - I\  \[CurlyEpsilon], n]\), \(PH[\[Nu]MST + 1 - \[ScriptS] + I\  \[CurlyEpsilon], n]\)] /. repls\[Nu][n])\) \((aMST[n] /. repls)\)\)\)//DoABunchOfStuff;
+\*FractionBox[\(PH[\[Nu]MST + 1 + \[ScriptS] - I\  \[CurlyEpsilon], n]\), \(PH[\[Nu]MST + 1 - \[ScriptS] + I\  \[CurlyEpsilon], n]\)] /. repls\[Nu][n])\) \((aMST[n] /. repls)\)\)\)//SeriesStuff;
 sumUpPHCoeff=(Gamma[-1+\[ScriptR]-2 \[Nu]MST] Gamma[1-\[ScriptS]-I \[CurlyEpsilon]+\[Nu]MST] Gamma[1+\[Nu]MST-I \[Tau]]) /(Gamma[-\[ScriptS]-I \[CurlyEpsilon]-\[Nu]MST] Gamma[1+\[ScriptR]+2 \[Nu]MST] Gamma[-\[Nu]MST-I \[Tau]]);
-sumUpPHCoeff=sumUpPHCoeff/.repls//DoABunchOfStuff;
+sumUpPHCoeff=sumUpPHCoeff/.repls//SeriesStuff;
 coeff=(coeff sumUpPHCoeff);
 sumDown=\!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(n = \(-\[ScriptR]\)\), \(nMax\)]\(\((
 \*FractionBox[\(
-\*SuperscriptBox[\((\(-1\))\), \(-n\)]\  PH[\[ScriptS] - I\  \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\), \(\(\((n + \[ScriptR])\)!\)\  PH[\[ScriptR] - 2\  \[Nu]MST, \(-n\)]\  PH[\(-\[ScriptS]\) + I\  \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\)] /. repls\[Nu][n])\) \((aMST[n] /. repls)\)\)\)//DoABunchOfStuff;
+\*SuperscriptBox[\((\(-1\))\), \(-n\)]\  PH[\[ScriptS] - I\  \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\), \(\(\((n + \[ScriptR])\)!\)\  PH[\[ScriptR] - 2\  \[Nu]MST, \(-n\)]\  PH[\(-\[ScriptS]\) + I\  \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\)] /. repls\[Nu][n])\) \((aMST[n] /. repls)\)\)\)//SeriesStuff;
 sumDown2=\!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(n = \[ScriptR]\), \(nMax\)]\(\((
 \*FractionBox[\(
-\*SuperscriptBox[\((\(-1\))\), \(n\)]\  PH[1 + \[ScriptS] + I\  \[CurlyEpsilon] + \[Nu]MST, n]\  PH[1 + \[ScriptR] + 2\  \[Nu]MST, n]\  PH[1 + \[Nu]MST + I\  \[Tau], n]\), \(\(\((n - \[ScriptR])\)!\)\  PH[1 - \[ScriptS] - I\  \[CurlyEpsilon] + \[Nu]MST, n]\  PH[1 + \[Nu]MST - I\  \[Tau], n]\)] /. repls\[Nu][n])\) \((aMST[n]\  /. repls)\)\)\)//DoABunchOfStuff;
-ret=coeff  sumUp2/sumDown  sumUpPH/sumDown2//DoABunchOfStuff;
+\*SuperscriptBox[\((\(-1\))\), \(n\)]\  PH[1 + \[ScriptS] + I\  \[CurlyEpsilon] + \[Nu]MST, n]\  PH[1 + \[ScriptR] + 2\  \[Nu]MST, n]\  PH[1 + \[Nu]MST + I\  \[Tau], n]\), \(\(\((n - \[ScriptR])\)!\)\  PH[1 - \[ScriptS] - I\  \[CurlyEpsilon] + \[Nu]MST, n]\  PH[1 + \[Nu]MST - I\  \[Tau], n]\)] /. repls\[Nu][n])\) \((aMST[n]\  /. repls)\)\)\)//SeriesStuff;
+ret=coeff  sumUp2/sumDown  sumUpPH/sumDown2//SeriesStuff//GammaStuff;
 ret
 ]
 
