@@ -1648,11 +1648,11 @@ Derivative[n_][\[Theta]][arg_]:=Derivative[n-1][\[Delta]][arg];
 \[Delta]''[\[Eta]^-2 a_]:=\[Eta]^2 \[Delta]''[a];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Amplitudes*)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*A Amplitudes*)
 
 
@@ -1742,7 +1742,7 @@ aux
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*B Amplitudes*)
 
 
@@ -1884,7 +1884,7 @@ Options[BAmplitude]={"Normalization"->"Default","FreqRep"->False}
 
 BAmplitude[sol_,OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,order\[CurlyEpsilon]},
 If[OptionValue["FreqRep"],
-aux=aux=BAmplitudeFreq[sol,"Normalization"->OptionValue["Normalization"]][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]];
+aux=BAmplitudeFreq[sol,"Normalization"->OptionValue["Normalization"]][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]];
 ,
 (*else*)
 order\[CurlyEpsilon]=Ceiling[order\[Eta],3]/3;
@@ -1894,7 +1894,7 @@ aux
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*C Amplitude*)
 
 
@@ -2002,7 +2002,7 @@ Options[CAmplitude]={"Normalization"->"Default","FreqRep"->False}
 
 CAmplitude[sol_,OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,order\[CurlyEpsilon]},
 If[OptionValue["FreqRep"],
-aux=aux=CAmplitudeFreq[sol,"Normalization"->OptionValue["Normalization"]][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]];
+aux=CAmplitudeFreq[sol,"Normalization"->OptionValue["Normalization"]][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]];
 ,
 (*else*)
 order\[CurlyEpsilon]=Ceiling[order\[Eta],3]/3;
@@ -2274,20 +2274,38 @@ TeukolskyAmplitudePN["K-\[Nu]-1",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\
 TeukolskyAmplitudePN["K",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_}] :=\[ScriptCapitalK]Amplitude["Ratio",opt][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/.{\[Omega]->\[Omega]Var,\[Gamma]->\[Eta]Var,\[Eta]->\[Eta]Var};
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Wronskian*)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Invariant Wronskian*)
 
 
-InvariantWronskian[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_}]:=Module[{aux,Rup,Rin,B,C,ret},
-C=CAmplitude["Trans"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]//ExpandPolyGamma//ExpandGamma;
-B=BAmplitude["Inc"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]//ExpandPolyGamma//ExpandGamma;
-aux=PNScalingsInternal[2 I \[Omega]]B C//ExpandLog//SeriesCollect[#,Log[__]]&;
-ret=aux/.{\[Omega]->\[Omega]Var,\[Eta]->\[Eta]Var};
+Options[InvariantWronskianFreq]={"Normalization"->"Default"}
+
+
+InvariantWronskianFreq[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Gamma]_,opt:OptionsPattern[]]:=Module[{aux,Rup,Rin,B,C,ret},
+C=CAmplitudeFreq["Trans",opt][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Gamma]];
+B=BAmplitudeFreq["Inc",opt][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Gamma]];
+ret=(2 I \[Omega] \[Gamma])B C;
 ret
+]
+
+
+Options[InvariantWronskian]={"Normalization"->"Default","FreqRep"->False}
+
+
+InvariantWronskian[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{varPN_,order_},OptionsPattern[]]:=Module[{aux,order\[CurlyEpsilon]},
+If[OptionValue["FreqRep"],
+aux=InvariantWronskianFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order,"Normalization"->OptionValue["Normalization"]];
+,
+(*else*)
+order\[CurlyEpsilon]=Ceiling[order\[Eta],3]/3;
+aux=InvariantWronskianFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order,"Normalization"->OptionValue["Normalization"]]//ChangeSeriesParameter[#,\[Eta]^3]&//SeriesTake[#,order\[Eta]]&;
+];
+aux=aux/.\[Gamma]->varPN/.\[Eta]->varPN/.\[Omega]->\[Omega]Var;
+aux
 ]
 
 
@@ -2797,7 +2815,7 @@ If[!MatchQ[order,_Integer],Message[TeukolskyRadialFunctionPN::paramorder,order];
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*TeukolskyRadialPN*)
 
 
@@ -2855,7 +2873,7 @@ ret
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Getting internal association faster*)
 
 
@@ -2911,8 +2929,8 @@ trans["In"]=If[OptionValue["Amplitudes"],TeukolskyAmplitudePN["Btrans","Normaliz
 trans["Up"]=If[OptionValue["Amplitudes"],TeukolskyAmplitudePN["Ctrans","Normalization"->OptionValue["Normalization"]][\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega]Var,{varPN,order}],Missing["NotComputed"]];
 inc["In"]=If[OptionValue["Amplitudes"],TeukolskyAmplitudePN["Binc","Normalization"->OptionValue["Normalization"]][\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega]Var,{varPN,order}],Missing["NotComputed"]];
 inc["Up"]=If[OptionValue["Amplitudes"],Missing["NotAvailable"],Missing["NotComputed"]];
-inc["In"]=If[OptionValue["Amplitudes"],TeukolskyAmplitudePN["Bref","Normalization"->OptionValue["Normalization"]][\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega]Var,{varPN,order}],Missing["NotComputed"]];
-inc["Up"]=If[OptionValue["Amplitudes"],Missing["NotAvailable"],Missing["NotComputed"]];
+ref["In"]=If[OptionValue["Amplitudes"],TeukolskyAmplitudePN["Bref","Normalization"->OptionValue["Normalization"]][\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega]Var,{varPN,order}],Missing["NotComputed"]];
+ref["Up"]=If[OptionValue["Amplitudes"],Missing["NotAvailable"],Missing["NotComputed"]];
 If[OptionValue["Simplify"],{trans["In"],inc["In"],ref["In"]}={trans["In"],inc["In"],ref["In"]}//Simplify];
 If[OptionValue["Simplify"],{trans["Up"],inc["Up"],ref["Up"]}={trans["Up"],inc["Up"],ref["Up"]}//Simplify];
 amplitudes["In"]=<|"Incidence"->inc["In"],"Transmission"->trans["In"],"Reflection"->ref["In"]|>;
@@ -3018,15 +3036,15 @@ Derivative[n_Integer][trf_TeukolskyRadialFunctionPN][r_Symbol]:=trf[[6,1]]^(2 n)
 Keys[trfpn_TeukolskyRadialFunctionPN] ^:= DeleteElements[Join[Keys[trfpn[[-1]]], {}], {"RadialFunction","AmplitudesBool"}];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*TeukolskyPointParticleModePN*)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Getting internal association*)
 
 
-Options[RadialSourcedAssociation]={"Normalization"->"Default","Simplify"->True}
+Options[RadialSourcedAssociation]={"Normalization"->"UnitTransmission","Simplify"->True}
 
 
 SeriesToSCoeffs[series_SeriesData]:=Module[{aux},
@@ -3048,7 +3066,7 @@ ddRup=dRup';
 ddRin=dRin';
 (*The replacements in the wronskian are a quick fix for non vanishing r dependence in case a has a numerical value*)
 wronskian=(Simplify[#1,Assumptions->r>2]&)[Kerr\[CapitalDelta][aVar,r/varPN^2]^(\[ScriptS]+1) varPN^2 (Rin[r] dRup[r]-dRin[r] Rup[r])];
-wronskian=wronskian/.Log[__ r]->0/.r^a_/;a<0:>r^-a/.r->0;
+wronskian=wronskian//Chop;
 source=TeukolskySourceCircularOrbit[\[ScriptS],\[ScriptL],\[ScriptM],a,{#,r0},"Form"->"InvariantWronskian"]&;
 sourceCoeffs=source[r]//Coefficient[#,{DiracDelta[r-r0],Derivative[1][DiracDelta][r-r0],Derivative[2][DiracDelta][r-r0]}]&;
 sourceCoeffs=Collect[#,{SpinWeightedSpheroidalHarmonicS[__][__],Derivative[__][SpinWeightedSpheroidalHarmonicS[__]][__]},Simplify]&/@sourceCoeffs;
