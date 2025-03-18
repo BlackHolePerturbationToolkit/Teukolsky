@@ -1648,11 +1648,11 @@ Derivative[n_][\[Theta]][arg_]:=Derivative[n-1][\[Delta]][arg];
 \[Delta]''[\[Eta]^-2 a_]:=\[Eta]^2 \[Delta]''[a];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Amplitudes*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*A Amplitudes*)
 
 
@@ -1742,7 +1742,7 @@ aux
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*B Amplitudes*)
 
 
@@ -1894,7 +1894,7 @@ aux
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*C Amplitude*)
 
 
@@ -2133,8 +2133,8 @@ GammaStuff=(#//ExpandPolyGamma[#,\[ScriptL]]&//ExpandGamma[#,\[ScriptL]]&//Expan
 jump[1]=2+2\[ScriptL]+\[ScriptR]-n<=0;
 jump[2]=1+\[ScriptS]+\[ScriptL]-n<=0;
 jump[3]=1-\[ScriptS]+\[ScriptL]-n<=0;
-jumpCount=(jump[#]&/@Range[3]//Boole//Total);
-order=order\[CurlyEpsilon]+2//Max[#,2]&;
+jumpCount=1+(jump[#]&/@Range[3]//Boole//Total);
+order=order\[CurlyEpsilon]+2//Max[#,3]&;
 repls=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order];
 repls\[Nu][n_]:=<|\[Nu]MST->(repls[\[Nu]MST]//SeriesTake[#,SeriesLength[repls[aMST[n]]]+jumpCount]&)|>;
 coeff=(I^-\[ScriptR] 2^(1+\[Nu]MST) E^(I \[CurlyEpsilon] \[Kappa]) (\[CurlyEpsilon] \[Kappa])^(1-\[ScriptR]+\[ScriptS]+\[Nu]MST) (\[CapitalGamma][1-\[ScriptS]-2 I \[CurlyEpsilon]p] \[CapitalGamma][\[ScriptR]-2 \[Nu]MST]))/\[CapitalGamma][\[ScriptR]-\[ScriptS]+I \[CurlyEpsilon]-\[Nu]MST]/.repls//SeriesStuff;
@@ -2274,11 +2274,11 @@ TeukolskyAmplitudePN["K-\[Nu]-1",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\
 TeukolskyAmplitudePN["K",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_}] :=\[ScriptCapitalK]Amplitude["Ratio",opt][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/.{\[Omega]->\[Omega]Var,\[Gamma]->\[Eta]Var,\[Eta]->\[Eta]Var};
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Wronskian*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Invariant Wronskian*)
 
 
