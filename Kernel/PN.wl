@@ -1648,7 +1648,7 @@ Derivative[n_][\[Theta]][arg_]:=Derivative[n-1][\[Delta]][arg];
 \[Delta]''[\[Eta]^-2 a_]:=\[Eta]^2 \[Delta]''[a];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Amplitudes*)
 
 
@@ -1742,7 +1742,7 @@ aux
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*B Amplitudes*)
 
 
@@ -2273,11 +2273,11 @@ TeukolskyAmplitudePN["K-\[Nu]-1",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\
 TeukolskyAmplitudePN["K",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_}] :=\[ScriptCapitalK]Amplitude["Ratio",opt][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/.{\[Omega]->\[Omega]Var,\[Gamma]->\[Eta]Var,\[Eta]->\[Eta]Var};
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Wronskian*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Invariant Wronskian*)
 
 
@@ -2600,7 +2600,7 @@ aux
 ]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Subscript[R, Up]*)
 
 
@@ -2608,7 +2608,7 @@ aux
 (*To construct Subscript[R, up] we follow Eq.159 in Sasaki Tagoshi ( https://doi.org/10.12942/lrr-2003-6 ) where \[CapitalPsi] is identical to HypergeometricU[]..*)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Constructing Subscript[R, up] from Subscript[R, C]*)
 
 
@@ -2814,7 +2814,7 @@ If[!MatchQ[order,_Integer],Message[TeukolskyRadialFunctionPN::paramorder,order];
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*TeukolskyRadialPN*)
 
 
@@ -3081,10 +3081,14 @@ If[aVar===0,{cIn,cUp,deltaCoeff,source}=(Inactivate[#,SpinWeightedSpheroidalHarm
 If[OptionValue["Simplify"],{cIn,cUp,deltaCoeff,source}={cIn,cUp,deltaCoeff,source}//SeriesCollect[#,{SpinWeightedSpheroidalHarmonicS[__],Derivative[__][SpinWeightedSpheroidalHarmonicS][__]},(Simplify[#,{aVar>=0,r0Var>0,varPN>0}]&)]&];
 inner=cIn Rin[r];
 outer=cUp Rup[r];
-If[OptionValue["Simplify"],{inner,outer}={inner,outer}//SeriesCollect[#,{SpinWeightedSpheroidalHarmonicS[__],Derivative[__][SpinWeightedSpheroidalHarmonicS][__]},(Simplify[#,{aVar>=0,r0Var>0,varPN>0}]&)]&];
+If[OptionValue["Simplify"]||\[ScriptM]===0,{inner,outer}={inner,outer}//SeriesCollect[#,{SpinWeightedSpheroidalHarmonicS[__],Derivative[__][SpinWeightedSpheroidalHarmonicS][__]},(Simplify[#,{aVar>=0,r0Var>0,varPN>0}]&)]&];
+If[\[ScriptM]===0,{inner,outer}={inner,outer}/.Log[a_ Style["0",Red]]:>Log[a Style["0",Orange]]/.Style["0",Red]->0];
 {Btrans,Ctrans}={BAmplitude["Trans","Normalization"->OptionValue["Normalization"]][\[ScriptS],\[ScriptL],\[ScriptM],aVar,order],CAmplitude["Trans","Normalization"->OptionValue["Normalization"]][\[ScriptS],\[ScriptL],\[ScriptM],aVar,order]}/.\[Eta]->varPN/.\[Omega]->If[\[ScriptM]!=0,\[ScriptM],Style["0",Red]]\[CapitalOmega];
 {cInU,cUpU}={Btrans cIn,Ctrans cUp};
+If[\[ScriptM]===0,{cInU,cUpU}={Simplify[cInU],Simplify[(Normal[SeriesTake[Rup[r],1]/Ctrans]/.r->varPN^2)cUpU]}/.Log[a_ Style["0",Red]]:>Log[a Style["0",Orange]]/.Style["0",Red]->0];
 ampAssoc=<|"\[ScriptCapitalI]"->cUpU,"\[ScriptCapitalH]"->cInU|>;
+wronskian=wronskian/(Ctrans Btrans);
+If[\[ScriptM]===0,wronskian=(wronskian/(Normal[SeriesTake[Rup[r],1]/Ctrans]/.r->varPN^2)//Simplify)/.Log[a_ Style["0",Red]]:>Log[a Style["0",Orange]]/.Style["0",Red]->0];
 radial=inner HeavisideTheta[r0Var-r] + outer HeavisideTheta[r-r0Var]+deltaCoeff DiracDelta[r-r0Var];
 Scoeffs=SeriesToSCoeffs[radial];
 minOrder=radial//SeriesMinOrder;
