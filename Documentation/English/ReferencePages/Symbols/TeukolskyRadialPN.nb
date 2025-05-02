@@ -2022,17 +2022,7 @@ symbol \"r\"\
 
 Cell[CellGroupData[{
 
-Cell[BoxData[{
- RowBox[{
-  RowBox[{"test", "[", "\"\<In\>\"", "]"}], "[", "\"\<LeadingOrder\>\"", 
-  "]"}], "\[IndentingNewLine]", 
- RowBox[{
-  RowBox[{
-   RowBox[{"test", "[", "\"\<In\>\"", "]"}], "[", "\"\<LeadingOrder\>\"", 
-   "]"}], "[", "r", "]"}]], "Input",
- CellChangeTimes->{{3.9460974197978*^9, 3.94609742733181*^9}},
- CellLabel->"In[14]:=",
- CellID->1012977236,ExpressionUUID->"698bfb9e-cfc9-4f00-9c37-4845c7598a83"],
+Cell[],
 
 Cell[BoxData[
  RowBox[{
