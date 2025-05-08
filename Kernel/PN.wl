@@ -1547,7 +1547,7 @@ ret
 ]]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Teukolsky Equation*)
 
 
@@ -2814,7 +2814,7 @@ If[!MatchQ[order,_Integer],Message[TeukolskyRadialFunctionPN::paramorder,order];
 ]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*TeukolskyRadialPN*)
 
 
@@ -3015,7 +3015,7 @@ ret
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Accessing functions and keys*)
 
 
@@ -3035,7 +3035,7 @@ Derivative[n_Integer][trf_TeukolskyRadialFunctionPN][r_Symbol]:=trf[[6,1]]^(2 n)
 Keys[trfpn_TeukolskyRadialFunctionPN] ^:= DeleteElements[Join[Keys[trfpn[[-1]]], {}], {"RadialFunction","AmplitudesBool"}];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*TeukolskyPointParticleModePN*)
 
 
@@ -3170,7 +3170,7 @@ TeukolskyPointParticleModePN[\[ScriptS], \[ScriptL], \[ScriptM],orbit,{varPN,aux
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Accessing functions and keys*)
 
 
@@ -3196,7 +3196,7 @@ TeukolskyModePN[s_, l_, m_, a_, r0_,{varPN_,order_},assoc_]["CoefficientList"][r
 Keys[trfpn_TeukolskyModePN]^:= DeleteElements[Join[Keys[trfpn[[-1]]], {}], {"RadialFunction","SeriesMinOrder"}];
 
 
-Derivative[n_Integer][tppm_TeukolskyModePN][r_Symbol]:=tppm[[6,1]]^(2 n) Derivative[n][tppm["RadialFunction"]][r]
+Derivative[n_Integer][tppm_TeukolskyModePN][r_Symbol]:=tppm[[6,1]]^(2 n) Derivative[n][tppm[[-1]]["RadialFunction"]][r]
 
 
 (* ::Section:: *)
