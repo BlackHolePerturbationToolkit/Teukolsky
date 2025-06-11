@@ -1281,7 +1281,7 @@ aux
 ]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Point particle source*)
 
 
@@ -1297,7 +1297,18 @@ TeukolskySource[\[ScriptS],\[ScriptL],\[ScriptM],aVar,{rVar,r0Var},opt]
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+TeukolskyPointParticleSource[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,orbit_][r_]:=Module[{aux,a,r0,eccentricity,inclination,\[CapitalOmega]},
+{a,r0,eccentricity,inclination}=orbit[#]&/@{"a","p","e","Inclination"};
+If[!(eccentricity===0),Message[TeukolskyPointParticleModePN::orbit];Abort[];];
+If[!(inclination===1),Message[TeukolskyPointParticleModePN::orbit];Abort[];];
+\[CapitalOmega]=Inactive[KerrGeodesics`OrbitalFrequencies`KerrGeoFrequencies][a,r0,0,1]["\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"];
+aux=TeukolskySource[\[ScriptS],\[ScriptL],\[ScriptM],a,{r,r0}];
+aux=aux/.\[CapitalOmega]Kerr->\[CapitalOmega];
+aux
+]
+
+
+(* ::Subsubsection:: *)
 (*\[ScriptS] = -2*)
 
 
@@ -2814,7 +2825,7 @@ If[!MatchQ[order,_Integer],Message[TeukolskyRadialFunctionPN::paramorder,order];
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*TeukolskyRadialPN*)
 
 
@@ -3039,7 +3050,7 @@ Keys[trfpn_TeukolskyRadialFunctionPN] ^:= DeleteElements[Join[Keys[trfpn[[-1]]],
 (*TeukolskyPointParticleModePN*)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Getting internal association*)
 
 
@@ -3147,7 +3158,7 @@ TeukolskyModePN /:
 ];
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*TeukolskyPointParticleModePN*)
 
 
@@ -3170,7 +3181,7 @@ TeukolskyPointParticleModePN[\[ScriptS], \[ScriptL], \[ScriptM],orbit,{varPN,aux
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Accessing functions and keys*)
 
 

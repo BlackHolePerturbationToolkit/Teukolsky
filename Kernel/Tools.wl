@@ -25,13 +25,13 @@ ClearAttributes[{\[Nu]MST, aMST,MSTCoefficients}, {Protected, ReadProtected}];
 ClearAttributes[{SeriesTake, SeriesMinOrder,SeriesMaxOrder,SeriesLength,SeriesCollect,SeriesTerms,IgnoreExpansionParameter,ChangeSeriesParameter,PowerCounting}, {Protected, ReadProtected}];
 
 
-ClearAttributes[{PNScalings, RemovePN,Zero,One}, {Protected, ReadProtected}];
+ClearAttributes[{PNScalings, RemovePN}, {Protected, ReadProtected}];
 
 
 ClearAttributes[{ExpandLog, ExpandGamma,ExpandPolyGamma,PochhammerToGamma,GammaToPochhammer,ExpandDiracDelta,ExpandSpheroidals,CollectDerivatives,Paint}, {Protected, ReadProtected}];
 
 
-ClearAttributes[{TeukolskyAmplitudePN, InvariantWronskian,TeukolskySourceCircularOrbit,TeukolskyEquation}, {Protected, ReadProtected}];
+ClearAttributes[{TeukolskyAmplitudePN, InvariantWronskian,TeukolskyPointParticleSource,TeukolskyEquation}, {Protected, ReadProtected}];
 
 
 (* ::Section:: *)
@@ -79,8 +79,8 @@ PowerCounting::usage="PowerCounting[series,symbol] replaces the expansion parame
 Scalings::usage="Scalings[params,var][expr] applies the given powercounting scalings to the expression. E.g. Scalings[{{\[Omega],3,r,-2},\[Eta]][\[Omega] r]"
 PNScalings::usage="Same as Scalings but with different input. Just here to not break my older code but you should use Scalings instead"
 RemovePN::usage="PNScalings[expr,var] takes the Normal[] and sets var to 1"
-Zero::usage="Zero[expr,vars] sets all vars in expr to 0"
-One::usage="One[expr,vars] sets all vars in expr to 1"
+(*Zero::usage="Zero[expr,vars] sets all vars in expr to 0"
+One::usage="One[expr,vars] sets all vars in expr to 1"*)
 
 
 (* ::Subsection:: *)
@@ -143,7 +143,7 @@ InvariantWronskian::usage="InvariantWronskian[\[ScriptS], \[ScriptL], \[ScriptM]
 (*Source*)
 
 
-TeukolskySourceCircularOrbit::usage="TeukolskySource[\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{r,r\:2080}] gives an analytical expression for the Teukolsky point particle source for a given {\[ScriptS],\[ScriptL],\[ScriptM]} mode. "
+TeukolskyPointParticleSource::usage="TeukolskyPointParticleSource[\[ScriptS],\[ScriptL],\[ScriptM],orbit][r] gives an analytical expression for the Teukolsky point particle source for a given {\[ScriptS],\[ScriptL],\[ScriptM]} mode. orbit needs to be a KerrGeoOrbit object "
 
 
 (* ::Subsection:: *)
@@ -189,8 +189,8 @@ PowerCounting=Teukolsky`PN`Private`PowerCounting
 PNScalings=Teukolsky`PN`Private`PNScalings
 Scalings=Teukolsky`PN`Private`Scalings
 RemovePN=Teukolsky`PN`Private`RemovePN
-Zero=Teukolsky`PN`Private`Zero
-One=Teukolsky`PN`Private`One
+(*Zero=Teukolsky`PN`Private`Zero
+One=Teukolsky`PN`Private`One*)
 
 
 (* ::Subsection::Closed:: *)
@@ -240,11 +240,11 @@ TeukolskyAmplitudePN=Teukolsky`PN`Private`TeukolskyAmplitudePN
 InvariantWronskian=Teukolsky`PN`Private`InvariantWronskian
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Source*)
 
 
-TeukolskySourceCircularOrbit=Teukolsky`PN`Private`TeukolskySourceCircularOrbit
+TeukolskyPointParticleSource=Teukolsky`PN`Private`TeukolskyPointParticleSource
 
 
 (* ::Subsection::Closed:: *)
@@ -271,13 +271,13 @@ SetAttributes[{SeriesTake, SeriesMinOrder,SeriesMaxOrder,SeriesLength,SeriesTerm
 SetAttributes[{SeriesCollect}, {Protected, ReadProtected,Listable}];
 
 
-SetAttributes[{PNScalings, RemovePN,Zero,One}, {Protected, ReadProtected}];
+SetAttributes[{PNScalings, RemovePN}, {Protected, ReadProtected}];
 
 
 SetAttributes[{ExpandLog, ExpandGamma,ExpandPolyGamma,PochhammerToGamma,GammaToPochhammer,ExpandDiracDelta,ExpandSpheroidals,CollectDerivatives,Paint}, {Protected, ReadProtected}];
 
 
-SetAttributes[{TeukolskyAmplitudePN, InvariantWronskian,TeukolskySourceCircularOrbit,TeukolskyEquation}, {Protected, ReadProtected}];
+SetAttributes[{TeukolskyAmplitudePN, InvariantWronskian,TeukolskyPointParticleSource,TeukolskyEquation}, {Protected, ReadProtected}];
 
 
 (* ::Subsection:: *)
