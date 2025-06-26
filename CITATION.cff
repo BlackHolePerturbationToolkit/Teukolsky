@@ -71,9 +71,9 @@ identifiers:
     value: 10.5281/zenodo.7037850
     description: Latest release on Zenodo
 repository-code: 'https://github.com/BlackHolePerturbationToolkit/Teukolsky'
-date-released: 2025-01-29
+date-released: 2025-06-26
 abstract: >-
   A Mathematica package for computing solutions to the
   Teukolsky equation.
 license: MIT
-version: 1.1.0
+version: 1.1.1

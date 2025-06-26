@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.1] - 2025-06-26
+
+### Fixed
+- Corrected PN calculation of inhomogeneous mode amplitudes
+- Improved performance of PN calculation
+
 ## [1.1.0] - 2025-01-29
 
 ### Added
