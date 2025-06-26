@@ -26,7 +26,7 @@ ClearAttributes[{TeukolskyRadialPN, TeukolskyRadialFunctionPN,TeukolskyPointPart
 (*Public *)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Homogeneous solutions*)
 
 
@@ -45,7 +45,7 @@ TeukolskyRadialFunctionPN::paramorder="order=`1`. The given number of terms has 
 TeukolskyRadialFunctionPN::PNInput="Input String does not contain \"PN\". Assume PN orders are desired (calulate `1` terms in the Series).";
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Sourced things*)
 
 
@@ -57,6 +57,22 @@ TeukolskyModePN::usage="is an object which represents a PN expanded Teukolsky mo
 
 TeukolskyPointParticleModePN::orbit="As of now TeukolskyPointParticleModePN only supports circular equatorial orbits, i.e., e=0 and x=1.";
 TeukolskyPointParticleModePN::particle="TeukolskyPointParticleModePN cannot be evaluated directly at the particle. Try the Keys \"ExtendedHomogeneous\"\[Rule]\"\[ScriptCapitalI]\",\"ExtendedHomogeneous\"\[Rule]\"\[ScriptCapitalH]\" and \"\[Delta]\" ";
+
+
+(* ::Subsection::Closed:: *)
+(*Developer options*)
+
+
+(*\[Nu]MST
+aMST
+\[Omega]
+a
+\[Kappa]
+\[Gamma]
+MSTCoefficientsInternalFreq
+KerrMSTSeries
+pIn
+rstar*)
 
 
 (* ::Section:: *)
@@ -829,7 +845,7 @@ MST=Append[MST,Table[a[i]->aMST[i]+If[i==0,0,O[\[Epsilon]]^(ExpOrder+1)],{i,-Exp
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Definitions, replacements and auxiliary functions*)
 
 
@@ -843,18 +859,6 @@ assumps={r>2,r0>2,a>=0,\[Eta]>0,\[Omega]>=0}
 (* ::Subsubsection::Closed:: *)
 (*MST Coefficients*)
 
-
-(*replsMST[]:=Module[{aux,values,order\[Eta]=30},
-aux=Normal/@Block[{Print},KerrMSTSeries[-2,2,2,order\[Eta]/3//Ceiling]//.replsKerr];
-values=Replace[#,a_:>a+O[\[Eta]]^Ceiling[order\[Eta]+1,3]]&/@(Values@aux/.\[Epsilon]->2\[Omega]/.replsPN);
-AssociationThread[Keys[aux]->values]];*)
-(*
-replsMST[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,order\[Eta]_]:=Module[{aux,values,res,\[Nu]Value},
-aux=Normal/@Block[{Print},KerrMSTSeries[\[ScriptS],\[ScriptL],\[ScriptM],order\[Eta]/3+1//Ceiling]//.replsKerr/.q->a];
-\[Nu]Value=Replace[#,a_:>a+O[\[Eta]]^Ceiling[order\[Eta]+1,3]]&@(aux[\[Nu]]/.\[Epsilon]->2\[Omega]/.replsPN);
-values=Replace[#,a_:>a+O[\[Eta]]^Ceiling[order\[Eta]+1,3]]&/@(Values@KeyDrop[#,\[Nu]]&@aux/.\[Epsilon]->2\[Omega]/.replsPN);
-values=Insert[values,\[Nu]Value,1];
-res=AssociationThread[Keys[aux]->values]];*)
 
 replsMST[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,order\[Eta]_]:=Module[{aux,values,res,\[Nu]Value},
 aux=Normal/@Block[{Print},KerrMSTSeries[\[ScriptS],\[ScriptL],\[ScriptM],order\[Eta]/3+1//Ceiling]//.replsKerr/.q->a];
@@ -872,7 +876,32 @@ keys->values//Thread//Association
 ]
 
 
-MSTCoefficients[\[ScriptS]_Integer,\[ScriptL]_Integer,\[ScriptM]_,aKerr_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_Integer}]:=MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],aKerr,order\[Eta]]/.{\[Omega]->\[Omega]Var,\[Eta]->\[Eta]Var}
+MSTCoefficientsInternalFreq[\[ScriptS]_Integer,\[ScriptL]_Integer,\[ScriptM]_,aKerr_,order\[CurlyEpsilon]_Integer]:=Module[{aux,repls,keys,values,ret},
+repls=Block[{Print},KerrMSTSeries[\[ScriptS],\[ScriptL],\[ScriptM],order\[CurlyEpsilon]-1]];
+repls[a[0]]=repls[a[0]](1+O[\[Epsilon]]^order\[CurlyEpsilon]);
+keys=repls//Keys;
+keys=keys/.{a[n_]:>aMST[n],\[Nu]->\[Nu]MST};
+values=repls//Values;
+values=values//.replsKerr/.a->aKerr/.q->aKerr;
+values=values//ChangeSeriesParameter[#,2\[Omega]]&//PowerCounting[#,\[Gamma]]&;
+ret=keys->values//Thread//Association;
+ret
+]
+
+
+Options[MSTCoefficients]={"FreqRep"->False}
+
+
+MSTCoefficients[\[ScriptS]_Integer,\[ScriptL]_Integer,\[ScriptM]_,aKerr_,\[Omega]Var_,{expVar_,order_Integer},OptionsPattern[]]:=Module[{aux},
+aux=MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],aKerr,order];
+aux=aux/.{\[Omega]->\[Omega]Var,\[Eta]->expVar};
+aux
+]
+MSTCoefficients[\[ScriptS]_Integer,\[ScriptL]_Integer,\[ScriptM]_,aKerr_,\[Omega]Var_,{expVar_,order_Integer},"FreqRep"->True]:=Module[{aux},
+aux=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],aKerr,order];
+aux=aux/.{\[Omega]->\[Omega]Var,\[Gamma]->expVar};
+aux
+]
 
 
 (* ::Subsubsection::Closed:: *)
@@ -1046,24 +1075,142 @@ polyToSeries[0,x_:\[Eta],x\:2080_:0]:=Block[{aux,maxPower},
 ]
 
 
+ChangeSeriesParameter[series_SeriesData,var_Symbol]:=Module[{aux},
+aux=ReplacePart[series,1->var];
+aux
+]
+ChangeSeriesParameter[series_SeriesData,var_/;MatchQ[var,Power[_Symbol,__]]]:=Module[{aux,sym,pow,powNum,powDen,oldMin,oldMax,oldDen,oldCoeffs,newCoeffs},
+{sym,pow}=var/.Power[b_Symbol,c__]:>{b,c};
+{powNum,powDen}={pow//Numerator,pow//Denominator};
+{oldCoeffs,oldMin,oldMax,oldDen}=series[[#]]&/@{3,4,5,6};
+newCoeffs={oldCoeffs}~Join~ConstantArray[ConstantArray[0,Length[oldCoeffs]],powNum-1]//Transpose//Flatten;
+aux=ReplacePart[series,{1->sym,3->newCoeffs,4->oldMin powNum,5->oldMax powNum,6->oldDen powDen}];
+aux
+]
+ChangeSeriesParameter[series_SeriesData,var_/;MatchQ[var,__ _Symbol]]:=Module[{aux,sym,fac,oldCoeffs,oldMin,oldMax,oldDen,oldList,exps,newCoeffs},
+{fac,sym}=var/.b__ c_Symbol:>{b,c};
+{oldCoeffs,oldMin,oldMax,oldDen}=series[[#]]&/@{3,4,5,6};
+exps=Range[oldMin/oldDen,oldMin/oldDen+(Length[oldCoeffs]-1)/oldDen,1/oldDen];
+newCoeffs=oldCoeffs (fac^#&/@exps);
+aux=ReplacePart[series,{1->sym,3->newCoeffs}];
+aux
+]
+ChangeSeriesParameter[series_SeriesData,var_/;MatchQ[var,__ Power[_Symbol,__]]]:=Module[{aux,sym,fac,pow,powDen,powNum,oldCoeffs,oldMin,oldMax,oldDen,oldList,exps,newCoeffs},
+{fac,sym,pow}=var/.a__ Power[b_Symbol,c__]:>{a,b,c};
+{powNum,powDen}={pow//Numerator,pow//Denominator};
+{oldCoeffs,oldMin,oldMax,oldDen}=series[[#]]&/@{3,4,5,6};
+exps=Range[oldMin/oldDen,oldMin/oldDen+(Length[oldCoeffs]-1)/oldDen,1/oldDen];
+newCoeffs=oldCoeffs (fac^#&/@exps);
+newCoeffs={newCoeffs}~Join~ConstantArray[ConstantArray[0,Length[newCoeffs]],powNum-1]//Transpose//Flatten;
+aux=ReplacePart[series,{1->sym,3->newCoeffs,4->oldMin powNum,5->oldMax powNum,6->oldDen powDen}];
+aux
+]
+ChangeSeriesParameter[a_,b_]:=a;
+ChangeSeriesParameter[list_List,var_]:=ChangeSeriesParameter[#,var]&/@list;
+ChangeSeriesParameter[list_Association,var_]:=ChangeSeriesParameter[#,var]&/@list;
+
+
+PowerCounting[series_SeriesData,var_]:=Module[{aux,sym,fac,pow,oldCoeffs,oldMin,oldMax,oldDen,oldList,exps,newCoeffs},{
+sym,oldCoeffs,oldMin,oldMax,oldDen}=(series[[#1]]&)/@{1,3,4,5,6};
+
+exps=Range[oldMin/oldDen,oldMin/oldDen+(Length[oldCoeffs]-1)/oldDen,1/oldDen];
+newCoeffs=oldCoeffs (sym^#1&)/@exps;
+aux=ReplacePart[series,{1->var,3->newCoeffs}];
+aux
+]
+PowerCounting[list_List,var_]:=PowerCounting[#,var]&/@list;
+PowerCounting[list_Association,var_]:=PowerCounting[#,var]&/@list;
+
+
 (* ::Subsubsection::Closed:: *)
 (*Tools for Logs, Gammas, and PolyGammas*)
 
 
 IgnoreLog\[Eta][expr_]:=expr/.Log[x_]/;!FreeQ[x,\[Eta]]:>Log[x/.\[Eta]->1];
 ExpandLog[expr_]:=(expr/.Log[a_]:>PowerExpand[Log[a]]);
-ExpandGamma[expr_]:=(expr/. Gamma[n_Integer+x_]:>(\!\(
-\*UnderoverscriptBox[\(\[Product]\), \(i = 0\), \(n - 1\)]\((x + i)\)\))(\!\(
-\*UnderoverscriptBox[\(\[Product]\), \(i = n\), \(-1\)]
-\*SuperscriptBox[\((x + i)\), \(-1\)]\))  Gamma[x]);
-ExpandPolyGamma[expr_]:=(expr/.PolyGamma[m_Integer,n_Integer+x_]:>(-1)^m (m!)(\!\(
-\*UnderoverscriptBox[\(\[Sum]\), \(i = 0\), \(n - 1\)]
+
+
+(* ::Input:: *)
+(*(*ExpandGamma[expr_]:=(expr/. Gamma[n_Integer+x_]:>(\!\( *)
+(*\*UnderoverscriptBox[\(\[Product]\), \(i = 0\), \(n - 1\)]\((x + i)\)\))(\!\( *)
+(*\*UnderoverscriptBox[\(\[Product]\), \(i = n\), \(-1\)]*)
+(*\*SuperscriptBox[\((x + i)\), \(-1\)]\))  Gamma[x]);*)
+(*ExpandGamma[expr_,n_Integer]:=Module[{aux,\[ScriptN]},*)
+(*aux=expr/.{Gamma[arg_]:>Gamma[arg-n+\[ScriptN]]};*)
+(*aux=ExpandGamma[aux];*)
+(*aux=aux/.\[ScriptN]->n;*)
+(*aux*)
+(*]*)
+(*ExpandGamma[expr_,0]:=ExpandGamma[expr];*)*)
+
+
+(* ::Input:: *)
+(*(*ExpandGamma[expr_,j_Integer:0]:=(expr/. Gamma[n_Integer+x_]:>(\!\( *)
+(*\*UnderoverscriptBox[\(\[Product]\), \(i = 0\), \(n - j - 1\)]\((x + j + i)\)\))(\!\( *)
+(*\*UnderoverscriptBox[\(\[Product]\), \(i = n - j\), \(-1\)]*)
+(*\*SuperscriptBox[\((x + j + i)\), \(-1\)]\))  Gamma[x+j]);*)*)
+
+
+ExpandGamma[expr_Gamma,j_Integer:0]:=Module[{aux,arg,m,x,n},
+arg=expr/.Gamma[argg_]:>argg;
+{n,x}=If[MatchQ[arg,a_Integer+b__],arg/.\[ScriptN]_Integer + \[ScriptX]__:>{\[ScriptN],\[ScriptX]},{0,arg}];
+aux=(\!\(
+\*UnderoverscriptBox[\(\[Product]\), \(i = 0\), \(n - j - 1\)]\((x + j + i)\)\))(\!\(
+\*UnderoverscriptBox[\(\[Product]\), \(i = n - j\), \(-1\)]
+\*SuperscriptBox[\((x + j + i)\), \(-1\)]\))  Gamma[x+j];
+aux
+]
+ExpandGamma[expr_,j_Integer:0]/;FreeQ[expr,Gamma]:=expr;
+ExpandGamma[expr_,j_Integer:0]:=ExpandGamma[#,j]&/@expr;
+
+
+(* ::Input:: *)
+(*(*ExpandPolyGamma[expr_]:=(expr/.PolyGamma[m_Integer,n_Integer+x_]:>(-1)^m (m!)(\!\( *)
+(*\*UnderoverscriptBox[\(\[Sum]\), \(i = 0\), \(n - 1\)]*)
+(*\*FractionBox[\(1\), *)
+(*SuperscriptBox[\((x + i)\), \(m + 1\)]]\)-\!\( *)
+(*\*UnderoverscriptBox[\(\[Sum]\), \(i = n\), \(-1\)]*)
+(*\*FractionBox[\(1\), *)
+(*SuperscriptBox[\((x + i)\), \(m + 1\)]]\))+PolyGamma[m,x]);*)
+(*ExpandPolyGamma[expr_,n_Integer]:=Module[{aux,\[ScriptN]},*)
+(*aux=expr/.{PolyGamma[x_,arg_]:>PolyGamma[x,arg-n+\[ScriptN]]};*)
+(*aux=ExpandPolyGamma[aux];*)
+(*aux=aux/.\[ScriptN]->n;*)
+(*aux*)
+(*]*)
+(*ExpandPolyGamma[expr_,0]:=ExpandPolyGamma[expr];*)
+(**)*)
+
+
+(* ::Input:: *)
+(*(*ExpandPolyGamma[expr_,j_Integer:0]:=(expr/.PolyGamma[m_Integer,n_Integer+x_]:>(-1)^m (m!)(\!\( *)
+(*\*UnderoverscriptBox[\(\[Sum]\), \(i = 0\), \(n - j - 1\)]*)
+(*\*FractionBox[\(1\), *)
+(*SuperscriptBox[\((x + j + i)\), \(m + 1\)]]\)-\!\( *)
+(*\*UnderoverscriptBox[\(\[Sum]\), \(i = n - j\), \(-1\)]*)
+(*\*FractionBox[\(1\), *)
+(*SuperscriptBox[\((x + j + i)\), \(m + 1\)]]\))+PolyGamma[m,x+j]);*)*)
+
+
+ExpandPolyGamma[expr_PolyGamma,j_Integer:0]:=Module[{aux,arg,x,m,n},
+{m,arg}=expr/.PolyGamma[\[ScriptM]_,argg_]:>{\[ScriptM],argg};
+{n,x}=If[MatchQ[arg,a_Integer+b__],arg/.\[ScriptN]_Integer + \[ScriptX]__:>{\[ScriptN],\[ScriptX]},{0,arg}];
+aux=(-1)^m (m!)(\!\(
+\*UnderoverscriptBox[\(\[Sum]\), \(i = 0\), \(n - j - 1\)]
 \*FractionBox[\(1\), 
-SuperscriptBox[\((x + i)\), \(m + 1\)]]\)-\!\(
-\*UnderoverscriptBox[\(\[Sum]\), \(i = n\), \(-1\)]
+SuperscriptBox[\((x + j + i)\), \(m + 1\)]]\)-\!\(
+\*UnderoverscriptBox[\(\[Sum]\), \(i = n - j\), \(-1\)]
 \*FractionBox[\(1\), 
-SuperscriptBox[\((x + i)\), \(m + 1\)]]\))+PolyGamma[m,x]);
+SuperscriptBox[\((x + j + i)\), \(m + 1\)]]\))+PolyGamma[m,x+j];
+aux
+]
+ExpandPolyGamma[expr_,j_Integer:0]/;FreeQ[expr,PolyGamma]:=expr;
+ExpandPolyGamma[expr_,j_Integer:0]:=ExpandPolyGamma[#,j]&/@expr;
+
+
 PochhammerToGamma[expr_]:=(expr/.Pochhammer[x_,n_]:>Gamma[x+n]/Gamma[x]);
+
+
 GammaToPochhammer[expr_,n_]:=expr/.(Gamma[x_+sign_. n]:>Pochhammer[x,sign n]Gamma[x]);
 
 
@@ -1113,7 +1260,28 @@ ExpandDiracDelta[expr_Plus,x_]:=(ExpandDiracDelta[#,x]&/@expr);
 ExpandDiracDelta[expr_,x_]:=expr;
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsubsection::Closed:: *)
+(*Misc*)
+
+
+Paint[expr_,pat_,color_:Red]/;!FreeQ[pat,Pattern]:=Module[{aux,var,pattern,cond,repls},
+repls=pat:>Evaluate[Style[(pat/.Condition->cond/.cond[a__,b_]:>a/.Pattern->pattern/.pattern[c_,b_]:>c),color]];
+aux=expr/.repls;
+aux
+]
+Paint[expr_,pat_,color_:Red]/;FreeQ[pat,Pattern]&&(!FreeQ[pat,Blank]||!FreeQ[pat,BlankSequence]):=Module[{aux,var,pattern,patt,cond,blank,blankseq,repls},
+patt=pat/.Blank->blank/.blank[]->Pattern[Evaluate[Unique[x]],Blank[]]/.BlankSequence->blankseq/.blankseq[]->Pattern[Evaluate[Unique[x]],BlankSequence[]];
+aux=Paint[expr,patt,color];
+aux
+]
+Paint[expr_,pat_,color_:Red]:=Module[{aux,var,pattern,repls},
+var=pat;
+aux=expr/.pat->Style[var,color];
+aux
+]
+
+
+(* ::Subsection:: *)
 (*Point particle source*)
 
 
@@ -1129,7 +1297,18 @@ TeukolskySource[\[ScriptS],\[ScriptL],\[ScriptM],aVar,{rVar,r0Var},opt]
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+TeukolskyPointParticleSource[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,orbit_][r_]:=Module[{aux,a,r0,eccentricity,inclination,\[CapitalOmega]},
+{a,r0,eccentricity,inclination}=orbit[#]&/@{"a","p","e","Inclination"};
+If[!(eccentricity===0),Message[TeukolskyPointParticleModePN::orbit];Abort[];];
+If[!(inclination===1),Message[TeukolskyPointParticleModePN::orbit];Abort[];];
+\[CapitalOmega]=Inactive[KerrGeodesics`OrbitalFrequencies`KerrGeoFrequencies][a,r0,0,1]["\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"];
+aux=TeukolskySource[\[ScriptS],\[ScriptL],\[ScriptM],a,{r,r0}];
+aux=aux/.\[CapitalOmega]Kerr->\[CapitalOmega];
+aux
+]
+
+
+(* ::Subsubsection:: *)
 (*\[ScriptS] = -2*)
 
 
@@ -1410,7 +1589,7 @@ Options[TeukolskyEquation]={"ScaleR"->False}
 
 TeukolskyEquation[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{\[Eta]Var_,order_},RVar_[rvar_],OptionsPattern[]]:=Module[{aux,replsR},
 replsR=If[OptionValue["ScaleR"],R->(R[# \[Eta]^2]&),{R[r_]:>R[r \[Eta]^2],Derivative[n_][R][r_]:>Derivative[n][R][\[Eta]^2 r]}];
-aux=SeriesCollect[equation[\[ScriptS], \[ScriptL], \[ScriptM], \[Omega], a, 1, r,order]/.replsR/.replsPN/.eigenValue->\[Lambda],{R[__],Derivative[__][R][__]},Simplify];
+aux=SeriesCollect[equation[\[ScriptS], \[ScriptL], \[ScriptM], \[Omega], a, 1, r,order]/.replsR/.replsPN/.eigenValue->\[Lambda],{R[__],Derivative[__][R][__]},Simplify]//SeriesTake[#,order]&;
 aux/.{\[Eta]->\[Eta]Var,\[Omega]->\[Omega]Var,R->RVar,r->rvar}]
 
 
@@ -1480,7 +1659,7 @@ Derivative[n_][\[Theta]][arg_]:=Derivative[n-1][\[Delta]][arg];
 \[Delta]''[\[Eta]^-2 a_]:=\[Eta]^2 \[Delta]''[a];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Amplitudes*)
 
 
@@ -1492,31 +1671,85 @@ Derivative[n_][\[Theta]][arg_]:=Derivative[n-1][\[Delta]][arg];
 (*These are the amplitudes \!\(\*SubscriptBox[\(A\), \(\[PlusMinus]\)]\) from Sasaki Tagoshi Eq.(157-158)*)
 
 
-AAmplitude["+"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,\[CurlyEpsilon],\[Kappa],\[CurlyEpsilon]p,\[Tau],nMax,nMin},
-\[CurlyEpsilon]=2 \[Omega];
+(* ::Input:: *)
+(*(*AAmplitude["+"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,\[CurlyEpsilon],\[Kappa],\[CurlyEpsilon]p,\[Tau],nMax,nMin},*)
+(*\[CurlyEpsilon]=2 \[Omega];*)
+(*\[Kappa]=Sqrt[1-a^2];*)
+(*\[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;*)
+(*\[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];*)
+(*nMax=order\[Eta]/3//Ceiling;*)
+(*nMin=-(order\[Eta]/3+2)//Floor;*)
+(*aux=E^(-(\[Pi]/2)\[CurlyEpsilon]) E^(\[Pi]/2 I(\[Nu]MST+1+\[ScriptS])) 2^(-1+\[ScriptS]-I \[CurlyEpsilon]) Gamma[\[Nu]MST+1-\[ScriptS]+I \[CurlyEpsilon]]/Gamma[\[Nu]MST+1+\[ScriptS]-I \[CurlyEpsilon]] \!\( *)
+(*\*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(nMax\)]\(aMST[n]\)\)//PNScalingsInternal;*)
+(*aux/.MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]+3]//SeriesTake[#,order\[Eta]]&//IgnoreExpansionParameter*)
+(*]*)*)
+
+
+AAmplitudeFreq["+"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[CurlyEpsilon]_]:=Module[{aux,\[CurlyEpsilon],\[Kappa],\[CurlyEpsilon]p,\[Tau],nMax,nMin,repls,coeff,sum,order},
+order=order\[CurlyEpsilon]+If[\[ScriptL]+\[ScriptS]+1===0,1,0]; (*This can't actually happen since \[ScriptL]>|\[ScriptS]|*)
+repls=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order];
+\[CurlyEpsilon]=2 \[Omega] \[Gamma];
 \[Kappa]=Sqrt[1-a^2];
 \[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;
 \[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];
-nMax=order\[Eta]/3//Ceiling;
-nMin=-(order\[Eta]/3+2)//Floor;
-aux=E^(-(\[Pi]/2)\[CurlyEpsilon]) E^(\[Pi]/2 I(\[Nu]MST+1+\[ScriptS])) 2^(-1+\[ScriptS]-I \[CurlyEpsilon]) Gamma[\[Nu]MST+1-\[ScriptS]+I \[CurlyEpsilon]]/Gamma[\[Nu]MST+1+\[ScriptS]-I \[CurlyEpsilon]] \!\(
-\*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(nMax\)]\(aMST[n]\)\)//PNScalingsInternal;
-aux/.MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]+3]//SeriesTake[#,order\[Eta]]&//IgnoreExpansionParameter
+nMax=order-1;
+nMin=-(order+1);
+coeff=(E^(1/2 (-\[Pi]) \[CurlyEpsilon]) E^(1/2 \[Pi] I (\[Nu]MST+1+\[ScriptS])) 2^(-1+\[ScriptS]-I \[CurlyEpsilon]) Gamma[\[Nu]MST+1-\[ScriptS]+I \[CurlyEpsilon]])/Gamma[\[Nu]MST+1+\[ScriptS]-I \[CurlyEpsilon]]/.repls//SeriesTake[#,order\[CurlyEpsilon]]&//IgnoreExpansionParameter;
+sum=\!\(
+\*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(nMax\)]\(aMST[n]\)\)/.repls//SeriesTake[#,order\[CurlyEpsilon]]&//IgnoreExpansionParameter;
+aux=sum coeff;
+aux
 ]
 
 
-AAmplitude["-"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,\[CurlyEpsilon],\[Kappa],\[CurlyEpsilon]p,\[Tau],nMax,nMin},
-\[CurlyEpsilon]=2 \[Omega];
+(* ::Input:: *)
+(*(*AAmplitude["-"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,\[CurlyEpsilon],\[Kappa],\[CurlyEpsilon]p,\[Tau],nMax,nMin},*)
+(*\[CurlyEpsilon]=2 \[Omega];*)
+(*\[Kappa]=Sqrt[1-a^2];*)
+(*\[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;*)
+(*\[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];*)
+(*nMax=order\[Eta]/3//Ceiling;*)
+(*nMin=-(order\[Eta]/3+2)//Floor;*)
+(*aux=(2^(-1-\[ScriptS]+\[ImaginaryI] \[CurlyEpsilon]) \[ExponentialE]^(1/2 (-\[Pi]) \[ImaginaryI] (\[Nu]MST+1+\[ScriptS])) \[ExponentialE]^(1/2 (-\[Pi]) \[CurlyEpsilon])) \!\( *)
+(*\*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(nMax\)]\( *)
+(*\*SuperscriptBox[\((\(-1\))\), \(n\)]*)
+(*\*FractionBox[\(Pochhammer[\[Nu]MST + 1 + \[ScriptS] - I\ \[CurlyEpsilon], n]\), \(Pochhammer[\[Nu]MST + 1 - \[ScriptS] + I\ \[CurlyEpsilon], n]\)]aMST[n]\)\)//PNScalingsInternal;*)
+(*aux/.MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]+3]//SeriesTake[#,order\[Eta]]&//IgnoreExpansionParameter*)
+(*]*)*)
+
+
+AAmplitudeFreq["-"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[CurlyEpsilon]_]:=Module[{aux,\[CurlyEpsilon],\[Kappa],\[CurlyEpsilon]p,\[Tau],nMax,nMin,repls,coeff,sum,order},
+order=order\[CurlyEpsilon]+If[\[ScriptL]+\[ScriptS]+1<=order\[CurlyEpsilon]+1,1,0];
+repls=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order];
+\[CurlyEpsilon]=2 \[Omega] \[Gamma];
 \[Kappa]=Sqrt[1-a^2];
 \[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;
 \[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];
-nMax=order\[Eta]/3//Ceiling;
-nMin=-(order\[Eta]/3+2)//Floor;
-aux=2^(-1-\[ScriptS]+I \[CurlyEpsilon]) E^(-(\[Pi]/2)I(\[Nu]MST+1+\[ScriptS])) E^(-(\[Pi]/2)\[CurlyEpsilon]) \!\(
+nMax=order-1;
+nMin=-(order+1);
+coeff=2^(-1-\[ScriptS]+I \[CurlyEpsilon]) E^(1/2 (-\[Pi]) I (\[Nu]MST+1+\[ScriptS])) E^(1/2 (-\[Pi]) \[CurlyEpsilon])/.repls//SeriesTake[#,order\[CurlyEpsilon]]&//IgnoreExpansionParameter;
+sum=\!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(nMax\)]\(
 \*SuperscriptBox[\((\(-1\))\), \(n\)] 
-\*FractionBox[\(Pochhammer[\[Nu]MST + 1 + \[ScriptS] - I\  \[CurlyEpsilon], n]\), \(Pochhammer[\[Nu]MST + 1 - \[ScriptS] + I\  \[CurlyEpsilon], n]\)] aMST[n]\)\)//PNScalingsInternal;
-aux/.MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]+3]//SeriesTake[#,order\[Eta]]&//IgnoreExpansionParameter
+\*FractionBox[\(Pochhammer[\[Nu]MST + 1 + \[ScriptS] - I\  \[CurlyEpsilon], n]\), \(Pochhammer[\[Nu]MST + 1 - \[ScriptS] + I\  \[CurlyEpsilon], n]\)] aMST[n]\)\)/.repls//SeriesTake[#,order\[CurlyEpsilon]]&//IgnoreExpansionParameter;
+aux=sum coeff;
+aux
+]
+
+
+Options[AAmplitude]={"FreqRep"->False}
+
+
+AAmplitude[sol_,OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,order\[CurlyEpsilon]},
+order\[CurlyEpsilon]=Ceiling[order\[Eta],3]/3;
+aux=AAmplitudeFreq[sol][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]]//ChangeSeriesParameter[#,\[Eta]^3]&//SeriesTake[#,order\[Eta]]&;
+aux
+]
+
+
+AAmplitude[sol_,"FreqRep"->True][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[CurlyEpsilon]_]:=Module[{aux},
+aux=AAmplitudeFreq[sol][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]];
+aux
 ]
 
 
@@ -1528,10 +1761,10 @@ aux/.MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]+3]//
 (*These are the amplitudes Subscript[B, trans] and Subscript[B, inc] from Sasaki Tagoshi Eq.(167-169) TODO: Add Subscript[B, ref]*)
 
 
-Options[BAmplitude]={"Normalization"->"Default"}
+Options[BAmplitudeFreq]={"Normalization"->"Default"}
 
 
-BAmplitude["Inc",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,\[CurlyEpsilon],\[Kappa],\[CurlyEpsilon]p,\[Tau],\[ScriptCapitalK]1,\[ScriptCapitalK]2,A},
+(*BAmplitude["Inc",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,\[CurlyEpsilon],\[Kappa],\[CurlyEpsilon]p,\[Tau],\[ScriptCapitalK]1,\[ScriptCapitalK]2,A},
 \[CurlyEpsilon]=2 \[Omega];
 \[Kappa]=Sqrt[1-a^2];
 \[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;
@@ -1548,10 +1781,33 @@ aux=aux/.MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]+
 ];
 A=AAmplitude["+"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]//SeriesCollect[#,Log[__]]&//IgnoreExpansionParameter;
 aux//SeriesTake[#,order\[Eta]]&//IgnoreExpansionParameter
+]*)
+
+
+BAmplitudeFreq["Inc",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[CurlyEpsilon]_]:=Module[{aux,coeff,repls,DoABunchOfStuff,\[CurlyEpsilon],\[Kappa],\[CurlyEpsilon]p,\[Tau],\[ScriptCapitalK]1,\[ScriptCapitalK]2,\[ScriptCapitalK]2coeff,A},
+\[CurlyEpsilon]=2 \[Omega] \[Gamma];
+\[Kappa]=Sqrt[1-a^2];
+\[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;
+\[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];
+DoABunchOfStuff=(#//IgnoreExpansionParameter//SeriesTake[#,order\[CurlyEpsilon]]&)&;
+repls=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,Max[order\[CurlyEpsilon]+1,2]];
+coeff= E^(-I (\[CurlyEpsilon] Log[\[CurlyEpsilon]]-1/2 (1-\[Kappa]) \[CurlyEpsilon])) (\[CurlyEpsilon]/2)^-1//SeriesTerms[#,{\[Gamma],0,order\[CurlyEpsilon]}]&//DoABunchOfStuff;
+\[ScriptCapitalK]2coeff=-((I E^(-I \[Pi] \[Nu]MST) Sin[\[Pi] (\[Nu]MST-\[ScriptS]+I \[CurlyEpsilon])])/Sin[\[Pi] (\[Nu]MST+\[ScriptS]-I \[CurlyEpsilon])])/.repls//DoABunchOfStuff;
+\[ScriptCapitalK]1=Switch[OptionValue["Normalization"],
+	"Default",1,
+	"SasakiTagoshi",\[ScriptCapitalK]AmplitudeFreq["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]]//DoABunchOfStuff
+];
+\[ScriptCapitalK]2=Switch[OptionValue["Normalization"],
+	"Default",\[ScriptCapitalK]AmplitudeFreq["Ratio"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]]//DoABunchOfStuff,
+	"SasakiTagoshi",\[ScriptCapitalK]AmplitudeFreq["-\[Nu]-1"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]]//DoABunchOfStuff
+];
+A=AAmplitudeFreq["+"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]]//DoABunchOfStuff//SeriesCollect[#,Log[__]]&;
+aux=A coeff (\[ScriptCapitalK]1 + \[ScriptCapitalK]2coeff \[ScriptCapitalK]2)//DoABunchOfStuff;
+aux
 ]
 
 
-BAmplitude["Trans",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,\[CurlyEpsilon],\[Kappa],\[CurlyEpsilon]p,\[Tau],\[ScriptCapitalK],nMin,nMax},
+(*BAmplitude["Trans",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,\[CurlyEpsilon],\[Kappa],\[CurlyEpsilon]p,\[Tau],\[ScriptCapitalK],nMin,nMax},
 \[CurlyEpsilon]=2 \[Omega];
 \[Kappa]=Sqrt[1-a^2];
 \[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;
@@ -1567,28 +1823,88 @@ aux=((\[CurlyEpsilon] \[Kappa])/\[Omega])^(2\[ScriptS]) E^(I \[Kappa] \[CurlyEps
 aux=aux/.MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]+3]//SeriesTake[#,order\[Eta]]&//IgnoreExpansionParameter;
 aux=aux \[ScriptCapitalK]^-1;
 aux//IgnoreExpansionParameter
+]*)
+
+
+BAmplitudeFreq["Trans",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[CurlyEpsilon]_]:=Module[{aux,coeff,repls,DoABunchOfStuff,\[CurlyEpsilon],\[Kappa],\[CurlyEpsilon]p,\[Tau],nMin,nMax,\[ScriptCapitalK],sum},
+\[CurlyEpsilon]=2 \[Omega] \[Gamma];
+\[Kappa]=Sqrt[1-a^2];
+\[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;
+\[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];
+DoABunchOfStuff=(#//IgnoreExpansionParameter//SeriesTake[#,order\[CurlyEpsilon]]&)&;
+repls=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]+1//Max[#,2]&];
+coeff=(2 \[Kappa])^(2 \[ScriptS]) E^(I \[Kappa] \[CurlyEpsilon]p (1+(2 Log[\[Kappa]])/(1+\[Kappa])))//SeriesTerms[#,{\[Gamma],0,order\[CurlyEpsilon]}]&//DoABunchOfStuff;
+\[ScriptCapitalK]=Switch[OptionValue["Normalization"],
+	"Default",\[ScriptCapitalK]AmplitudeFreq["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]]//DoABunchOfStuff,
+	"SasakiTagoshi",1
+];
+nMax=order\[CurlyEpsilon]-1;
+nMin=-(order\[CurlyEpsilon]+1);
+sum=\!\(
+\*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(nMax\)]\(aMST[n]\)\)/.repls;
+
+aux=(coeff sum)/\[ScriptCapitalK]//DoABunchOfStuff;
+aux
 ]
 
 
-BAmplitude["Ref",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,\[CurlyEpsilon],\[Kappa],\[CurlyEpsilon]p,\[Tau],\[ScriptCapitalK]1,\[ScriptCapitalK]2,A},
+(*BAmplitude["Ref",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,\[CurlyEpsilon],\[Kappa],\[CurlyEpsilon]p,\[Tau],\[ScriptCapitalK]1,\[ScriptCapitalK]2,A},
 \[CurlyEpsilon]=2 \[Omega];
 \[Kappa]=Sqrt[1-a^2];
 \[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;
 \[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];
-aux=(\[Omega]^(-1-2 \[ScriptS]) E^(-I \[CurlyEpsilon](Log[\[CurlyEpsilon]]-(1-\[Kappa])/2)) (\[ScriptCapitalK]1+I E^(I \[Pi] \[Nu]MST) \[ScriptCapitalK]2) A)/\[Omega]//PNScalingsInternal;
+aux=(\[Omega]^(-1-2 \[ScriptS]) \[ExponentialE]^(-\[ImaginaryI] \[CurlyEpsilon] (Log[\[CurlyEpsilon]]-(1-\[Kappa])/2)) (\[ScriptCapitalK]1+\[ImaginaryI] \[ExponentialE]^(\[ImaginaryI] \[Pi] \[Nu]MST) \[ScriptCapitalK]2) A)/\[Omega]//PNScalingsInternal;
 aux=IgnoreExpansionParameter[aux/. MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]+3]];
 \[ScriptCapitalK]1=Switch[OptionValue["Normalization"],"Default",1,"SasakiTagoshi",(SeriesCollect[#1,PolyGamma[__,__]]&)[ExpandGamma[ExpandPolyGamma[\[ScriptCapitalK]Amplitude["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]]]]];
 \[ScriptCapitalK]2=Switch[OptionValue["Normalization"],"Default",(SeriesCollect[#1,PolyGamma[__,__]]&)[ExpandGamma[ExpandPolyGamma[\[ScriptCapitalK]Amplitude["Ratio"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]]]],"SasakiTagoshi",(SeriesCollect[#1,PolyGamma[__,__]]&)[ExpandGamma[ExpandPolyGamma[\[ScriptCapitalK]Amplitude["-\[Nu]-1"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]]]]];
 A=IgnoreExpansionParameter[(SeriesCollect[#1,Log[__]]&)[AAmplitude["-"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]]];
-IgnoreExpansionParameter[(SeriesTake[#1,order\[Eta]]&)[aux]]]
+IgnoreExpansionParameter[(SeriesTake[#1,order\[Eta]]&)[aux]]]*)
 
 
-BAmplitude["Inc","Normalization"->"UnitTransmission"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=BAmplitude["Inc"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/BAmplitude["Trans"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]];
-BAmplitude["Ref","Normalization"->"UnitTransmission"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=BAmplitude["Ref"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/BAmplitude["Trans"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]];
-BAmplitude["Trans","Normalization"->"UnitTransmission"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=1 (1+O[\[Eta]] \[Eta]^(order\[Eta]-1));
+BAmplitudeFreq["Ref",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[CurlyEpsilon]_]:=Module[{aux,coeff,repls,DoABunchOfStuff,\[CurlyEpsilon],\[Kappa],\[CurlyEpsilon]p,\[Tau],\[ScriptCapitalK]1,\[ScriptCapitalK]2,\[ScriptCapitalK]2coeff,A},
+\[CurlyEpsilon]=2 \[Omega] \[Gamma];
+\[Kappa]=Sqrt[1-a^2];
+\[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;
+\[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];
+DoABunchOfStuff=(#//IgnoreExpansionParameter//SeriesTake[#,order\[CurlyEpsilon]]&)&;
+repls=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]+1//Max[#,2]&];
+coeff=(\[CurlyEpsilon]/2)^(-2 \[ScriptS]-1) E^(I \[CurlyEpsilon] (Log[\[CurlyEpsilon]]-(1-\[Kappa])/2))//SeriesTerms[#,{\[Gamma],0,order\[CurlyEpsilon]}]&//DoABunchOfStuff;
+\[ScriptCapitalK]2coeff=I E^(I \[Pi] \[Nu]MST)/.repls//DoABunchOfStuff;
+\[ScriptCapitalK]1=Switch[OptionValue["Normalization"],
+	"Default",1,
+	"SasakiTagoshi",\[ScriptCapitalK]AmplitudeFreq["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]]//DoABunchOfStuff
+];
+\[ScriptCapitalK]2=Switch[OptionValue["Normalization"],
+	"Default",\[ScriptCapitalK]AmplitudeFreq["Ratio"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]]//DoABunchOfStuff,
+	"SasakiTagoshi",\[ScriptCapitalK]AmplitudeFreq["-\[Nu]-1"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]]//DoABunchOfStuff
+];
+A=AAmplitudeFreq["-"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]]//DoABunchOfStuff//SeriesCollect[#,Log[__]]&;
+aux=A coeff (\[ScriptCapitalK]1 + \[ScriptCapitalK]2coeff \[ScriptCapitalK]2)//DoABunchOfStuff;
+aux
+]
 
 
-(* ::Subsubsection:: *)
+BAmplitudeFreq["Inc","Normalization"->"UnitTransmission"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=BAmplitudeFreq["Inc"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/BAmplitudeFreq["Trans"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]];
+BAmplitudeFreq["Ref","Normalization"->"UnitTransmission"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=BAmplitudeFreq["Ref"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/BAmplitudeFreq["Trans"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]];
+BAmplitudeFreq["Trans","Normalization"->"UnitTransmission"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=1 (1+O[\[Gamma]] \[Gamma]^(order\[Eta]-1));
+
+
+Options[BAmplitude]={"Normalization"->"Default","FreqRep"->False}
+
+
+BAmplitude[sol_,OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,order\[CurlyEpsilon]},
+If[OptionValue["FreqRep"],
+aux=BAmplitudeFreq[sol,"Normalization"->OptionValue["Normalization"]][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]];
+,
+(*else*)
+order\[CurlyEpsilon]=Ceiling[order\[Eta],3]/3;
+aux=BAmplitudeFreq[sol,"Normalization"->OptionValue["Normalization"]][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]]//ChangeSeriesParameter[#,\[Eta]^3]&//SeriesTake[#,order\[Eta]]&;
+];
+aux
+]
+
+
+(* ::Subsubsection::Closed:: *)
 (*C Amplitude*)
 
 
@@ -1596,10 +1912,10 @@ BAmplitude["Trans","Normalization"->"UnitTransmission"][\[ScriptS]_,\[ScriptL]_,
 (*These is the amplitudes Subscript[C, trans] from Sasaki Tagoshi Eq.(170) TODO: Add Subscript[C, ref] and Subscript[C, inc]*)
 
 
-Options[CAmplitude]={"Normalization"->"Default"}
+Options[CAmplitudeFreq]={"Normalization"->"Default"}
 
 
-CAmplitude["Trans",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,\[CurlyEpsilon],\[Kappa],\[CurlyEpsilon]p,\[Tau],\[ScriptCapitalK],A},
+(*CAmplitude["Trans",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,\[CurlyEpsilon],\[Kappa],\[CurlyEpsilon]p,\[Tau],\[ScriptCapitalK],A},
 \[CurlyEpsilon]=2 \[Omega];
 \[Kappa]=Sqrt[1-a^2];
 \[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;
@@ -1608,10 +1924,23 @@ aux=\[Omega]^(-1-2\[ScriptS]) A E^(I (\[CurlyEpsilon] Log[\[CurlyEpsilon]]-(1-\[
 aux=aux/.MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]+3];
 A=AAmplitude["-"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]];
 aux//SeriesTake[#,order\[Eta]]&//IgnoreExpansionParameter
+]*)
+
+
+CAmplitudeFreq["Trans",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[CurlyEpsilon]_]:=Module[{aux,\[CurlyEpsilon],\[Kappa],\[CurlyEpsilon]p,\[Tau],\[ScriptCapitalK],A,coeff},
+\[CurlyEpsilon]=2 \[Omega] \[Gamma];
+\[Kappa]=Sqrt[1-a^2];
+\[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;
+\[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];
+coeff=(\[CurlyEpsilon]/2)^(-1-2 \[ScriptS]) E^(I (\[CurlyEpsilon] Log[\[CurlyEpsilon]]-1/2 (1-\[Kappa]) \[CurlyEpsilon]))//SeriesTerms[#,{\[Gamma],0,order\[CurlyEpsilon]}]&//IgnoreExpansionParameter;
+A=AAmplitudeFreq["-"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]];
+aux=coeff A;
+aux=aux//SeriesTake[#,order\[CurlyEpsilon]]&//IgnoreExpansionParameter;
+aux
 ]
 
 
-CAmplitude["Inc",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,\[CurlyEpsilon],\[Kappa],\[CurlyEpsilon]p,\[Tau],\[ScriptCapitalK]1,\[ScriptCapitalK]2,coeff,D1,D2,nMin,nMax,repls,repls\[Nu],jumpCount},
+CAmplitudeFreq["Inc",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,\[CurlyEpsilon],\[Kappa],\[CurlyEpsilon]p,\[Tau],\[ScriptCapitalK]1,\[ScriptCapitalK]2,coeff,D1,D2,nMin,nMax,repls,repls\[Nu],jumpCount},
 \[CurlyEpsilon]=2 \[Omega];
 \[Kappa]=Sqrt[1-a^2];
 \[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;
@@ -1645,7 +1974,7 @@ aux//SeriesTake[#,order\[Eta]]&
 ]
 
 
-CAmplitude["Ref",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,\[CurlyEpsilon],\[Kappa],\[CurlyEpsilon]p,\[Tau],\[ScriptCapitalK]1,\[ScriptCapitalK]2,coeff,D1,D2,nMin,nMax,repls,repls\[Nu],jumpCount},
+CAmplitudeFreq["Ref",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,\[CurlyEpsilon],\[Kappa],\[CurlyEpsilon]p,\[Tau],\[ScriptCapitalK]1,\[ScriptCapitalK]2,coeff,D1,D2,nMin,nMax,repls,repls\[Nu],jumpCount},
 \[CurlyEpsilon]=2 \[Omega];
 \[Kappa]=Sqrt[1-a^2];
 \[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;
@@ -1668,12 +1997,32 @@ aux//SeriesTake[#,order\[Eta]]&//IgnoreExpansionParameter
 ]
 
 
-CAmplitude["Inc","Normalization"->"UnitTransmission"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=CAmplitude["Inc"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/CAmplitude["Trans"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]];
-CAmplitude["Ref","Normalization"->"UnitTransmission"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=CAmplitude["Ref"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/CAmplitude["Trans"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]];
-CAmplitude["Trans","Normalization"->"UnitTransmission"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=1 (1+O[\[Eta]] \[Eta]^(order\[Eta]-1));
+CAmplitudeFreq["Inc","Normalization"->"UnitTransmission"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=CAmplitudeFreq["Inc"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/CAmplitudeFreq["Trans"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]];
+CAmplitudeFreq["Ref","Normalization"->"UnitTransmission"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=CAmplitudeFreq["Ref"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/CAmplitudeFreq["Trans"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]];
+CAmplitudeFreq["Trans","Normalization"->"UnitTransmission"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=1 (1+O[\[Gamma]] \[Gamma]^(order\[Eta]-1));
 
 
-(* ::Subsubsection:: *)
+CAmplitudeFreq["Inc","Normalization"->"UnitTransmission"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=CAmplitudeFreq["Inc"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/CAmplitudeFreq["Trans"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]];
+CAmplitudeFreq["Ref","Normalization"->"UnitTransmission"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=CAmplitudeFreq["Ref"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/CAmplitudeFreq["Trans"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]];
+CAmplitudeFreq["Trans","Normalization"->"UnitTransmission"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=1 (1+O[\[Gamma]] \[Gamma]^(order\[Eta]-1));
+
+
+Options[CAmplitude]={"Normalization"->"Default","FreqRep"->False}
+
+
+CAmplitude[sol_,OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,order\[CurlyEpsilon]},
+If[OptionValue["FreqRep"],
+aux=CAmplitudeFreq[sol,"Normalization"->OptionValue["Normalization"]][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]];
+,
+(*else*)
+order\[CurlyEpsilon]=Ceiling[order\[Eta],3]/3;
+aux=CAmplitudeFreq[sol,"Normalization"->OptionValue["Normalization"]][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]]//ChangeSeriesParameter[#,\[Eta]^3]&//SeriesTake[#,order\[Eta]]&;
+];
+aux
+]
+
+
+(* ::Subsubsection::Closed:: *)
 (*\[ScriptCapitalK] Amplitude*)
 
 
@@ -1681,10 +2030,10 @@ CAmplitude["Trans","Normalization"->"UnitTransmission"][\[ScriptS]_,\[ScriptL]_,
 (*These is the amplitudes \[ScriptCapitalK]^\[Nu]and \[ScriptCapitalK]^(-\[Nu]-1) from Sasaki Tagoshi Eq.(165)*)
 
 
-Options[\[ScriptCapitalK]Amplitude]={"PochhammerForm"->True}
+(*Options[\[ScriptCapitalK]Amplitude]={"PochhammerForm"->True}*)
 
 
-\[ScriptCapitalK]Amplitude["\[Nu]",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_,OptionsPattern[]]:=Module[{\[ScriptR]=0,ret,\[CapitalGamma]=Gamma,PH=Pochhammer,coeff,sumUp,sumUpPHCoeff,sumUpPH,sumDown,\[CurlyEpsilon]p,\[Tau],\[CurlyEpsilon],\[Kappa]=Sqrt[1-a^2],nMax,nMin,jump,jumpCount,repls,repls\[Nu]},
+(*\[ScriptCapitalK]Amplitude["\[Nu]",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_,OptionsPattern[]]:=Module[{\[ScriptR]=0,ret,\[CapitalGamma]=Gamma,PH=Pochhammer,coeff,sumUp,sumUpPHCoeff,sumUpPH,sumDown,\[CurlyEpsilon]p,\[Tau],\[CurlyEpsilon],\[Kappa]=Sqrt[1-a^2],nMax,nMin,jump,jumpCount,repls,repls\[Nu]},
 \[CurlyEpsilon]=2 \[Omega];
 \[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;
 \[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];
@@ -1695,7 +2044,7 @@ jumpCount=1+(jump[#]&/@Range[3]//Boole//Total);
 jumpCount=1;
 repls=MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]+3];
 repls\[Nu]=<|\[Nu]MST->(repls[\[Nu]MST]//SeriesTake[#,order\[Eta]-Floor[Abs[n]/3]+3jumpCount]&)|>;
-coeff=E^(I \[CurlyEpsilon] \[Kappa] ) (\[CurlyEpsilon] \[Kappa])^(\[ScriptS]-\[Nu]MST-\[ScriptR]) 2^-\[Nu]MST I^-\[ScriptR] (\[CapitalGamma][1-\[ScriptS]-2I \[CurlyEpsilon]p]\[CapitalGamma][\[ScriptR]+2 \[Nu]MST+2])/\[CapitalGamma][\[ScriptR]+\[Nu]MST+1-\[ScriptS]+I \[CurlyEpsilon]]  If[\[ScriptR]==0&&OptionValue["PochhammerForm"],1,1/(\[CapitalGamma][\[ScriptR]+\[Nu]MST+1+\[ScriptS]+I \[CurlyEpsilon]] \[CapitalGamma][\[ScriptR]+\[Nu]MST+1+I \[Tau]])]//IgnoreExpansionParameter;
+coeff=(\[ExponentialE]^(\[ImaginaryI] \[CurlyEpsilon] \[Kappa]) (\[CurlyEpsilon] \[Kappa])^(\[ScriptS]-\[Nu]MST-\[ScriptR]) 2^-\[Nu]MST \[ImaginaryI]^-\[ScriptR] (\[CapitalGamma][1-\[ScriptS]-2 \[ImaginaryI] \[CurlyEpsilon]p] \[CapitalGamma][\[ScriptR]+2 \[Nu]MST+2]) If[\[ScriptR]\[Equal]0&&OptionValue["PochhammerForm"],1,1/(\[CapitalGamma][\[ScriptR]+\[Nu]MST+1+\[ScriptS]+\[ImaginaryI] \[CurlyEpsilon]] \[CapitalGamma][\[ScriptR]+\[Nu]MST+1+\[ImaginaryI] \[Tau]])])/\[CapitalGamma][\[ScriptR]+\[Nu]MST+1-\[ScriptS]+\[ImaginaryI] \[CurlyEpsilon]]//IgnoreExpansionParameter;
 nMax=Ceiling[order\[Eta]/3];
 nMin=Ceiling[-(order\[Eta]/3)-2];
 (*sumUp=\!\(
@@ -1706,85 +2055,206 @@ SuperscriptBox[\((\(-1\))\), \(n\)], \(\((n - \[ScriptR])\)!\)]\[CapitalGamma][n
 sumUpPH=\!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(n = \[ScriptR]\), \(nMax\)]\(\((\(
 \*FractionBox[\(
-\*SuperscriptBox[\((\(-1\))\), \(n\)]\  PH[1 + \[ScriptS] + I\  \[CurlyEpsilon] + \[Nu]MST, n]\  PH[1 + \[ScriptR] + 2\  \[Nu]MST, n]\  PH[1 + \[Nu]MST + I\  \[Tau], n]\), \(\(\((n - \[ScriptR])\)!\)\  PH[1 - \[ScriptS] - I\  \[CurlyEpsilon] + \[Nu]MST, n]\  PH[1 + \[Nu]MST - I\  \[Tau], n]\)] /. replsPN\) /. repls\[Nu])\) \((aMST[n]\  /. repls)\)\)\)//IgnoreExpansionParameter;
+\*SuperscriptBox[\((\(-1\))\), \(n\)]\ PH[1 + \[ScriptS] + I\ \[CurlyEpsilon] + \[Nu]MST, n]\ PH[1 + \[ScriptR] + 2\ \[Nu]MST, n]\ PH[1 + \[Nu]MST + I\ \[Tau], n]\), \(\(\((n - \[ScriptR])\)!\)\ PH[1 - \[ScriptS] - I\ \[CurlyEpsilon] + \[Nu]MST, n]\ PH[1 + \[Nu]MST - I\ \[Tau], n]\)] /. replsPN\) /. repls\[Nu])\)\((aMST[n]\  /. repls)\)\)\)//IgnoreExpansionParameter;
 sumUpPHCoeff= Gamma[1+\[ScriptR]+2 \[Nu]MST] /(Gamma[1-\[ScriptS]-I \[CurlyEpsilon]+\[Nu]MST] Gamma[1+\[Nu]MST-I \[Tau]]) If[\[ScriptR]==0,1,Gamma[1+\[ScriptS]+I \[CurlyEpsilon]+\[Nu]MST] Gamma[1+\[Nu]MST+I \[Tau]]];
 coeff=(coeff If[OptionValue["PochhammerForm"],sumUpPHCoeff,1])/.replsPN/.repls//IgnoreExpansionParameter;
 
 sumDown=\!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(\[ScriptR]\)]\(\((\(
 \*FractionBox[
-SuperscriptBox[\((\(-1\))\), \(n\)], \(\(\((\[ScriptR] - n)\)!\) PH[\[ScriptR] + 2\  \[Nu]MST + 2, n]\)] 
-\*FractionBox[\(PH[\[Nu]MST + 1 + \[ScriptS] - I\  \[CurlyEpsilon], n]\), \(PH[\[Nu]MST + 1 - \[ScriptS] + I\  \[CurlyEpsilon], n]\)] /. replsPN\) /. repls\[Nu])\) \((aMST[n] /. repls)\)\)\)//IgnoreExpansionParameter;
+SuperscriptBox[\((\(-1\))\), \(n\)], \(\(\((\[ScriptR] - n)\)!\)PH[\[ScriptR] + 2\ \[Nu]MST + 2, n]\)]
+\*FractionBox[\(PH[\[Nu]MST + 1 + \[ScriptS] - I\ \[CurlyEpsilon], n]\), \(PH[\[Nu]MST + 1 - \[ScriptS] + I\ \[CurlyEpsilon], n]\)] /. replsPN\) /. repls\[Nu])\)\((aMST[n] /. repls)\)\)\)//IgnoreExpansionParameter;
 ret=coeff/sumDown If[OptionValue["PochhammerForm"],sumUpPH,sumUp]//IgnoreExpansionParameter;
 ret//SeriesTake[#,order\[Eta]]&
-]
+]*)
 
 
-\[ScriptCapitalK]Amplitude["-\[Nu]-1",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_,OptionsPattern[]]:=Module[{\[ScriptR]=0,ret,\[CapitalGamma]=Gamma,PH=Pochhammer,coeff,sumUp,sumUpPHCoeff,sumUpPH,sumDown,\[CurlyEpsilon]p,\[Tau],\[CurlyEpsilon],\[Kappa]=Sqrt[1-a^2],nMax,nMin,jump,jumpCount,repls,repls\[Nu]},
-\[CurlyEpsilon]=2 \[Omega];
+\[ScriptCapitalK]AmplitudeFreq["\[Nu]",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[CurlyEpsilon]_,OptionsPattern[]]:=Module[{\[ScriptR]=0,ret,\[CapitalGamma]=Gamma,PH=Pochhammer,SeriesStuff,GammaStuff,order,coeff,sumUpPHCoeff,sumUp,sumDown,\[CurlyEpsilon]p,\[Tau],\[CurlyEpsilon],\[Kappa]=Sqrt[1-a^2],nMax,nMin,jump,jumpCount,repls,repls\[Nu]},
+\[CurlyEpsilon]=2 \[Omega] \[Gamma];
 \[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;
 \[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];
-jump[1]=2+2\[ScriptL]+\[ScriptR]<=Abs[n];
-jump[2]=1+\[ScriptS]+\[ScriptL]<=n;
-jump[3]=1-\[ScriptS]+\[ScriptL]<=n;
-jumpCount=1+(jump[#]&/@Range[3]//Boole//Total);
-repls=MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]+3+3];
-repls\[Nu]=<|\[Nu]MST->(repls[\[Nu]MST]//SeriesTake[#,order\[Eta]-Floor[n/3]+3jumpCount]&)|>;
-coeff=I^-\[ScriptR] 2^(1+\[Nu]MST) E^(I \[CurlyEpsilon] \[Kappa]) (\[CurlyEpsilon] \[Kappa])^(1-\[ScriptR]+\[ScriptS]+\[Nu]MST) ( \[CapitalGamma][1-\[ScriptS]-2 I \[CurlyEpsilon]p] \[CapitalGamma][\[ScriptR]-2 \[Nu]MST])/\[CapitalGamma][\[ScriptR]-\[ScriptS]+I \[CurlyEpsilon]-\[Nu]MST]  If[\[ScriptR]==0&&OptionValue["PochhammerForm"],1,1/(\[CapitalGamma][\[ScriptR]-\[Nu]MST+I \[Tau]]\[CapitalGamma][\[ScriptR]+\[ScriptS]+I \[CurlyEpsilon]-\[Nu]MST] )]//IgnoreExpansionParameter;
-nMax=Ceiling[order\[Eta]/3];
-nMin=Ceiling[-(order\[Eta]/3)-2];
+SeriesStuff=(#//IgnoreExpansionParameter//SeriesTake[#,order\[CurlyEpsilon]]&)&;
+GammaStuff=(#//ExpandGamma[#,\[ScriptL]+1]&//ExpandPolyGamma[#,\[ScriptL]+1]&)&;
+jump[1]=\[ScriptS]+\[ScriptL]+1+n<=0;(*This is the upper Pochhammer in sumDown*)
+jumpCount=1+(jump[1]//Boole//Total);
+order=order\[CurlyEpsilon]+1//Max[#,3]&;
+repls=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order];
+repls\[Nu][n_]:=<|\[Nu]MST->(repls[\[Nu]MST]//SeriesTake[#,SeriesLength[repls[aMST[n]]]+jumpCount]&)|>;
+coeff=((E^(I \[CurlyEpsilon] \[Kappa])) ((\[CurlyEpsilon] \[Kappa])^(\[ScriptS]-\[Nu]MST-\[ScriptR])) (2^-\[Nu]MST) (I^-\[ScriptR]) (\[CapitalGamma][1-\[ScriptS]-2 I \[CurlyEpsilon]p] \[CapitalGamma][\[ScriptR]+2 \[Nu]MST+2]) )/\[CapitalGamma][\[ScriptR]+\[Nu]MST+1-\[ScriptS]+I \[CurlyEpsilon]]/.repls//SeriesStuff;
+nMax=order-1;
+nMin=-(order+1);
 sumUp=\!\(
-\*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(-\[ScriptR]\)]\(
+\*UnderoverscriptBox[\(\[Sum]\), \(n = \[ScriptR]\), \(nMax\)]\(\((
 \*FractionBox[\(
-\*SuperscriptBox[\((\(-1\))\), \(-n\)]\ \  \[CapitalGamma][\(-1\) - n + \[ScriptR] - 2\  \[Nu]MST]\  \[CapitalGamma][\(-n\) + \[ScriptS] + I\  \[CurlyEpsilon] - \[Nu]MST]\  \[CapitalGamma][\(-n\) - \[Nu]MST + I\  \[Tau]]\), \(\(\((\(-n\) - \[ScriptR])\)!\)\  \[CapitalGamma][\(-n\) - \[ScriptS] - I\  \[CurlyEpsilon] - \[Nu]MST]\  \[CapitalGamma][\(-n\) - \[Nu]MST - I\  \[Tau]]\)] aMST[n]\)\)/.repls//IgnoreExpansionParameter;
-sumUpPH=\!\(
-\*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(-\[ScriptR]\)]\(\((\(
-\*FractionBox[\(
-\*SuperscriptBox[\((\(-1\))\), \(-n\)]\  PH[\(-1\) + \[ScriptR] - 2\  \[Nu]MST, \(-n\)]\  PH[\[ScriptS] + I\  \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\  PH[\(-\[Nu]MST\) + I\  \[Tau], \(-n\)]\), \(\(\((\(-n\) - \[ScriptR])\)!\)\  PH[\(-\[ScriptS]\) - I\  \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\  PH[\(-\[Nu]MST\) - I\  \[Tau], \(-n\)]\)] /. replsPN\) /. repls\[Nu])\) \((aMST[n]\  /. repls)\)\)\)//IgnoreExpansionParameter;
-sumUpPHCoeff=Gamma[-1+\[ScriptR]-2 \[Nu]MST] /(Gamma[-\[ScriptS]-I \[CurlyEpsilon]-\[Nu]MST] Gamma[-\[Nu]MST-I \[Tau]]) If[\[ScriptR]==0,1,Gamma[\[ScriptS]+I \[CurlyEpsilon]-\[Nu]MST] Gamma[-\[Nu]MST+I \[Tau]]];
-coeff=(coeff If[OptionValue["PochhammerForm"],sumUpPHCoeff,1])/.replsPN/.repls//IgnoreExpansionParameter;
+\*SuperscriptBox[\((\(-1\))\), \(n\)]\  PH[1 + \[ScriptS] + I\  \[CurlyEpsilon] + \[Nu]MST, n]\  PH[1 + \[ScriptR] + 2\  \[Nu]MST, n]\  PH[1 + \[Nu]MST + I\  \[Tau], n]\), \(\(\((n - \[ScriptR])\)!\)\  PH[1 - \[ScriptS] - I\  \[CurlyEpsilon] + \[Nu]MST, n]\  PH[1 + \[Nu]MST - I\  \[Tau], n]\)] /. repls\[Nu][n])\) \((aMST[n]\  /. repls)\)\)\)//SeriesStuff;
+sumUpPHCoeff=Gamma[1+\[ScriptR]+2 \[Nu]MST]/(Gamma[1-\[ScriptS]-I \[CurlyEpsilon]+\[Nu]MST] Gamma[1+\[Nu]MST-I \[Tau]])/.repls//SeriesStuff;
+coeff=(coeff sumUpPHCoeff);
 
 sumDown=\!\(
-\*UnderoverscriptBox[\(\[Sum]\), \(n = \(-\[ScriptR]\)\), \(nMax\)]\(\((\(
-\*FractionBox[\(
-\*SuperscriptBox[\((\(-1\))\), \(-n\)]\  PH[\[ScriptS] - I\  \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\), \(\(\((n + \[ScriptR])\)!\)\  PH[\[ScriptR] - 2\  \[Nu]MST, \(-n\)]\  PH[\(-\[ScriptS]\) + I\  \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\)] /. replsPN\) /. repls\[Nu])\) \((aMST[n] /. repls)\)\)\)//IgnoreExpansionParameter;
-ret=coeff/sumDown If[OptionValue["PochhammerForm"],sumUpPH,sumUp]//IgnoreExpansionParameter;
-ret//SeriesTake[#,order\[Eta]]&
+\*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(\[ScriptR]\)]\(\((
+\*FractionBox[
+SuperscriptBox[\((\(-1\))\), \(n\)], \(\(\((\[ScriptR] - n)\)!\) PH[\[ScriptR] + 2\  \[Nu]MST + 2, n]\)] 
+\*FractionBox[\(PH[\[Nu]MST + 1 + \[ScriptS] - I\  \[CurlyEpsilon], n]\), \(PH[\[Nu]MST + 1 - \[ScriptS] + I\  \[CurlyEpsilon], n]\)] /. repls\[Nu][n])\) \((aMST[n] /. repls)\)\)\)//SeriesStuff;
+ret=coeff sumUp/sumDown //SeriesStuff//GammaStuff;
+ret
 ]
 
 
-\[ScriptCapitalK]Amplitude["Ratio"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_,OptionsPattern[]]:=Module[{\[ScriptR]=0,ret,\[CapitalGamma]=Gamma,PH=Pochhammer,coeff,sumUp,sumUp2,sumUpPHCoeff,sumUpPH,sumDown,sumDown2,\[CurlyEpsilon]p,\[Tau],\[CurlyEpsilon],\[Kappa]=Sqrt[1-a^2],nMax,nMin,jump,jumpCount,repls,repls\[Nu]},
+(* ::Input:: *)
+(*(*\[ScriptCapitalK]Amplitude["-\[Nu]-1",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_,OptionsPattern[]]:=Module[{\[ScriptR]=0,ret,\[CapitalGamma]=Gamma,PH=Pochhammer,coeff,sumUp,sumUpPHCoeff,sumUpPH,sumDown,\[CurlyEpsilon]p,\[Tau],\[CurlyEpsilon],\[Kappa]=Sqrt[1-a^2],nMax,nMin,jump,jumpCount,repls,repls\[Nu]},*)
+(*\[CurlyEpsilon]=2 \[Omega];*)
+(*\[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;*)
+(*\[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];*)
+(*jump[1]=2+2\[ScriptL]+\[ScriptR]<=n;*)
+(*jump[2]=1+\[ScriptS]+\[ScriptL]<=n;*)
+(*jump[3]=1-\[ScriptS]+\[ScriptL]<=n;*)
+(*jumpCount=1+(jump[#]&/@Range[3]//Boole//Total);*)
+(*repls=MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]+3+3];*)
+(*repls\[Nu]=<|\[Nu]MST->(repls[\[Nu]MST]//SeriesTake[#,order\[Eta]-Floor[Abs[n]/3]+3jumpCount]&)|>;*)
+(*coeff=IgnoreExpansionParameter[(\[ImaginaryI]^-\[ScriptR] 2^(1+\[Nu]MST) \[ExponentialE]^(\[ImaginaryI] \[CurlyEpsilon] \[Kappa]) (\[CurlyEpsilon] \[Kappa])^(1-\[ScriptR]+\[ScriptS]+\[Nu]MST) (\[CapitalGamma][1-\[ScriptS]-2 \[ImaginaryI] \[CurlyEpsilon]p] \[CapitalGamma][\[ScriptR]-2 \[Nu]MST]) If[\[ScriptR]\[Equal]0&&OptionValue["PochhammerForm"],1,1/(\[CapitalGamma][\[ScriptR]-\[Nu]MST+\[ImaginaryI] \[Tau]] \[CapitalGamma][\[ScriptR]+\[ScriptS]+\[ImaginaryI] \[CurlyEpsilon]-\[Nu]MST])])/\[CapitalGamma][\[ScriptR]-\[ScriptS]+\[ImaginaryI] \[CurlyEpsilon]-\[Nu]MST]];*)
+(*nMax=Ceiling[order\[Eta]/3];*)
+(*nMin=Ceiling[-(order\[Eta]/3)-2];*)
+(*sumUp=\!\( *)
+(*\*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(-\[ScriptR]\)]\( *)
+(*\*FractionBox[\( *)
+(*\*SuperscriptBox[\((\(-1\))\), \(-n\)]\ \ \[CapitalGamma][\(-1\) - n + \[ScriptR] - 2\ \[Nu]MST]\ \[CapitalGamma][\(-n\) + \[ScriptS] + I\ \[CurlyEpsilon] - \[Nu]MST]\ \[CapitalGamma][\(-n\) - \[Nu]MST + I\ \[Tau]]\), \(\(\((\(-n\) - \[ScriptR])\)!\)\ \[CapitalGamma][\(-n\) - \[ScriptS] - I\ \[CurlyEpsilon] - \[Nu]MST]\ \[CapitalGamma][\(-n\) - \[Nu]MST - I\ \[Tau]]\)]aMST[n]\)\)/.repls//IgnoreExpansionParameter;*)
+(*sumUpPH=\!\( *)
+(*\*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(-\[ScriptR]\)]\(\((\( *)
+(*\*FractionBox[\( *)
+(*\*SuperscriptBox[\((\(-1\))\), \(-n\)]\ PH[\(-1\) + \[ScriptR] - 2\ \[Nu]MST, \(-n\)]\ PH[\[ScriptS] + I\ \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\ PH[\(-\[Nu]MST\) + I\ \[Tau], \(-n\)]\), \(\(\((\(-n\) - \[ScriptR])\)!\)\ PH[\(-\[ScriptS]\) - I\ \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\ PH[\(-\[Nu]MST\) - I\ \[Tau], \(-n\)]\)] /. replsPN\) /. repls\[Nu])\)\((aMST[n]\  /. repls)\)\)\)//IgnoreExpansionParameter;*)
+(*sumUpPHCoeff=Gamma[-1+\[ScriptR]-2 \[Nu]MST] /(Gamma[-\[ScriptS]-I \[CurlyEpsilon]-\[Nu]MST] Gamma[-\[Nu]MST-I \[Tau]]) If[\[ScriptR]==0,1,Gamma[\[ScriptS]+I \[CurlyEpsilon]-\[Nu]MST] Gamma[-\[Nu]MST+I \[Tau]]];*)
+(*coeff=(coeff If[OptionValue["PochhammerForm"],sumUpPHCoeff,1])/.replsPN/.repls//IgnoreExpansionParameter;*)
+(**)
+(*sumDown=\!\( *)
+(*\*UnderoverscriptBox[\(\[Sum]\), \(n = \(-\[ScriptR]\)\), \(nMax\)]\(\((\( *)
+(*\*FractionBox[\( *)
+(*\*SuperscriptBox[\((\(-1\))\), \(-n\)]\ PH[\[ScriptS] - I\ \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\), \(\(\((n + \[ScriptR])\)!\)\ PH[\[ScriptR] - 2\ \[Nu]MST, \(-n\)]\ PH[\(-\[ScriptS]\) + I\ \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\)] /. replsPN\) /. repls\[Nu])\)\((aMST[n] /. repls)\)\)\)//IgnoreExpansionParameter;*)
+(*ret=coeff/sumDown If[OptionValue["PochhammerForm"],sumUpPH,sumUp]//IgnoreExpansionParameter;*)
+(*ret//SeriesTake[#,order\[Eta]]&*)
+(*]*)*)
+
+
+\[ScriptCapitalK]AmplitudeFreq["-\[Nu]-1",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[CurlyEpsilon]_,OptionsPattern[]]:=Module[{\[ScriptR]=0,ret,\[CapitalGamma]=Gamma,PH=Pochhammer,order,coeff,DoABunchOfStuff,SeriesStuff,GammaStuff,sumUpPHCoeff,sumUp,sumDown,\[CurlyEpsilon]p,\[Tau],\[CurlyEpsilon],\[Kappa]=Sqrt[1-a^2],nMax,nMin,jump,jumpCount,repls,repls\[Nu]},
+\[CurlyEpsilon]=2 \[Omega] \[Gamma];
+\[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;
+\[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];
+SeriesStuff=(#//IgnoreExpansionParameter//SeriesTake[#,order\[CurlyEpsilon]]&)&;
+GammaStuff=(#//ExpandPolyGamma[#,\[ScriptL]]&//ExpandGamma[#,\[ScriptL]]&//ExpandPolyGamma[#,-\[ScriptL]]&//ExpandGamma[#,-\[ScriptL]]&)&;
+jump[1]=2+2\[ScriptL]+\[ScriptR]-n<=0;
+jump[2]=1+\[ScriptS]+\[ScriptL]-n<=0;
+jump[3]=1-\[ScriptS]+\[ScriptL]-n<=0;
+jumpCount=2+(jump[#]&/@Range[3]//Boole//Total);
+order=order\[CurlyEpsilon]+2//Max[#,3]&;
+repls=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order];
+repls\[Nu][n_]:=<|\[Nu]MST->(repls[\[Nu]MST]//SeriesTake[#,SeriesLength[repls[aMST[n]]]+jumpCount]&)|>;
+coeff=(I^-\[ScriptR] 2^(1+\[Nu]MST) E^(I \[CurlyEpsilon] \[Kappa]) (\[CurlyEpsilon] \[Kappa])^(1-\[ScriptR]+\[ScriptS]+\[Nu]MST) (\[CapitalGamma][1-\[ScriptS]-2 I \[CurlyEpsilon]p] \[CapitalGamma][\[ScriptR]-2 \[Nu]MST]))/\[CapitalGamma][\[ScriptR]-\[ScriptS]+I \[CurlyEpsilon]-\[Nu]MST]/.repls//SeriesStuff;
+nMax=order-1;
+nMin=-(order+1);
+sumUp=\!\(
+\*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(-\[ScriptR]\)]\(\((
+\*FractionBox[\(
+\*SuperscriptBox[\((\(-1\))\), \(-n\)]\  PH[\(-1\) + \[ScriptR] - 2\  \[Nu]MST, \(-n\)]\  PH[\[ScriptS] + I\  \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\  PH[\(-\[Nu]MST\) + I\  \[Tau], \(-n\)]\), \(\(\((\(-n\) - \[ScriptR])\)!\)\  PH[\(-\[ScriptS]\) - I\  \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\  PH[\(-\[Nu]MST\) - I\  \[Tau], \(-n\)]\)] /. repls\[Nu][n])\) \((aMST[n]\  /. repls)\)\)\)//SeriesStuff;
+sumUpPHCoeff=(Gamma[-1+\[ScriptR]-2 \[Nu]MST]/(Gamma[-\[ScriptS]-I \[CurlyEpsilon]-\[Nu]MST] Gamma[-\[Nu]MST-I \[Tau]]))/.repls//SeriesStuff;
+coeff=(coeff sumUpPHCoeff);
+sumDown=\!\(
+\*UnderoverscriptBox[\(\[Sum]\), \(n = \(-\[ScriptR]\)\), \(nMax\)]\(\((
+\*FractionBox[\(
+\*SuperscriptBox[\((\(-1\))\), \(-n\)]\  PH[\[ScriptS] - I\  \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\), \(\(\((n + \[ScriptR])\)!\)\  PH[\[ScriptR] - 2\  \[Nu]MST, \(-n\)]\  PH[\(-\[ScriptS]\) + I\  \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\)] /. repls\[Nu][n])\) \((aMST[n] /. repls)\)\)\)//SeriesStuff;
+
+ret=coeff sumUp/sumDown //SeriesStuff//GammaStuff;
+ret
+]
+
+
+(*\[ScriptCapitalK]Amplitude["Ratio"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_,OptionsPattern[]]:=Module[{\[ScriptR]=0,ret,\[CapitalGamma]=Gamma,PH=Pochhammer,coeff,sumUp,sumUp2,sumUpPHCoeff,sumUpPH,sumDown,sumDown2,\[CurlyEpsilon]p,\[Tau],\[CurlyEpsilon],\[Kappa]=Sqrt[1-a^2],nMax,nMin,jump,jumpCount,repls,repls\[Nu]},
 \[CurlyEpsilon]=2 \[Omega];
 \[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;
 \[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];
 jumpCount=1;
+
 repls=MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]+6];
-repls\[Nu]=<|\[Nu]MST->(repls[\[Nu]MST]//SeriesTake[#,order\[Eta]-Floor[n/3]+6jumpCount]&)|>;
-coeff=2^(1+2 \[Nu]MST) \[CurlyEpsilon] \[Kappa] (\[CurlyEpsilon] \[Kappa])^(2 \[Nu]MST) (\[CapitalGamma][\[ScriptR]-2 \[Nu]MST] \[CapitalGamma][1+\[ScriptR]-\[ScriptS]+I \[CurlyEpsilon]+\[Nu]MST])/(\[CapitalGamma][\[ScriptR]-\[ScriptS]+I \[CurlyEpsilon]-\[Nu]MST] \[CapitalGamma][2+\[ScriptR]+2 \[Nu]MST]) If[\[ScriptR]==0,1,(\[CapitalGamma][\[ScriptR]+\[Nu]MST+1+\[ScriptS]+I \[CurlyEpsilon]] \[CapitalGamma][\[ScriptR]+\[Nu]MST+1+I \[Tau]])/(\[CapitalGamma][\[ScriptR]-\[Nu]MST+I \[Tau]]\[CapitalGamma][\[ScriptR]+\[ScriptS]+I \[CurlyEpsilon]-\[Nu]MST] )]//IgnoreExpansionParameter;
+repls\[Nu]=<|\[Nu]MST->(repls[\[Nu]MST]//SeriesTake[#,order\[Eta]-Floor[Abs[n]/3]+6jumpCount]&)|>;
+coeff=2^(1+2 \[Nu]MST) \[CurlyEpsilon] \[Kappa] (\[CurlyEpsilon] \[Kappa])^(2 \[Nu]MST) (\[CapitalGamma][\[ScriptR]-2 \[Nu]MST] \[CapitalGamma][1+\[ScriptR]-\[ScriptS]+I \[CurlyEpsilon]+\[Nu]MST])/(\[CapitalGamma][\[ScriptR]-\[ScriptS]+I \[CurlyEpsilon]-\[Nu]MST] \[CapitalGamma][2+\[ScriptR]+2 \[Nu]MST]) If[\[ScriptR]==0,1,(\[CapitalGamma][\[ScriptR]+\[Nu]MST+1+\[ScriptS]+I \[CurlyEpsilon]] \[CapitalGamma][\[ScriptR]+\[Nu]MST+1+I \[Tau]])/(\[CapitalGamma][\[ScriptR]-\[Nu]MST+I \[Tau]]\[CapitalGamma][\[ScriptR]+\[ScriptS]+I \[CurlyEpsilon]-\[Nu]MST] )];
+coeff=coeff/.replsPN/.repls//IgnoreExpansionParameter//SeriesTake[#,order\[Eta]]&;
 nMax=Ceiling[order\[Eta]/3];
 nMin=Ceiling[-(order\[Eta]/3)-2];
 sumUpPH=\!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(-\[ScriptR]\)]\(\((\(
 \*FractionBox[\(
-\*SuperscriptBox[\((\(-1\))\), \(-n\)]\  PH[\(-1\) + \[ScriptR] - 2\  \[Nu]MST, \(-n\)]\  PH[\[ScriptS] + I\  \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\  PH[\(-\[Nu]MST\) + I\  \[Tau], \(-n\)]\), \(\(\((\(-n\) - \[ScriptR])\)!\)\  PH[\(-\[ScriptS]\) - I\  \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\  PH[\(-\[Nu]MST\) - I\  \[Tau], \(-n\)]\)] /. replsPN\) /. repls\[Nu])\) \((aMST[n]\  /. repls)\)\)\)//IgnoreExpansionParameter;
+\*SuperscriptBox[\((\(-1\))\), \(-n\)]\ PH[\(-1\) + \[ScriptR] - 2\ \[Nu]MST, \(-n\)]\ PH[\[ScriptS] + I\ \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\ PH[\(-\[Nu]MST\) + I\ \[Tau], \(-n\)]\), \(\(\((\(-n\) - \[ScriptR])\)!\)\ PH[\(-\[ScriptS]\) - I\ \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\ PH[\(-\[Nu]MST\) - I\ \[Tau], \(-n\)]\)] /. replsPN\) /. repls\[Nu])\)\((aMST[n]\  /. repls)\)\)\)//IgnoreExpansionParameter//SeriesTake[#,order\[Eta]]&;
 sumUp2=\!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(\[ScriptR]\)]\(\((\(
 \*FractionBox[
-SuperscriptBox[\((\(-1\))\), \(n\)], \(\(\((\[ScriptR] - n)\)!\) PH[\[ScriptR] + 2\  \[Nu]MST + 2, n]\)] 
-\*FractionBox[\(PH[\[Nu]MST + 1 + \[ScriptS] - I\  \[CurlyEpsilon], n]\), \(PH[\[Nu]MST + 1 - \[ScriptS] + I\  \[CurlyEpsilon], n]\)] /. replsPN\) /. repls\[Nu])\) \((aMST[n] /. repls)\)\)\)//IgnoreExpansionParameter;
-sumUpPHCoeff=(Gamma[-1+\[ScriptR]-2 \[Nu]MST] Gamma[1-\[ScriptS]-I \[CurlyEpsilon]+\[Nu]MST] Gamma[1+\[Nu]MST-I \[Tau]])/(Gamma[-\[ScriptS]-I \[CurlyEpsilon]-\[Nu]MST] Gamma[1+\[ScriptR]+2 \[Nu]MST] Gamma[-\[Nu]MST-I \[Tau]]) If[\[ScriptR]==0,1,(Gamma[\[ScriptS]+I \[CurlyEpsilon]-\[Nu]MST] Gamma[-\[Nu]MST+I \[Tau]])/(Gamma[1+\[ScriptS]+I \[CurlyEpsilon]+\[Nu]MST] Gamma[1+\[Nu]MST+I \[Tau]])]//IgnoreExpansionParameter;
-coeff=(coeff sumUpPHCoeff)/.replsPN/.repls//IgnoreExpansionParameter;
-
+SuperscriptBox[\((\(-1\))\), \(n\)], \(\(\((\[ScriptR] - n)\)!\)PH[\[ScriptR] + 2\ \[Nu]MST + 2, n]\)]
+\*FractionBox[\(PH[\[Nu]MST + 1 + \[ScriptS] - I\ \[CurlyEpsilon], n]\), \(PH[\[Nu]MST + 1 - \[ScriptS] + I\ \[CurlyEpsilon], n]\)] /. replsPN\) /. repls\[Nu])\)\((aMST[n] /. repls)\)\)\)//IgnoreExpansionParameter//SeriesTake[#,order\[Eta]]&;
+sumUpPHCoeff=(Gamma[-1+\[ScriptR]-2 \[Nu]MST] Gamma[1-\[ScriptS]-I \[CurlyEpsilon]+\[Nu]MST] Gamma[1+\[Nu]MST-I \[Tau]])/(Gamma[-\[ScriptS]-I \[CurlyEpsilon]-\[Nu]MST] Gamma[1+\[ScriptR]+2 \[Nu]MST] Gamma[-\[Nu]MST-I \[Tau]]) If[\[ScriptR]==0,1,(Gamma[\[ScriptS]+I \[CurlyEpsilon]-\[Nu]MST] Gamma[-\[Nu]MST+I \[Tau]])/(Gamma[1+\[ScriptS]+I \[CurlyEpsilon]+\[Nu]MST] Gamma[1+\[Nu]MST+I \[Tau]])];
+sumUpPHCoeff=sumUpPHCoeff/.replsPN/.repls//IgnoreExpansionParameter//SeriesTake[#,order\[Eta]]&;
+coeff=(coeff sumUpPHCoeff);
 sumDown=\!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(n = \(-\[ScriptR]\)\), \(nMax\)]\(\((\(
 \*FractionBox[\(
-\*SuperscriptBox[\((\(-1\))\), \(-n\)]\  PH[\[ScriptS] - I\  \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\), \(\(\((n + \[ScriptR])\)!\)\  PH[\[ScriptR] - 2\  \[Nu]MST, \(-n\)]\  PH[\(-\[ScriptS]\) + I\  \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\)] /. replsPN\) /. repls\[Nu])\) \((aMST[n] /. repls)\)\)\)//IgnoreExpansionParameter;
+\*SuperscriptBox[\((\(-1\))\), \(-n\)]\ PH[\[ScriptS] - I\ \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\), \(\(\((n + \[ScriptR])\)!\)\ PH[\[ScriptR] - 2\ \[Nu]MST, \(-n\)]\ PH[\(-\[ScriptS]\) + I\ \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\)] /. replsPN\) /. repls\[Nu])\)\((aMST[n] /. repls)\)\)\)//IgnoreExpansionParameter//SeriesTake[#,order\[Eta]]&;
 sumDown2=\!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(n = \[ScriptR]\), \(nMax\)]\(\((\(
 \*FractionBox[\(
-\*SuperscriptBox[\((\(-1\))\), \(n\)]\  PH[1 + \[ScriptS] + I\  \[CurlyEpsilon] + \[Nu]MST, n]\  PH[1 + \[ScriptR] + 2\  \[Nu]MST, n]\  PH[1 + \[Nu]MST + I\  \[Tau], n]\), \(\(\((n - \[ScriptR])\)!\)\  PH[1 - \[ScriptS] - I\  \[CurlyEpsilon] + \[Nu]MST, n]\  PH[1 + \[Nu]MST - I\  \[Tau], n]\)] /. replsPN\) /. repls\[Nu])\) \((aMST[n]\  /. repls)\)\)\)//IgnoreExpansionParameter;
+\*SuperscriptBox[\((\(-1\))\), \(n\)]\ PH[1 + \[ScriptS] + I\ \[CurlyEpsilon] + \[Nu]MST, n]\ PH[1 + \[ScriptR] + 2\ \[Nu]MST, n]\ PH[1 + \[Nu]MST + I\ \[Tau], n]\), \(\(\((n - \[ScriptR])\)!\)\ PH[1 - \[ScriptS] - I\ \[CurlyEpsilon] + \[Nu]MST, n]\ PH[1 + \[Nu]MST - I\ \[Tau], n]\)] /. replsPN\) /. repls\[Nu])\)\((aMST[n]\  /. repls)\)\)\)//IgnoreExpansionParameter//SeriesTake[#,order\[Eta]]&;
 ret=coeff  sumUp2/sumDown  sumUpPH/sumDown2//IgnoreExpansionParameter;
 ret//SeriesTake[#,order\[Eta]]&
+]*)
+
+
+\[ScriptCapitalK]AmplitudeFreq["Ratio"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[CurlyEpsilon]_,OptionsPattern[]]:=Module[{\[ScriptR]=0,ret,\[CapitalGamma]=Gamma,PH=Pochhammer,coeff,SeriesStuff,GammaStuff,\[Kappa],order,sumUp,sumUp2,sumUpPHCoeff,sumUpPH,sumDown,sumDown2,\[CurlyEpsilon]p,\[Tau],\[CurlyEpsilon],nMax,nMin,repls,repls\[Nu]},
+\[CurlyEpsilon]=2 \[Omega] \[Gamma];
+\[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;
+\[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];
+\[Kappa]=Sqrt[1-a^2];
+order=order\[CurlyEpsilon]+2//Max[#,3]&;
+SeriesStuff=(#//IgnoreExpansionParameter//SeriesTake[#,order\[CurlyEpsilon]]&)&;
+GammaStuff=(#//ExpandPolyGamma[#,\[ScriptL]]&//ExpandGamma[#,\[ScriptL]]&//ExpandPolyGamma[#,-\[ScriptL]]&//ExpandGamma[#,-\[ScriptL]]&)&;
+repls=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order];
+repls\[Nu][n_]:=<|\[Nu]MST->(repls[\[Nu]MST]//SeriesTake[#,SeriesLength[repls[aMST[n]]]+2]&)|>;
+coeff=((2^(1+2 \[Nu]MST)) \[CurlyEpsilon] \[Kappa] ((\[CurlyEpsilon] \[Kappa])^(2 \[Nu]MST)) (\[CapitalGamma][\[ScriptR]-2 \[Nu]MST] \[CapitalGamma][1+\[ScriptR]-\[ScriptS]+I \[CurlyEpsilon]+\[Nu]MST]) )/(\[CapitalGamma][\[ScriptR]-\[ScriptS]+I \[CurlyEpsilon]-\[Nu]MST] \[CapitalGamma][2+\[ScriptR]+2 \[Nu]MST]);
+coeff=coeff/.repls//SeriesStuff;
+nMax=order-1;
+nMin=-(order+1);
+sumUpPH=\!\(
+\*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(-\[ScriptR]\)]\(\((
+\*FractionBox[\(
+\*SuperscriptBox[\((\(-1\))\), \(-n\)]\  PH[\(-1\) + \[ScriptR] - 2\  \[Nu]MST, \(-n\)]\  PH[\[ScriptS] + I\  \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\  PH[\(-\[Nu]MST\) + I\  \[Tau], \(-n\)]\), \(\(\((\(-n\) - \[ScriptR])\)!\)\  PH[\(-\[ScriptS]\) - I\  \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\  PH[\(-\[Nu]MST\) - I\  \[Tau], \(-n\)]\)] /. repls\[Nu][n])\) \((aMST[n]\  /. repls)\)\)\)//SeriesStuff;
+sumUp2=\!\(
+\*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(\[ScriptR]\)]\(\((
+\*FractionBox[
+SuperscriptBox[\((\(-1\))\), \(n\)], \(\(\((\[ScriptR] - n)\)!\) PH[\[ScriptR] + 2\  \[Nu]MST + 2, n]\)] 
+\*FractionBox[\(PH[\[Nu]MST + 1 + \[ScriptS] - I\  \[CurlyEpsilon], n]\), \(PH[\[Nu]MST + 1 - \[ScriptS] + I\  \[CurlyEpsilon], n]\)] /. repls\[Nu][n])\) \((aMST[n] /. repls)\)\)\)//SeriesStuff;
+sumUpPHCoeff=(Gamma[-1+\[ScriptR]-2 \[Nu]MST] Gamma[1-\[ScriptS]-I \[CurlyEpsilon]+\[Nu]MST] Gamma[1+\[Nu]MST-I \[Tau]]) /(Gamma[-\[ScriptS]-I \[CurlyEpsilon]-\[Nu]MST] Gamma[1+\[ScriptR]+2 \[Nu]MST] Gamma[-\[Nu]MST-I \[Tau]]);
+sumUpPHCoeff=sumUpPHCoeff/.repls//SeriesStuff;
+coeff=(coeff sumUpPHCoeff);
+sumDown=\!\(
+\*UnderoverscriptBox[\(\[Sum]\), \(n = \(-\[ScriptR]\)\), \(nMax\)]\(\((
+\*FractionBox[\(
+\*SuperscriptBox[\((\(-1\))\), \(-n\)]\  PH[\[ScriptS] - I\  \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\), \(\(\((n + \[ScriptR])\)!\)\  PH[\[ScriptR] - 2\  \[Nu]MST, \(-n\)]\  PH[\(-\[ScriptS]\) + I\  \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\)] /. repls\[Nu][n])\) \((aMST[n] /. repls)\)\)\)//SeriesStuff;
+sumDown2=\!\(
+\*UnderoverscriptBox[\(\[Sum]\), \(n = \[ScriptR]\), \(nMax\)]\(\((
+\*FractionBox[\(
+\*SuperscriptBox[\((\(-1\))\), \(n\)]\  PH[1 + \[ScriptS] + I\  \[CurlyEpsilon] + \[Nu]MST, n]\  PH[1 + \[ScriptR] + 2\  \[Nu]MST, n]\  PH[1 + \[Nu]MST + I\  \[Tau], n]\), \(\(\((n - \[ScriptR])\)!\)\  PH[1 - \[ScriptS] - I\  \[CurlyEpsilon] + \[Nu]MST, n]\  PH[1 + \[Nu]MST - I\  \[Tau], n]\)] /. repls\[Nu][n])\) \((aMST[n]\  /. repls)\)\)\)//SeriesStuff;
+ret=coeff  sumUp2/sumDown  sumUpPH/sumDown2//SeriesStuff//GammaStuff;
+ret
+]
+
+
+Options[\[ScriptCapitalK]Amplitude]={"FreqRep"->False}
+
+
+\[ScriptCapitalK]Amplitude[sol_,OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,order\[CurlyEpsilon]},
+order\[CurlyEpsilon]=Ceiling[order\[Eta],3]/3;
+aux=\[ScriptCapitalK]AmplitudeFreq[sol][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]]//ChangeSeriesParameter[#,\[Eta]^3]&//SeriesTake[#,order\[Eta]]&;
+aux
+]
+
+
+\[ScriptCapitalK]Amplitude[sol_,"FreqRep"->True][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[CurlyEpsilon]_]:=Module[{aux},
+aux=\[ScriptCapitalK]AmplitudeFreq[sol][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]];
+aux
 ]
 
 
@@ -1792,26 +2262,26 @@ ret//SeriesTake[#,order\[Eta]]&
 (*Interface*)
 
 
-Options[TeukolskyAmplitudePN]={"Normalization"->"Default"}
+Options[TeukolskyAmplitudePN]={"Normalization"->"Default","FreqRep"->False}
 
 
-TeukolskyAmplitudePN["A+",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_}] :=AAmplitude["+"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/.{\[Omega]->\[Omega]Var,\[Eta]->\[Eta]Var};
-TeukolskyAmplitudePN["A-",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_}] :=AAmplitude["-"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/.{\[Omega]->\[Omega]Var,\[Eta]->\[Eta]Var};
+TeukolskyAmplitudePN["A+",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_}] :=AAmplitude["+",opt][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/.{\[Omega]->\[Omega]Var,\[Gamma]->\[Eta]Var,\[Eta]->\[Eta]Var};
+TeukolskyAmplitudePN["A-",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_}] :=AAmplitude["-",opt][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/.{\[Omega]->\[Omega]Var,\[Gamma]->\[Eta]Var,\[Eta]->\[Eta]Var};
 
 
-TeukolskyAmplitudePN["Binc",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_}] :=BAmplitude["Inc",opt][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/.{\[Omega]->\[Omega]Var,\[Eta]->\[Eta]Var};
-TeukolskyAmplitudePN["Btrans",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_}] :=BAmplitude["Trans",opt][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/.{\[Omega]->\[Omega]Var,\[Eta]->\[Eta]Var};
-TeukolskyAmplitudePN["Bref",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_}] :=BAmplitude["Ref",opt][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/.{\[Omega]->\[Omega]Var,\[Eta]->\[Eta]Var};
+TeukolskyAmplitudePN["Binc",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_}] :=BAmplitude["Inc",opt][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/.{\[Omega]->\[Omega]Var,\[Gamma]->\[Eta]Var,\[Eta]->\[Eta]Var};
+TeukolskyAmplitudePN["Btrans",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_}] :=BAmplitude["Trans",opt][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/.{\[Omega]->\[Omega]Var,\[Gamma]->\[Eta]Var,\[Eta]->\[Eta]Var};
+TeukolskyAmplitudePN["Bref",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_}] :=BAmplitude["Ref",opt][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/.{\[Omega]->\[Omega]Var,\[Gamma]->\[Eta]Var,\[Eta]->\[Eta]Var};
 
 
-TeukolskyAmplitudePN["Ctrans",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_}] :=CAmplitude["Trans",opt][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/.{\[Omega]->\[Omega]Var,\[Eta]->\[Eta]Var};
-TeukolskyAmplitudePN["Cinc",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_}] :=CAmplitude["Inc",opt][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/.{\[Omega]->\[Omega]Var,\[Eta]->\[Eta]Var};
-TeukolskyAmplitudePN["Cref",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_}] :=CAmplitude["Ref",opt][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/.{\[Omega]->\[Omega]Var,\[Eta]->\[Eta]Var};
+TeukolskyAmplitudePN["Ctrans",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_}] :=CAmplitude["Trans",opt][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/.{\[Omega]->\[Omega]Var,\[Gamma]->\[Eta]Var,\[Eta]->\[Eta]Var};
+TeukolskyAmplitudePN["Cinc",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_}] :=CAmplitude["Inc",opt][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/.{\[Omega]->\[Omega]Var,\[Gamma]->\[Eta]Var,\[Eta]->\[Eta]Var};
+TeukolskyAmplitudePN["Cref",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_}] :=CAmplitude["Ref",opt][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/.{\[Omega]->\[Omega]Var,\[Gamma]->\[Eta]Var,\[Eta]->\[Eta]Var};
 
 
-TeukolskyAmplitudePN["\[ScriptCapitalK]\[Nu]",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_}] :=\[ScriptCapitalK]Amplitude["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/.{\[Omega]->\[Omega]Var,\[Eta]->\[Eta]Var};
-TeukolskyAmplitudePN["\[ScriptCapitalK]-\[Nu]-1",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_}] :=\[ScriptCapitalK]Amplitude["-\[Nu]-1"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/.{\[Omega]->\[Omega]Var,\[Eta]->\[Eta]Var};
-TeukolskyAmplitudePN["\[ScriptCapitalK]",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_}] :=\[ScriptCapitalK]Amplitude["Ratio"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/.{\[Omega]->\[Omega]Var,\[Eta]->\[Eta]Var};
+TeukolskyAmplitudePN["K\[Nu]",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_}] :=\[ScriptCapitalK]Amplitude["\[Nu]",opt][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/.{\[Omega]->\[Omega]Var,\[Gamma]->\[Eta]Var,\[Eta]->\[Eta]Var};
+TeukolskyAmplitudePN["K-\[Nu]-1",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_}] :=\[ScriptCapitalK]Amplitude["-\[Nu]-1",opt][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/.{\[Omega]->\[Omega]Var,\[Gamma]->\[Eta]Var,\[Eta]->\[Eta]Var};
+TeukolskyAmplitudePN["K",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_}] :=\[ScriptCapitalK]Amplitude["Ratio",opt][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/.{\[Omega]->\[Omega]Var,\[Gamma]->\[Eta]Var,\[Eta]->\[Eta]Var};
 
 
 (* ::Subsection::Closed:: *)
@@ -1822,53 +2292,35 @@ TeukolskyAmplitudePN["\[ScriptCapitalK]",opt:OptionsPattern[]][\[ScriptS]_,\[Scr
 (*Invariant Wronskian*)
 
 
-InvariantWronskian[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_}]:=Module[{aux,Rup,Rin,B,C,ret},
-C=CAmplitude["Trans"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]//ExpandPolyGamma//ExpandGamma;
-B=BAmplitude["Inc"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]//ExpandPolyGamma//ExpandGamma;
-aux=PNScalingsInternal[2 I \[Omega]]B C//ExpandLog//SeriesCollect[#,Log[__]]&;
-ret=aux/.{\[Omega]->\[Omega]Var,\[Eta]->\[Eta]Var};
+Options[InvariantWronskianFreq]={"Normalization"->"Default"}
+
+
+InvariantWronskianFreq[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Gamma]_,opt:OptionsPattern[]]:=Module[{aux,Rup,Rin,B,C,ret},
+C=CAmplitudeFreq["Trans",opt][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Gamma]];
+B=BAmplitudeFreq["Inc",opt][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Gamma]];
+ret=(2 I \[Omega] \[Gamma])B C;
 ret
 ]
 
 
+Options[InvariantWronskian]={"Normalization"->"Default","FreqRep"->False}
+
+
+InvariantWronskian[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{varPN_,order_},OptionsPattern[]]:=Module[{aux,order\[CurlyEpsilon]},
+If[OptionValue["FreqRep"],
+aux=InvariantWronskianFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order,"Normalization"->OptionValue["Normalization"]];
+,
+(*else*)
+order\[CurlyEpsilon]=Ceiling[order,3]/3;
+aux=InvariantWronskianFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon],"Normalization"->OptionValue["Normalization"]]//ChangeSeriesParameter[#,\[Eta]^3]&//SeriesTake[#,order]&;
+];
+aux=aux/.\[Gamma]->varPN/.\[Eta]->varPN/.\[Omega]->\[Omega]Var;
+aux
+]
+
+
 (* ::Subsection::Closed:: *)
-(*Subscript[R, In]*)
-
-
-(* ::Text:: *)
-(*To construct Subscript[R, In] we follow Eq.166 in Sasaki Tagoshi ( https://doi.org/10.12942/lrr-2003-6 ). Subscript[R, in]=Subscript[R, C]^\[Nu]+Subscript[\[ScriptCapitalK], -\[Nu]-1]/Subscript[\[ScriptCapitalK], \[Nu]] Subscript[R, C]^(-\[Nu]-1). Notice that we have divided out a factor of Subscript[\[ScriptCapitalK], \[Nu]], which is allowed since Subscript[\[ScriptCapitalK], \[Nu]] does not depend on r. This is helpful as the second term now dies off drastically with the increase of \[ScriptL]. \[ScriptCapitalK]^\[Nu] ~\[Omega]^-\[ScriptL]. \[ScriptCapitalK]^(-\[Nu]-1) ~\[Omega]^\[ScriptL] (Schwarzschild?)*)
-
-
-(* ::Subsubsection::Closed:: *)
-(*Definitions (depreciated)*)
-
-
-(* ::Text:: *)
-(*We start by typing up the definitions given in Sasaki Tagoshi Eq.162 - Eq.165. Notice that we use the symmetry Subscript[a, n]^(-\[Nu]-1)=Subscript[a, -n]^\[Nu] for the MST coefficients. One key challenge is figuring out where to truncate the infinite sums for a given scaling in \[Eta] most efficiently. This will be solved later in tableOverNJ[]. *)
-
-
-(*c["In"][z_]:=E^(-I z) 2^\[Nu] z^\[Nu] (z-\[Epsilon] \[Kappa])^-s (1-(\[Epsilon] \[Kappa])/z)^(-I \[Epsilon]p);
-\[Epsilon]p=(\[Epsilon]+\[Tau])/2;
-\[ConstantC]D[\[Nu],n_,j_]:=((-1)^n (2 I)^(n+j) Gamma[n+\[Nu]+1-s+I \[Epsilon]] Pochhammer[\[Nu]+1+s-I \[Epsilon],n] Pochhammer[n+\[Nu]+1-s+I \[Epsilon],j] a[n])/(Gamma[2 n+2 \[Nu]+2] Pochhammer[\[Nu]+1-s+I \[Epsilon],n] Pochhammer[2 n+2 \[Nu]+2,j] j!);
-\[ConstantC]D[-\[Nu]-1,n_,j_]:=((-1)^n (2 I)^(n+j) Gamma[n+\[Nu]+1-s+I \[Epsilon]] Pochhammer[\[Nu]+1+s-I \[Epsilon],n] Pochhammer[n+\[Nu]+1-s+I \[Epsilon],j] a[-n])/(Gamma[2 n+2 \[Nu]+2] Pochhammer[\[Nu]+1-s+I \[Epsilon],n] Pochhammer[2 n+2 \[Nu]+2,j] j!)/. \[Nu]->-\[Nu]-1;
-(*\[ScriptCapitalK][\[Nu],order\[Eta]_]:=((E^(I \[Epsilon] \[Kappa]) (2 \[Epsilon] \[Kappa])^(s-\[Nu]-rInt) 2^-s I^rInt Gamma[1-s-2 I \[Epsilon]p] Gamma[rInt+2 \[Nu]+2]) \!\(
-\*UnderoverscriptBox[\(\[Sum]\), \(n = rInt\), \(Ceiling[
-\*FractionBox[\(order\[Eta]\), \(3\)]]\)]
-\*FractionBox[\(
-\*SuperscriptBox[\((\(-1\))\), \(n\)]\ Gamma[n + rInt + 2\ \[Nu] + 1]\ Gamma[n + \[Nu] + 1 + s + I\ \[Epsilon]]\ Gamma[n + \[Nu] + 1 + I\ \[Tau]]\ a[n]\), \(\(\((n - rInt)\)!\)\ Gamma[n + \[Nu] + 1 - s - I\ \[Epsilon]]\ Gamma[n + \[Nu] + 1 - I\ \[Tau]]\)]\))/((Gamma[rInt+\[Nu]+1-s+I \[Epsilon]] Gamma[rInt+\[Nu]+1+I \[Tau]] Gamma[rInt+\[Nu]+1+s+I \[Epsilon]]) \!\(
-\*UnderoverscriptBox[\(\[Sum]\), \(n = Floor[\(-
-\*FractionBox[\(1\), \(3\)]\)\ \((order\[Eta] + 6)\)]\), \(rInt\)]
-\*FractionBox[\(
-\*SuperscriptBox[\((\(-1\))\), \(n\)]\ Pochhammer[\[Nu] + 1 + s - I\ \[Epsilon], n]\ a[n]\), \(\((\(\((rInt - n)\)!\)\ Pochhammer[rInt + 2\ \[Nu] + 2, n])\)\ Pochhammer[\[Nu] + 1 - s + I\ \[Epsilon], n]\)]\))/. rInt->Ceiling[order\[Eta]/3];
-\[ScriptCapitalK][-\[Nu]-1,order\[Eta]_]:=((E^(I \[Epsilon] \[Kappa]) (2 \[Epsilon] \[Kappa])^(s-\[Nu]-rInt) 2^-s I^rInt Gamma[1-s-2 I \[Epsilon]p] Gamma[rInt+2 \[Nu]+2]) \!\(
-\*UnderoverscriptBox[\(\[Sum]\), \(n = rInt\), \(Ceiling[
-\*FractionBox[\(order\[Eta] + 6\), \(3\)]]\)]
-\*FractionBox[\(
-\*SuperscriptBox[\((\(-1\))\), \(n\)]\ Gamma[n + rInt + 2\ \[Nu] + 1]\ Gamma[n + \[Nu] + 1 + s + I\ \[Epsilon]]\ Gamma[n + \[Nu] + 1 + I\ \[Tau]]\ a[\(-n\)]\), \(\(\((n - rInt)\)!\)\ Gamma[n + \[Nu] + 1 - s - I\ \[Epsilon]]\ Gamma[n + \[Nu] + 1 - I\ \[Tau]]\)]\))/((Gamma[rInt+\[Nu]+1-s+I \[Epsilon]] Gamma[rInt+\[Nu]+1+I \[Tau]] Gamma[rInt+\[Nu]+1+s+I \[Epsilon]]) \!\(
-\*UnderoverscriptBox[\(\[Sum]\), \(n = Floor[\(-
-\*FractionBox[\(order\[Eta]\), \(3\)]\)]\), \(rInt\)]
-\*FractionBox[\(
-\*SuperscriptBox[\((\(-1\))\), \(n\)]\ Pochhammer[\[Nu] + 1 + s - I\ \[Epsilon], n]\ a[\(-n\)]\), \(\((\(\((rInt - n)\)!\)\ Pochhammer[rInt + 2\ \[Nu] + 2, n])\)\ Pochhammer[\[Nu] + 1 - s + I\ \[Epsilon], n]\)]\))/. {rInt->0,\[Nu]->-\[Nu]-1};*)*)
+(*Constructing Rc*)
 
 
 (* ::Subsubsection::Closed:: *)
@@ -2087,7 +2539,15 @@ ret
 (*,{status,n,j}]]*)*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsection::Closed:: *)
+(*Subscript[R, In]*)
+
+
+(* ::Text:: *)
+(*To construct Subscript[R, In] we follow Eq.166 in Sasaki Tagoshi ( https://doi.org/10.12942/lrr-2003-6 ). Subscript[R, in]=Subscript[R, C]^\[Nu]+Subscript[\[ScriptCapitalK], -\[Nu]-1]/Subscript[\[ScriptCapitalK], \[Nu]] Subscript[R, C]^(-\[Nu]-1). Notice that we have divided out a factor of Subscript[\[ScriptCapitalK], \[Nu]], which is allowed since Subscript[\[ScriptCapitalK], \[Nu]] does not depend on r. This is helpful as the second term now dies off drastically with the increase of \[ScriptL]. \[ScriptCapitalK]^\[Nu] ~\[Omega]^-\[ScriptL]. \[ScriptCapitalK]^(-\[Nu]-1) ~\[Omega]^\[ScriptL] (Schwarzschild?)*)
+
+
+(* ::Subsubsection::Closed:: *)
 (*Constructing Subscript[R, In]*)
 
 
@@ -2131,95 +2591,32 @@ RPN["In"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,aKerr_,0]:=O[\[Eta]] \[Eta]^(-\[Sc
 RPN["C\[Nu]"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,aKerr_,0]:=O[\[Eta]] \[Eta]^(-\[ScriptS]+\[ScriptL]-1)
 
 
+(* ::Subsubsection::Closed:: *)
+(*Constructing p_In (tangential)*)
+
+
+pIn[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,aVar_,order_][r_]:=Module[{aux,repls,nMin,nMax,\[CurlyEpsilon],\[Tau],\[Kappa],x,table1,table2},
+\[CurlyEpsilon]=2\[Omega];
+x=1-(r \[Omega])/\[CurlyEpsilon];
+\[Kappa]=Sqrt[1-aVar^2];
+\[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];
+repls=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],aVar,order];
+nMax=order-1;
+nMin=-order-1;
+
+aux=\!\(
+\*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(nMax\)]\(aMST[n] Hypergeometric2F1[n + \[Nu] + 1 - I\  \[Tau], \(-n\) - \[Nu] - I\  \[Tau], 1 - \[ScriptS] - I\  \[CurlyEpsilon] - I\  \[Tau], x]\)\)/.repls;
+aux=aux/.\[Nu]->\[Nu]MST;
+aux
+]
+
+
 (* ::Subsection::Closed:: *)
 (*Subscript[R, Up]*)
 
 
 (* ::Text:: *)
 (*To construct Subscript[R, up] we follow Eq.159 in Sasaki Tagoshi ( https://doi.org/10.12942/lrr-2003-6 ) where \[CapitalPsi] is identical to HypergeometricU[]..*)
-
-
-(* ::Subsubsection::Closed:: *)
-(*Definitions (depreciated)*)
-
-
-(* ::Text:: *)
-(*We expand the Hypergeometrics in Kummer functions (c.f. Eq.13.2.42 in the Digital Library of Mathematical Functions https://dlmf.nist.gov/13.2#E42 ) and then expand the Kummer functions in Pochhammers ( c.f. https://dlmf.nist.gov/13.2#E2 ). The result of this are the individual elements over which we will table again, just as we did for Subscript[R, in].*)
-
-
-(*(*z[r_]:=\[Omega](r-(1-\[Kappa]))*)
-
-(*kummerM[a_,b_,z_,order_]:=\!\(
-\*UnderoverscriptBox[\(\[Sum]\), \(i = 0\), \(order\)]\(
-\*FractionBox[\(Pochhammer[a, i]\), \(Pochhammer[b, i]\)]
-\*FractionBox[\(1\), \(i!\)]
-\*SuperscriptBox[\(z\), \(i\)]\)\);
-UtoM[order_]:=(HypergeometricU[a_,b_,z_]:>
-Gamma[1-b]/Gamma[a-b+1]kummerM[a,b,z,order]+Gamma[b-1]/Gamma[a]z^(1-b) kummerM[a-b+1,2-b,z,order]);
-
-term["up"][n_,z_,order_]:=a[n](2 \[ImaginaryI] z)^nPochhammer[1+s+\[Nu]-\[ImaginaryI] \[Epsilon],n]/Pochhammer[1+s+\[Nu]+\[ImaginaryI] \[Epsilon]-2s,n]HypergeometricU[n+1+s+\[Nu]-\[ImaginaryI] \[Epsilon],2n+2+2\[Nu],-2\[ImaginaryI] z]/.UtoM[order];
-R["up"][z_,order_]:=c["up"][z](*Gamma[\[Nu]-s+1+\[ImaginaryI] \[Epsilon]]/Gamma[\[Nu]+s+1-\[ImaginaryI] \[Epsilon]]*)\!\(
-\*UnderoverscriptBox[\(\[Sum]\), \(n = \(-\((order + 2)\)\)\), \(order\)]\(\(term["\<up\>"]\)[n, z, order]\)\)*)
-(*c["up"][z_]:=2^\[Nu]\[ExponentialE]^(-\[Pi] \[Epsilon])\[ExponentialE]^(-\[ImaginaryI] \[Pi](\[Nu]+1+s))\[ExponentialE]^(\[ImaginaryI] z)z^(\[Nu]+\[ImaginaryI](\[Epsilon]+\[Tau])/2)/(z-\[Epsilon] \[Kappa])^(s+\[ImaginaryI] (\[Epsilon]+\[Tau])/2);*)
-c["Up"][z_]:=2^\[Nu] E^(-\[Pi] \[Epsilon]) E^(-I \[Pi](\[Nu]+1+s)) E^(I z) (z-\[Epsilon] \[Kappa])^-s z^\[Nu] (1-(\[Epsilon] \[Kappa])/z)^(-I \[Epsilon]p)
-element["Up"][n_,j_,z_]:=2^n (I z)^n Pochhammer[1+s-I \[Epsilon]+\[Nu],n]/Pochhammer[1-s+I \[Epsilon]+\[Nu],n] ((2^(-1+j-2 n-2 \[Nu]) (-I z)^(-1+j-2 n-2 \[Nu]) Gamma[1+2 n+2 \[Nu]] Pochhammer[-n+s-I \[Epsilon]-\[Nu],j])/(j! Gamma[1+n+s-I \[Epsilon]+\[Nu]] Pochhammer[-2 n-2 \[Nu],j])+(2^j (-I z)^j Gamma[-1-2 n-2 \[Nu]] Pochhammer[1+n+s-I \[Epsilon]+\[Nu],j])/(j! Gamma[-n+s-I \[Epsilon]-\[Nu]] Pochhammer[2+2 n+2 \[Nu],j]))*)
-
-
-(* ::Subsubsection:: *)
-(*Constructions (depreciated)*)
-
-
-(* ::Text:: *)
-(*The construction of Subscript[R, up] is very much like the one for Subscript[R, C]. To execute the sums we use tableOverNJ[] which constructs a table of all needed terms. Again you can find some plots illustrating the variables nMin, nMax and firstRegularj in the Hyperlink["plot section",{NotebookObject["c6ff3b79-aebc-4585-b130-dd1a930b511b", "9e23625d-8944-48d8-a536-bca7efa5e050"], "plotsUp"}]. These are essential in telling you where to truncate the sums. *)
-
-
-(*tableOverNJ["Up"][\[ScriptL]_,term_,repls_,order\[Eta]_]:=Block[{table,tableNeg,tablePos,aux,aux2,finalj,firstRegularj,firstRegular\[Eta],leading\[Eta]OrderTerm,leading\[Eta]Order,goal\[Eta]Order,aux\[Eta],replsAux,replsLeading,auxOrder,nMin,nMax,status},
-	status="tableing setup";
-replsLeading=SeriesTake[#,7]&/@repls;
-firstRegularj=Min[Abs[2+2\[ScriptL]+2 n]+1,Abs[-2 n-2 \[ScriptL]]+1];
-leading\[Eta]Order=(term/.j->#/.n->0/.replsLeading//SeriesMinOrder)&/@{0,firstRegularj}//Min;
-goal\[Eta]Order=order\[Eta]+leading\[Eta]Order;
-nMin=Min[1/4 (-1-goal\[Eta]Order-2 \[ScriptL]),1/2 (-3-goal\[Eta]Order)]//Ceiling;
-nMax=1/2 (1+goal\[Eta]Order+2 \[ScriptL])//Floor;
-table=Table[
-status="getting finalj";
-firstRegular\[Eta]=(term/.j->firstRegularj/.replsLeading//SeriesMinOrder);
-finalj=firstRegularj+(goal\[Eta]Order-firstRegular\[Eta]);
-Table[
-status="j table";
-leading\[Eta]OrderTerm=term/.replsLeading//SeriesMinOrder;
-If[leading\[Eta]OrderTerm<=goal\[Eta]Order,
-status="entered doing something";
-auxOrder=goal\[Eta]Order-leading\[Eta]OrderTerm+6//Max[#,7]&;
-replsAux=SeriesTake[#,auxOrder]&/@repls;
-status="doing something";
-aux=term/.replsAux;,
-(*else*)
-status="entered doing nothing";
-aux=Quiet[O[\[Eta]]^(goal\[Eta]Order+1)];
-];
-aux
-,{j,0,finalj}]
-,{n,nMin,nMax}];
-table]
-
-RPN["Up"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]Var_,aKerr_,order\[Eta]_]:=Block[{s=\[ScriptS],l=\[ScriptL],m=\[ScriptM]Var,\[ScriptM]=\[ScriptM]Var,\[ScriptA]=aKerr,a=aKerr,aux,aux2,repls,replsCoeff,coeff,table,tableNeg,tablePos,status,list,term},
-Monitor[
-	status="repls";
-repls=replsMST[\[ScriptS],\[ScriptL],\[ScriptM],Max[Ceiling[order\[Eta],3]+9,7]];
-	status="coeff";
-replsCoeff=SeriesTake[#,Max[order\[Eta],7]]&/@repls;
-coeff=(c["Up"][z[r]]//.replsKerr/.\[Epsilon]->2\[Omega]/.replsPN//Simplify)/.replsCoeff;
-	status="constructing term";
-term=element["Up"][n,j,z[r]]a[n]//.replsKerr/.\[Epsilon]->2\[Omega]/.replsPN;
-	status="tableing";
-table=tableOverNJ["Up"][\[ScriptL],term,repls,order\[Eta]];
-	status="flattening";
-table=Total@Flatten@table;
-	status="assembling";
-coeff table//SeriesTake[#,order\[Eta]]&
-,{status,n,j}]]
-*)
 
 
 (* ::Subsubsection::Closed:: *)
@@ -2237,10 +2634,9 @@ RPN["Up",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:
 \[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];
 repls=MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]+7];
 coeff=(-I E^(-\[Pi] \[CurlyEpsilon]-I \[Pi] \[ScriptS])Sin[\[Pi](\[Nu]MST+\[ScriptS]-I \[CurlyEpsilon])]/Sin[2\[Pi] \[Nu]MST]);
-(*coeff=1;*)
 C1=PNScalingsInternal[coeff]/.repls;
 C2=PNScalingsInternal[coeff I E^(-I \[Pi] \[Nu]MST) Sin[\[Pi](\[Nu]MST-\[ScriptS]+I \[CurlyEpsilon])]/ Sin[\[Pi](\[Nu]MST+\[ScriptS]-I \[CurlyEpsilon])]]/.repls;
-term1=C1 RPN["C-\[Nu]-1"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]];
+term1=C1 RPN["C-\[Nu]-1"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]+If[\[ScriptL]===0,2]];
 term2=C2 RPN["C\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,Max[order\[Eta]-2\[ScriptL]+2,0]];
 aux=term1+term2;
 normalization=Switch[OptionValue["Normalization"],
@@ -2429,7 +2825,7 @@ If[!MatchQ[order,_Integer],Message[TeukolskyRadialFunctionPN::paramorder,order];
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*TeukolskyRadialPN*)
 
 
@@ -2459,7 +2855,7 @@ icons = <|
 |>;
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Getting internal association*)
 
 
@@ -2488,6 +2884,74 @@ ret
 
 
 (* ::Subsubsection::Closed:: *)
+(*Getting internal association faster*)
+
+
+Options[RadialAssociationBoth]={"Normalization"->"Default", "Amplitudes"->False, "Simplify"->True}
+
+
+RadialAssociationBoth[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{varPN_,order_},opt:OptionsPattern[]]:=Module[{aux,\[CurlyEpsilon],\[CurlyEpsilon]p,repls,\[Kappa],\[Tau],ret,\[ScriptCapitalK],RC1,RC2,R,RF,gap,coeffUp,C1,C2,BC,lead,minOrder,termCount,normalization,amplitudes,trans,inc,ref},
+CheckInput["In",\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{varPN,order}];
+(*We start with computing some essentials*)
+\[CurlyEpsilon]=2 \[Omega];
+\[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;
+\[Kappa]=Sqrt[1-a^2];
+\[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];
+repls=MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],a,order+7];
+RC1=RPN["C\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order+If[\[ScriptL]===0,2,0]];
+RC2=RPN["C-\[Nu]-1"][\[ScriptS],\[ScriptL],\[ScriptM],a,order+If[\[ScriptL]===0,2,0]];
+
+(*We then turn to R_In*)
+gap=InGap[\[ScriptL],\[ScriptM] a];
+\[ScriptCapitalK]=\[ScriptCapitalK]Amplitude["Ratio"][\[ScriptS],\[ScriptL],\[ScriptM],a,Max[order-gap,2]]//ExpandGamma//ExpandPolyGamma//SeriesCollect[#,PolyGamma[__,__]]&;
+aux=RC1+\[ScriptCapitalK] RC2//SeriesTake[#,order]&;
+normalization["In"]=Switch[OptionValue["Normalization"],
+	"Default",1,
+	"SasakiTagoshi",\[ScriptCapitalK]Amplitude["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order],
+	"UnitTransmission",1/BAmplitude["Trans"][\[ScriptS],\[ScriptL],\[ScriptM],a,order]
+];
+aux=normalization["In"] aux//IgnoreExpansionParameter;
+R["In"]=aux/.{\[Eta]->varPN,\[Omega]->\[Omega]Var};
+If[OptionValue["Simplify"],R["In"]=R["In"]//Simplify];
+
+(*We then move to Rup*)
+coeffUp=(-I E^(-\[Pi] \[CurlyEpsilon]-I \[Pi] \[ScriptS])Sin[\[Pi](\[Nu]MST+\[ScriptS]-I \[CurlyEpsilon])]/Sin[2\[Pi] \[Nu]MST]);
+C1=PNScalingsInternal[coeffUp]/.repls;
+C2=PNScalingsInternal[coeffUp I E^(-I \[Pi] \[Nu]MST) Sin[\[Pi](\[Nu]MST-\[ScriptS]+I \[CurlyEpsilon])]/ Sin[\[Pi](\[Nu]MST+\[ScriptS]-I \[CurlyEpsilon])]]/.repls;
+aux=C1 RC2+C2 RC1;
+normalization["Up"]=Switch[OptionValue["Normalization"],
+	"Default",1,
+	"SasakiTagoshi",1,
+	"UnitTransmission",1/CAmplitude["Trans"][\[ScriptS],\[ScriptL],\[ScriptM],a,order]
+];
+aux=aux//SeriesTake[#,order]&;
+aux=aux normalization["Up"]//IgnoreExpansionParameter;
+R["Up"]=aux/.{\[Eta]->varPN,\[Omega]->\[Omega]Var};
+If[OptionValue["Simplify"],R["Up"]=R["Up"]//Simplify];
+
+(*We then move getting the other keys*)
+RF["In"]=R["In"]/.r->#&;
+RF["Up"]=R["Up"]/.r->#&;
+(minOrder[#]=R[#]//SeriesMinOrder)&/@{"In","Up"};
+(termCount[#]=R[#]//SeriesLength)&/@{"In","Up"};
+normalization=OptionValue["Normalization"];
+trans["In"]=If[OptionValue["Amplitudes"],TeukolskyAmplitudePN["Btrans","Normalization"->OptionValue["Normalization"]][\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega]Var,{varPN,order}],Missing["NotComputed"]];
+trans["Up"]=If[OptionValue["Amplitudes"],TeukolskyAmplitudePN["Ctrans","Normalization"->OptionValue["Normalization"]][\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega]Var,{varPN,order}],Missing["NotComputed"]];
+inc["In"]=If[OptionValue["Amplitudes"],TeukolskyAmplitudePN["Binc","Normalization"->OptionValue["Normalization"]][\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega]Var,{varPN,order}],Missing["NotComputed"]];
+inc["Up"]=If[OptionValue["Amplitudes"],Missing["NotAvailable"],Missing["NotComputed"]];
+ref["In"]=If[OptionValue["Amplitudes"],TeukolskyAmplitudePN["Bref","Normalization"->OptionValue["Normalization"]][\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega]Var,{varPN,order}],Missing["NotComputed"]];
+ref["Up"]=If[OptionValue["Amplitudes"],Missing["NotAvailable"],Missing["NotComputed"]];
+If[OptionValue["Simplify"],{trans["In"],inc["In"],ref["In"]}={trans["In"],inc["In"],ref["In"]}//Simplify];
+If[OptionValue["Simplify"],{trans["Up"],inc["Up"],ref["Up"]}={trans["Up"],inc["Up"],ref["Up"]}//Simplify];
+amplitudes["In"]=<|"Incidence"->inc["In"],"Transmission"->trans["In"],"Reflection"->ref["In"]|>;
+amplitudes["Up"]=<|"Incidence"->inc["Up"],"Transmission"->trans["Up"],"Reflection"->ref["Up"]|>;
+ret["In"]=<|"s"->\[ScriptS],"l"->\[ScriptL],"m"->\[ScriptM],"a"->a,"PN"->{varPN,order},"RadialFunction"->RF["In"],"BoundaryCondition"->"In","SeriesMinOrder"->minOrder["In"],"TermCount"->termCount["In"],"Normalization"->normalization,"Amplitudes"->amplitudes["In"],"Simplify"->OptionValue["Simplify"],"AmplitudesBool"->OptionValue["Amplitudes"]|>;
+ret["Up"]=<|"s"->\[ScriptS],"l"->\[ScriptL],"m"->\[ScriptM],"a"->a,"PN"->{varPN,order},"RadialFunction"->RF["Up"],"BoundaryCondition"->"Up","SeriesMinOrder"->minOrder["Up"],"TermCount"->termCount["Up"],"Normalization"->normalization,"Amplitudes"->amplitudes["Up"],"Simplify"->OptionValue["Simplify"],"AmplitudesBool"->OptionValue["Amplitudes"]|>;
+ret=<|"In"->ret["In"],"Up"->ret["Up"]|>
+]
+
+
+(* ::Subsubsection::Closed:: *)
 (*TeukolskyRadialPN*)
 
 
@@ -2510,11 +2974,10 @@ TeukolskyRadialPN[\[ScriptS], \[ScriptL], \[ScriptM], a, \[Omega],{varPN,aux},op
 ]
 
 
-TeukolskyRadialPN[\[ScriptS]_, \[ScriptL]_, \[ScriptM]_, a_, \[Omega]_,{varPN_,order_},opt:OptionsPattern[]]:=Module[{aux,Rin,Rup,assocUp,assocIn,retIn,retUp},
-assocIn=RadialAssociation["In",opt][\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{varPN,order}];
-retIn=TeukolskyRadialFunctionPN[\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{varPN,order},assocIn];
-assocUp=RadialAssociation["Up",opt][\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{varPN,order}];
-retUp=TeukolskyRadialFunctionPN[\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{varPN,order},assocUp];
+TeukolskyRadialPN[\[ScriptS]_, \[ScriptL]_, \[ScriptM]_, a_, \[Omega]_,{varPN_,order_},opt:OptionsPattern[]]:=Module[{aux,Rin,Rup,assocUp,assoc,retIn,retUp},
+assoc=RadialAssociationBoth[\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{varPN,order},opt];
+retIn=TeukolskyRadialFunctionPN[\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{varPN,order},assoc["In"]];
+retUp=TeukolskyRadialFunctionPN[\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{varPN,order},assoc["Up"]];
 <|"In"->retIn,"Up"->retUp|>
 ]
 
@@ -2539,7 +3002,7 @@ TeukolskyRadialFunctionPN /:
  BoxForm`SummaryItem[{"PN order: ", N[(order-1)/2]"PN"}]
 }],
              BoxForm`SummaryItem[{"Boundary Condition: ", assoc["BoundaryCondition"]}]};           
-  extended = {BoxForm`SummaryItem[{"Leading order: ",assoc["LeadingOrder"]["r"]}],
+  extended = {
     BoxForm`SummaryItem[{"Min order: ",assoc["SeriesMinOrder"]}],
   BoxForm`SummaryItem[{"Number of terms: ",assoc["TermCount"]}],
   BoxForm`SummaryItem[{"Normalization: ",assoc["Normalization"]}],
@@ -2602,9 +3065,10 @@ aux
 ]
 
 
-RadialSourcedAssociation["CO",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,aVar_,r0Var_,{varPN_,order_}]:=Assuming[{varPN>0,r0>0,r>0,1>a>=0,\[ScriptA]>=0},Module[{aux,ret,Scoeffs,SCoeffsF,Rin,dRin,ddRin,Rup,dRup,ddRup,wronskian,source,sourceF,sourceCoeffs,minOrder,cUp,cIn,deltaCoeff,innerF,outerF,inner,outer,radialF,radial,ampAssoc},
+RadialSourcedAssociation["CO",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,aVar_,r0Var_,{varPN_,order_}]:=Assuming[{varPN>0,r0>0,r>0,1>a>=0,\[ScriptA]>=0},Module[{aux,ret,Btrans,Ctrans,\[CapitalOmega],Scoeffs,SCoeffsF,Rin,dRin,ddRin,Rup,dRup,ddRup,wronskian,source,sourceF,sourceCoeffs,minOrder,cUp,cIn,cUpU,cInU,deltaCoeff,innerF,outerF,inner,outer,radialF,radial,ampAssoc},
 CheckInput["Up",\[ScriptS],\[ScriptL],\[ScriptM],aVar,\[ScriptM]/Sqrt[r0Var^3],{varPN,order}];
-aux=TeukolskyRadialPN[\[ScriptS],\[ScriptL],\[ScriptM],aVar,If[\[ScriptM]!=0,\[ScriptM],Style["0",Red]]Inactive[KerrGeodesics`OrbitalFrequencies`KerrGeoFrequencies][aVar,r0Var,0,1]["\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"],{varPN,order},"Normalization"->OptionValue["Normalization"]];
+\[CapitalOmega]=Inactive[KerrGeodesics`OrbitalFrequencies`KerrGeoFrequencies][aVar,r0Var,0,1]["\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"];
+aux=TeukolskyRadialPN[\[ScriptS],\[ScriptL],\[ScriptM],aVar,If[\[ScriptM]!=0,\[ScriptM],Style["0",Red]]\[CapitalOmega],{varPN,order},"Normalization"->OptionValue["Normalization"]];
 Rin=aux["In"][[-1]]["RadialFunction"];
 Rup=aux["Up"][[-1]]["RadialFunction"];
 dRup=Rup';
@@ -2612,8 +3076,9 @@ dRin=Rin';
 ddRup=dRup';
 ddRin=dRin';
 (*The replacements in the wronskian are a quick fix for non vanishing r dependence in case a has a numerical value*)
-wronskian=(Simplify[#1,Assumptions->r>2]&)[Kerr\[CapitalDelta][aVar,r/varPN^2]^(\[ScriptS]+1) varPN^2 (Rin[r] dRup[r]-dRin[r] Rup[r])];
-wronskian=wronskian/.Log[__ r]->0/.r^a_/;a<0:>r^-a/.r->0;
+(*wronskian=(Simplify[#1,Assumptions->r>2]&)[Kerr\[CapitalDelta][aVar,r/varPN^2]^(\[ScriptS]+1) varPN^2 (Rin[r] dRup[r]-dRin[r] Rup[r])];
+wronskian=wronskian//Chop;*)
+wronskian=InvariantWronskian[\[ScriptS],\[ScriptL],\[ScriptM],aVar,If[\[ScriptM]!=0,\[ScriptM],Style["0",Red]]\[CapitalOmega],{varPN, order},"Normalization"->OptionValue["Normalization"]];
 source=TeukolskySourceCircularOrbit[\[ScriptS],\[ScriptL],\[ScriptM],a,{#,r0},"Form"->"InvariantWronskian"]&;
 sourceCoeffs=source[r]//Coefficient[#,{DiracDelta[r-r0],Derivative[1][DiracDelta][r-r0],Derivative[2][DiracDelta][r-r0]}]&;
 sourceCoeffs=Collect[#,{SpinWeightedSpheroidalHarmonicS[__][__],Derivative[__][SpinWeightedSpheroidalHarmonicS[__]][__]},Simplify]&/@sourceCoeffs;
@@ -2627,8 +3092,14 @@ If[aVar===0,{cIn,cUp,deltaCoeff,source}=(Inactivate[#,SpinWeightedSpheroidalHarm
 If[OptionValue["Simplify"],{cIn,cUp,deltaCoeff,source}={cIn,cUp,deltaCoeff,source}//SeriesCollect[#,{SpinWeightedSpheroidalHarmonicS[__],Derivative[__][SpinWeightedSpheroidalHarmonicS][__]},(Simplify[#,{aVar>=0,r0Var>0,varPN>0}]&)]&];
 inner=cIn Rin[r];
 outer=cUp Rup[r];
-If[OptionValue["Simplify"],{inner,outer}={inner,outer}//SeriesCollect[#,{SpinWeightedSpheroidalHarmonicS[__],Derivative[__][SpinWeightedSpheroidalHarmonicS][__]},(Simplify[#,{aVar>=0,r0Var>0,varPN>0}]&)]&];
-ampAssoc=<|"\[ScriptCapitalI]"->cUp,"\[ScriptCapitalH]"->cIn|>;
+If[OptionValue["Simplify"]||\[ScriptM]===0,{inner,outer}={inner,outer}//SeriesCollect[#,{SpinWeightedSpheroidalHarmonicS[__],Derivative[__][SpinWeightedSpheroidalHarmonicS][__]},(Simplify[#,{aVar>=0,r0Var>0,varPN>0}]&)]&];
+If[\[ScriptM]===0,{inner,outer}={inner,outer}/.Log[a_ Style["0",Red]]:>Log[a Style["0",Orange]]/.Style["0",Red]->0];
+{Btrans,Ctrans}={BAmplitude["Trans","Normalization"->OptionValue["Normalization"]][\[ScriptS],\[ScriptL],\[ScriptM],aVar,order],CAmplitude["Trans","Normalization"->OptionValue["Normalization"]][\[ScriptS],\[ScriptL],\[ScriptM],aVar,order]}/.\[Eta]->varPN/.\[Omega]->If[\[ScriptM]!=0,\[ScriptM],Style["0",Red]]\[CapitalOmega];
+{cInU,cUpU}={Btrans cIn,Ctrans cUp};
+If[\[ScriptM]===0,{cInU,cUpU}={Simplify[cInU],Simplify[(Normal[SeriesTake[Rup[r],1]/Ctrans]/.r->varPN^2)cUpU]}/.Log[a_ Style["0",Red]]:>Log[a Style["0",Orange]]/.Style["0",Red]->0];
+ampAssoc=<|"\[ScriptCapitalI]"->cUpU,"\[ScriptCapitalH]"->cInU|>;
+wronskian=wronskian/(Ctrans Btrans);
+If[\[ScriptM]===0,wronskian=(wronskian/(Normal[SeriesTake[Rup[r],1]/Ctrans]/.r->varPN^2)//Simplify)/.Log[a_ Style["0",Red]]:>Log[a Style["0",Orange]]/.Style["0",Red]->0];
 radial=inner HeavisideTheta[r0Var-r] + outer HeavisideTheta[r-r0Var]+deltaCoeff DiracDelta[r-r0Var];
 Scoeffs=SeriesToSCoeffs[radial];
 minOrder=radial//SeriesMinOrder;
@@ -2654,7 +3125,7 @@ ret
 (*RadialSourcedAssociation["CO"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,r0Var_,{varPN_,order_}]/;NumericQ[r0Var]:=RadialSourcedAssociation["CO"][\[ScriptS],\[ScriptL],\[ScriptM],a,r0,{varPN,order}]/.r0->r0Var;*)*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*TeukolskyModePN*)
 
 
@@ -2687,7 +3158,7 @@ TeukolskyModePN /:
 ];
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*TeukolskyPointParticleModePN*)
 
 
@@ -2710,7 +3181,7 @@ TeukolskyPointParticleModePN[\[ScriptS], \[ScriptL], \[ScriptM],orbit,{varPN,aux
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Accessing functions and keys*)
 
 
@@ -2736,7 +3207,7 @@ TeukolskyModePN[s_, l_, m_, a_, r0_,{varPN_,order_},assoc_]["CoefficientList"][r
 Keys[trfpn_TeukolskyModePN]^:= DeleteElements[Join[Keys[trfpn[[-1]]], {}], {"RadialFunction","SeriesMinOrder"}];
 
 
-Derivative[n_Integer][tppm_TeukolskyModePN][r_Symbol]:=tppm[[6,1]]^(2 n) Derivative[n][tppm["RadialFunction"]][r]
+Derivative[n_Integer][tppm_TeukolskyModePN][r_Symbol]:=tppm[[6,1]]^(2 n) Derivative[n][tppm[[-1]]["RadialFunction"]][r]
 
 
 (* ::Section:: *)
