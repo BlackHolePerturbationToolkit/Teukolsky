@@ -63,7 +63,6 @@ TeukolskyPointParticleModePN::particle="TeukolskyPointParticleModePN cannot be e
 (*Developer options*)
 
 
-
 (*\[Nu]MST
 aMST
 \[Omega]
