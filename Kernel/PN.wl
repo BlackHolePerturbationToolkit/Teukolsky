@@ -59,13 +59,13 @@ TeukolskyPointParticleModePN::orbit="As of now TeukolskyPointParticleModePN only
 TeukolskyPointParticleModePN::particle="TeukolskyPointParticleModePN cannot be evaluated directly at the particle. Try the Keys \"ExtendedHomogeneous\"\[Rule]\"\[ScriptCapitalI]\",\"ExtendedHomogeneous\"\[Rule]\"\[ScriptCapitalH]\" and \"\[Delta]\" ";
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Developer options*)
 
 
-\[Nu]MST
+(*\[Nu]MST
 aMST
-(*\[Omega]
+\[Omega]
 a
 \[Kappa]
 \[Gamma]
