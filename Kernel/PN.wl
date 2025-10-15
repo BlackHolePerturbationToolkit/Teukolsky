@@ -845,7 +845,7 @@ MST=Append[MST,Table[a[i]->aMST[i]+If[i==0,0,O[\[Epsilon]]^(ExpOrder+1)],{i,-Exp
 ]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Definitions, replacements and auxiliary functions*)
 
 
@@ -1122,12 +1122,13 @@ PowerCounting[list_List,var_]:=PowerCounting[#,var]&/@list;
 PowerCounting[list_Association,var_]:=PowerCounting[#,var]&/@list;
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Tools for Logs, Gammas, and PolyGammas*)
 
 
 IgnoreLog\[Eta][expr_]:=expr/.Log[x_]/;!FreeQ[x,\[Eta]]:>Log[x/.\[Eta]->1];
-ExpandLog[expr_]:=(expr/.Log[a_]:>PowerExpand[Log[a]]);
+(*ExpandLog[expr_]:=(expr/.Log[a_]:>PowerExpand[Log[a]]);*)
+ExpandLog[expr_,assumps_:True]:=expr/.Log[a_]:>Assuming[assumps,PowerExpand[Log[a],Assumptions->$Assumptions]]
 
 
 (* ::Input:: *)
@@ -1281,7 +1282,7 @@ aux
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Point particle source*)
 
 
