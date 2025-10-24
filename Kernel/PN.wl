@@ -1013,7 +1013,7 @@ ExpandSpheroidals[expr_Times,{\[Eta]_,n_}]:=ExpandSpheroidals[#,{\[Eta],n}]&/@ex
 ExpandSpheroidals[expr_,{\[Eta]_,n_}]:=expr;
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Tools for Series*)
 
 
@@ -1041,11 +1041,10 @@ SeriesCollect[expr_,var__,func_:Identity]:=Collect[#,var,func]&@expr;
 
 
 SeriesTake[series_SeriesData,order_Integer:1]:=Block[{aux},
-series(1+O[series[[1]]]^(order))
+series(1+SeriesData[series[[1]],series[[2]],{},order,order,series[[6]]])
 ]
-SeriesTake[series_SeriesData,0]:=Block[{aux,minOrder},
-minOrder=series//SeriesMinOrder;
-O[series[[1]]]^(minOrder)
+SeriesTake[series_SeriesData,0]:=Block[{aux},
+SeriesData[series[[1]],series[[2]],{},series[[4]],series[[4]],series[[6]]]
 ]
 SeriesTake[series_O,order_Integer:1]:=Block[{aux,minOrder},
 series
@@ -1261,7 +1260,7 @@ ExpandDiracDelta[expr_Plus,x_]:=(ExpandDiracDelta[#,x]&/@expr);
 ExpandDiracDelta[expr_,x_]:=expr;
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Misc*)
 
 
