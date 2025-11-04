@@ -1997,7 +1997,7 @@ aux
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*K Amplitude*)
 
 
@@ -2113,8 +2113,8 @@ Options[\[ScriptCapitalK]Amplitude]={"FreqRep"->False,"Normalization"->"Default"
 \[ScriptCapitalK]Amplitude[sol_,OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,order\[CurlyEpsilon],order},
 order\[CurlyEpsilon]=Ceiling[order\[Eta],3]/3;
 order=If[OptionValue["FreqRep"],order\[Eta],order\[CurlyEpsilon]];
-Echo[OptionValue["FreqRep"]];
 aux=\[ScriptCapitalK]AmplitudeFreq[sol][\[ScriptS],\[ScriptL],\[ScriptM],a,order];
+If[OptionValue["Normalization"]==="DefaultSym",aux=aux ISymmetryFactorFreq[sol][\[ScriptS],\[ScriptL],\[ScriptM],a,order]];
 If[OptionValue["FreqRep"]===False,aux=aux//ChangeSeriesParameter[#,\[Eta]^3]&//SeriesTake[#,order\[Eta]]&];
 aux
 ]
@@ -2126,21 +2126,22 @@ aux
 ]*)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*K Amplitude symmetric*)
 
 
-ISymmetryFactorFreq[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[CurlyEpsilon]_]:=Module[{repls,aux,order},
+ISymmetryFactorFreq[sol_][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[CurlyEpsilon]_]:=Module[{repls,aux,order},
 order=order\[CurlyEpsilon]+1//Max[#,3]&;
 repls=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order];
-aux=I^(\[ScriptS]-\[Nu]MST)/.repls//IgnoreExpansionParameter//SeriesTake[#,order\[CurlyEpsilon]]&;
+aux=Switch[sol,"\[Nu]",I^-(\[ScriptS]-\[Nu]MST),"-\[Nu]-1",I^-(\[ScriptS]+\[Nu]MST+1),"Ratio",I^(-1-2\[Nu]MST)];
+aux=aux/.repls//IgnoreExpansionParameter//SeriesTake[#,order\[CurlyEpsilon]]&;
 aux
 ]
 
 
-ISymmetryFactor[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,order\[CurlyEpsilon]},
+ISymmetryFactor[sol_][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,order\[CurlyEpsilon]},
 order\[CurlyEpsilon]=Ceiling[order\[Eta],3]/3;
-aux=ISymmetryFactorFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]]//ChangeSeriesParameter[#,\[Eta]^3]&//SeriesTake[#,order\[Eta]]&;
+aux=ISymmetryFactorFreq[sol][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]]//ChangeSeriesParameter[#,\[Eta]^3]&//SeriesTake[#,order\[Eta]]&;
 aux
 ]
 
@@ -2171,7 +2172,7 @@ TeukolskyAmplitudePN["K-\[Nu]-1",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\
 TeukolskyAmplitudePN["K",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_}] :=\[ScriptCapitalK]Amplitude["Ratio",opt][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/.{\[Omega]->\[Omega]Var,\[Gamma]->\[Eta]Var,\[Eta]->\[Eta]Var};
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Wronskian*)
 
 
@@ -2206,7 +2207,7 @@ aux
 ]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Constructing Rc*)
 
 
@@ -2426,7 +2427,7 @@ ret
 (*,{status,n,j}]]*)*)
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Subscript[R, In]*)
 
 
@@ -2794,7 +2795,7 @@ gap=InGap[\[ScriptL],\[ScriptM] a];
 aux=RC1+\[ScriptCapitalK] RC2//SeriesTake[#,order]&;
 normalization["In"]=Switch[OptionValue["Normalization"],
 	"Default",1,
-	"DefaultSym",ISymmetryFactor[\[ScriptS],\[ScriptL],\[ScriptM],a,order],
+	"DefaultSym",ISymmetryFactor["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order]^-1,
 	"SasakiTagoshi",\[ScriptCapitalK]Amplitude["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order],
 	"UnitTransmission",1/BAmplitude["Trans"][\[ScriptS],\[ScriptL],\[ScriptM],a,order]
 ];
@@ -2935,11 +2936,11 @@ Derivative[n_Integer][trf_TeukolskyRadialFunctionPN][r_Symbol]:=trf[[6,1]]^(2 n)
 Keys[trfpn_TeukolskyRadialFunctionPN] ^:= DeleteElements[Join[Keys[trfpn[[-1]]], {}], {"RadialFunction","AmplitudesBool"}];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*TeukolskyPointParticleModePN*)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Getting internal association*)
 
 
