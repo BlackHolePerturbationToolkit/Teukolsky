@@ -91,11 +91,11 @@ Begin["`Private`"]
 <<SpinWeightedSpheroidalHarmonics`
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Adrian's code for MST coefficients*)
 
 
-(*KerrMSTSeries[ss_,ll_,mm_,ExpOrderReq_]:=Module[{s=-Abs[ss],pos=Positive[ss],ExpOrder=ExpOrderReq,l=ll,m=mm,\[CapitalDelta]\[Nu]pC,\[CapitalDelta]\[Nu]p2C,\[CapitalDelta]\[Nu]p3C,\[CapitalDelta]\[Nu]p4C,\[CapitalDelta]\[Nu]p5C,\[CapitalDelta]\[Nu]p6C,\[CapitalDelta]\[Nu]pcq,\[Alpha]C,\[Beta]C,\[Gamma]C,\[CapitalDelta]\[Alpha]\[Beta]C,\[Kappa]Simplify,aLeadingBehaviour,acSolved,acqSolved,aShift,eqShift,StructureGrid,AngExpOrder,\[CapitalDelta]E,\[CapitalDelta]EC,ProgressGrid,FinalProgressGrid,aMST,ac,acq,eqnlist,\[CapitalDelta]\[Nu]p,\[CapitalDelta]\[Nu]pc,EqC,\[CapitalDelta]EqC,EqCL,\[CapitalDelta]EqCL,\[CapitalDelta]EqCTable,Solveac,Solve\[CapitalDelta]\[Nu],i,j,k,n,p,flip,\[Nu]MST,MST},
+KerrMSTSeries[ss_Integer,ll_Integer,mm:(_Integer|_Symbol),ExpOrderReq_]:=Module[{s=-Abs[ss],pos=Positive[ss],ExpOrder=ExpOrderReq,ExpOrderSaved=ExpOrderOrig,l=ll,m=mm,\[CapitalDelta]\[Nu]pC,\[CapitalDelta]\[Nu]p2C,\[CapitalDelta]\[Nu]p3C,\[CapitalDelta]\[Nu]p4C,\[CapitalDelta]\[Nu]p5C,\[CapitalDelta]\[Nu]p6C,\[CapitalDelta]\[Nu]pcq,\[Alpha]C,\[Beta]C,\[Gamma]C,\[CapitalDelta]\[Alpha]\[Beta]C,\[Kappa]Simplify,aLeadingBehaviour,acSolved,acqSolved,aShift,eqShift,StructureGrid,AngExpOrder,\[CapitalDelta]E,\[CapitalDelta]EC,ProgressGrid,FinalProgressGrid,aMST,ac,acq,eqnlist,\[CapitalDelta]\[Nu]p,\[CapitalDelta]\[Nu]pc,EqC,\[CapitalDelta]EqC,EqCL,\[CapitalDelta]EqCL,\[CapitalDelta]EqCTable,Solveac,Solve\[CapitalDelta]\[Nu],i,j,k,n,p,flip,\[Nu]MST,MST},
 
 If[pos,ExpOrder+=2];  (* This is a kludge that needs to be fixed - the issue is that the s-> -s transform has factors \[Epsilon]^-2 for negative s *)
 ClearAll[\[CapitalDelta]\[Nu]p2C];
@@ -148,6 +148,8 @@ Do[\[CapitalDelta]\[Nu]pC[k]=0,{k,-12,-1}];
 
 \[Kappa]Simplify[x_]:=Expand[x]/.\[Kappa]^2->(1-q^2);
 \[CapitalDelta]\[Alpha]\[Beta]C[n_,k_]:=(\[Beta]C[-l,k]- \[Alpha]C[-l-1,k])//\[Kappa]Simplify;
+
+Integer0Q[m_]:=IntegerQ[m] && m==0;
 
 ProgressGrid:=Grid[
 Table[
@@ -237,7 +239,7 @@ Do[
 	tmpN=\[Kappa]Simplify[Coefficient[tmpEq[[k+1]],acq[i,j,k+shift],0]];
 	tmpD=-\[Kappa]Simplify[Coefficient[tmpEq[[k+1]],acq[i,j,k+shift]]];
 	If[Verbose,Print["i=",i,"\t j=",j, "\t k=",k,"\t tmpN:=",tmpN,"\t tmpD:=",tmpD]];
-	If[tmpD==0,\[SZ]t["Attempted division by 0 in Solveac\n i=",i,"\t j=",j,"\t k+shift=",k+shift,"\t tmpEq=",Simplify[tmpEq]];Continue[]];
+	If[tmpD==0,Print["Attempted division by 0 in Solveac\n i=",i,"\t j=",j,"\t k+shift=",k+shift,"\t tmpEq=",Simplify[tmpEq]];Continue[]];
 	tmp=tmpN/tmpD;
 	If[Verbose,Print["Eq:\t",tmpEq,"\t",tmpN,"\t",tmpD,"\t",tmp]];
 	acq[i,j,k+shift]=\[Kappa]Simplify[tmp];
@@ -267,8 +269,8 @@ If[Verbose,Print["i=",i,"\t \[CapitalDelta]\[Nu]pC[",i,"]=",\[CapitalDelta]\[Nu]
 
 Which[s==-2,
 	(*Print["s =-2 code"];*)
-		Which[l==2 && m!=0,
-		
+		Which[l==2 && Not[Integer0Q[m]],
+		(*Print["s=-2, l=2 && m!=0 branch"];*)
 		Do[
 		Do[If[n+p<=ExpOrder,Solveac[n,n+p,EqCL[n+1,p-1],0]],{n,1,ExpOrder}];
 		Solve\[CapitalDelta]\[Nu][p,p-1],
@@ -288,7 +290,8 @@ Which[s==-2,
 				Do[If[n+p-4<=ExpOrder+1,Solveac[-n,n+p-4,EqCL[-n+1,p-6],0]],{n,6,ExpOrder+2+Boole[ExpOrder==3]}]],
 		{p,2,ExpOrder}],
 				
-		l==2 && m==0,
+		l==2 && Integer0Q[m],
+		(*Print["s=-2, l=2 && m=0 branch"];*)
 		
 		p=0;
 		Do[If[n+p<=ExpOrder,Solveac[n,n+p,EqCL[n+1,p-1],0]],{n,1,ExpOrder}];
@@ -310,6 +313,8 @@ Which[s==-2,
 		{p,2,ExpOrder}],
 		
 		l>2,
+		(* Print["s=-2, l>=2 branch"]; *)
+
 		Do[
 		   Do[If[n+p<=ExpOrder,Solveac[n,n+p,EqCL[n+1,p-1],0]],{n,1,ExpOrder}]; 
 		   Do[Solveac[-n,n+p,EqCL[-n+1,p-1],0],{n,1,l-2}];
@@ -317,18 +322,18 @@ Which[s==-2,
 		{p,0,3}];
 		
 		p=3;
-		If[m != 0,Solveac[-(l-1),l+1+(p-3),EqCL[-(l-2),(p-3)+5],0]];
-		
+		If[Not[Integer0Q[m]],Solveac[-(l-1),l+1+(p-3),EqCL[-(l-2),(p-3)+5],0]];
+	
 		Do[
-			If[m == 0,Solveac[-(l+1),l+1+(p-4),EqCL[-(l-1),p+2],0],Solveac[-(l+1),l+1+(p-4),EqCL[-(l-1),p+1],1]];
-			If[m == 0,Solveac[-l,l+1+(p-4),EqCL[-l,p+2],0],Solveac[-l,l+1+(p-4),(\[Beta]C[-l,2]- \[Alpha]C[-l-1,2])EqCL[-l+1,p+2]- \[Beta]C[-l,1] \[CapitalDelta]EqCL[-l,p+3],0]]; 
-			If[m == 0,Solveac[-(l-1),l+1+(p-4),EqCL[-(l-2),p+1],0],Solveac[-(l-1),l+2+(p-4),EqCL[-(l-2),p+2],0]];
+			If[Integer0Q[m],Solveac[-(l+1),l+1+(p-4),EqCL[-(l-1),p+2],0],Solveac[-(l+1),l+1+(p-4),EqCL[-(l-1),p+1],1]];
+			If[Integer0Q[m],Solveac[-l,l+1+(p-4),EqCL[-l,p+2],0],Solveac[-l,l+1+(p-4),(\[Beta]C[-l,2]- \[Alpha]C[-l-1,2])EqCL[-l+1,p+2]- \[Beta]C[-l,1] \[CapitalDelta]EqCL[-l,p+3],0]]; 
+			If[Integer0Q[m],Solveac[-(l-1),l+1+(p-4),EqCL[-(l-2),p+1],0],Solveac[-(l-1),l+2+(p-4),EqCL[-(l-2),p+2],0]];
 			
 			Do[If[n+p-4<=ExpOrder+2,Solveac[-n,n+(p-4),EqCL[-n+1,p-4],0]],{n,l+2,2l-1}];
-			If[p>3+Boole[m==0]&&2l+p-4<=ExpOrder+1,Solveac[-2l-1,2l+(p-4)-1,EqCL[-2l,(p-4)],0]];
-		    If[p>3+Boole[m==0]&&2l+p-4<=ExpOrder+1,Solveac[-2l-2,2l+(p-4),EqCL[-2l-1,(p-4)-4],0]];
+			If[p>3+Boole[Integer0Q[m]]&&2l+p-4<=ExpOrder+1,Solveac[-2l-1,2l+(p-4)-1,EqCL[-2l,(p-4)],0]];
+		    If[p>3+Boole[Integer0Q[m]]&&2l+p-4<=ExpOrder+1,Solveac[-2l-2,2l+(p-4),EqCL[-2l-1,(p-4)-4],0]];
 		    If[2l+p-4<=ExpOrder+1,Solveac[-2l,2l+(p-4),EqCL[-2l+1,p-4],0]];
-			Do[If[p>3+Boole[m==0]&&n-1+p-4<=ExpOrder,Solveac[-n-1,n-1+p-4,EqCL[-n,(p-4)-4],0]],{n,2l+2,ExpOrder+1}];
+			Do[If[p>3+Boole[Integer0Q[m]]&&n-1+p-4<=ExpOrder,Solveac[-n-1,n-1+p-4,EqCL[-n,(p-4)-4],0]],{n,2l+2,ExpOrder+1}];
 			Do[If[n+p<=ExpOrder,Solveac[n,n+p,EqCL[n+1,p-1],0]],{n,1,ExpOrder-p}]; 
 			Do[If[n+p<=ExpOrder,Solveac[-n,n+p,EqCL[-n+1,p-1],0]],{n,1,l-2}];
 			
@@ -337,7 +342,7 @@ Which[s==-2,
 
 s==-1,
 	(*Print["s =-1 code"];*)
-	  Which[l==1 (* && m!=0 *),
+	  Which[l==1,
 	    (* Print["l = 1, m != 0 code"]; *)
 	    
 	    p=0;
@@ -350,29 +355,12 @@ s==-1,
 			Solveac[-1,p+2,\[CapitalDelta]EqCL[-1,p+5],0];
 			Solveac[-2,p+1,EqCL[0,p+4],0];
 			Solve\[CapitalDelta]\[Nu][p,p-1];
-			Solveac[-3,p+Boole[m==0],EqCL[-2,p-1+Boole[m==0]],0];
-			Do[If[p+(n-4)+1+Boole[m==0]<=ExpOrder+1,Solveac[-n,p+(n-4)+1+Boole[m==0],EqCL[-n+1,p-5+Boole[m==0]],0]],{n,4,ExpOrder+2}],
+			Solveac[-3,p+Boole[Integer0Q[m]],EqCL[-2,p-1+Boole[Integer0Q[m]]],0];
+			Do[If[p+(n-4)+1+Boole[Integer0Q[m]]<=ExpOrder+1,Solveac[-n,p+(n-4)+1+Boole[Integer0Q[m]],EqCL[-n+1,p-5+Boole[Integer0Q[m]]],0]],{n,4,ExpOrder+2}],
 		{p,1,ExpOrder}],	 
-		
-		(*
-		l==1 && m==0,		
-		(*Print["l = 1, m = 0 code"];*)
-		
-		Do[
-			Do[If[n+p<=ExpOrder+2,Solveac[n,n+p,EqCL[n+1,p-1],0]],{n,1,ExpOrder}]; 
-			If[p>0,
-				Solveac[-1,p+1,\[CapitalDelta]EqCL[-1,p+5],0];
-				Solveac[-2,p+1,EqCL[-1,p+5],0]];
-			If[p>1,
-				Solveac[-4,p+1,EqCL[-3,p-5],0];
-				Solveac[-3,p,EqCL[-2,p-1],0];
-				Do[Solveac[-n,p+n-3,EqCL[-n+1,p-5],0],{n,5,ExpOrder+2}]];
-			Solve\[CapitalDelta]\[Nu][p,p+3],
-		{p,0,ExpOrder}],			    			    			    			    
-	    *)
 	    
 		l>1,
-	    (* Print["|s| = 1, l > 1 code"]; *)
+	    (*Print["|s| = 1, l > 1 code"];*)
 	    	    
 		Do[
 		  Do[If[n+p<=ExpOrder,Solveac[n,n+p,EqCL[n+1,p-1],0]],{n,1,ExpOrder}]; 
@@ -382,24 +370,25 @@ s==-1,
 		
 		p=4;
 		If[m==0,If[p+(l-3)<=ExpOrder+1,Solveac[-l,p+(l-3),EqCL[-l+1,p+1],0]]];
-		Solveac[-l-1,p+(l-3),EqCL[-l,p+Boole[m==0]],1-Boole[m==0]];
+		Solveac[-l-1,p+(l-3),EqCL[-l,p+Boole[Integer0Q[m]]],1-Boole[Integer0Q[m]]];
 		If[m==0,Do[If[n+(p-4)<=ExpOrder+1,Solveac[-n,n+(p-4),EqCL[-n+1,p-4],0]],{n,l+2,2l}]];
 		
 		Do[
 			Do[If[n+p<=ExpOrder,Solveac[n,n+p,EqCL[n+1,p-1],0]],{n,1,ExpOrder}]; 
 			Do[Solveac[-n,n+p,EqCL[-n+1,p-1],0],{n,1,l-1}];
+			(*Echo[p,"p = "];*)
 			If[p<= ExpOrder,Solve\[CapitalDelta]\[Nu][p,p-1]];
-			If[m!=0,
+			If[Not[Integer0Q[m]],
 				(* m !=0 *)
 				Solveac[-l-1,p+(l-3),EqCL[-l+1,p],1] ;
 				Solveac[-l,p+(l-4),EqCL[-l+1,p]+q(EqCL[-l+1,p+1]-EqCL[-l,p+1]),0],
 				(* m==0 *)
 				Solveac[-l,p+(l-3),EqCL[-l+1,p+1],0];
-				Solveac[-l-1,p+(l-3),EqCL[-l,p+Boole[m==0]],1-Boole[m==0]]];
-			Do[If[n+(p-5)+Boole[m==0]<=ExpOrder+1,Solveac[-n,n+(p-5)+Boole[m==0],EqCL[-n+1,p-5+Boole[m==0]],0]],{n,l+2,2l}];
-			If[p+2l-6+Boole[m==0]<=ExpOrder+1,Solveac[-2l-1,p+2l-6+Boole[m==0],EqCL[-2l,p-5+Boole[m==0]],0]];
-			If[p+2l-5+Boole[m==0]<=ExpOrder+1,Solveac[-2l-2,p+2l-5+Boole[m==0],EqCL[-2l-1,p-9+Boole[m==0]],0]];
-			Do[If[n-1+p-5+Boole[m==0]<=ExpOrder+1,Solveac[-n-1,n-1+p-5+Boole[m==0],EqCL[-n,p-9+Boole[m==0]],0]],{n,2l+2,ExpOrder+1}],
+				Solveac[-l-1,p+(l-3),EqCL[-l,p+Boole[Integer0Q[m]]],1-Boole[Integer0Q[m]]]];
+			Do[If[n+(p-5)+Boole[Integer0Q[m]]<=ExpOrder+1,Solveac[-n,n+(p-5)+Boole[Integer0Q[m]],EqCL[-n+1,p-5+Boole[Integer0Q[m]]],0]],{n,l+2,2l}];
+			If[p+2l-6+Boole[Integer0Q[m]]<=ExpOrder+1,Solveac[-2l-1,p+2l-6+Boole[Integer0Q[m]],EqCL[-2l,p-5+Boole[Integer0Q[m]]],0]];
+			If[p+2l-5+Boole[Integer0Q[m]]<=ExpOrder+1,Solveac[-2l-2,p+2l-5+Boole[Integer0Q[m]],EqCL[-2l-1,p-9+Boole[Integer0Q[m]]],0]];
+			Do[If[n-1+p-5+Boole[Integer0Q[m]]<=ExpOrder+1,Solveac[-n-1,n-1+p-5+Boole[Integer0Q[m]],EqCL[-n,p-9+Boole[Integer0Q[m]]],0]],{n,2l+2,ExpOrder+1}],
 		{p,5,ExpOrder+Max[4-l,0]}];
 		],
 
@@ -433,7 +422,7 @@ Which[
 			 Do[If[n+p<=ExpOrder,Solveac[n,n+p,EqCL[n+1,p-1],0]],{n,1,ExpOrder-p}]; 
 			Solveac[-(l),l+p,EqCL[-(l-1),p+5],0];
 			Solve\[CapitalDelta]\[Nu][p,p+1];
-			If[p>=Boole[m==0],
+			If[p>=Boole[Integer0Q[m]],
 			Solveac[-2l,2l+p,EqCL[-(2l-1),(p+4)],0];
 			Solveac[-(2l+2),2l+p,EqCL[-(2l+1),p-4],0];
 			Solveac[-(2l+1),2l-1+p,EqCL[-2l,p],0];
@@ -441,7 +430,7 @@ Which[
 		{p,0,ExpOrder-1}],
 	l>=2,
 	(*Print["l >= 2 code"];*)
-		 If[m==0&&l!=0,ac[-2l,2l]=0;acSolved[-2l,2l]=True];
+		 If[Integer0Q[m]&&l!=0,ac[-2l,2l]=0;acSolved[-2l,2l]=True];
 		 
 		 Do[
 		   Do[If[n+p<=ExpOrder,Solveac[n,n+p,EqCL[n+1,p-1],0]],{n,1,ExpOrder}]; 
@@ -451,12 +440,13 @@ Which[
 		   Solveac[-(l),l+p,EqCL[-(l-1),p+5],0];
 		   Solveac[-(l+1),l+1+p,EqCL[-l,p+4],0];
 		   Do[Solveac[-n,n+p,EqCL[-(n-1),p],0],{n,l+2,2l-1}];
-		   If[p>=2+Boole[m==0],
-				Solveac[-(2l+2),2l+(p-2),EqCL[-(2l+1),(p-2)-4],0];
-		       Solveac[-2l,2l+(p-2),EqCL[-(2l-1),(p-2)],0];
-		       Solveac[-(2l+1),2l-1+(p-2),EqCL[-2l,(p-2)],0];
-		    Do[If[p<ExpOrder,Solveac[-n-1,n+(p-2)-1,EqCL[-n,(p-2)-4],0]],{n,2l+2,ExpOrder+1}]],
-		{p,0,ExpOrder-1}]]
+		   If[p>=2+Boole[Integer0Q[m]],
+			   If[2l+(p-2)<=ExpOrder+1,Solveac[-(2l+2),2l+(p-2),EqCL[-(2l+1),(p-2)-4],0]];
+		       If[2l+(p-2)<=ExpOrder+1,Solveac[-2l,2l+(p-2),EqCL[-(2l-1),(p-2)],0]];
+		       If[2l-1+(p-2)<=ExpOrder+1,Solveac[-(2l+1),2l-1+(p-2),EqCL[-2l,(p-2)],0]];
+		    Do[If[n+(p-2)-1<=ExpOrder+1, Solveac[-n-1,n+(p-2)-1,EqCL[-n,(p-2)-4],0]],{n,2l+2,ExpOrder+1}]],
+		{p,0,ExpOrder-1}]];
+		
 ];
 
 \[Nu]MST=l+Sum[\[CapitalDelta]\[Nu]pC[i] \[Epsilon]^(i+2),{i,0,ExpOrder-2}]+O[\[Epsilon]]^(ExpOrder+1);
@@ -470,15 +460,15 @@ Do[ac[n,i]=Coefficient[aMST[n],\[Epsilon],i],{i,0,ExpOrder+2},{n,-ExpOrder-2,Exp
 ];
 If[pos,ExpOrder-=2];
 
-Print[FinalProgressGrid];
+(* Print[FinalProgressGrid];*)
 
 MST=Association[{\[Nu]->\[Nu]MST+O[\[Epsilon]]^(ExpOrder+1)}];
 MST=Append[MST,Table[a[n]->aMST[n]+If[n==0,0,O[\[Epsilon]]^(ExpOrder+1)],{n,-ExpOrder-2,ExpOrder}]]
 
-]*)
+]
 
 
-KerrMSTSeries[ss_,ll_,mm_,ExpOrder_]:=Module[{s=ss,l=ll,m=mm,\[CapitalDelta]\[Nu]pC,\[CapitalDelta]\[Nu]p2C,\[CapitalDelta]\[Nu]p3C,\[CapitalDelta]\[Nu]p4C,\[CapitalDelta]\[Nu]p5C,\[CapitalDelta]\[Nu]p6C,\[CapitalDelta]\[Nu]pcq,\[Alpha]C,\[Beta]C,\[Gamma]C,\[CapitalDelta]\[Alpha]\[Beta]C,\[Kappa]Simplify,aLeadingBehaviour,acSolved,acqSolved,aShift,eqShift,StructureGrid,AngExpOrder,\[CapitalDelta]E,\[CapitalDelta]EC,ProgressGrid,aMST,ac,acq,eqnlist,\[CapitalDelta]\[Nu]p,\[CapitalDelta]\[Nu]pc,EqC,\[CapitalDelta]EqC,EqCL,\[CapitalDelta]EqCL,\[CapitalDelta]EqCTable,Solveac,Solve\[CapitalDelta]\[Nu],i,j,k,n,p,\[Nu]MST,MST},
+(*KerrMSTSeries[ss_,ll_,mm_,ExpOrder_]:=Module[{s=ss,l=ll,m=mm,\[CapitalDelta]\[Nu]pC,\[CapitalDelta]\[Nu]p2C,\[CapitalDelta]\[Nu]p3C,\[CapitalDelta]\[Nu]p4C,\[CapitalDelta]\[Nu]p5C,\[CapitalDelta]\[Nu]p6C,\[CapitalDelta]\[Nu]pcq,\[Alpha]C,\[Beta]C,\[Gamma]C,\[CapitalDelta]\[Alpha]\[Beta]C,\[Kappa]Simplify,aLeadingBehaviour,acSolved,acqSolved,aShift,eqShift,StructureGrid,AngExpOrder,\[CapitalDelta]E,\[CapitalDelta]EC,ProgressGrid,aMST,ac,acq,eqnlist,\[CapitalDelta]\[Nu]p,\[CapitalDelta]\[Nu]pc,EqC,\[CapitalDelta]EqC,EqCL,\[CapitalDelta]EqCL,\[CapitalDelta]EqCTable,Solveac,Solve\[CapitalDelta]\[Nu],i,j,k,n,p,\[Nu]MST,MST},
 
 
 ClearAll[\[CapitalDelta]\[Nu]p2C];
@@ -843,10 +833,10 @@ Print[ProgressGrid];
 MST=Association[{\[Nu]->\[Nu]MST}];
 MST=Append[MST,Table[a[i]->aMST[i]+If[i==0,0,O[\[Epsilon]]^(ExpOrder+1)],{i,-ExpOrder-2,ExpOrder}]]
 
-]
+]*)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Definitions, replacements and auxiliary functions*)
 
 
@@ -917,7 +907,7 @@ Schwarzschild=#/.replsSchwarzschild&;
 Kerr\[CapitalDelta][a_,r_]:=\[CapitalDelta][a,1,r];
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Post Newtonian Scalings*)
 
 
@@ -1664,11 +1654,11 @@ Derivative[n_][\[Theta]][arg_]:=Derivative[n-1][\[Delta]][arg];
 \[Delta]''[\[Eta]^-2 a_]:=\[Eta]^2 \[Delta]''[a];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Amplitudes*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*A Amplitudes*)
 
 
@@ -1730,7 +1720,7 @@ aux
 ]*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*B Amplitudes*)
 
 
@@ -1958,7 +1948,7 @@ aux
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*K Amplitude*)
 
 
@@ -2087,7 +2077,7 @@ aux
 ]*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*K Amplitude symmetric*)
 
 
@@ -2107,7 +2097,7 @@ aux
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Interface*)
 
 
@@ -2136,7 +2126,7 @@ TeukolskyAmplitudePN["K-\[Nu]-1",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\
 TeukolskyAmplitudePN["K",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_}] :=\[ScriptCapitalK]Amplitude["Ratio",opt][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/.{\[Omega]->\[Omega]Var,\[Gamma]->\[Eta]Var,\[Eta]->\[Eta]Var};
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Wronskian*)
 
 
@@ -2171,7 +2161,7 @@ aux
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Constructing Rc*)
 
 
@@ -2391,7 +2381,7 @@ ret
 (*,{status,n,j}]]*)*)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Subscript[R, In]*)
 
 
@@ -2677,7 +2667,7 @@ If[!MatchQ[order,_Integer],Message[TeukolskyRadialFunctionPN::paramorder,order];
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*TeukolskyRadialPN*)
 
 
@@ -2735,7 +2725,7 @@ ret
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Getting internal association faster*)
 
 
@@ -2880,7 +2870,7 @@ ret
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Accessing functions and keys*)
 
 
@@ -2900,11 +2890,11 @@ Derivative[n_Integer][trf_TeukolskyRadialFunctionPN][r_Symbol]:=trf[[6,1]]^(2 n)
 Keys[trfpn_TeukolskyRadialFunctionPN] ^:= DeleteElements[Join[Keys[trfpn[[-1]]], {}], {"RadialFunction","AmplitudesBool"}];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*TeukolskyPointParticleModePN*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Getting internal association*)
 
 
