@@ -26,7 +26,7 @@ ClearAttributes[{TeukolskyRadialPN, TeukolskyRadialFunctionPN,TeukolskyPointPart
 (*Public *)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Homogeneous solutions*)
 
 
@@ -917,7 +917,7 @@ Schwarzschild=#/.replsSchwarzschild&;
 Kerr\[CapitalDelta][a_,r_]:=\[CapitalDelta][a,1,r];
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Post Newtonian Scalings*)
 
 
@@ -963,6 +963,7 @@ aux=series//RemovePN[#,\[Eta]]&;
 aux//Scalings[arguments,\[Eta]]//SeriesTerms[#,{\[Eta],0,termOrder}]&
 ]
 Scalings[arguments_List,\[Eta]_Symbol][list_List]:=Scalings[arguments,\[Eta]][#]&/@list;
+Scalings[expr_,list_List,\[Eta]_Symbol]:=Scalings[list,\[Eta]][expr];
 
 
 IgnoreExpansionParameter[series_SeriesData,symbol_:1]:=Module[{aux,param,newList},
@@ -1667,7 +1668,7 @@ Derivative[n_][\[Theta]][arg_]:=Derivative[n-1][\[Delta]][arg];
 (*Amplitudes*)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*A Amplitudes*)
 
 
@@ -1801,8 +1802,8 @@ DoABunchOfStuff=(#//IgnoreExpansionParameter//SeriesTake[#,order\[CurlyEpsilon]]
 norm=OptionValue["Normalization"];
 If[!MemberQ[PossibleNormalizations,norm],Message[TeukolskyRadialFunctionPN::norm,OptionValue["Normalization"]];norm="Default"];
 repls=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]+1//Max[#,2]&];
-coeff=(\[CurlyEpsilon]/2)^(-2 \[ScriptS]-1) E^(I \[CurlyEpsilon] (Log[\[CurlyEpsilon]]-(1-\[Kappa])/2))//SeriesTerms[#,{\[Gamma],0,order\[CurlyEpsilon]}]&//DoABunchOfStuff;
-\[ScriptCapitalK]2coeff=I E^(I \[Pi] \[Nu]MST)/.repls//DoABunchOfStuff;
+coeff=DoABunchOfStuff[(SeriesTerms[#1,{\[Gamma],0,order\[CurlyEpsilon]}]&)[(\[CurlyEpsilon]/2)^(-2 \[ScriptS]-1) E^(I \[CurlyEpsilon] (Log[\[CurlyEpsilon]]-(1-\[Kappa])/2))]];
+\[ScriptCapitalK]2coeff=DoABunchOfStuff[I E^(I \[Pi] \[Nu]MST)/. repls];
 \[ScriptCapitalK]1=Switch[norm,
 	"Default",1,
 	"DefaultSym",ISymmetryFactorFreq["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]]^-1,
@@ -1957,7 +1958,7 @@ aux
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*K Amplitude*)
 
 
@@ -2086,7 +2087,7 @@ aux
 ]*)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*K Amplitude symmetric*)
 
 
