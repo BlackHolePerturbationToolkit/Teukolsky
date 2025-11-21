@@ -91,7 +91,7 @@ Begin["`Private`"]
 <<SpinWeightedSpheroidalHarmonics`
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Adrian's code for MST coefficients*)
 
 
@@ -836,7 +836,7 @@ MST=Append[MST,Table[a[i]->aMST[i]+If[i==0,0,O[\[Epsilon]]^(ExpOrder+1)],{i,-Exp
 ]*)
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Definitions, replacements and auxiliary functions*)
 
 
@@ -1113,7 +1113,7 @@ PowerCounting[list_List,var_]:=PowerCounting[#,var]&/@list;
 PowerCounting[list_Association,var_]:=PowerCounting[#,var]&/@list;
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Tools for Logs, Gammas, and PolyGammas*)
 
 
@@ -1145,7 +1145,7 @@ ExpandLog[expr_,assumps_:True]:=expr/.Log[a_]:>Assuming[assumps,PowerExpand[Log[
 
 ExpandGamma[expr_Gamma,j_Integer:0]:=Module[{aux,arg,m,x,n},
 arg=expr/.Gamma[argg_]:>argg;
-{n,x}=If[MatchQ[arg,a_Integer+b__],arg/.\[ScriptN]_Integer + \[ScriptX]__:>{\[ScriptN],\[ScriptX]},{0,arg}];
+{n,x}=If[MatchQ[arg,a_Integer+b_],arg/.\[ScriptN]_Integer + \[ScriptX]_:>{\[ScriptN],\[ScriptX]},{0,arg}];
 aux=(\!\(
 \*UnderoverscriptBox[\(\[Product]\), \(i = 0\), \(n - j - 1\)]\((x + j + i)\)\))(\!\(
 \*UnderoverscriptBox[\(\[Product]\), \(i = n - j\), \(-1\)]
@@ -1154,6 +1154,8 @@ aux
 ]
 ExpandGamma[expr_,j_Integer:0]/;FreeQ[expr,Gamma]:=expr;
 ExpandGamma[expr_,j_Integer:0]:=ExpandGamma[#,j]&/@expr;
+
+
 
 
 (* ::Input:: *)
@@ -1186,7 +1188,7 @@ ExpandGamma[expr_,j_Integer:0]:=ExpandGamma[#,j]&/@expr;
 
 ExpandPolyGamma[expr_PolyGamma,j_Integer:0]:=Module[{aux,arg,x,m,n},
 {m,arg}=expr/.PolyGamma[\[ScriptM]_,argg_]:>{\[ScriptM],argg};
-{n,x}=If[MatchQ[arg,a_Integer+b__],arg/.\[ScriptN]_Integer + \[ScriptX]__:>{\[ScriptN],\[ScriptX]},{0,arg}];
+{n,x}=If[MatchQ[arg,a_Integer+b_],arg/.\[ScriptN]_Integer + \[ScriptX]_:>{\[ScriptN],\[ScriptX]},{0,arg}];
 aux=(-1)^m (m!)(\!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(i = 0\), \(n - j - 1\)]
 \*FractionBox[\(1\), 
@@ -1654,7 +1656,7 @@ Derivative[n_][\[Theta]][arg_]:=Derivative[n-1][\[Delta]][arg];
 \[Delta]''[\[Eta]^-2 a_]:=\[Eta]^2 \[Delta]''[a];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Amplitudes*)
 
 
@@ -1830,7 +1832,7 @@ aux
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*C Amplitude*)
 
 
@@ -1841,24 +1843,12 @@ aux
 Options[CAmplitudeFreq]={"Normalization"->"Default"}
 
 
-(*CAmplitude["Trans",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,\[CurlyEpsilon],\[Kappa],\[CurlyEpsilon]p,\[Tau],\[ScriptCapitalK],A},
-\[CurlyEpsilon]=2 \[Omega];
-\[Kappa]=Sqrt[1-a^2];
-\[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;
-\[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];
-aux=\[Omega]^(-1-2\[ScriptS]) A E^(I (\[CurlyEpsilon] Log[\[CurlyEpsilon]]-(1-\[Kappa])/2 \[CurlyEpsilon]))//PNScalingsInternal;
-aux=aux/.MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]+3];
-A=AAmplitude["-"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]];
-aux//SeriesTake[#,order\[Eta]]&//IgnoreExpansionParameter
-]*)
-
-
 CAmplitudeFreq["Trans",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[CurlyEpsilon]_]:=Module[{aux,\[CurlyEpsilon],\[Kappa],\[CurlyEpsilon]p,\[Tau],\[ScriptCapitalK],A,coeff},
 \[CurlyEpsilon]=2 \[Omega] \[Gamma];
 \[Kappa]=Sqrt[1-a^2];
 \[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;
 \[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];
-coeff=(\[CurlyEpsilon]/2)^(-1-2 \[ScriptS]) E^(I (\[CurlyEpsilon] Log[\[CurlyEpsilon]]-1/2 (1-\[Kappa]) \[CurlyEpsilon]))//SeriesTerms[#,{\[Gamma],0,order\[CurlyEpsilon]}]&//IgnoreExpansionParameter;
+coeff=IgnoreExpansionParameter[(SeriesTerms[#1,{\[Gamma],0,order\[CurlyEpsilon]}]&)[(\[CurlyEpsilon]/2)^(-1-2 \[ScriptS]) E^(I (\[CurlyEpsilon] Log[\[CurlyEpsilon]]-1/2 (1-\[Kappa]) \[CurlyEpsilon]))]];
 A=AAmplitudeFreq["-"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]];
 aux=coeff A;
 aux=aux//SeriesTake[#,order\[CurlyEpsilon]]&//IgnoreExpansionParameter;
@@ -1876,20 +1866,11 @@ jumpCount=1;
 repls\[Nu]=<|\[Nu]MST->(repls[\[Nu]MST]//SeriesTake[#,order\[Eta]+4+3jumpCount]&)|>;
 nMax=order\[Eta]/3//Ceiling;
 nMin=-(order\[Eta]/3+2)//Floor;
-D1=E^(-I \[Kappa](\[CurlyEpsilon]+\[Tau])(1/2+Log[\[Kappa]]/(1+\[Kappa]))) (Sin[\[Pi](\[Nu]MST+I \[CurlyEpsilon])]Sin[\[Pi](\[Nu]MST+I \[Tau])]Gamma[1-\[ScriptS]-I(\[CurlyEpsilon]+\[Tau])])/(Sin[2 \[Pi] \[Nu]MST]Sin[I \[Pi](\[CurlyEpsilon]+\[Tau])]Gamma[1+\[ScriptS]+I(\[CurlyEpsilon]+\[Tau])]);
+D1=(E^(-I \[Kappa] (\[CurlyEpsilon]+\[Tau]) (1/2+Log[\[Kappa]]/(1+\[Kappa]))) (Sin[\[Pi] (\[Nu]MST+I \[CurlyEpsilon])] Sin[\[Pi] (\[Nu]MST+I \[Tau])] Gamma[1-\[ScriptS]-I (\[CurlyEpsilon]+\[Tau])]))/(Sin[2 \[Pi] \[Nu]MST] Sin[I \[Pi] (\[CurlyEpsilon]+\[Tau])] Gamma[1+\[ScriptS]+I (\[CurlyEpsilon]+\[Tau])]);
 D2=D1/.\[Nu]MST->-\[Nu]MST-1;
-(*\[ScriptCapitalK]1=\[ScriptCapitalK]Amplitude["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]^-1//ExpandPolyGamma//ExpandGamma//SeriesCollect[#,PolyGamma[___],Simplify]&;
-\[ScriptCapitalK]2=\[ScriptCapitalK]Amplitude["Ratio"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]^-1//ExpandPolyGamma//ExpandGamma//SeriesCollect[#,PolyGamma[___],Simplify]&;
-aa=PNScalingsInternal[(E^(-I \[Pi] \[Nu]MST) Sin[\[Pi](\[Nu]MST-\[ScriptS]-I \[CurlyEpsilon])]) D1]/.repls\[Nu]//IgnoreExpansionParameter//ExpandGamma//ExpandPolyGamma;
-bb=PNScalingsInternal[-(I Sin[\[Pi](\[Nu]MST+\[ScriptS]-I \[CurlyEpsilon])]) D2]/.repls\[Nu]//IgnoreExpansionParameter//ExpandGamma//ExpandPolyGamma;
-cc=bb \[ScriptCapitalK]2;
-sum=( \!\(
-\*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(nMax\)]\(aMST[n]\)\))/.repls//IgnoreExpansionParameter//ExpandGamma//ExpandPolyGamma;
-aux=aa+cc;
-aux=\[ScriptCapitalK]1 coeff aux sum;*)
 
-coeff=E^-(\[Pi] \[CurlyEpsilon]+I\[NonBreakingSpace]\[Pi] \[ScriptS])/Sin[2 \[Pi] \[Nu]MST];
-aux=(PNScalingsInternal[coeff/\[ScriptCapitalK]1 ((E^(-I \[Pi] \[Nu]MST) Sin[\[Pi](\[Nu]MST-\[ScriptS]-I \[CurlyEpsilon])]) D1-(I Sin[\[Pi](\[Nu]MST+\[ScriptS]-I \[CurlyEpsilon])])/\[ScriptCapitalK]2 D2)]/.repls\[Nu])(( \!\(
+coeff=E^-(\[Pi] \[CurlyEpsilon]+I \[Pi] \[ScriptS])/Sin[2 \[Pi] \[Nu]MST];
+aux=(PNScalingsInternal[coeff ((E^(-I \[Pi] \[Nu]MST) Sin[\[Pi] (\[Nu]MST-\[ScriptS]+I \[CurlyEpsilon])])/\[ScriptCapitalK]1 D1-((I Sin[\[Pi] (\[Nu]MST+\[ScriptS]-I \[CurlyEpsilon])]) D2)/\[ScriptCapitalK]2)]/. repls\[Nu])(( \!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(nMax\)]\(aMST[n]\)\))/.repls)//IgnoreExpansionParameter//ExpandGamma//ExpandPolyGamma;
 aux=aux//Normal;
 aux=aux/.\[ScriptCapitalK]1->(\[ScriptCapitalK]Amplitude["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]//ExpandPolyGamma//ExpandGamma//SeriesCollect[#,PolyGamma[__,__]]&);
@@ -1913,7 +1894,7 @@ nMin=-(order\[Eta]/3+2)//Floor;
 D1=-E^(I \[Kappa](\[CurlyEpsilon]+\[Tau])(1/2+Log[\[Kappa]]/(1+\[Kappa]))) (2\[Kappa])^(2\[ScriptS]) (Sin[\[Pi](\[Nu]MST-I \[CurlyEpsilon])]Sin[\[Pi](\[Nu]MST-I \[Tau])])/(Sin[2 \[Pi] \[Nu]MST]Sin[I \[Pi](\[CurlyEpsilon]+\[Tau])]);
 D2=D1/.\[Nu]MST->-\[Nu]MST-1;
 coeff=E^-(\[Pi] \[CurlyEpsilon]+I\[NonBreakingSpace]\[Pi] \[ScriptS])/Sin[2 \[Pi] \[Nu]MST];
-aux=(PNScalingsInternal[coeff ((E^(-I \[Pi] \[Nu]MST) Sin[\[Pi](\[Nu]MST-\[ScriptS]+I \[CurlyEpsilon])])/\[ScriptCapitalK]1 D1-(I Sin[\[Pi](\[Nu]MST+\[ScriptS]-I \[CurlyEpsilon])])/\[ScriptCapitalK]2 D2)]/.repls\[Nu])(( \!\(
+aux=(PNScalingsInternal[coeff (((E^(-I \[Pi] \[Nu]MST) Sin[\[Pi] (\[Nu]MST-\[ScriptS]+I \[CurlyEpsilon])]) D1)/\[ScriptCapitalK]1-((I Sin[\[Pi] (\[Nu]MST+\[ScriptS]-I \[CurlyEpsilon])]) D2)/\[ScriptCapitalK]2)]/. repls\[Nu])(( \!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(nMax\)]\(aMST[n]\)\))/.repls)//IgnoreExpansionParameter//ExpandGamma//ExpandPolyGamma;
 aux=aux//Normal;
 \[ScriptCapitalK]1=\[ScriptCapitalK]Amplitude["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]//ExpandPolyGamma//ExpandGamma//SeriesCollect[#,PolyGamma[__,__]]&;
