@@ -31,7 +31,7 @@ ClearAttributes[{PNScalings, RemovePN}, {Protected, ReadProtected}];
 ClearAttributes[{ExpandLog, ExpandGamma,ExpandPolyGamma,PochhammerToGamma,GammaToPochhammer,ExpandDiracDelta,ExpandSpheroidals,CollectDerivatives}, {Protected, ReadProtected}];
 
 
-ClearAttributes[{TeukolskyAmplitudePN, InvariantWronskian,TeukolskyPointParticleSource,TeukolskyEquation}, {Protected, ReadProtected}];
+ClearAttributes[{InvariantWronskian,TeukolskyPointParticleSource,TeukolskyEquation}, {Protected, ReadProtected}];
 
 
 ClearAttributes[{Paint,CowboyConjugate}, {Protected, ReadProtected}];
@@ -119,21 +119,6 @@ ExpandSpheroidals::usage="ExpandSpheroidal[expr,{param,order}] returns a all Spi
 CollectDerivatives::usage="CollectDerivatives[expr,f] works exactly like Collect[] but also collects for derivatives of f."
 Paint::usage="Paint[expr,var] paints all occurences of var in expr Red."
 CowboyConjugate::usage="CowboyConjugate[expr] performs the complex conjugate by assuming everything but \[ImaginaryI] is real."
-
-
-(* ::Subsection:: *)
-(*Amplitudes*)
-
-
-TeukolskyAmplitudePN::usage="TeukolskyAmplitudePN[\"sol\"][\[ScriptS], \[ScriptL], \[ScriptM], a, \[Omega], {\[Eta], n}] gives the desired PN expanded amplitude. Options for sol are as follows: 
-\"A+\": Sasaki Tagoshi Eq.(157), 
-\"A-\": ST Eq.(158), 
-\"Btrans\": ST Eq.(167), 
-\"Binc\": ST Eq.(168) divided by \!\(\*SubscriptBox[\(K\), \(\[Nu]\)]\), 
-\"Ctrans\": Eq.(170) ST, 
-\"K\": , 
-\"K\[Nu]\": , 
-\"K-\[Nu]-1\": "
 
 
 (* ::Subsection:: *)
@@ -232,13 +217,6 @@ CowboyConjugate=Teukolsky`PN`Private`CowboyConjugate
 
 
 (* ::Subsection::Closed:: *)
-(*Amplitudes*)
-
-
-TeukolskyAmplitudePN=Teukolsky`PN`Private`TeukolskyAmplitudePN
-
-
-(* ::Subsection::Closed:: *)
 (*Wronskian*)
 
 
@@ -282,7 +260,7 @@ SetAttributes[{PNScalings, RemovePN}, {Protected, ReadProtected}];
 SetAttributes[{ExpandLog, ExpandGamma,ExpandPolyGamma,PochhammerToGamma,GammaToPochhammer,ExpandDiracDelta,ExpandSpheroidals,CollectDerivatives}, {Protected, ReadProtected}];
 
 
-SetAttributes[{TeukolskyAmplitudePN, InvariantWronskian,TeukolskyPointParticleSource,TeukolskyEquation}, {Protected, ReadProtected}];
+SetAttributes[{InvariantWronskian,TeukolskyPointParticleSource,TeukolskyEquation}, {Protected, ReadProtected}];
 
 
 SetAttributes[{Paint,CowboyConjugate}, {Protected, ReadProtected}];
