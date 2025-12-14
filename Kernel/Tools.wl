@@ -19,9 +19,6 @@ BeginPackage["Teukolsky`PN`Tools`",{"Teukolsky`","Teukolsky`PN`"}]
 (*Unprotecting*)
 
 
-ClearAttributes[{\[Nu]MST, aMST,MSTCoefficients}, {Protected, ReadProtected}];
-
-
 ClearAttributes[{SeriesTake, SeriesMinOrder,SeriesMaxOrder,SeriesLength,SeriesCollect,SeriesTerms,IgnoreExpansionParameter,ChangeSeriesParameter,PowerCounting}, {Protected, ReadProtected}];
 
 
@@ -45,19 +42,20 @@ ClearAttributes[{Paint,CowboyConjugate}, {Protected, ReadProtected}];
 (*MST Coefficients*)
 
 
-\[Nu]MST::usage="\[Nu]MST is representative of the \[Nu] coefficient in the MST solutions"
-aMST::usage="aMST[\!\(\*
-StyleBox[\"n\",\nFontSlant->\"Italic\"]\)] is the \!\(\*SuperscriptBox[
-StyleBox[\"n\",\nFontSlant->\"Italic\"], \(th\)]\) MST coefficient";
-MSTCoefficients::usage="MSTCoefficients[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]] gives the PN expanded MST coefficients aMST[n] for a given {\[ScriptS],\[ScriptL],\[ScriptM]} mode up to \[Eta]^order\[Eta]."
-(*KerrMSTSeries::usage="KerrMSTSeries[\!\(\*
-StyleBox[\"\[ScriptS]\",\nFontSlant->\"Italic\"]\),\!\(\*
-StyleBox[\"\[ScriptL]\",\nFontSlant->\"Italic\"]\),\!\(\*
-StyleBox[\"\[ScriptM]\",\nFontSlant->\"Italic\"]\),\!\(\*
-StyleBox[\"order\[Epsilon]\",\nFontSlant->\"Italic\"]\)] gives the PN expanded MST coefficients a[n] for a given {\!\(\*
-StyleBox[\"\[ScriptS]\",\nFontSlant->\"Italic\"]\), \!\(\*
-StyleBox[\"\[ScriptL]\",\nFontSlant->\"Italic\"]\), \!\(\*
-StyleBox[\"\[ScriptM]\",\nFontSlant->\"Italic\"]\)} mode up to \!\(\*SuperscriptBox[\(\[Epsilon]\), \(order\[Epsilon]\)]\). Where the relation to \[Eta] is given by \[Epsilon]=2 \[Omega] \!\(\*SuperscriptBox[\(\[Eta]\), \(3\)]\)."*)
+(* ::Input:: *)
+(*(*\[Nu]MST::usage="\[Nu]MST is representative of the \[Nu] coefficient in the MST solutions"*)
+(*aMST::usage="aMST[\!\(\**)
+(*StyleBox[\"n\",\nFontSlant->\"Italic\"]\)] is the \!\(\*SuperscriptBox[*)
+(*StyleBox[\"n\",\nFontSlant->\"Italic\"], \(th\)]\) MST coefficient";*)
+(*MSTCoefficients::usage="MSTCoefficients[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]] gives the PN expanded MST coefficients aMST[n] for a given {\[ScriptS],\[ScriptL],\[ScriptM]} mode up to \[Eta]^order\[Eta]."*)
+(*(*KerrMSTSeries::usage="KerrMSTSeries[\!\(\**)
+(*StyleBox[\"\[ScriptS]\",\nFontSlant->\"Italic\"]\),\!\(\**)
+(*StyleBox[\"\[ScriptL]\",\nFontSlant->\"Italic\"]\),\!\(\**)
+(*StyleBox[\"\[ScriptM]\",\nFontSlant->\"Italic\"]\),\!\(\**)
+(*StyleBox[\"order\[Epsilon]\",\nFontSlant->\"Italic\"]\)] gives the PN expanded MST coefficients a[n] for a given {\!\(\**)
+(*StyleBox[\"\[ScriptS]\",\nFontSlant->\"Italic\"]\), \!\(\**)
+(*StyleBox[\"\[ScriptL]\",\nFontSlant->\"Italic\"]\), \!\(\**)
+(*StyleBox[\"\[ScriptM]\",\nFontSlant->\"Italic\"]\)} mode up to \!\(\*SuperscriptBox[\(\[Epsilon]\), \(order\[Epsilon]\)]\). Where the relation to \[Eta] is given by \[Epsilon]=2 \[Omega] \!\(\*SuperscriptBox[\(\[Eta]\), \(3\)]\)."*)*)*)
 
 
 (* ::Subsection:: *)
@@ -243,9 +241,6 @@ TeukolskyEquation=Teukolsky`PN`Private`TeukolskyEquation
 
 (* ::Subsection:: *)
 (*Protecting*)
-
-
-SetAttributes[{\[Nu]MST, aMST,MSTCoefficients}, {Protected, ReadProtected}];
 
 
 SetAttributes[{SeriesTake, SeriesMinOrder,SeriesMaxOrder,SeriesLength,SeriesTerms,IgnoreExpansionParameter,ChangeSeriesParameter,PowerCounting}, {Protected, ReadProtected}];

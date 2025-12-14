@@ -22,6 +22,9 @@ BeginPackage["Teukolsky`PN`",{"Teukolsky`"}]
 ClearAttributes[{TeukolskyRadialPN, TeukolskyRadialFunctionPN,TeukolskyPointParticleModePN,TeukolskyAmplitudePN}, {Protected, ReadProtected}];
 
 
+ClearAttributes[{MSTCoefficientsPN}, {Protected, ReadProtected}];
+
+
 (* ::Section:: *)
 (*Public *)
 
@@ -64,18 +67,22 @@ TeukolskyPointParticleModePN::particle="TeukolskyPointParticleModePN cannot be e
 (*Amplitudes*)
 
 
-TeukolskyAmplitudePN::usage="TeukolskyAmplitudePN[\"sol\"][\[ScriptS], \[ScriptL], \[ScriptM], a, \[Omega], {\[Gamma], n}] gives the desired PN expanded amplitude. Possible values for \"sol\" are as follows: 
-\"A+\": Sasaki Tagoshi Eq.(157), 
-\"A-\": ST Eq.(158), 
-\"Btrans\": ST Eq.(167), 
-\"Bref\":, 
-\"Binc\": ST Eq.(168) divided by \!\(\*SubscriptBox[\(K\), \(\[Nu]\)]\), 
-\"Ctrans\": ST Eq.(170), 
-\"Cref\", 
-\"Cinc\", 
-\"K\": , 
-\"K\[Nu]\": , 
-\"K-\[Nu]-1\":"
+TeukolskyAmplitudePN::usage="   TeukolskyAmplitudePN[\"sol\"][\[ScriptS], \[ScriptL], \[ScriptM], a, \[Omega], {\[Gamma], n}] gives the desired PN expanded amplitude. Possible values for sol are as follows: A+, A-, Btrans, Binc, Bref, Ctrans, Cinc, Cref, K\[Nu], K-\[Nu]-1, K"
+
+
+(* ::Subsection:: *)
+(*MST Coefficients*)
+
+
+MSTCoefficientsPN::usage="MSTCoefficients[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]] gives the PN expanded MST coefficients aMST[n] for a given {\[ScriptS],\[ScriptL],\[ScriptM]} mode up to \[Eta]^order\[Eta]."
+(*KerrMSTSeries::usage="KerrMSTSeries[\!\(\*
+StyleBox[\"\[ScriptS]\",\nFontSlant->\"Italic\"]\),\!\(\*
+StyleBox[\"\[ScriptL]\",\nFontSlant->\"Italic\"]\),\!\(\*
+StyleBox[\"\[ScriptM]\",\nFontSlant->\"Italic\"]\),\!\(\*
+StyleBox[\"order\[Epsilon]\",\nFontSlant->\"Italic\"]\)] gives the PN expanded MST coefficients a[n] for a given {\!\(\*
+StyleBox[\"\[ScriptS]\",\nFontSlant->\"Italic\"]\), \!\(\*
+StyleBox[\"\[ScriptL]\",\nFontSlant->\"Italic\"]\), \!\(\*
+StyleBox[\"\[ScriptM]\",\nFontSlant->\"Italic\"]\)} mode up to \!\(\*SuperscriptBox[\(\[Epsilon]\), \(order\[Epsilon]\)]\). Where the relation to \[Eta] is given by \[Epsilon]=2 \[Omega] \!\(\*SuperscriptBox[\(\[Eta]\), \(3\)]\)."*)
 
 
 (* ::Subsection::Closed:: *)
@@ -865,7 +872,7 @@ MST=Append[MST,Table[a[i]->aMST[i]+If[i==0,0,O[\[Epsilon]]^(ExpOrder+1)],{i,-Exp
 assumps={r>2,r0>2,a>=0,\[Eta]>0,\[Omega]>=0}
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*MST Coefficients*)
 
 
@@ -898,16 +905,21 @@ ret
 ]
 
 
-Options[MSTCoefficients]={"FreqRep"->False}
+Options[MSTCoefficientsPN]={"FreqRep"->True}
 
 
-MSTCoefficients[\[ScriptS]_Integer,\[ScriptL]_Integer,\[ScriptM]_,aKerr_,\[Omega]Var_,{expVar_,order_Integer},OptionsPattern[]]:=Module[{aux},
+(*MSTCoefficients[\[ScriptS]_Integer,\[ScriptL]_Integer,\[ScriptM]_,aKerr_,\[Omega]Var_,{expVar_,order_Integer},OptionsPattern[]]:=Module[{aux},
 aux=MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],aKerr,order];
 aux=aux/.{\[Omega]->\[Omega]Var,\[Eta]->expVar};
 aux
-]
-MSTCoefficients[\[ScriptS]_Integer,\[ScriptL]_Integer,\[ScriptM]_,aKerr_,\[Omega]Var_,{expVar_,order_Integer},"FreqRep"->True]:=Module[{aux},
-aux=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],aKerr,order];
+]*)
+MSTCoefficientsPN[\[ScriptS]_Integer,\[ScriptL]_Integer,\[ScriptM]_,aKerr_,\[Omega]Var_,{expVar_,order_Integer},OptionsPattern[]]:=Module[{aux,keys,values,auxOrder},
+auxOrder=If[OptionValue["FreqRep"],order,Ceiling[order,3]/3];
+aux=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],aKerr,auxOrder];
+keys=aux//Keys//ReplaceAll[#,{\[Nu]MST->Symbol["\[Nu]MST"] ,Teukolsky`PN`Private`aMST->\[Nu]MST,aMST[n_]:>Symbol["aMST"][n]}]&;
+values=aux//Values;
+If[!OptionValue["FreqRep"],values=values//ChangeSeriesParameter[#,\[Gamma]^3]&//SeriesTake[#,order]&];
+aux=keys->values//Thread//Association;
 aux=aux/.{\[Omega]->\[Omega]Var,\[Gamma]->expVar};
 aux
 ]
@@ -2771,7 +2783,7 @@ If[!MatchQ[order,_Integer],Message[TeukolskyRadialFunctionPN::paramorder,order];
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*TeukolskyRadialPN*)
 
 
@@ -2829,7 +2841,7 @@ ret
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Getting internal association faster*)
 
 
@@ -2994,7 +3006,7 @@ Derivative[n_Integer][trf_TeukolskyRadialFunctionPN][r_Symbol]:=trf[[6,1]]^(2 n)
 Keys[trfpn_TeukolskyRadialFunctionPN] ^:= DeleteElements[Join[Keys[trfpn[[-1]]], {}], {"RadialFunction","AmplitudesBool"}];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*TeukolskyPointParticleModePN*)
 
 
@@ -3167,6 +3179,9 @@ Derivative[n_Integer][tppm_TeukolskyModePN][r_Symbol]:=tppm[[6,1]]^(2 n) Derivat
 
 
 SetAttributes[{TeukolskyRadialPN, TeukolskyRadialFunctionPN, TeukolskyPointParticleModePN,TeukolskyAmplitudePN}, {Protected, ReadProtected}];
+
+
+SetAttributes[{MSTCoefficientsPN}, {Protected, ReadProtected}];
 
 
 (* ::Subsection:: *)
