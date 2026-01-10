@@ -31,7 +31,7 @@ ClearAttributes[{ExpandLog, ExpandGamma,ExpandPolyGamma,PochhammerToGamma,GammaT
 ClearAttributes[{InvariantWronskian,TeukolskyPointParticleSource,TeukolskyEquation}, {Protected, ReadProtected}];
 
 
-ClearAttributes[{Paint,CowboyConjugate}, {Protected, ReadProtected}];
+ClearAttributes[{Paint,CowboyConjugate,ChangeContext}, {Protected, ReadProtected}];
 
 
 (* ::Section:: *)
@@ -117,6 +117,7 @@ ExpandSpheroidals::usage="ExpandSpheroidal[expr,{param,order}] returns a all Spi
 CollectDerivatives::usage="CollectDerivatives[expr,f] works exactly like Collect[] but also collects for derivatives of f."
 Paint::usage="Paint[expr,var] paints all occurences of var in expr Red."
 CowboyConjugate::usage="CowboyConjugate[expr] performs the complex conjugate by assuming everything but \[ImaginaryI] is real."
+ChangeContext::usage="ChangeContext[expr,context1,context2] is a debugging tool that allows to change the context of all symbols in expr"
 
 
 (* ::Subsection:: *)
@@ -212,6 +213,7 @@ ExpandSpheroidals=Teukolsky`PN`Private`ExpandSpheroidals
 CollectDerivatives=Teukolsky`PN`Private`CollectDerivatives
 Paint=Teukolsky`PN`Private`Paint
 CowboyConjugate=Teukolsky`PN`Private`CowboyConjugate
+ChangeContext=Teukolsky`PN`Private`ChangeContext
 
 
 (* ::Subsection::Closed:: *)
@@ -258,7 +260,7 @@ SetAttributes[{ExpandLog, ExpandGamma,ExpandPolyGamma,PochhammerToGamma,GammaToP
 SetAttributes[{InvariantWronskian,TeukolskyPointParticleSource,TeukolskyEquation}, {Protected, ReadProtected}];
 
 
-SetAttributes[{Paint,CowboyConjugate}, {Protected, ReadProtected}];
+SetAttributes[{Paint,CowboyConjugate,ChangeContext}, {Protected, ReadProtected}];
 
 
 (* ::Subsection:: *)
