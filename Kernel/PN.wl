@@ -114,7 +114,11 @@ Begin["`Private`"]
 <<SpinWeightedSpheroidalHarmonics`
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
+(*MST Coefficients*)
+
+
+(* ::Subsubsection::Closed:: *)
 (*Adrian's code for MST coefficients*)
 
 
@@ -859,19 +863,8 @@ MST=Append[MST,Table[a[i]->aMST[i]+If[i==0,0,O[\[Epsilon]]^(ExpOrder+1)],{i,-Exp
 ]*)
 
 
-(* ::Subsection:: *)
-(*Definitions, replacements and auxiliary functions*)
-
-
-(* ::Subsubsection::Closed:: *)
-(*Assumptions *)
-
-
-assumps={r>2,r0>2,a>=0,\[Eta]>0,\[Omega]>=0}
-
-
-(* ::Subsubsection::Closed:: *)
-(*MST Coefficients*)
+(* ::Subsubsection:: *)
+(*Interface*)
 
 
 replsMST[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,order\[Eta]_]:=Module[{aux,values,res,\[Nu]Value},
@@ -890,10 +883,10 @@ keys->values//Thread//Association
 ]
 
 
-MSTCoefficientsInternal[-2,\[ScriptL]_,\[ScriptM]_,aKerr_,order\[Eta]_Integer]:=Block[{aux,values,keys,order\[CurlyEpsilon]},
+MSTCoefficientsInternal[\[ScriptS]_Integer,\[ScriptL]_,\[ScriptM]_,aKerr_,order\[Eta]_Integer]:=Block[{aux,values,keys,order\[CurlyEpsilon]},
 order\[CurlyEpsilon]=order\[Eta]/3//Ceiling;
-aux=MSTCoefficientsInternalFreq[-2,\[ScriptL],\[ScriptM],aKerr,order\[CurlyEpsilon]];
-aux=aux//ChangeSeriesParameter[#,\[Eta]^3]&;
+aux=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],aKerr,order\[CurlyEpsilon]];
+aux=aux//ChangeSeriesParameter[#,\[Eta]^3]&//Series[#,{\[Eta],0,order\[Eta]-1}]&;
 aux
 ]
 
@@ -911,13 +904,15 @@ ret
 ]
 
 
-MSTCoefficientsInternalFreq[-2,\[ScriptL]Var_Symbol,\[ScriptM]Var_,aKerr_,order\[CurlyEpsilon]_Integer]:=Module[{aux,keys,values,FixContext},
-aux=Import[ParentDirectory[packageDir]<>"/Data/MSTCoefficients_generic_l.wl"];
+MSTCoefficientsInternalFreq[\[ScriptS]_Integer,\[ScriptL]Var_Symbol,\[ScriptM]Var_,aKerr_,order\[CurlyEpsilon]_Integer]:=Module[{aux,keys,values,FixContext},
+aux=Import[ParentDirectory[packageDir]<>"/Data/MSTCoefficients_s"<>ToString[\[ScriptS]]<>"_generic_l.wl"];
 FixContext=(#/.s_Symbol/;Context[s]==="Global`":>Symbol["Teukolsky`PN`Private`"<>SymbolName[s]]&);
 keys=aux//Keys//FixContext;
-values=aux//Values//FixContext;
+keys=keys/.{a[n_]:>aMST[n],\[Nu]->\[Nu]MST};
+values=aux//Values//FixContext//ChangeSeriesParameter[#,\[Gamma]]&;
 values=values//Series[#,{\[Gamma],0,order\[CurlyEpsilon]-1}]&;
 values=values+SeriesData[\[Gamma], 0, {}, 0, order\[CurlyEpsilon], 1];
+values=values/.{q->a,l->\[ScriptL],m->\[ScriptM]};
 aux=keys->values//Thread//Association;
 aux=aux/.{\[ScriptL]->\[ScriptL]Var,\[ScriptM]->\[ScriptM]Var,\[Kappa]->Sqrt[1-aKerr^2],a->aKerr};
 aux
@@ -935,7 +930,7 @@ aux
 MSTCoefficientsPN[\[ScriptS]_Integer,\[ScriptL]_Integer,\[ScriptM]_,aKerr_,\[Omega]Var_,{expVar_,order_Integer},OptionsPattern[]]:=Module[{aux,keys,values,auxOrder},
 auxOrder=If[OptionValue["FreqRep"],order,Ceiling[order,3]/3];
 aux=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],aKerr,auxOrder];
-keys=aux//Keys//ReplaceAll[#,{\[Nu]MST->Symbol["\[Nu]MST"] ,Teukolsky`PN`Private`aMST->\[Nu]MST,aMST[n_]:>Symbol["aMST"][n]}]&;
+keys=aux//Keys//ReplaceAll[#,{\[Nu]MST->Symbol["\[Nu]MST"],aMST[n_]:>Symbol["aMST"][n]}]&;
 values=aux//Values;
 If[!OptionValue["FreqRep"],values=values//ChangeSeriesParameter[#,\[Gamma]^3]&//SeriesTake[#,order]&];
 aux=keys->values//Thread//Association;
@@ -944,18 +939,32 @@ aux
 ]
 
 
-MSTCoefficientsPN[-2,\[ScriptL]Var_,\[ScriptM]Var_,aVar_,\[Omega]Var_,{var_,order_}]:=Module[{aux,keys,values},
+MSTCoefficientsPN[\[ScriptS]_Integer,\[ScriptL]Var_,\[ScriptM]Var_,aVar_,\[Omega]Var_,{var_,order_}]:=Module[{aux,keys,values,FixContext},
 Message[MSTCoefficientsPN::warn,Max[order-1,2],\[ScriptL]Var];
-aux=Import[ParentDirectory[packageDir]<>"/Data/MSTCoefficients_generic_l.wl"];
-aux=aux/.s_Symbol/;Context[s]==="Global`":>Symbol["Teukolsky`PN`Private`"<>SymbolName[s]];
-keys=aux//Keys;
-values=aux//Values;
+FixContext=(#/.s_Symbol/;Context[s]==="Global`":>Symbol["Teukolsky`PN`Private`"<>SymbolName[s]]&);
+aux=Import[ParentDirectory[packageDir]<>"/Data/MSTCoefficients_s"<>ToString[\[ScriptS]]<>"_generic_l.wl"];
+(*aux=aux/.s_Symbol/;Context[s]==="Global`":>Symbol["Teukolsky`PN`Private`"<>SymbolName[s]];*)
+keys=aux//Keys//FixContext//ReplaceAll[#,{a[n_]:>aMST[n],\[Nu]->\[Nu]MST}]&;
+keys=keys//ReplaceAll[#,{\[Nu]MST->Symbol["\[Nu]MST"],aMST[n_]:>Symbol["aMST"][n]}]&;
+values=aux//Values//FixContext;
 values=values//ChangeSeriesParameter[#,var]&//Series[#,{var,0,order-1}]&;
 values=values+SeriesData[var, 0, {}, 0, order, 1];
+values=values/.{q->a,l->\[ScriptL],m->\[ScriptM]};
 aux=keys->values//Thread//Association;
 aux=aux/.{\[ScriptL]->\[ScriptL]Var,\[ScriptM]->\[ScriptM]Var,\[Kappa]->Sqrt[1-aVar^2],a->aVar,\[Omega]->\[Omega]Var};
 aux
 ]
+
+
+(* ::Subsection::Closed:: *)
+(*Definitions, replacements and auxiliary functions*)
+
+
+(* ::Subsubsection::Closed:: *)
+(*Assumptions *)
+
+
+assumps={r>2,r0>2,a>=0,\[Eta]>0,\[Omega]>=0}
 
 
 (* ::Subsubsection::Closed:: *)
@@ -1074,7 +1083,7 @@ ExpandSpheroidals[expr_Times,{\[Eta]_,n_}]:=ExpandSpheroidals[#,{\[Eta],n}]&/@ex
 ExpandSpheroidals[expr_,{\[Eta]_,n_}]:=expr;
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Tools for Series*)
 
 
@@ -1181,6 +1190,7 @@ ChangeSeriesParameter[series_SeriesData,var_Symbol]:=Module[{aux},
 aux=ReplacePart[series,1->var];
 aux
 ]
+
 ChangeSeriesParameter[series_SeriesData,var_/;MatchQ[var,Power[_Symbol,__]]]:=Module[{aux,sym,pow,powNum,powDen,oldMin,oldMax,oldDen,oldCoeffs,newCoeffs},
 {sym,pow}=var/.Power[b_Symbol,c__]:>{b,c};
 {powNum,powDen}={pow//Numerator,pow//Denominator};
@@ -1189,6 +1199,7 @@ newCoeffs={oldCoeffs}~Join~ConstantArray[ConstantArray[0,Length[oldCoeffs]],powN
 aux=ReplacePart[series,{1->sym,3->newCoeffs,4->oldMin powNum,5->oldMax powNum,6->oldDen powDen}];
 aux
 ]
+
 ChangeSeriesParameter[series_SeriesData,var_/;MatchQ[var,__ _Symbol]]:=Module[{aux,sym,fac,oldCoeffs,oldMin,oldMax,oldDen,oldList,exps,newCoeffs},
 {fac,sym}=var/.b__ c_Symbol:>{b,c};
 {oldCoeffs,oldMin,oldMax,oldDen}=series[[#]]&/@{3,4,5,6};
@@ -1197,6 +1208,7 @@ newCoeffs=oldCoeffs (fac^#&/@exps);
 aux=ReplacePart[series,{1->sym,3->newCoeffs}];
 aux
 ]
+
 ChangeSeriesParameter[series_SeriesData,var_/;MatchQ[var,__ Power[_Symbol,__]]]:=Module[{aux,sym,fac,pow,powDen,powNum,oldCoeffs,oldMin,oldMax,oldDen,oldList,exps,newCoeffs},
 {fac,sym,pow}=var/.a__ Power[b_Symbol,c__]:>{a,b,c};
 {powNum,powDen}={pow//Numerator,pow//Denominator};
@@ -1210,16 +1222,21 @@ aux
 
 
 
-ChangeSeriesParameter[a_,b_]:=a;
-ChangeSeriesParameter[list_List,var_]:=ChangeSeriesParameter[#,var]&/@list;
+ChangeSeriesParameter[a_,b_]/;FreeQ[a,SeriesData]:=a;
+
+ChangeSeriesParameter[expr_List,var_]:=ChangeSeriesParameter[#,var]&/@expr;
+ChangeSeriesParameter[expr_Plus,var_]:=ChangeSeriesParameter[#,var]&/@expr;
+
 ChangeSeriesParameter[list_Association,var_]:=ChangeSeriesParameter[#,var]&/@list;
+
 ChangeSeriesParameter[expr_/;MatchQ[expr,Times[__,_SeriesData]],symbol_]:=Block[{aux,factor,series,par},
 factor=expr/.Times[a__,b_SeriesData]:>a;
 series=expr/.Times[a__,b_SeriesData]:>b;
 par=series[[1]];
-factor=factor/.par->symbol;
+factor=If[FreeQ[factor,SeriesData],factor/.par->symbol,ChangeSeriesParameter[factor,symbol]];
 factor ChangeSeriesParameter[series,symbol]
 ]
+
 
 
 (* ::Input:: *)
@@ -1402,7 +1419,7 @@ ExpandDiracDelta[expr_Plus,x_]:=(ExpandDiracDelta[#,x]&/@expr);
 ExpandDiracDelta[expr_,x_]:=expr;
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Misc*)
 
 
@@ -1807,7 +1824,7 @@ Derivative[n_][\[Theta]][arg_]:=Derivative[n-1][\[Delta]][arg];
 \[Delta]''[\[Eta]^-2 a_]:=\[Eta]^2 \[Delta]''[a];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Amplitudes*)
 
 
@@ -1896,7 +1913,7 @@ repls=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,Max[order\[
 coeff= E^(-I (\[CurlyEpsilon] Log[\[CurlyEpsilon]]-1/2 (1-\[Kappa]) \[CurlyEpsilon])) (\[CurlyEpsilon]/2)^-1//SeriesTerms[#,{\[Gamma],0,order\[CurlyEpsilon]}]&//DoABunchOfStuff;
 \[ScriptCapitalK]2coeff=-((I E^(-I \[Pi] \[Nu]MST) Sin[\[Pi] (\[Nu]MST-\[ScriptS]+I \[CurlyEpsilon])])/Sin[\[Pi] (\[Nu]MST+\[ScriptS]-I \[CurlyEpsilon])])/.repls//DoABunchOfStuff;
 \[ScriptCapitalK]1=Switch[norm,
-	"Default",1,
+	"Default",SeriesData[\[Gamma], 0, {1}, 0, order\[CurlyEpsilon], 1],
 	"DefaultSym",ISymmetryFactorFreq["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]]^-1,
 	"SasakiTagoshi",\[ScriptCapitalK]AmplitudeFreq["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]]//DoABunchOfStuff
 ];
@@ -1948,7 +1965,7 @@ repls=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Curl
 coeff=DoABunchOfStuff[(SeriesTerms[#1,{\[Gamma],0,order\[CurlyEpsilon]}]&)[(\[CurlyEpsilon]/2)^(-2 \[ScriptS]-1) E^(I \[CurlyEpsilon] (Log[\[CurlyEpsilon]]-(1-\[Kappa])/2))]];
 \[ScriptCapitalK]2coeff=DoABunchOfStuff[I E^(I \[Pi] \[Nu]MST)/. repls];
 \[ScriptCapitalK]1=Switch[norm,
-	"Default",1,
+	"Default",SeriesData[\[Gamma], 0, {1}, 0, order\[CurlyEpsilon], 1],
 	"DefaultSym",ISymmetryFactorFreq["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]]^-1,
 	"SasakiTagoshi",\[ScriptCapitalK]AmplitudeFreq["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]]//DoABunchOfStuff
 ];
@@ -1977,7 +1994,9 @@ aux=BAmplitudeFreq[sol,"Normalization"->OptionValue["Normalization"]][\[ScriptS]
 ,
 (*else*)
 order\[CurlyEpsilon]=Ceiling[order\[Eta],3]/3;
-aux=BAmplitudeFreq[sol,"Normalization"->OptionValue["Normalization"]][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]]//ChangeSeriesParameter[#,\[Eta]^3]&//SeriesTake[#,order\[Eta]]&;
+aux=BAmplitudeFreq[sol,"Normalization"->OptionValue["Normalization"]][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]];
+aux=aux//ChangeSeriesParameter[#,\[Eta]^3]&//SeriesTake[#,order\[Eta]]&;
+aux
 ];
 aux
 ]
@@ -2533,7 +2552,7 @@ ret
 ]
 
 
-Options[InvariantWronskian]={"Normalization"->"Default","FreqRep"->False}
+Options[InvariantWronskian]={"Normalization"->"Default","FreqRep"->True}
 
 
 InvariantWronskian[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{varPN_,order_},OptionsPattern[]]:=Module[{aux,order\[CurlyEpsilon]},
@@ -2542,7 +2561,10 @@ aux=InvariantWronskianFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order,"Normalizati
 ,
 (*else*)
 order\[CurlyEpsilon]=Ceiling[order,3]/3;
-aux=InvariantWronskianFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon],"Normalization"->OptionValue["Normalization"]]//ChangeSeriesParameter[#,\[Eta]^3]&//SeriesTake[#,order]&;
+aux=InvariantWronskianFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon],"Normalization"->OptionValue["Normalization"]];
+aux=aux//ChangeSeriesParameter[#,\[Eta]^3]&;
+aux=aux//SeriesTake[#,order]&;
+aux
 ];
 aux=aux/.\[Gamma]->varPN/.\[Eta]->varPN/.\[Omega]->\[Omega]Var;
 aux
@@ -2589,7 +2611,7 @@ aux//PNScalingsInternal
 ];
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Constructing \!\(\*SubsuperscriptBox[\(R\), \(C\), \(\[Nu]\)]\)*)
 
 
@@ -3375,7 +3397,7 @@ ret
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Accessing functions and keys*)
 
 
@@ -3389,7 +3411,10 @@ TeukolskyRadialFunctionPN[s_, l_, m_, a_, r0_,{varPN_,order_},assoc_]["LeadingOr
 TeukolskyRadialFunctionPN[s_, l_, m_, a_, r0_,{varPN_,order_},assoc_]["LeadingOrder"][r_/;NumericQ[r]] :=assoc["LeadingOrder"][r]
 
 
-Derivative[n_Integer][trf_TeukolskyRadialFunctionPN][r_Symbol]:=trf[[6,1]]^(2 n) Derivative[n][trf[[-1]]["RadialFunction"]][r]
+(*Derivative[n_Integer][trf_TeukolskyRadialFunctionPN][r_Symbol]:=trf[[6,1]]^(2 n) Derivative[n][trf[[-1]]["RadialFunction"]][r]*)
+
+
+Derivative[n_Integer][trf_TeukolskyRadialFunctionPN][r_Symbol]:=(*trf[[6,1]]^(2 n)*) Derivative[n][trf[[-1]]["RadialFunction"]][r]
 
 
 Keys[trfpn_TeukolskyRadialFunctionPN] ^:= DeleteElements[Join[Keys[trfpn[[-1]]], {}], {"RadialFunction","AmplitudesBool"}];
@@ -3427,24 +3452,35 @@ ddRin=dRin';
 (*The replacements in the wronskian are a quick fix for non vanishing r dependence in case a has a numerical value*)
 (*wronskian=(Simplify[#1,Assumptions->r>2]&)[Kerr\[CapitalDelta][aVar,r/varPN^2]^(\[ScriptS]+1) varPN^2 (Rin[r] dRup[r]-dRin[r] Rup[r])];
 wronskian=wronskian//Chop;*)
-wronskian=InvariantWronskian[\[ScriptS],\[ScriptL],\[ScriptM],aVar,If[\[ScriptM]!=0,\[ScriptM],Style["0",Red]]\[CapitalOmega],{varPN, order},"Normalization"->OptionValue["Normalization"]];
+wronskian=InvariantWronskian[\[ScriptS],\[ScriptL],\[ScriptM],aVar,If[\[ScriptM]!=0,\[ScriptM],Style["0",Red]]\[CapitalOmega],{varPN, order},{"FreqRep"->False,"Normalization"->OptionValue["Normalization"]}];
 source=TeukolskySourceCircularOrbit[\[ScriptS],\[ScriptL],\[ScriptM],a,{#,r0},"Form"->"InvariantWronskian"]&;
 sourceCoeffs=source[r]//Coefficient[#,{DiracDelta[r-r0],Derivative[1][DiracDelta][r-r0],Derivative[2][DiracDelta][r-r0]}]&;
 sourceCoeffs=Collect[#,{SpinWeightedSpheroidalHarmonicS[__][__],Derivative[__][SpinWeightedSpheroidalHarmonicS[__]][__]},Simplify]&/@sourceCoeffs;
+(*Echo[1/wronskian//ChangeContext[#,"Teukolsky`PN`Private`"]&,"1/wronskian"];*)
+(*Echo[Rup[r0]/.\[ScriptL]->10//ChangeContext[#,"Teukolsky`PN`Private`"]&,"Rup[r0]"];
+Echo[dRup[r0]/.\[ScriptL]->10//ChangeContext[#,"Teukolsky`PN`Private`"]&,"dRup[r0]"];
+Echo[ddRup[r0]/.\[ScriptL]->10//ChangeContext[#,"Teukolsky`PN`Private`"]&,"dRup[r0]"];
+Echo[sourceCoeffs/.\[ScriptL]->10//ChangeContext[#,"Teukolsky`PN`Private`"]&,"sourceCoeffs"];*)
+(*Echo[Total[sourceCoeffs {Rup[r0],-varPN^2dRup[r0],varPN^4 ddRup[r0]}]//ChangeContext[#,"Teukolsky`PN`Private`"]&,"aux"];*)
 sourceCoeffs=sourceCoeffs//PNScalings[#,{{r0,-2},{\[CapitalOmega]Kerr,3}},varPN,"IgnoreHarmonics"->True]&//Simplify;
-cIn=1/wronskian Total[sourceCoeffs {Rup[r0],-varPN^2dRup[r0],varPN^4 ddRup[r0]}]//SeriesTake[#,order]&;
-cUp=1/wronskian Total[sourceCoeffs {Rin[r0],-varPN^2dRin[r0],varPN^4 ddRin[r0]}]//SeriesTake[#,order]&;
+cIn=Normal[1/wronskian] Total[sourceCoeffs {Rup[r0],-varPN^2dRup[r0],varPN^4 ddRup[r0]}]//SeriesTake[#,order]&;
+(*Echo[cIn//ChangeContext[#,"Teukolsky`PN`Private`"]&,"cIn"];*)
+cUp=Normal[1/wronskian] Total[sourceCoeffs {Rin[r0],-varPN^2dRin[r0],varPN^4 ddRin[r0]}]//SeriesTake[#,order]&;
 deltaCoeff=Coefficient[source[r],Derivative[2][DiracDelta][r-r0]]/Kerr\[CapitalDelta][a,r0];
 deltaCoeff=Assuming[{varPN>0},If[deltaCoeff===0,0,deltaCoeff//PNScalings[#,{{r0,-2},{\[CapitalOmega]Kerr,3}},varPN,"IgnoreHarmonics"->True]&//SeriesTerms[#,{varPN,0,order}]&]];
 If[aVar===0,{cIn,cUp,deltaCoeff,source}=(Inactivate[#,SpinWeightedSpheroidalHarmonicS]&/@#)&/@{cIn,cUp,deltaCoeff,source}];
 {cIn,cUp,deltaCoeff,source}={cIn,cUp,deltaCoeff,source}/.r0->r0Var/.a->aVar/.\[CapitalOmega]Kerr->Inactive[KerrGeodesics`OrbitalFrequencies`KerrGeoFrequencies][aVar,r0Var,0,1]["\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"];
 If[OptionValue["Simplify"],{cIn,cUp,deltaCoeff,source}={cIn,cUp,deltaCoeff,source}//SeriesCollect[#,{SpinWeightedSpheroidalHarmonicS[__],Derivative[__][SpinWeightedSpheroidalHarmonicS][__]},(Simplify[#,{aVar>=0,r0Var>0,varPN>0}]&)]&];
 inner=cIn Rin[r];
+(*Echo[Rin[r]/.\[ScriptL]->10//ChangeContext[#,"Teukolsky`PN`Private`"]&,"Rin"];
+Echo[cIn/.\[ScriptL]->10//ChangeContext[#,"Teukolsky`PN`Private`"]&,"cIn"];
+Echo[inner/.\[ScriptL]->10//ChangeContext[#,"Teukolsky`PN`Private`"]&,"inner"];*)
 outer=cUp Rup[r];
 If[OptionValue["Simplify"]||\[ScriptM]===0,{inner,outer}={inner,outer}//SeriesCollect[#,{SpinWeightedSpheroidalHarmonicS[__],Derivative[__][SpinWeightedSpheroidalHarmonicS][__]},(Simplify[#,{aVar>=0,r0Var>0,varPN>0}]&)]&];
 If[\[ScriptM]===0,{inner,outer}={inner,outer}/.Log[a_ Style["0",Red]]:>Log[a Style["0",Orange]]/.Style["0",Red]->0];
 {Btrans,Ctrans}={BAmplitude["Trans","Normalization"->OptionValue["Normalization"],"FreqRep"->False][\[ScriptS],\[ScriptL],\[ScriptM],aVar,order],CAmplitude["Trans","Normalization"->OptionValue["Normalization"],"FreqRep"->False][\[ScriptS],\[ScriptL],\[ScriptM],aVar,order]}/.\[Eta]->varPN/.\[Omega]->If[\[ScriptM]!=0,\[ScriptM],Style["0",Red]]\[CapitalOmega];
-{cInU,cUpU}={Btrans cIn,Ctrans cUp};
+{cInU,cUpU}={Normal[Btrans] cIn,Normal[Ctrans] cUp};
+Echo[cInU/.\[ScriptL]->10//ChangeContext[#,"Teukolsky`PN`Private`"]&,"cInU"];
 If[\[ScriptM]===0,{cInU,cUpU}={Simplify[cInU],Simplify[(Normal[SeriesTake[Rup[r],1]/Ctrans]/.r->varPN^2)cUpU]}/.Log[a_ Style["0",Red]]:>Log[a Style["0",Orange]]/.Style["0",Red]->0];
 ampAssoc=<|"\[ScriptCapitalI]"->cUpU,"\[ScriptCapitalH]"->cInU|>;
 wronskian=wronskian/(Ctrans Btrans);
