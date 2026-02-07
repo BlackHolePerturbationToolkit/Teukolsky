@@ -863,7 +863,7 @@ MST=Append[MST,Table[a[i]->aMST[i]+If[i==0,0,O[\[Epsilon]]^(ExpOrder+1)],{i,-Exp
 ]*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Interface*)
 
 
@@ -956,7 +956,7 @@ aux
 ]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Definitions, replacements and auxiliary functions*)
 
 
@@ -1083,7 +1083,7 @@ ExpandSpheroidals[expr_Times,{\[Eta]_,n_}]:=ExpandSpheroidals[#,{\[Eta],n}]&/@ex
 ExpandSpheroidals[expr_,{\[Eta]_,n_}]:=expr;
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Tools for Series*)
 
 
@@ -1119,8 +1119,9 @@ SeriesMaxOrder[expr_Plus]:=Max[SeriesMaxOrder[#]&/@(List@@expr)]
 SeriesMaxOrder[expr_List]:=SeriesMaxOrder[#]&/@expr;
 
 
-SeriesLength[series_SeriesData]:=Block[{},
-SeriesMaxOrder[series]-SeriesMinOrder[series]
+SeriesLength[series_SeriesData]:=Module[{aux,coeffs},
+coeffs=series[[3]];
+coeffs//Length
 ]
 
 SeriesLength[expr_/;MatchQ[expr,Times[__,_SeriesData]]]:=Module[{aux,factor,series},
@@ -1276,6 +1277,25 @@ aux
 ]
 PowerCounting[list_List,var_]:=PowerCounting[#,var]&/@list;
 PowerCounting[list_Association,var_]:=PowerCounting[#,var]&/@list;
+
+
+StraightenSeries[expr_]:=expr/.SeriesData[x___]:>StraightenSeries[SeriesData[x]];
+
+StraightenSeries[series_SeriesData]:=Module[{aux,den,coeffs,evenPositions,unevens,evens,min,max},
+den=series[[6]];
+coeffs=series[[3]];
+evenPositions=Range[coeffs//Length]//Part[#,1;;;;den]&//Split[#,1]&;
+unevens=Delete[evenPositions][coeffs];
+If[!(Union[unevens]==={0}),
+Return[series]
+];
+(*else*)
+evens=coeffs//Part[#,1;;;;den]&;
+min=series[[4]];
+max=series[[5]];
+aux=aux=ReplacePart[series,{3->evens,4->min/den,5->Ceiling[max/den],6->1}];
+aux
+]
 
 
 (* ::Subsubsection::Closed:: *)
@@ -2571,7 +2591,7 @@ aux
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Constructing Rc*)
 
 
@@ -2698,7 +2718,7 @@ aux,{j,0,finalj}]
 ,{n,nMin,nMax}]];table]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Symbolic l*)
 
 
@@ -3243,11 +3263,11 @@ ret
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Getting internal association faster*)
 
 
-Options[RadialAssociationBoth]={"Normalization"->"Default", "Amplitudes"->False, "Simplify"->True,"CoulombWaveFunctions"->False}
+Options[RadialAssociationBoth]={"Normalization"->"Default", "Amplitudes"->False, "Simplify"->True,"CoulombWaveFunctions"->False,"Resummation"->None}
 
 
 RadialAssociationBoth[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{varPN_,order_},opt:OptionsPattern[]]:=Module[{aux,\[CurlyEpsilon],\[CurlyEpsilon]p,repls,\[Kappa],\[Tau],ret,\[ScriptCapitalK],RC1,RC2,R,RF,gap,boundaryCondition,coeffUp,C1,C2,BC,lead,minOrder,termCount,normalization,amplitudes,trans,inc,ref},
@@ -3275,7 +3295,7 @@ aux=normalization["In"] aux//IgnoreExpansionParameter;
 If[OptionValue["CoulombWaveFunctions"],aux=RC1//SeriesTake[#,order]&];
 R["In"]=aux/.{\[Eta]->varPN,\[Omega]->\[Omega]Var};
 If[OptionValue["Simplify"],R["In"]=R["In"]//Simplify];
-
+If[OptionValue["Resummation"]==="Exponential",R["In"]=Inactive[Exp][Log[R["In"]]]];
 (*We then move to Rup*)
 coeffUp=(-I E^(-\[Pi] \[CurlyEpsilon]-I \[Pi] \[ScriptS])Sin[\[Pi](\[Nu]MST+\[ScriptS]-I \[CurlyEpsilon])]/Sin[2\[Pi] \[Nu]MST]);
 C1=PNScalingsInternal[coeffUp]/.repls;
@@ -3296,8 +3316,8 @@ If[OptionValue["Simplify"],R["Up"]=R["Up"]//Simplify];
 (*We then move getting the other keys*)
 RF["In"]=R["In"]/.r->#&;
 RF["Up"]=R["Up"]/.r->#&;
-(minOrder[#]=R[#]//Expand//SeriesMinOrder//Simplify[#,{\[ScriptL]>=Abs[\[ScriptS]]}]&)&/@{"In","Up"};
-(termCount[#]=R[#]//Expand//SeriesLength//Simplify[#,{\[ScriptL]>=Abs[\[ScriptS]]}]&)&/@{"In","Up"};
+(minOrder[#]=R[#]//Activate//Expand//SeriesMinOrder//Simplify[#,{\[ScriptL]>=Abs[\[ScriptS]]}]&)&/@{"In","Up"};
+(termCount[#]=R[#]//Activate//Expand//SeriesLength//Simplify[#,{\[ScriptL]>=Abs[\[ScriptS]]}]&)&/@{"In","Up"};
 normalization=OptionValue["Normalization"];
 trans["In"]=If[OptionValue["Amplitudes"],TeukolskyAmplitudePN["Btrans","Normalization"->OptionValue["Normalization"],"FreqRep"->False][\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega]Var,{varPN,order}],Missing["NotComputed"]];
 trans["Up"]=If[OptionValue["Amplitudes"],TeukolskyAmplitudePN["Ctrans","Normalization"->OptionValue["Normalization"],"FreqRep"->False][\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega]Var,{varPN,order}],Missing["NotComputed"]];
@@ -3397,7 +3417,7 @@ ret
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Accessing functions and keys*)
 
 
@@ -3420,11 +3440,11 @@ Derivative[n_Integer][trf_TeukolskyRadialFunctionPN][r_Symbol]:=(*trf[[6,1]]^(2 
 Keys[trfpn_TeukolskyRadialFunctionPN] ^:= DeleteElements[Join[Keys[trfpn[[-1]]], {}], {"RadialFunction","AmplitudesBool"}];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*TeukolskyPointParticleModePN*)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Getting internal association*)
 
 
@@ -3463,11 +3483,10 @@ Echo[ddRup[r0]/.\[ScriptL]->10//ChangeContext[#,"Teukolsky`PN`Private`"]&,"dRup[
 Echo[sourceCoeffs/.\[ScriptL]->10//ChangeContext[#,"Teukolsky`PN`Private`"]&,"sourceCoeffs"];*)
 (*Echo[Total[sourceCoeffs {Rup[r0],-varPN^2dRup[r0],varPN^4 ddRup[r0]}]//ChangeContext[#,"Teukolsky`PN`Private`"]&,"aux"];*)
 sourceCoeffs=sourceCoeffs//PNScalings[#,{{r0,-2},{\[CapitalOmega]Kerr,3}},varPN,"IgnoreHarmonics"->True]&//Simplify;
-cIn=Normal[1/wronskian] Total[sourceCoeffs {Rup[r0],-varPN^2dRup[r0],varPN^4 ddRup[r0]}]//SeriesTake[#,order]&;
-(*Echo[cIn//ChangeContext[#,"Teukolsky`PN`Private`"]&,"cIn"];*)
-cUp=Normal[1/wronskian] Total[sourceCoeffs {Rin[r0],-varPN^2dRin[r0],varPN^4 ddRin[r0]}]//SeriesTake[#,order]&;
+cIn=Normal[1/wronskian] Total[sourceCoeffs {Rup[r0],-varPN^2dRup[r0],varPN^4 ddRup[r0]}]//StraightenSeries//SeriesTake[#,order]&;
+cUp=Normal[1/wronskian] Total[sourceCoeffs {Rin[r0],-varPN^2dRin[r0],varPN^4 ddRin[r0]}]//StraightenSeries//SeriesTake[#,order]&;
 deltaCoeff=Coefficient[source[r],Derivative[2][DiracDelta][r-r0]]/Kerr\[CapitalDelta][a,r0];
-deltaCoeff=Assuming[{varPN>0},If[deltaCoeff===0,0,deltaCoeff//PNScalings[#,{{r0,-2},{\[CapitalOmega]Kerr,3}},varPN,"IgnoreHarmonics"->True]&//SeriesTerms[#,{varPN,0,order}]&]];
+deltaCoeff=Assuming[{varPN>0},If[deltaCoeff===0,0,deltaCoeff//PNScalings[#,{{r0,-2},{\[CapitalOmega]Kerr,3}},varPN,"IgnoreHarmonics"->True]&//SeriesTerms[#,{varPN,0,order}]&//StraightenSeries]];
 If[aVar===0,{cIn,cUp,deltaCoeff,source}=(Inactivate[#,SpinWeightedSpheroidalHarmonicS]&/@#)&/@{cIn,cUp,deltaCoeff,source}];
 {cIn,cUp,deltaCoeff,source}={cIn,cUp,deltaCoeff,source}/.r0->r0Var/.a->aVar/.\[CapitalOmega]Kerr->Inactive[KerrGeodesics`OrbitalFrequencies`KerrGeoFrequencies][aVar,r0Var,0,1]["\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"];
 If[OptionValue["Simplify"],{cIn,cUp,deltaCoeff,source}={cIn,cUp,deltaCoeff,source}//SeriesCollect[#,{SpinWeightedSpheroidalHarmonicS[__],Derivative[__][SpinWeightedSpheroidalHarmonicS][__]},(Simplify[#,{aVar>=0,r0Var>0,varPN>0}]&)]&];
@@ -3480,7 +3499,7 @@ If[OptionValue["Simplify"]||\[ScriptM]===0,{inner,outer}={inner,outer}//SeriesCo
 If[\[ScriptM]===0,{inner,outer}={inner,outer}/.Log[a_ Style["0",Red]]:>Log[a Style["0",Orange]]/.Style["0",Red]->0];
 {Btrans,Ctrans}={BAmplitude["Trans","Normalization"->OptionValue["Normalization"],"FreqRep"->False][\[ScriptS],\[ScriptL],\[ScriptM],aVar,order],CAmplitude["Trans","Normalization"->OptionValue["Normalization"],"FreqRep"->False][\[ScriptS],\[ScriptL],\[ScriptM],aVar,order]}/.\[Eta]->varPN/.\[Omega]->If[\[ScriptM]!=0,\[ScriptM],Style["0",Red]]\[CapitalOmega];
 {cInU,cUpU}={Normal[Btrans] cIn,Normal[Ctrans] cUp};
-Echo[cInU/.\[ScriptL]->10//ChangeContext[#,"Teukolsky`PN`Private`"]&,"cInU"];
+(*Echo[cInU/.\[ScriptL]->10//ChangeContext[#,"Teukolsky`PN`Private`"]&,"cInU"];*)
 If[\[ScriptM]===0,{cInU,cUpU}={Simplify[cInU],Simplify[(Normal[SeriesTake[Rup[r],1]/Ctrans]/.r->varPN^2)cUpU]}/.Log[a_ Style["0",Red]]:>Log[a Style["0",Orange]]/.Style["0",Red]->0];
 ampAssoc=<|"\[ScriptCapitalI]"->cUpU,"\[ScriptCapitalH]"->cInU|>;
 wronskian=wronskian/(Ctrans Btrans);

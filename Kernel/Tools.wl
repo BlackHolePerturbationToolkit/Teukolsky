@@ -19,7 +19,7 @@ BeginPackage["Teukolsky`PN`Tools`",{"Teukolsky`","Teukolsky`PN`"}]
 (*Unprotecting*)
 
 
-ClearAttributes[{SeriesTake, SeriesMinOrder,SeriesMaxOrder,SeriesLength,SeriesCollect,SeriesTerms,IgnoreExpansionParameter,ChangeSeriesParameter,PowerCounting}, {Protected, ReadProtected}];
+ClearAttributes[{SeriesTake, SeriesMinOrder,SeriesMaxOrder,SeriesLength,SeriesCollect,SeriesTerms,IgnoreExpansionParameter,ChangeSeriesParameter,PowerCounting,StraightenSeries}, {Protected, ReadProtected}];
 
 
 ClearAttributes[{PNScalings, RemovePN}, {Protected, ReadProtected}];
@@ -71,6 +71,7 @@ SeriesTerms::usage="SeriesTerms[series, {x, x0, n}] works exactly like Series, w
 IgnoreExpansionParameter::usage="IgnoreExpansionParameter[series,x] sets all occurences of the expansion parameter in the series coefficients to x. If no value is entered x defaults to 1."
 ChangeSeriesParameter::usage="ChangeSeriesParameter[series,expr] changes the expansion parameter in series to be expr." 
 PowerCounting::usage="PowerCounting[series,symbol] replaces the expansion parameter in series with symbol. Unlike ChangeParameter it keeps the original expansion parameter as a constant in each coefficient."
+StraightenSeries::usage="StraightenSeries[expr] straightens out SeriesData objects with redundant denominator arguments, i.e., it removes counting in powers of roots, if all respective coefficients are zero."
 
 
 (* ::Subsection:: *)
@@ -168,6 +169,7 @@ SeriesTerms=Teukolsky`PN`Private`SeriesTerms
 IgnoreExpansionParameter=Teukolsky`PN`Private`IgnoreExpansionParameter
 ChangeSeriesParameter=Teukolsky`PN`Private`ChangeSeriesParameter
 PowerCounting=Teukolsky`PN`Private`PowerCounting
+StraightenSeries=Teukolsky`PN`Private`StraightenSeries
 
 
 (* ::Subsection:: *)
@@ -245,7 +247,7 @@ TeukolskyEquation=Teukolsky`PN`Private`TeukolskyEquation
 (*Protecting*)
 
 
-SetAttributes[{SeriesTake, SeriesMinOrder,SeriesMaxOrder,SeriesLength,SeriesTerms,IgnoreExpansionParameter,ChangeSeriesParameter,PowerCounting}, {Protected, ReadProtected}];
+SetAttributes[{SeriesTake, SeriesMinOrder,SeriesMaxOrder,SeriesLength,SeriesTerms,IgnoreExpansionParameter,ChangeSeriesParameter,PowerCounting,StraightenSeries}, {Protected, ReadProtected}];
 
 
 SetAttributes[{SeriesCollect}, {Protected, ReadProtected,Listable}];
