@@ -73,7 +73,7 @@ TeukolskyPointParticleModePN::particle="TeukolskyPointParticleModePN cannot be e
 TeukolskyAmplitudePN::usage="TeukolskyAmplitudePN[\"sol\"][\[ScriptS], \[ScriptL], \[ScriptM], a, \[Omega], {\[Gamma], n}] gives the desired PN expanded amplitude. Possible values for sol are as follows: A+, A-, Btrans, Binc, Bref, Ctrans, Cinc, Cref, K\[Nu], K-\[Nu]-1, K"
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*MST Coefficients*)
 
 
@@ -81,6 +81,14 @@ MSTCoefficientsPN::usage="MSTCoefficientsPN[\[ScriptS],\[ScriptL],\[ScriptM],a,\
 
 
 MSTCoefficientsPN::warn="Warning: These expressions are only valid for `2`\[GreaterEqual]`1`";
+
+
+(* ::Subsection:: *)
+(*Radial Teukolsky Equation*)
+
+
+RadialTeukolskyEquation::usage="RadialTeukolskyEquation[\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],R[r]] gives the radial Teukolsky equation."
+RadialTeukolskyEquationPN::usage="RadialTeukolskyEquation[\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],R[r],{\[Eta],order}] gives the PN expanded radial Teukolsky equation."
 
 
 (* ::Subsection::Closed:: *)
@@ -1746,8 +1754,12 @@ ret
 ]]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Teukolsky Equation*)
+
+
+(* ::Subsubsection::Closed:: *)
+(*Old*)
 
 
 rstar[a_,M_,r_]:=Block[{rp=M (1+Sqrt[1-(a/M)^2]),rm=M (1-Sqrt[1-(a/M)^2])},r+((2 M rp) Log[(r-rp)/(2 M)])/(rp-rm)-((2 M rm) Log[(r-rm)/(2 M)])/(rp-rm)];
@@ -1781,14 +1793,54 @@ aux=SeriesCollect[equation[\[ScriptS], \[ScriptL], \[ScriptM], \[Omega], a, 1, r
 aux/.{\[Eta]->\[Eta]Var,\[Omega]->\[Omega]Var,R->RVar,r->rvar}]
 
 
-TeukolskyEquation[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,RVar_[rvar_]]:=Module[{aux},
+TeukolskyEquation[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,aVar_,\[Omega]Var_,RVar_[rvar_]]:=Module[{aux},
 aux=Collect[equation[\[ScriptS], \[ScriptL], \[ScriptM], \[Omega], a, 1, r,order]/.eigenValue[___]->SpinWeightedSpheroidalEigenvalue[\[ScriptS],\[ScriptL],\[ScriptM],a \[Omega]],{R[__],Derivative[__][R][__]},Simplify];
-aux/.{\[Omega]->\[Omega]Var,R->RVar,r->rvar}]
+aux/.{\[Omega]->\[Omega]Var,R->RVar,r->rvar,a->aVar}]
 
 
 teukolsky[r_] := Collect[equation[-2, 2, \[ScriptM], \[Omega], 0, 1, r],Derivative[__][R][__],Simplify];
 teukolsky[\[ScriptS]_,\[ScriptL]_] := Collect[equation[\[ScriptS], \[ScriptL], 0, \[Omega], 0, 1, r],Derivative[__][R][__],Simplify];
 teukolsky[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,order\[Eta]_] := Collect[equation[\[ScriptS], \[ScriptL], \[ScriptM], \[Omega], \[ScriptA], 1, r,order\[Eta]]/.eigenValue->\[Lambda],Derivative[__][R][__],Simplify];
+
+
+(* ::Subsubsection:: *)
+(*New*)
+
+
+RadialTeukolskyEquation[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]_,R_[r_]]:=Module[{aux,c0,c1,c2,K,\[CapitalDelta]},
+\[CapitalDelta]=r^2+a^2-2r;
+K=(r^2+a^2)\[Omega]-a \[ScriptM];
+c0=(K^2-2I \[ScriptS] (r-1)K)/\[CapitalDelta]+4 I \[ScriptS] \[Omega] r-SpinWeightedSpheroidalEigenvalue[\[ScriptS],\[ScriptL],\[ScriptM],a \[Omega]];
+c1=2(r-1)(\[ScriptS]+1);
+c2=\[CapitalDelta];
+aux=c0 R[r]+ c1 R'[r] + c2 R''[r];
+aux
+]
+
+
+Options[RadialTeukolskyEquationPN]={"ScaleDerivatives"->True};
+
+
+RadialTeukolskyEquationPN[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,aVar_,\[Omega]Var_,RVar_[rVar_],{\[Eta]Var_,order_},OptionsPattern[]]:=Module[{aux,order\[CurlyEpsilon]},
+aux=RadialTeukolskyEquation[\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],R[r]];
+aux=aux/.{r->\[Eta]^-2 r,\[Omega]->\[Eta]^3 \[Omega]};
+If[OptionValue["ScaleDerivatives"],aux=aux/.R->(R[# \[Eta]^2]&),aux=aux/.{R[r_]:>R[r \[Eta]^2],Derivative[n_][R][r_]:>Derivative[n][R][\[Eta]^2 r]}];
+order\[CurlyEpsilon]=order/3//Ceiling;
+aux=aux//ExpandSpinWeightedSpheroidalEigenvalue[#,order\[CurlyEpsilon]]&;
+aux=aux//Series[#,{\[Eta],0,order-1}]&;
+aux=aux//ChangeSeriesParameter[#,\[Eta]Var]&;
+aux=aux/.{a->aVar,\[Omega]->\[Omega]Var,R->RVar,r->rVar};
+aux
+]
+
+
+ExpandSpinWeightedSpheroidalEigenvalue[expr_SpinWeightedSpheroidalEigenvalue,order_]:=Module[{aux,\[ScriptS],\[ScriptL],\[ScriptM],a\[Omega]},
+{\[ScriptS],\[ScriptL],\[ScriptM],a\[Omega]}={expr[[1]],expr[[2]],expr[[3]],expr[[4]]};
+aux=SpinWeightedSpheroidalEigenvalue[\[ScriptS],\[ScriptL],\[ScriptM],\[Gamma]]//Series[#,{\[Gamma],0,order}]&//Normal;
+aux=aux/.\[Gamma]->a\[Omega];
+aux
+]
+ExpandSpinWeightedSpheroidalEigenvalue[expr_,order_]:=expr/.SpinWeightedSpheroidalEigenvalue[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a\[Omega]__]:>ExpandSpinWeightedSpheroidalEigenvalue[SpinWeightedSpheroidalEigenvalue[\[ScriptS],\[ScriptL],\[ScriptM],a\[Omega]],order];
 
 
 (* ::Subsection::Closed:: *)
@@ -3447,7 +3499,7 @@ Keys[trfpn_TeukolskyRadialFunctionPN] ^:= DeleteElements[Join[Keys[trfpn[[-1]]],
 (*TeukolskyPointParticleModePN*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Getting internal association*)
 
 
@@ -3535,7 +3587,7 @@ ret
 (*RadialSourcedAssociation["CO"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,r0Var_,{varPN_,order_}]/;NumericQ[r0Var]:=RadialSourcedAssociation["CO"][\[ScriptS],\[ScriptL],\[ScriptM],a,r0,{varPN,order}]/.r0->r0Var;*)*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*TeukolskyModePN*)
 
 
@@ -3568,7 +3620,7 @@ TeukolskyModePN /:
 ];
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*TeukolskyPointParticleModePN*)
 
 
@@ -3591,11 +3643,11 @@ TeukolskyPointParticleModePN[\[ScriptS], \[ScriptL], \[ScriptM],orbit,{varPN,aux
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Accessing functions and keys*)
 
 
-TeukolskyModePN[s_, l_, m_, a_, r0_,{varPN_,order_},assoc_][y_String]/;!MemberQ[{"RadialFunction","ExtendedHomogeneous"->"\[ScriptCapitalH]","ExtendedHomogeneous"->"\[ScriptCapitalH]","Source","CoefficientList","SeriesMinOrder"}, y]:=
+TeukolskyModePN[s_, l_, m_, a_, r0_,{varPN_,order_},assoc_][y_String]/;!MemberQ[{"RadialFunction","Fluxes","EnergyFlux","AngularMomentumFlux","Source","CoefficientList","SeriesMinOrder"}, y]:=
   assoc[y];
 
 
@@ -3614,10 +3666,78 @@ TeukolskyModePN[s_, l_, m_, a_, r0_,{varPN_,order_},assoc_]["CoefficientList"][r
 TeukolskyModePN[s_, l_, m_, a_, r0_,{varPN_,order_},assoc_]["CoefficientList"][r_/;NumericQ[r]] :=assoc["CoefficientList"][r]
 
 
-Keys[trfpn_TeukolskyModePN]^:= DeleteElements[Join[Keys[trfpn[[-1]]], {}], {"RadialFunction","SeriesMinOrder"}];
+TeukolskyModePN[s_, l_, m_, a_, r0_,{varPN_,order_},assoc_]["EnergyFlux"] := EnergyFlux[TeukolskyModePN[s, l, m, a, r0,{varPN,order},assoc]];
+
+
+TeukolskyModePN[s_, l_, m_, a_, r0_,{varPN_,order_},assoc_]["Fluxes"] := <|"Energy" -> TeukolskyModePN[s, l, m, a, r0,{varPN,order},assoc]["EnergyFlux"], "AngularMomentum" -> TeukolskyModePN[s, l, m, a, r0,{varPN,order},assoc]["AngularMomentumFlux"]|>;
+
+
+TeukolskyModePN[s_, l_, m_, a_, r0_,{varPN_,order_},assoc_]["AngularMomentumFlux"] := AngularMomentumFlux[TeukolskyModePN[s, l, m, a, r0,{varPN,order},assoc]];
+
+
+Keys[trfpn_TeukolskyModePN]^:= DeleteElements[Join[Keys[trfpn[[-1]]], {"Fluxes", "EnergyFlux", "AngularMomentumFlux"}], {"RadialFunction","SeriesMinOrder"}];
 
 
 Derivative[n_Integer][tppm_TeukolskyModePN][r_Symbol]:=tppm[[6,1]]^(2 n) Derivative[n][tppm[[-1]]["RadialFunction"]][r]
+
+
+(* ::Subsubsection:: *)
+(*Fluxes*)
+
+
+EnergyFlux[mode_TeukolskyModePN] :=
+ Module[{M = 1, s, l, m, a, \[Omega], \[Lambda], Z, rh, \[CapitalOmega]h, \[Kappa], \[Epsilon], AbsCSq, \[Alpha], p, FluxInf, FluxHor},
+  a = mode["a"];
+  s = mode["s"];
+  l = mode["l"];
+  m = mode["m"];
+  \[Omega] = mode["FourierFrequency"];
+  \[Lambda] =SpinWeightedSpheroidalEigenvalue[s, l, m, a \[Omega]];
+  Z = mode["Amplitudes"];
+
+  If[\[Omega] == 0, Return[<| "\[ScriptCapitalI]" -> 0, "\[ScriptCapitalH]" -> 0 |>]];
+
+  rh = M + Sqrt[M^2-a^2];
+  \[CapitalOmega]h = a/(2 M rh);
+  \[Kappa] = \[Omega] - m \[CapitalOmega]h;
+  \[Epsilon] = Sqrt[M^2-a^2]/(4 M rh);  	
+
+  FluxInf = 
+  Switch[s,
+  -2, Z["\[ScriptCapitalI]"]CowboyConjugate[Z["\[ScriptCapitalI]"]] \[Omega]^(2(1-Abs[s]))/(4 \[Pi]),
+  -1, 2 Z["\[ScriptCapitalI]"]CowboyConjugate[Z["\[ScriptCapitalI]"]] \[Omega]^(2(1-Abs[s]))/(4 \[Pi]),
+  0, Z["\[ScriptCapitalI]"]CowboyConjugate[Z["\[ScriptCapitalI]"]] \[Omega]^(2(1-Abs[s]))/(4 \[Pi]),
+  1, AbsCSq = (\[Lambda]+2)^2+ 4 a \[Omega](m-a \[Omega]);
+  2 (4 \[Omega]^4 Z["\[ScriptCapitalI]"]CowboyConjugate[Z["\[ScriptCapitalI]"]])/(AbsCSq) \[Omega]^(2(1-Abs[s]))/(4 \[Pi]),
+  2, AbsCSq = (4+\[Lambda])^2 (6+\[Lambda])^2+144 M^2 \[Omega]^2+8 a (4+\[Lambda]) (-4+5 (6+\[Lambda])) \[Omega] (m-a \[Omega])+48 a^2 \[Omega]^2 (2 (4+\[Lambda])+3 (m-a \[Omega])^2);
+  (16 \[Omega]^8 Z["\[ScriptCapitalI]"]CowboyConjugate[Z["\[ScriptCapitalI]"]])/(AbsCSq) \[Omega]^(2(1-Abs[s]))/(4 \[Pi])
+  ];
+                
+  
+  
+  (*Abs[Z["\[ScriptCapitalI]"]]^2 \[Omega]^(2(1-Abs[s]))/(4 \[Pi]);*)
+  FluxHor = Switch[s,
+			-2,
+			  AbsCSq = ((\[Lambda]+2)^2 + 4 a m \[Omega] - 4a^2 \[Omega]^2)(\[Lambda]^2+36 m a \[Omega] - 36 a^2 \[Omega]^2) + (2\[Lambda]+3)(96 a^2 \[Omega]^2 - 48 m a \[Omega]) + 144 \[Omega]^2 (M^2-a^2);
+              \[Alpha] = (256(2M rh)^5 \[Kappa](\[Kappa]^2+4\[Epsilon]^2)(\[Kappa]^2+16\[Epsilon]^2)\[Omega]^3)/AbsCSq;
+              \[Alpha] Z["\[ScriptCapitalH]"]CowboyConjugate[Z["\[ScriptCapitalH]"]]/(4 \[Pi] \[Omega]^2),
+			-1,
+			  p = \[Lambda]^2 + 4*a*\[Omega]*(m - a*\[Omega]);
+			  2 \[Omega] Z["\[ScriptCapitalH]"]CowboyConjugate[Z["\[ScriptCapitalH]"]] (2 M rh \[Kappa]) 4 ((2 M rh \[Kappa])^2+(M^2-a^2))/ (p \[Pi]),
+			0,
+			  (* The rh^2 factor vs arXiv:1003.1860 Eq. (55) is needed as \[Psi] = r R*)
+			  1/(2 \[Pi] rh) \[Omega](\[Omega]-m \[CapitalOmega]h) Z["\[ScriptCapitalH]"]CowboyConjugate[Z["\[ScriptCapitalH]"]]*rh^2,
+			 1,
+			 2 (\[Omega] Z["\[ScriptCapitalH]"]CowboyConjugate[Z["\[ScriptCapitalH]"]])/(32 \[Pi] \[Kappa] rh),
+			 2,
+			  (\[Omega] Z["\[ScriptCapitalH]"]CowboyConjugate[Z["\[ScriptCapitalH]"]])/(512 \[Pi] rh^3 \[Kappa] (\[Kappa]^2+4 \[Epsilon]^2))
+			];
+
+  <| "\[ScriptCapitalI]" -> FluxInf, "\[ScriptCapitalH]" -> FluxHor |>
+];
+
+
+AngularMomentumFlux[mode_TeukolskyModePN] := If[!(mode["FourierFrequency"]===0),EnergyFlux[mode] mode["m"]/mode["FourierFrequency"], <| "\[ScriptCapitalI]" -> 0, "\[ScriptCapitalH]" -> 0 |>];
 
 
 (* ::Section:: *)
