@@ -73,7 +73,7 @@ TeukolskyPointParticleModePN::particle="TeukolskyPointParticleModePN cannot be e
 TeukolskyAmplitudePN::usage="TeukolskyAmplitudePN[\"sol\"][\[ScriptS], \[ScriptL], \[ScriptM], a, \[Omega], {\[Gamma], n}] gives the desired PN expanded amplitude. Possible values for sol are as follows: A+, A-, Btrans, Binc, Bref, Ctrans, Cinc, Cref, K\[Nu], K-\[Nu]-1, K"
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*MST Coefficients*)
 
 
@@ -83,7 +83,7 @@ MSTCoefficientsPN::usage="MSTCoefficientsPN[\[ScriptS],\[ScriptL],\[ScriptM],a,\
 MSTCoefficientsPN::warn="Warning: These expressions are only valid for `2`\[GreaterEqual]`1`";
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Radial Teukolsky Equation*)
 
 
@@ -1477,7 +1477,7 @@ aux
 CowboyConjugate=#/.Complex[a_,b_]:>Complex[a,-b]&;
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Point particle source*)
 
 
@@ -1504,7 +1504,7 @@ aux
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*\[ScriptS] = -2*)
 
 
@@ -1754,7 +1754,7 @@ ret
 ]]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Teukolsky Equation*)
 
 
@@ -1803,7 +1803,7 @@ teukolsky[\[ScriptS]_,\[ScriptL]_] := Collect[equation[\[ScriptS], \[ScriptL], 0
 teukolsky[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,order\[Eta]_] := Collect[equation[\[ScriptS], \[ScriptL], \[ScriptM], \[Omega], \[ScriptA], 1, r,order\[Eta]]/.eigenValue->\[Lambda],Derivative[__][R][__],Simplify];
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*New*)
 
 
@@ -2650,7 +2650,7 @@ aux
 (*Constructing Rc*)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Alternative Definitions*)
 
 
@@ -2686,7 +2686,7 @@ aux//PNScalingsInternal
 ];
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Constructing \!\(\*SubsuperscriptBox[\(R\), \(C\), \(\[Nu]\)]\)*)
 
 
@@ -3643,7 +3643,7 @@ TeukolskyPointParticleModePN[\[ScriptS], \[ScriptL], \[ScriptM],orbit,{varPN,aux
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Accessing functions and keys*)
 
 
@@ -3686,12 +3686,13 @@ Derivative[n_Integer][tppm_TeukolskyModePN][r_Symbol]:=tppm[[6,1]]^(2 n) Derivat
 
 
 EnergyFlux[mode_TeukolskyModePN] :=
- Module[{M = 1, s, l, m, a, \[Omega], \[Lambda], Z, rh, \[CapitalOmega]h, \[Kappa], \[Epsilon], AbsCSq, \[Alpha], p, FluxInf, FluxHor},
+ Module[{M = 1, s, l, m, a, \[Omega], \[Lambda], Z, rh, \[CapitalOmega]h, \[Kappa], \[Epsilon],r0, AbsCSq, \[Alpha], p, FluxInf, FluxHor,absZ},
   a = mode["a"];
   s = mode["s"];
   l = mode["l"];
   m = mode["m"];
   \[Omega] = mode["FourierFrequency"];
+  r0=mode["r0"];
   \[Lambda] =SpinWeightedSpheroidalEigenvalue[s, l, m, a \[Omega]];
   Z = mode["Amplitudes"];
 
@@ -3700,17 +3701,19 @@ EnergyFlux[mode_TeukolskyModePN] :=
   rh = M + Sqrt[M^2-a^2];
   \[CapitalOmega]h = a/(2 M rh);
   \[Kappa] = \[Omega] - m \[CapitalOmega]h;
-  \[Epsilon] = Sqrt[M^2-a^2]/(4 M rh);  	
+  \[Epsilon] = Sqrt[M^2-a^2]/(4 M rh);  
+  absZ["\[ScriptCapitalI]"]=Z["\[ScriptCapitalI]"]CowboyConjugate[ExpandLog[Z["\[ScriptCapitalI]"],Inactive[KerrGeoFrequencies][a, r0, 0, 1]["\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"]>0]];
+  absZ["\[ScriptCapitalH]"]=Z["\[ScriptCapitalH]"]CowboyConjugate[ExpandLog[Z["\[ScriptCapitalH]"],Inactive[KerrGeoFrequencies][a, r0, 0, 1]["\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"]>0]];
 
   FluxInf = 
   Switch[s,
-  -2, Z["\[ScriptCapitalI]"]CowboyConjugate[Z["\[ScriptCapitalI]"]] \[Omega]^(2(1-Abs[s]))/(4 \[Pi]),
-  -1, 2 Z["\[ScriptCapitalI]"]CowboyConjugate[Z["\[ScriptCapitalI]"]] \[Omega]^(2(1-Abs[s]))/(4 \[Pi]),
-  0, Z["\[ScriptCapitalI]"]CowboyConjugate[Z["\[ScriptCapitalI]"]] \[Omega]^(2(1-Abs[s]))/(4 \[Pi]),
+  -2, absZ["\[ScriptCapitalI]"] \[Omega]^(2(1-Abs[s]))/(4 \[Pi]),
+  -1, 2 absZ["\[ScriptCapitalI]"] \[Omega]^(2(1-Abs[s]))/(4 \[Pi]),
+  0, absZ["\[ScriptCapitalI]"] \[Omega]^(2(1-Abs[s]))/(4 \[Pi]),
   1, AbsCSq = (\[Lambda]+2)^2+ 4 a \[Omega](m-a \[Omega]);
-  2 (4 \[Omega]^4 Z["\[ScriptCapitalI]"]CowboyConjugate[Z["\[ScriptCapitalI]"]])/(AbsCSq) \[Omega]^(2(1-Abs[s]))/(4 \[Pi]),
+  2 (4 \[Omega]^4 absZ["\[ScriptCapitalI]"])/(AbsCSq) \[Omega]^(2(1-Abs[s]))/(4 \[Pi]),
   2, AbsCSq = (4+\[Lambda])^2 (6+\[Lambda])^2+144 M^2 \[Omega]^2+8 a (4+\[Lambda]) (-4+5 (6+\[Lambda])) \[Omega] (m-a \[Omega])+48 a^2 \[Omega]^2 (2 (4+\[Lambda])+3 (m-a \[Omega])^2);
-  (16 \[Omega]^8 Z["\[ScriptCapitalI]"]CowboyConjugate[Z["\[ScriptCapitalI]"]])/(AbsCSq) \[Omega]^(2(1-Abs[s]))/(4 \[Pi])
+  (16 \[Omega]^8 absZ["\[ScriptCapitalI]"])/(AbsCSq) \[Omega]^(2(1-Abs[s]))/(4 \[Pi])
   ];
                 
   
@@ -3720,17 +3723,17 @@ EnergyFlux[mode_TeukolskyModePN] :=
 			-2,
 			  AbsCSq = ((\[Lambda]+2)^2 + 4 a m \[Omega] - 4a^2 \[Omega]^2)(\[Lambda]^2+36 m a \[Omega] - 36 a^2 \[Omega]^2) + (2\[Lambda]+3)(96 a^2 \[Omega]^2 - 48 m a \[Omega]) + 144 \[Omega]^2 (M^2-a^2);
               \[Alpha] = (256(2M rh)^5 \[Kappa](\[Kappa]^2+4\[Epsilon]^2)(\[Kappa]^2+16\[Epsilon]^2)\[Omega]^3)/AbsCSq;
-              \[Alpha] Z["\[ScriptCapitalH]"]CowboyConjugate[Z["\[ScriptCapitalH]"]]/(4 \[Pi] \[Omega]^2),
+              \[Alpha] absZ["\[ScriptCapitalH]"]/(4 \[Pi] \[Omega]^2),
 			-1,
 			  p = \[Lambda]^2 + 4*a*\[Omega]*(m - a*\[Omega]);
-			  2 \[Omega] Z["\[ScriptCapitalH]"]CowboyConjugate[Z["\[ScriptCapitalH]"]] (2 M rh \[Kappa]) 4 ((2 M rh \[Kappa])^2+(M^2-a^2))/ (p \[Pi]),
+			  2 \[Omega] absZ["\[ScriptCapitalH]"] (2 M rh \[Kappa]) 4 ((2 M rh \[Kappa])^2+(M^2-a^2))/ (p \[Pi]),
 			0,
 			  (* The rh^2 factor vs arXiv:1003.1860 Eq. (55) is needed as \[Psi] = r R*)
 			  1/(2 \[Pi] rh) \[Omega](\[Omega]-m \[CapitalOmega]h) Z["\[ScriptCapitalH]"]CowboyConjugate[Z["\[ScriptCapitalH]"]]*rh^2,
 			 1,
-			 2 (\[Omega] Z["\[ScriptCapitalH]"]CowboyConjugate[Z["\[ScriptCapitalH]"]])/(32 \[Pi] \[Kappa] rh),
+			 2 (\[Omega] absZ["\[ScriptCapitalH]"])/(32 \[Pi] \[Kappa] rh),
 			 2,
-			  (\[Omega] Z["\[ScriptCapitalH]"]CowboyConjugate[Z["\[ScriptCapitalH]"]])/(512 \[Pi] rh^3 \[Kappa] (\[Kappa]^2+4 \[Epsilon]^2))
+			  (\[Omega] absZ["\[ScriptCapitalH]"])/(512 \[Pi] rh^3 \[Kappa] (\[Kappa]^2+4 \[Epsilon]^2))
 			];
 
   <| "\[ScriptCapitalI]" -> FluxInf, "\[ScriptCapitalH]" -> FluxHor |>
