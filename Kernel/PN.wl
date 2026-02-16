@@ -3499,7 +3499,7 @@ Keys[trfpn_TeukolskyRadialFunctionPN] ^:= DeleteElements[Join[Keys[trfpn[[-1]]],
 (*TeukolskyPointParticleModePN*)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Getting internal association*)
 
 
@@ -3553,7 +3553,7 @@ Echo[cIn/.\[ScriptL]->10//ChangeContext[#,"Teukolsky`PN`Private`"]&,"cIn"];
 Echo[inner/.\[ScriptL]->10//ChangeContext[#,"Teukolsky`PN`Private`"]&,"inner"];*)
 outer=cUp Rup[r];
 If[OptionValue["Simplify"]||\[ScriptM]===0,{inner,outer}={inner,outer}//SeriesCollect[#,{SpinWeightedSpheroidalHarmonicS[__],Derivative[__][SpinWeightedSpheroidalHarmonicS][__]},(Simplify[#,{aVar>=0,r0Var>0,varPN>0}]&)]&];
-If[\[ScriptM]===0,{inner,outer}={inner,outer}/.Log[a_ Style[0,Red]]:>Log[a Style[0,Orange]]/.Style[0,Red]->0];
+If[\[ScriptM]===0,{inner,outer,\[Omega]Fourier}={inner,outer,\[Omega]Fourier}/.Log[a_ Style[0,Red]]:>Log[a Style[0,Orange]]/.Style[0,Red]->0];
 {Btrans,Ctrans}={BAmplitude["Trans","Normalization"->OptionValue["Normalization"],"FreqRep"->False][\[ScriptS],\[ScriptL],\[ScriptM],aVar,order],CAmplitude["Trans","Normalization"->OptionValue["Normalization"],"FreqRep"->False][\[ScriptS],\[ScriptL],\[ScriptM],aVar,order]}/.\[Eta]->varPN/.\[Omega]->\[Omega]Fourier;
 {cInU,cUpU}={Normal[Btrans] cIn,Normal[Ctrans] cUp};
 (*Echo[cInU/.\[ScriptL]->10//ChangeContext[#,"Teukolsky`PN`Private`"]&,"cInU"];*)
@@ -3571,7 +3571,7 @@ outerF=outer/.r->#&;
 sourceF=source[r]/.\[CapitalOmega]Kerr->\[Omega]Fourier/If[\[ScriptM]!=0,\[ScriptM],Style[0,Red]]/.r->#&;
 SCoeffsF=Scoeffs/.r->#&;
 orbit=KerrGeodesics`KerrGeoOrbit`KerrGeoOrbit[aVar,r0Var,0,1];
-ret=<|"s"->\[ScriptS],"l"->\[ScriptL],"m"->\[ScriptM],"a"->aVar,"r0"->r0Var,"PN"->{varPN,order},"RadialFunction"->radialF,"CoefficientList"->SCoeffsF,("ExtendedHomogeneous"->"\[ScriptCapitalI]")->outerF,("ExtendedHomogeneous"->"\[ScriptCapitalH]")->innerF,"\[Delta]"->deltaCoeff,"Amplitudes"->ampAssoc,"Wronskian"->wronskian,"Source"->sourceF,"SeriesMinOrder"->minOrder,"RadialFunctions"->aux,"FourierFrequency"->Activate[\[Omega]Fourier],"Orbit"->orbit,"Simplify"->OptionValue["Simplify"],"Normalization"->OptionValue["Normalization"]|>;
+ret=<|"s"->\[ScriptS],"l"->\[ScriptL],"m"->\[ScriptM],"a"->aVar,"r0"->r0Var,"PN"->{varPN,order},"RadialFunction"->radialF,"CoefficientList"->SCoeffsF,("ExtendedHomogeneous"->"\[ScriptCapitalI]")->outerF,("ExtendedHomogeneous"->"\[ScriptCapitalH]")->innerF,"\[Delta]"->deltaCoeff,"Amplitudes"->ampAssoc,"Wronskian"->wronskian,"Source"->sourceF,"SeriesMinOrder"->minOrder,"RadialFunctions"->aux,"\[Omega]"->Activate[\[Omega]Fourier],"Orbit"->orbit,"Simplify"->OptionValue["Simplify"],"Normalization"->OptionValue["Normalization"]|>;
 ret
 ]
 ]
@@ -3599,7 +3599,7 @@ TeukolskyModePN /:
                   BoxForm`SummaryItem[{"l: ", l}], "  ",
                   BoxForm`SummaryItem[{"m: ", m}], "  ",
                   BoxForm`SummaryItem[{"a: ", a}], "  ",
-                  BoxForm`SummaryItem[{"\[Omega]: ",assoc["FourierFrequency"]}],"  ",
+                  BoxForm`SummaryItem[{"\[Omega]: ",assoc["\[Omega]"]}],"  ",
                   BoxForm`SummaryItem[{"\!\(\*SubscriptBox[\(r\), \(0\)]\): ", r0}],"  ",
  BoxForm`SummaryItem[{"PN parameter: ", varPN}],"  ",
  BoxForm`SummaryItem[{"PN order: ", N[(order-1)/2]"PN"}]
@@ -3691,7 +3691,7 @@ EnergyFlux[mode_TeukolskyModePN] :=
   s = mode["s"];
   l = mode["l"];
   m = mode["m"];
-  \[Omega] = mode["FourierFrequency"];
+  \[Omega] = mode["\[Omega]"];
   r0=mode["r0"];
   \[Lambda] =SpinWeightedSpheroidalEigenvalue[s, l, m, a \[Omega]];
   Z = mode["Amplitudes"];
