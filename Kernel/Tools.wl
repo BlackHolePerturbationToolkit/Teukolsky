@@ -19,7 +19,7 @@ BeginPackage["Teukolsky`PN`Tools`",{"Teukolsky`","Teukolsky`PN`"}]
 (*Unprotecting*)
 
 
-ClearAttributes[{SeriesTake, SeriesMinOrder,SeriesMaxOrder,SeriesLength,SeriesCollect,SeriesTerms,IgnoreExpansionParameter,ChangeSeriesParameter,PowerCounting,StraightenSeries}, {Protected, ReadProtected}];
+ClearAttributes[{SeriesTake,SeriesMap, SeriesMinOrder,SeriesMaxOrder,SeriesLength,SeriesCollect,SeriesTerms,IgnoreExpansionParameter,ChangeSeriesParameter,PowerCounting,StraightenSeries}, {Protected, ReadProtected}];
 
 
 ClearAttributes[{PNScalings, RemovePN}, {Protected, ReadProtected}];
@@ -63,6 +63,7 @@ ClearAttributes[{Paint,CowboyConjugate,ChangeContext}, {Protected, ReadProtected
 
 
 SeriesTake::usage="SeriesTake[series, n] takes the first n terms of series"
+SeriesMap::usage="SeriesMap[function,series] maps f onto the coefficients of series"
 SeriesMinOrder::usage="SeriesMinOrder[series] gives the leading order of series"
 SeriesMaxOrder::usage="SeriesMaxOrder[series] gives the first surpressed order of series"
 SeriesLength::usage="SeriesLenght[series] gives the number of terms in series"
@@ -170,6 +171,7 @@ IgnoreExpansionParameter=Teukolsky`PN`Private`IgnoreExpansionParameter
 ChangeSeriesParameter=Teukolsky`PN`Private`ChangeSeriesParameter
 PowerCounting=Teukolsky`PN`Private`PowerCounting
 StraightenSeries=Teukolsky`PN`Private`StraightenSeries
+SeriesMap=Teukolsky`PN`Private`SeriesMap
 
 
 (* ::Subsection:: *)
@@ -247,7 +249,7 @@ TeukolskyEquation=Teukolsky`PN`Private`TeukolskyEquation
 (*Protecting*)
 
 
-SetAttributes[{SeriesTake, SeriesMinOrder,SeriesMaxOrder,SeriesLength,SeriesTerms,IgnoreExpansionParameter,ChangeSeriesParameter,PowerCounting,StraightenSeries}, {Protected, ReadProtected}];
+SetAttributes[{SeriesTake,SeriesMap,SeriesMinOrder,SeriesMaxOrder,SeriesLength,SeriesTerms,IgnoreExpansionParameter,ChangeSeriesParameter,PowerCounting,StraightenSeries}, {Protected, ReadProtected}];
 
 
 SetAttributes[{SeriesCollect}, {Protected, ReadProtected,Listable}];
