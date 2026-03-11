@@ -1091,7 +1091,7 @@ ExpandSpheroidals[expr_Times,{\[Eta]_,n_}]:=ExpandSpheroidals[#,{\[Eta],n}]&/@ex
 ExpandSpheroidals[expr_,{\[Eta]_,n_}]:=expr;
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Tools for Series*)
 
 
@@ -1496,11 +1496,11 @@ aux
 CowboyConjugate=#/.Complex[a_,b_]:>Complex[a,-b]&;
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Point particle source*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Interface*)
 
 
@@ -1526,7 +1526,7 @@ aux
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*\[ScriptS] = -2*)
 
 
@@ -1669,7 +1669,7 @@ ret
 ]*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*s = +2*)
 
 
@@ -1921,7 +1921,7 @@ Derivative[n_][\[Theta]][arg_]:=Derivative[n-1][\[Delta]][arg];
 \[Delta]''[\[Eta]^-2 a_]:=\[Eta]^2 \[Delta]''[a];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Amplitudes*)
 
 
@@ -3295,7 +3295,7 @@ If[!MatchQ[order,_Integer],Message[TeukolskyRadialFunctionPN::paramorder,order];
 ]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*TeukolskyRadialPN*)
 
 
@@ -3353,7 +3353,7 @@ ret
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Getting internal association faster*)
 
 
@@ -3404,8 +3404,8 @@ R["Up"]=aux/.{\[Eta]->varPN,\[Omega]->\[Omega]Var};
 R["Up"]=R["Up"]//SeriesCollect[#,{Log[__],PolyGamma[__]}]&;
 If[OptionValue["Simplify"],R["Up"]=R["Up"]//SeriesCollect[#,{Log[__],PolyGamma[__]},Simplify]&];
 (*We then move getting the other keys*)
-RF["In"]=R["In"]/.r->#&;
-RF["Up"]=R["Up"]/.r->#&;
+RF["In"]=(Evaluate[R["In"]/.r->#])&;
+RF["Up"]=(Evaluate[R["Up"]/.r->#])&;
 (minOrder[#]=R[#]//Activate//Expand//SeriesMinOrder//Simplify[#,{\[ScriptL]>=Abs[\[ScriptS]]}]&)&/@{"In","Up"};
 (termCount[#]=R[#]//Activate//Expand//SeriesLength//Simplify[#,{\[ScriptL]>=Abs[\[ScriptS]]}]&)&/@{"In","Up"};
 normalization=OptionValue["Normalization"];
@@ -3463,7 +3463,7 @@ aux
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*TeukolskyRadialFunctionPN*)
 
 
@@ -3530,11 +3530,11 @@ Derivative[n_Integer][trf_TeukolskyRadialFunctionPN][r_Symbol]:=(*trf[[6,1]]^(2 
 Keys[trfpn_TeukolskyRadialFunctionPN] ^:= DeleteElements[Join[Keys[trfpn[[-1]]], {}], {"RadialFunction","AmplitudesBool"}];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*TeukolskyPointParticleModePN*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Getting internal association*)
 
 
@@ -3678,7 +3678,7 @@ TeukolskyPointParticleModePN[\[ScriptS], \[ScriptL], \[ScriptM],orbit,{varPN,aux
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Accessing functions and keys*)
 
 
