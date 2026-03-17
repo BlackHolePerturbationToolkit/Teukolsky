@@ -964,7 +964,7 @@ aux
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Definitions, replacements and auxiliary functions*)
 
 
@@ -1091,7 +1091,7 @@ ExpandSpheroidals[expr_Times,{\[Eta]_,n_}]:=ExpandSpheroidals[#,{\[Eta],n}]&/@ex
 ExpandSpheroidals[expr_,{\[Eta]_,n_}]:=expr;
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Tools for Series*)
 
 
@@ -1286,7 +1286,7 @@ Return[series]
 evens=coeffs//Part[#,1;;;;den]&;
 min=series[[4]];
 max=series[[5]];
-aux=aux=ReplacePart[series,{3->evens,4->min/den,5->Ceiling[max/den],6->1}];
+aux=ReplacePart[series,{3->evens,4->min/den,5->Ceiling[max/den],6->1}];
 aux
 ]
 
@@ -3337,7 +3337,7 @@ ret
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Getting internal association faster*)
 
 
@@ -3357,7 +3357,11 @@ RC2=RPN["C-\[Nu]-1"][\[ScriptS],\[ScriptL],\[ScriptM],a,order+If[\[ScriptL]===0,
 (*We then turn to R_In*)
 gap=InGap[If[NumericQ[\[ScriptL]],\[ScriptL],Abs[\[ScriptS]]],\[ScriptM] a];
 \[ScriptCapitalK]=\[ScriptCapitalK]Amplitude["Ratio","FreqRep"->False][\[ScriptS],\[ScriptL],\[ScriptM],a,Max[order-gap,2]]//ExpandGamma//ExpandPolyGamma//SeriesCollect[#,PolyGamma[__,__]]&;
-aux=RC1+\[ScriptCapitalK] RC2//SeriesTake[#,order]&;
+If[NumericQ[\[ScriptL]],
+	aux=RC1+\[ScriptCapitalK] RC2//SeriesTake[#,order]&,
+	(*else*)
+	aux=RC1//SeriesTake[#,order]& (*The second term grows quicker than the minimum valid \[ScriptL]. The generic \[ScriptL] expressions therefore only need the first term in RIn*)
+];
 normalization["In"]=Switch[OptionValue["Normalization"],
 	"Default",1,
 	"DefaultSym",ISymmetryFactor["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order]^-1,
@@ -3374,7 +3378,12 @@ If[OptionValue["Resummation"]==="Exponential",R["In"]=Inactive[Exp][Log[R["In"]]
 coeffUp=(-I E^(-\[Pi] \[CurlyEpsilon]-I \[Pi] \[ScriptS])Sin[\[Pi](\[Nu]MST+\[ScriptS]-I \[CurlyEpsilon])]/Sin[2\[Pi] \[Nu]MST]);
 C1=PNScalingsInternal[coeffUp]/.repls;
 C2=PNScalingsInternal[coeffUp I E^(-I \[Pi] \[Nu]MST) Sin[\[Pi](\[Nu]MST-\[ScriptS]+I \[CurlyEpsilon])]/ Sin[\[Pi](\[Nu]MST+\[ScriptS]-I \[CurlyEpsilon])]]/.repls;
-aux=C1 RC2+C2 RC1;
+If[NumericQ[\[ScriptL]],
+	aux=C1 RC2+C2 RC1;,
+	(*else*)
+	aux=C1 RC2+If[order<5,C2 RC1]; (*The second term grows quicker than the minimum valid \[ScriptL]. The generic \[ScriptL] expressions therefore only need the first term in RUp for order<5*)
+];
+
 normalization["Up"]=Switch[OptionValue["Normalization"],
 	"Default",1,
 	"DefaultSym",1,
