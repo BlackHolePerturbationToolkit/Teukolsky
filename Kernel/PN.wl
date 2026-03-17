@@ -1091,7 +1091,7 @@ ExpandSpheroidals[expr_Times,{\[Eta]_,n_}]:=ExpandSpheroidals[#,{\[Eta],n}]&/@ex
 ExpandSpheroidals[expr_,{\[Eta]_,n_}]:=expr;
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Tools for Series*)
 
 
@@ -1099,7 +1099,6 @@ SeriesMinOrder[series_SeriesData]:=Block[{},
 series[[4]]/series[[6]]
 ]
 
-SeriesMinOrder[1]=0;
 
 SeriesMinOrder[expr_/;MatchQ[expr,Times[__,_SeriesData]]]:=Module[{aux,factor,series},
 factor=expr/.Times[a__,b_SeriesData]:>a;
@@ -1110,6 +1109,8 @@ aux+SeriesMinOrder[series]
 
 SeriesMinOrder[expr_Plus]:=Min[SeriesMinOrder[#]&/@(List@@expr)]
 SeriesMinOrder[expr_List]:=SeriesMinOrder[#]&/@expr;
+
+SeriesMinOrder[expr_]=0;
 
 
 SeriesMaxOrder[series_SeriesData]:=Block[{},
@@ -1160,30 +1161,13 @@ SeriesTake[expr_,order_Integer:1]/;FreeQ[expr,SeriesData]:=expr;
 SeriesTake[expr_,order_Integer:1]:=SeriesTake[#,order]&/@expr;
 
 
-(* ::Input:: *)
-(*(*SeriesTake[series_SeriesData,order_Integer:1]:=Block[{aux},*)
-(*series(1+SeriesData[series[[1]],series[[2]],{},order,order,series[[6]]])*)
-(*]*)
-(*SeriesTake[series_SeriesData,0]:=Block[{aux},*)
-(*SeriesData[series[[1]],series[[2]],{},series[[4]],series[[4]],series[[6]]]*)
-(*]*)
-(*SeriesTake[series_O,order_Integer:1]:=Block[{aux,minOrder},*)
-(*series*)
-(*]*)
-(*SeriesTake[expr_/;MatchQ[expr,Times[__,_SeriesData]],order_Integer]:=Block[{aux,factor,series},*)
-(*factor=expr/.Times[a__,b_SeriesData]:>a;*)
-(*series=expr/.Times[a__,b_SeriesData]:>b;*)
-(*factor SeriesTake[series,order]*)
-(*]*)
-(*Attributes[SeriesTake]={Listable};*)
-(**)*)
+Options[SeriesTerms]=Options[Series];
 
-
-SeriesTerms[expr_,{x_,x0_,termOrder_}]:=Module[{aux,minOrder},
-minOrder=Series[expr,x->x0]//SeriesMinOrder;
-Series[expr,{x,x0,minOrder+termOrder-1}]
+SeriesTerms[expr_,{x_,x0_,termOrder_},opt:OptionsPattern[]]:=Module[{aux,minOrder},
+minOrder=Series[expr,x->x0,opt]//SeriesMinOrder;
+Series[expr,{x,x0,minOrder+termOrder-1},opt]
 ];
-SeriesTerms[expr_,{x_,x0_,termOrder_}]/;FreeQ[expr,x]:=expr;
+SeriesTerms[expr_,{x_,x0_,termOrder_},opt:OptionsPattern[]]/;FreeQ[expr,x]:=expr;
 (*SeriesTerms[expr___]:=Module[{aux},
 Series[expr]]*)
 
