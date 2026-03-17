@@ -28,7 +28,7 @@ ClearAttributes[{MSTCoefficientsPN}, {Protected, ReadProtected}];
 packageDir=DirectoryName[$InputFileName]
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Public *)
 
 
@@ -1101,7 +1101,7 @@ series[[4]]/series[[6]]
 
 
 SeriesMinOrder[expr_/;MatchQ[expr,Times[__,_SeriesData]]]:=Module[{aux,factor,series},
-factor=expr/.Times[a__,b_SeriesData]:>a;
+factor=expr/.Times[a__,b_SeriesData]:>Times[a];
 series=expr/.Times[a__,b_SeriesData]:>b;
 aux=factor//Exponent[#,series[[1]]]&;
 aux+SeriesMinOrder[series]
@@ -1110,7 +1110,7 @@ aux+SeriesMinOrder[series]
 SeriesMinOrder[expr_Plus]:=Min[SeriesMinOrder[#]&/@(List@@expr)]
 SeriesMinOrder[expr_List]:=SeriesMinOrder[#]&/@expr;
 
-SeriesMinOrder[expr_]=0;
+SeriesMinOrder[expr_]/;FreeQ[expr,SeriesData]=0;
 
 
 SeriesMaxOrder[series_SeriesData]:=Block[{},
@@ -1118,7 +1118,7 @@ series[[5]]/series[[6]]
 ]
 
 SeriesMaxOrder[expr_/;MatchQ[expr,Times[__,_SeriesData]]]:=Module[{aux,factor,series},
-factor=expr/.Times[a__,b_SeriesData]:>a;
+factor=expr/.Times[a__,b_SeriesData]:>Times[a];
 series=expr/.Times[a__,b_SeriesData]:>b;
 aux=factor//Exponent[#,series[[1]]]&;
 aux+SeriesMaxOrder[series]
@@ -1134,7 +1134,7 @@ coeffs//Length
 ]
 
 SeriesLength[expr_/;MatchQ[expr,Times[__,_SeriesData]]]:=Module[{aux,factor,series},
-factor=expr/.Times[a__,b_SeriesData]:>a;
+factor=expr/.Times[a__,b_SeriesData]:>Times[a];
 series=expr/.Times[a__,b_SeriesData]:>b;
 SeriesLength[series]
 ]
@@ -3337,7 +3337,7 @@ ret
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Getting internal association faster*)
 
 
@@ -3447,7 +3447,7 @@ aux
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*TeukolskyRadialFunctionPN*)
 
 
