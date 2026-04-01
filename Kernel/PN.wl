@@ -917,7 +917,6 @@ aux=Import[ParentDirectory[packageDir]<>"/Data/MSTCoefficients_s"<>ToString[\[Sc
 FixContext=(#/.s_Symbol/;Context[s]===$Context:>Symbol["Teukolsky`PN`Private`"<>SymbolName[s]]&);
 keys=aux//Keys//FixContext;
 keys=keys/.{a[n_]:>aMST[n],\[Nu]->\[Nu]MST};
-Echo[$Context];
 values=aux//Values//FixContext//ChangeSeriesParameter[#,\[Gamma]]&;
 values=values//Series[#,{\[Gamma],0,order\[CurlyEpsilon]-1}]&;
 values=values+SeriesData[\[Gamma], 0, {}, 0, order\[CurlyEpsilon], 1];
