@@ -122,7 +122,7 @@ Begin["`Private`"]
 <<SpinWeightedSpheroidalHarmonics`
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*MST Coefficients*)
 
 
@@ -871,7 +871,7 @@ MST=Append[MST,Table[a[i]->aMST[i]+If[i==0,0,O[\[Epsilon]]^(ExpOrder+1)],{i,-Exp
 ]*)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Interface*)
 
 
@@ -914,9 +914,10 @@ ret
 
 MSTCoefficientsInternalFreq[\[ScriptS]_Integer,\[ScriptL]Var_Symbol,\[ScriptM]Var_,aKerr_,order\[CurlyEpsilon]_Integer]:=Module[{aux,keys,values,FixContext},
 aux=Import[ParentDirectory[packageDir]<>"/Data/MSTCoefficients_s"<>ToString[\[ScriptS]]<>"_generic_l.wl"];
-FixContext=(#/.s_Symbol/;Context[s]==="Global`":>Symbol["Teukolsky`PN`Private`"<>SymbolName[s]]&);
+FixContext=(#/.s_Symbol/;Context[s]===$Context:>Symbol["Teukolsky`PN`Private`"<>SymbolName[s]]&);
 keys=aux//Keys//FixContext;
 keys=keys/.{a[n_]:>aMST[n],\[Nu]->\[Nu]MST};
+Echo[$Context];
 values=aux//Values//FixContext//ChangeSeriesParameter[#,\[Gamma]]&;
 values=values//Series[#,{\[Gamma],0,order\[CurlyEpsilon]-1}]&;
 values=values+SeriesData[\[Gamma], 0, {}, 0, order\[CurlyEpsilon], 1];
@@ -1907,11 +1908,11 @@ Derivative[n_][\[Theta]][arg_]:=Derivative[n-1][\[Delta]][arg];
 \[Delta]''[\[Eta]^-2 a_]:=\[Eta]^2 \[Delta]''[a];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Amplitudes*)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*A Amplitudes*)
 
 
@@ -1973,7 +1974,7 @@ aux
 ]*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*B Amplitudes*)
 
 
@@ -2552,7 +2553,7 @@ aux
 ]*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Log Free*)
 
 
@@ -2574,7 +2575,7 @@ aux
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Interface*)
 
 
@@ -2698,7 +2699,7 @@ aux
 ]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Constructing Rc*)
 
 
@@ -3373,7 +3374,7 @@ ret
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Getting internal association faster*)
 
 
