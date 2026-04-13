@@ -122,7 +122,7 @@ Begin["`Private`"]
 <<SpinWeightedSpheroidalHarmonics`
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*MST Coefficients*)
 
 
@@ -871,7 +871,7 @@ MST=Append[MST,Table[a[i]->aMST[i]+If[i==0,0,O[\[Epsilon]]^(ExpOrder+1)],{i,-Exp
 ]*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Interface*)
 
 
@@ -1091,7 +1091,7 @@ ExpandSpheroidals[expr_Times,{\[Eta]_,n_}]:=ExpandSpheroidals[#,{\[Eta],n}]&/@ex
 ExpandSpheroidals[expr_,{\[Eta]_,n_}]:=expr;
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Tools for Series*)
 
 
@@ -1312,6 +1312,25 @@ SeriesMap[function_,expr_,levelspec_]:=function[expr];
 
 
 DropZeroSeries=Quiet[#/.SeriesData[_,_,{},___]->0]&;
+
+
+Options[SeriesPlusSimplify]={Assumptions->{}};
+
+SeriesPlusSimplify[expr_,OptionsPattern[]]:=Module[{aux,mins,maxs,terms,minMin,inquisition,minMinPos,maxMax},
+terms=expr//ReplacePart[0->List];
+mins=terms//SeriesMinOrder;
+maxs=terms//SeriesMaxOrder;
+(*minMin=Assuming[OptionValue[Assumptions],mins//Min//Simplify];*)
+minMinPos=Assuming[OptionValue[Assumptions],FirstPosition[mins,Min[mins]//Simplify]//First];
+maxMax=maxs[[minMinPos]];
+(*inquisition=Assuming[OptionValue[Assumptions],(If[#>maxMax,0,1]&/@mins)//Simplify];*)
+inquisition=Assuming[OptionValue[Assumptions],(maxMax-#&/@mins)//Ramp//Simplify];
+aux=SeriesTake[#[[1]],#[[2]]]&/@Transpose[{terms,inquisition}];
+aux=aux//Total//DropZeroSeries;
+aux
+]
+
+SeriesPlusSimplify[expr_,assumptions_]:=SeriesPlusSimplify[expr,Assumptions->assumptions]
 
 
 (* ::Subsubsection::Closed:: *)
@@ -2698,7 +2717,7 @@ aux
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Constructing Rc*)
 
 
