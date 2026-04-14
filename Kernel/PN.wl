@@ -1316,8 +1316,9 @@ DropZeroSeries=Quiet[#/.SeriesData[_,_,{},___]->0]&;
 
 Options[SeriesPlusSimplify]={Assumptions->{}};
 
-SeriesPlusSimplify[expr_,OptionsPattern[]]:=Module[{aux,mins,maxs,terms,minMin,inquisition,minMinPos,maxMax},
-terms=expr//ReplacePart[0->List];
+SeriesPlusSimplify[expr_Plus/;!FreeQ[expr,SeriesData],OptionsPattern[]]:=Module[{aux,mins,maxs,terms,minMin,inquisition,minMinPos,maxMax},
+aux=expr//Expand[#,SeriesData]&;
+terms=aux//ReplacePart[0->List];
 mins=terms//SeriesMinOrder;
 maxs=terms//SeriesMaxOrder;
 (*minMin=Assuming[OptionValue[Assumptions],mins//Min//Simplify];*)
@@ -1326,9 +1327,11 @@ maxMax=maxs[[minMinPos]];
 (*inquisition=Assuming[OptionValue[Assumptions],(If[#>maxMax,0,1]&/@mins)//Simplify];*)
 inquisition=Assuming[OptionValue[Assumptions],(maxMax-#&/@mins)//Ramp//Simplify];
 aux=SeriesTake[#[[1]],#[[2]]]&/@Transpose[{terms,inquisition}];
-aux=aux//Total//DropZeroSeries;
+aux=aux//DropZeroSeries//Total;
 aux
 ]
+
+SeriesPlusSimplify[expr_,OptionsPattern[]]/;FreeQ[expr,SeriesData]:=expr;
 
 SeriesPlusSimplify[expr_,assumptions_]:=SeriesPlusSimplify[expr,Assumptions->assumptions]
 
