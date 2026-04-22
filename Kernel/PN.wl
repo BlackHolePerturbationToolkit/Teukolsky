@@ -1302,7 +1302,7 @@ aux=SeriesMap[function,#,levelspec-1]&/@coeffs;
 expr//ReplacePart[#,3->aux]&
 ]
 SeriesMap[function_,expr_,levelspec_:Infinity]/;MatchQ[expr,a__ b_SeriesData]:=Module[{aux,coeffs,factor,series},
-{factor,series}=expr/.a__ b_SeriesData:>{a,b};
+{factor,series}=expr/.a__ b_SeriesData:>{Times[a],b};
 coeffs=series[[3]];
 aux=SeriesMap[function,series,levelspec];
 factor aux
