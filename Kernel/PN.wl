@@ -122,11 +122,11 @@ Begin["`Private`"]
 <<SpinWeightedSpheroidalHarmonics`
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*MST Coefficients*)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Adrian's code for MST coefficients*)
 
 
@@ -2728,7 +2728,7 @@ aux
 ]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Constructing Rc*)
 
 
@@ -2943,7 +2943,7 @@ aux,{j,0,finalj}],{n,nMin,nMax}];
 table]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Constructing \!\(\*SubsuperscriptBox[\(R\), \(C\), \(\(-\[Nu]\) - 1\)]\) *)
 
 
@@ -3131,7 +3131,7 @@ aux
 ]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Subscript[R, Up]*)
 
 
@@ -3139,7 +3139,7 @@ aux
 (*To construct Subscript[R, up] we follow Eq.159 in Sasaki Tagoshi ( https://doi.org/10.12942/lrr-2003-6 ) where \[CapitalPsi] is identical to HypergeometricU[]..*)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Constructing Subscript[R, up] from Subscript[R, C]*)
 
 
@@ -3240,7 +3240,7 @@ aux=\[ScriptCapitalD][0]@\[ScriptCapitalD][0][aux];
 aux//Simplify//redo\[Eta]Repls//Simplify//SeriesTake[#,order\[Eta]]&]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Inhomogeneous solution (depreciated)*)
 
 
@@ -3282,7 +3282,7 @@ aux//Simplify//redo\[Eta]Repls//Simplify//SeriesTake[#,order\[Eta]]&]
 (*]]*)*)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Sourced solution *)
 
 
@@ -3345,7 +3345,7 @@ If[!MatchQ[order,_Integer],Message[TeukolskyRadialFunctionPN::paramorder,order];
 ]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*TeukolskyRadialPN*)
 
 
@@ -3403,7 +3403,7 @@ ret
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Getting internal association faster*)
 
 
@@ -3702,10 +3702,7 @@ args=source//Expand[#,DiracDelta]&//ExpandDiracDelta[#,r]&//If[Head[#]===Plus,#/
 If[Length[args]!=1,Abort[]];
 arg=#&@@args;
 r0Var=-arg/.r->0;
-Echo[source//ChangeContext[#,"Teukolsky`PN`Private`"]&];
-Echo[(Kerr\[CapitalDelta][aVar,varPN^-2  r]^\[ScriptS] source Rup[r])/wronskian//Inactive[ExpandDiracDelta][#,r]&(*//ChangeContext[#,"Teukolsky`PN`Private`"]&*)];
-cIn=(Kerr\[CapitalDelta][aVar,varPN^-2  r]^\[ScriptS] source Rup[r])/wronskian//Inactive[ExpandDiracDelta][#,r]&//ReplaceAll[{DiracDelta[a_]:>HeavisideTheta[r0Var-r],Derivative[n_][DiracDelta]:>Derivative[n-1][DiracDelta]}];
-Echo[cIn//ChangeContext[#,"Teukolsky`PN`Private`"]&];
+cIn=(Kerr\[CapitalDelta][aVar,varPN^-2  r]^\[ScriptS] source Rup[r])/wronskian//ExpandDiracDelta[#,r]&//ReplaceAll[{DiracDelta[a_]:>HeavisideTheta[r0Var-r],Derivative[n_][DiracDelta]:>Derivative[n-1][DiracDelta]}];
 cUp=(Kerr\[CapitalDelta][aVar,varPN^-2  r]^\[ScriptS] source Rin[r])/wronskian//ExpandDiracDelta[#,r]&//ReplaceAll[{DiracDelta[a_]:>HeavisideTheta[r-r0Var],Derivative[n_][DiracDelta]:>Derivative[n-1][DiracDelta]}];
 {cIn,cUp,deltaCoeff,source}={cIn,cUp,deltaCoeff,source}/.r0->r0Var/.a->aVar/.\[CapitalOmega]Kerr->\[Omega]Fourier/If[\[ScriptM]===0,Style[0,Red],\[ScriptM]];
 If[OptionValue["Simplify"]&&NumericQ[\[ScriptL]],{cIn,cUp,deltaCoeff,source}={cIn,cUp,deltaCoeff,source}//SeriesCollect[#,{SpinWeightedSpheroidalHarmonicS[__],Derivative[__][SpinWeightedSpheroidalHarmonicS][__]},(Simplify[#,{aVar>=0,r0Var>0,varPN>0}]&)]&];
