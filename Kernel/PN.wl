@@ -1091,7 +1091,7 @@ ExpandSpheroidals[expr_Times,{\[Eta]_,n_}]:=ExpandSpheroidals[#,{\[Eta],n}]&/@ex
 ExpandSpheroidals[expr_,{\[Eta]_,n_}]:=expr;
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Tools for Series*)
 
 
@@ -1431,7 +1431,7 @@ PochhammerToGamma[expr_]:=(expr/.Pochhammer[x_,n_]:>Gamma[x+n]/Gamma[x]);
 GammaToPochhammer[expr_,n_]:=expr/.(Gamma[x_+sign_. n]:>Pochhammer[x,sign n]Gamma[x]);
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Tools for DiracDeltas*)
 
 
@@ -1460,24 +1460,25 @@ ret=\!\(
 ret
 ]
 
-ExpandDiracDelta[expr_List,x_]:=ExpandDiracDelta[#,x]&/@expr;
+ExpandDiracDelta[expr_List,x_]:=(ExpandDiracDelta[#,x]&/@expr);
 
-ExpandDiracDelta[expr_,x_]/;!FreeQ[expr,DiracDelta[a_]/;!FreeQ[a,x]]:=Module[{aux,ret},
+ExpandDiracDelta[expr_,x_]/;(!FreeQ[expr,DiracDelta[a_]/;!FreeQ[a,x]]||!FreeQ[expr,Derivative[_][DiracDelta][a_]/;!FreeQ[a,x]]):=Module[{aux,ret},
 aux=expr//Collect[#,{DiracDelta[__],Derivative[__][DiracDelta][__]}]&;
 ExpandDiracDelta[#,x]&/@aux
 ]
 
-ExpandDiracDelta[expr_SeriesData,x_]/;!FreeQ[expr,DiracDelta[a_]/;!FreeQ[a,x]]:=Module[{aux,ret},
-aux=expr//SeriesCollect[#,{DiracDelta[__],Derivative[__][DiracDelta][__]}]&;
-ExpandDiracDelta[#,x]&/@aux
+ExpandDiracDelta[expr_SeriesData,x_]/;(!FreeQ[expr,DiracDelta[a_]/;!FreeQ[a,x]]||!FreeQ[expr,Derivative[_][DiracDelta][a_]/;!FreeQ[a,x]]):=Module[{aux,ret,coeffs},
+coeffs=expr[[3]];
+aux=coeffs//ExpandDiracDelta[#,x]&;
+expr//ReplacePart[3->aux]
 ]
 
-
 ExpandDiracDelta[expr_Plus,x_]:=(ExpandDiracDelta[#,x]&/@expr);
+
 ExpandDiracDelta[expr_,x_]:=expr;
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Misc*)
 
 
@@ -1504,7 +1505,14 @@ aux
 CowboyConjugate=#/.Complex[a_,b_]:>Complex[a,-b]&;
 
 
-(* ::Subsection::Closed:: *)
+ChooseSide[expr_,assump_]:=Module[{aux},
+(*assump=Switch[dir,"L",r[]<r0,"R",r[]>r0,_,Abort[]];*)
+aux=expr/.{HeavisideTheta[a_]:>Simplify[HeavisideTheta[a],assump],DiracDelta[a_]:>Simplify[DiracDelta[a],assump],Derivative[n_][DiracDelta][a_]:>Simplify[Derivative[n][DiracDelta][a],assump]};
+aux
+]
+
+
+(* ::Subsection:: *)
 (*Point particle source*)
 
 
@@ -1933,7 +1941,7 @@ Derivative[n_][\[Theta]][arg_]:=Derivative[n-1][\[Delta]][arg];
 (*Amplitudes*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*A Amplitudes*)
 
 
@@ -3337,7 +3345,7 @@ If[!MatchQ[order,_Integer],Message[TeukolskyRadialFunctionPN::paramorder,order];
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*TeukolskyRadialPN*)
 
 
@@ -3583,11 +3591,11 @@ Derivative[n_Integer][trf_TeukolskyRadialFunctionPN][r_Symbol]:=(*trf[[6,1]]^(2 
 Keys[trfpn_TeukolskyRadialFunctionPN] ^:= DeleteElements[Join[Keys[trfpn[[-1]]], {}], {"RadialFunction","AmplitudesBool"}];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*TeukolskyPointParticleModePN*)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Getting internal association*)
 
 
@@ -3676,6 +3684,53 @@ ret
 (*RadialSourcedAssociation["CO"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,r0Var_,{varPN_,order_}]/;NumericQ[r0Var]:=RadialSourcedAssociation["CO"][\[ScriptS],\[ScriptL],\[ScriptM],a,r0,{varPN,order}]/.r0->r0Var;*)*)
 
 
+(* ::Subsubsection:: *)
+(*Given point particle Source*)
+
+
+Options[RadialSourcedAssociation]={"Normalization"->"Default","Simplify"->True,"FourierFrequency"->"OrbitalFrequency"}
+
+
+RadialSourcedAssociation["PointParticleSource",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,aVar_,\[Omega]Var_,sourceVar_Function,{varPN_,order_}]:=Assuming[{varPN>0,r0>0,r>0,1>a>=0,\[ScriptA]>=0},Module[{aux,r,length,arg,args,r0Var,ret,\[Omega]Fourier,orbit,Btrans,Ctrans,Scoeffs,SCoeffsF,Rin,dRin,ddRin,Rup,dRup,ddRup,wronskian,source,sourceF,sourceCoeffs,minOrder,cUp,cIn,cUpU,cInU,deltaCoeff,innerF,outerF,inner,outer,radialF,radial,ampAssoc},
+\[Omega]Fourier=\[Omega]Var;
+aux=TeukolskyRadialPN[\[ScriptS],\[ScriptL],\[ScriptM],aVar,\[Omega]Fourier,{varPN,order},"Normalization"->OptionValue["Normalization"]];
+Rin=aux["In"][[-1]]["RadialFunction"];
+Rup=aux["Up"][[-1]]["RadialFunction"];
+wronskian=InvariantWronskian[\[ScriptS],\[ScriptL],\[ScriptM],aVar,\[Omega]Fourier,{varPN, order},{"FreqRep"->False,"Normalization"->OptionValue["Normalization"]}];
+source=sourceVar[r];
+args=source//Expand[#,DiracDelta]&//ExpandDiracDelta[#,r]&//If[Head[#]===Plus,#//ReplacePart[0->List],{#}]&//ReplaceAll[{a_. DiracDelta[arg_]/;!FreeQ[arg,r]:>arg,a_. Derivative[n_][DiracDelta][arg_]/;!FreeQ[arg,r]:>arg}]//Union;
+If[Length[args]!=1,Abort[]];
+arg=#&@@args;
+r0Var=-arg/.r->0;
+Echo[source//ChangeContext[#,"Teukolsky`PN`Private`"]&];
+Echo[(Kerr\[CapitalDelta][aVar,varPN^-2  r]^\[ScriptS] source Rup[r])/wronskian//Inactive[ExpandDiracDelta][#,r]&(*//ChangeContext[#,"Teukolsky`PN`Private`"]&*)];
+cIn=(Kerr\[CapitalDelta][aVar,varPN^-2  r]^\[ScriptS] source Rup[r])/wronskian//Inactive[ExpandDiracDelta][#,r]&//ReplaceAll[{DiracDelta[a_]:>HeavisideTheta[r0Var-r],Derivative[n_][DiracDelta]:>Derivative[n-1][DiracDelta]}];
+Echo[cIn//ChangeContext[#,"Teukolsky`PN`Private`"]&];
+cUp=(Kerr\[CapitalDelta][aVar,varPN^-2  r]^\[ScriptS] source Rin[r])/wronskian//ExpandDiracDelta[#,r]&//ReplaceAll[{DiracDelta[a_]:>HeavisideTheta[r-r0Var],Derivative[n_][DiracDelta]:>Derivative[n-1][DiracDelta]}];
+{cIn,cUp,deltaCoeff,source}={cIn,cUp,deltaCoeff,source}/.r0->r0Var/.a->aVar/.\[CapitalOmega]Kerr->\[Omega]Fourier/If[\[ScriptM]===0,Style[0,Red],\[ScriptM]];
+If[OptionValue["Simplify"]&&NumericQ[\[ScriptL]],{cIn,cUp,deltaCoeff,source}={cIn,cUp,deltaCoeff,source}//SeriesCollect[#,{SpinWeightedSpheroidalHarmonicS[__],Derivative[__][SpinWeightedSpheroidalHarmonicS][__]},(Simplify[#,{aVar>=0,r0Var>0,varPN>0}]&)]&];
+inner=cIn Rin[r]//ChooseSide[#,r<r0Var]&;
+outer=cUp Rup[r]//ChooseSide[#,r>r0Var]&;
+{Btrans,Ctrans}={BAmplitude["Trans","Normalization"->OptionValue["Normalization"],"FreqRep"->False][\[ScriptS],\[ScriptL],\[ScriptM],aVar,order],CAmplitude["Trans","Normalization"->OptionValue["Normalization"],"FreqRep"->False][\[ScriptS],\[ScriptL],\[ScriptM],aVar,order]}/.\[Eta]->varPN/.\[Omega]->\[Omega]Fourier;
+{cInU,cUpU}={Normal[Btrans] ChooseSide[cIn,r<r0Var],Normal[Ctrans] ChooseSide[cUp,r>r0Var]};
+wronskian=wronskian/(Ctrans Btrans);
+ampAssoc=<|"\[ScriptCapitalI]"->cUpU,"\[ScriptCapitalH]"->cInU|>;
+(*If[\[ScriptM]===0,wronskian=(wronskian/(Normal[SeriesTake[Rup[r],1]/Ctrans]/.r->varPN^2)//Simplify)/.Log[a_ Style[0,Red]]:>Log[a Style[0,Orange]]/.Style[0,Red]->0];*)
+radial=cUp Rup[r] + cIn Rin[r];
+(*Scoeffs=SeriesToSCoeffs[radial];*)
+minOrder=radial//SeriesMinOrder;
+radialF=radial/.r->#&;
+innerF=inner/.r->#&;
+outerF=outer/.r->#&;
+sourceF=source[r]/.r->#&;
+(*SCoeffsF=Scoeffs/.r->#&;*)
+orbit=KerrGeodesics`KerrGeoOrbit`KerrGeoOrbit[aVar,r0Var,0,1];
+ret=<|"s"->\[ScriptS],"l"->\[ScriptL],"m"->\[ScriptM],"a"->aVar,"r0"->r0Var,"PN"->{varPN,order},"RadialFunction"->radialF(*,"CoefficientList"->SCoeffsF*),("ExtendedHomogeneous"->"\[ScriptCapitalI]")->outerF,("ExtendedHomogeneous"->"\[ScriptCapitalH]")->innerF,"\[Delta]"->deltaCoeff,"Amplitudes"->ampAssoc,"Wronskian"->wronskian,"Source"->sourceF,"SeriesMinOrder"->minOrder,"RadialFunctions"->aux,"\[Omega]"->Simplify[Activate[\[Omega]Fourier],r0Var>0],"Orbit"->orbit,"Simplify"->OptionValue["Simplify"],"Normalization"->OptionValue["Normalization"]|>;
+ret
+]
+]
+
+
 (* ::Subsubsection::Closed:: *)
 (*TeukolskyModePN*)
 
@@ -3709,7 +3764,7 @@ TeukolskyModePN /:
 ];
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*TeukolskyPointParticleModePN*)
 
 
@@ -3729,6 +3784,16 @@ ret
 TeukolskyPointParticleModePN[\[ScriptS]_, \[ScriptL]_, \[ScriptM]_,orbit_KerrGeodesics`KerrGeoOrbit`KerrGeoOrbitFunction,{varPN_,order_String},opt:OptionsPattern[]]:=Module[{aux},
 aux=order//PNStringToOrder;
 TeukolskyPointParticleModePN[\[ScriptS], \[ScriptL], \[ScriptM],orbit,{varPN,aux},opt]
+]
+
+
+TeukolskyPointParticleModePN[\[ScriptS]_, \[ScriptL]_, \[ScriptM]_,a_,\[Omega]_,source_Function,{varPN_,order_},opt:OptionsPattern[]]:=Module[{aux,assoc,ret,r0Var,eccentricity,inclination},
+(*{a,r0Var,eccentricity,inclination}=orbit[#]&/@{"a","p","e","Inclination"};
+If[!(eccentricity===0),Message[TeukolskyPointParticleModePN::orbit];Abort[];];
+If[!(inclination===1),Message[TeukolskyPointParticleModePN::orbit];Abort[];];*)
+assoc=RadialSourcedAssociation["PointParticleSource",opt][\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],source,{varPN,order}];
+ret=TeukolskyModePN[\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{varPN,order},assoc];
+ret
 ]
 
 
