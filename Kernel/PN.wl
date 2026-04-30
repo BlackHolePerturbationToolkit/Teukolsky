@@ -4,18 +4,18 @@
 (*SetOptions[EvaluationNotebook[],StyleDefinitions->$UserBaseDirectory<>"/SystemFiles/FrontEnd/StyleSheets/maTHEMEatica.nb"]*)
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Beginning Package*)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Setting Context*)
 
 
 BeginPackage["Teukolsky`PN`",{"Teukolsky`"}]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Unprotecting*)
 
 
@@ -122,11 +122,11 @@ Begin["`Private`"]
 <<SpinWeightedSpheroidalHarmonics`
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*MST Coefficients*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Adrian's code for MST coefficients*)
 
 
@@ -964,7 +964,7 @@ aux
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Definitions, replacements and auxiliary functions*)
 
 
@@ -1431,7 +1431,7 @@ PochhammerToGamma[expr_]:=(expr/.Pochhammer[x_,n_]:>Gamma[x+n]/Gamma[x]);
 GammaToPochhammer[expr_,n_]:=expr/.(Gamma[x_+sign_. n]:>Pochhammer[x,sign n]Gamma[x]);
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Tools for DiracDeltas*)
 
 
@@ -1478,7 +1478,7 @@ ExpandDiracDelta[expr_Plus,x_]:=(ExpandDiracDelta[#,x]&/@expr);
 ExpandDiracDelta[expr_,x_]:=expr;
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Misc*)
 
 
@@ -1512,7 +1512,7 @@ aux
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Point particle source*)
 
 
@@ -2728,7 +2728,7 @@ aux
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Constructing Rc*)
 
 
@@ -2943,7 +2943,7 @@ aux,{j,0,finalj}],{n,nMin,nMax}];
 table]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Constructing \!\(\*SubsuperscriptBox[\(R\), \(C\), \(\(-\[Nu]\) - 1\)]\) *)
 
 
@@ -3131,7 +3131,7 @@ aux
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Subscript[R, Up]*)
 
 
@@ -3139,7 +3139,7 @@ aux
 (*To construct Subscript[R, up] we follow Eq.159 in Sasaki Tagoshi ( https://doi.org/10.12942/lrr-2003-6 ) where \[CapitalPsi] is identical to HypergeometricU[]..*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Constructing Subscript[R, up] from Subscript[R, C]*)
 
 
@@ -3240,7 +3240,7 @@ aux=\[ScriptCapitalD][0]@\[ScriptCapitalD][0][aux];
 aux//Simplify//redo\[Eta]Repls//Simplify//SeriesTake[#,order\[Eta]]&]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Inhomogeneous solution (depreciated)*)
 
 
@@ -3282,7 +3282,7 @@ aux//Simplify//redo\[Eta]Repls//Simplify//SeriesTake[#,order\[Eta]]&]
 (*]]*)*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Sourced solution *)
 
 
@@ -3345,7 +3345,7 @@ If[!MatchQ[order,_Integer],Message[TeukolskyRadialFunctionPN::paramorder,order];
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*TeukolskyRadialPN*)
 
 
@@ -3403,7 +3403,7 @@ ret
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Getting internal association faster*)
 
 
@@ -3702,7 +3702,7 @@ args=source//Expand[#,DiracDelta]&//ExpandDiracDelta[#,r]&//If[Head[#]===Plus,#/
 If[Length[args]!=1,Abort[]];
 arg=#&@@args;
 r0Var=-arg/.r->0;
-cIn=(Kerr\[CapitalDelta][aVar,varPN^-2  r]^\[ScriptS] source Rup[r])/wronskian//ExpandDiracDelta[#,r]&//ReplaceAll[{DiracDelta[a_]:>HeavisideTheta[r0Var-r],Derivative[n_][DiracDelta]:>Derivative[n-1][DiracDelta]}];
+cIn=-(Kerr\[CapitalDelta][aVar,varPN^-2  r]^\[ScriptS] source Rup[r])/wronskian//ExpandDiracDelta[#,r]&//ReplaceAll[{DiracDelta[a_]:>HeavisideTheta[r0Var-r],Derivative[n_][DiracDelta]:>Derivative[n-1][DiracDelta]}];
 cUp=(Kerr\[CapitalDelta][aVar,varPN^-2  r]^\[ScriptS] source Rin[r])/wronskian//ExpandDiracDelta[#,r]&//ReplaceAll[{DiracDelta[a_]:>HeavisideTheta[r-r0Var],Derivative[n_][DiracDelta]:>Derivative[n-1][DiracDelta]}];
 {cIn,cUp,deltaCoeff,source}={cIn,cUp,deltaCoeff,source}/.r0->r0Var/.a->aVar/.\[CapitalOmega]Kerr->\[Omega]Fourier/If[\[ScriptM]===0,Style[0,Red],\[ScriptM]];
 If[OptionValue["Simplify"]&&NumericQ[\[ScriptL]],{cIn,cUp,deltaCoeff,source}={cIn,cUp,deltaCoeff,source}//SeriesCollect[#,{SpinWeightedSpheroidalHarmonicS[__],Derivative[__][SpinWeightedSpheroidalHarmonicS][__]},(Simplify[#,{aVar>=0,r0Var>0,varPN>0}]&)]&];
