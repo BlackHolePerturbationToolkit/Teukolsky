@@ -114,12 +114,13 @@ rstar*)
 Begin["`Private`"]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Loading dependencies*)
 
 
 (*<<BlackHoleAnalysis`SeriesTools`*)
 <<SpinWeightedSpheroidalHarmonics`
+<<KerrGeodesics`
 
 
 (* ::Subsection::Closed:: *)
@@ -1512,7 +1513,7 @@ aux
 ]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Point particle source*)
 
 
@@ -1542,20 +1543,55 @@ aux
 ]
 
 
+Options[TeukolskyPointParticleSourceRepls]={"Form"->"Default","InactiveHaromonics"->False};
+
+
+TeukolskyPointParticleSourceRepls[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,r0Var_,opt:OptionsPattern[]]:=Module[{aux,eccentricity,inclination,\[CapitalOmega],c\[Delta],c\[Delta]p,c\[Delta]pp,repls,r0},
+\[CapitalOmega]=Inactive[KerrGeodesics`OrbitalFrequencies`KerrGeoFrequencies][a,r0,0,1]["\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"];
+aux=TeukolskySource[\[ScriptS],\[ScriptL],\[ScriptM],a,{r,r0},opt];
+aux=aux/.\[CapitalOmega]Kerr->\[CapitalOmega];
+c\[Delta]=aux//Coefficient[#,DiracDelta[r-r0]]&;
+c\[Delta]p=r0^-1 aux//Coefficient[#,DiracDelta'[r-r0]]&;
+c\[Delta]pp=r0^-2  aux//Coefficient[#,DiracDelta''[r-r0]]&;
+repls={C[0]->c\[Delta],C[1]->c\[Delta]p,C[2]->c\[Delta]pp};
+repls=repls/.r0->r0Var;
+repls
+]
+
+
+TeukolskyPointParticleSourceRepls[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,r0Var_,{\[Eta]Var_,order_},opt:OptionsPattern[]]:=Module[{keys,values,r0,\[Eta],aux,minOrder},
+aux=TeukolskyPointParticleSourceRepls[\[ScriptS],\[ScriptL],\[ScriptM],a,r0,opt];
+{keys,values}={Keys[aux],Values[aux]};
+values=values/.r0->\[Eta]^-2 r0;
+values=values/.Inactive[KerrGeoFrequencies][aa_,rr0_,e_,x_][\[CapitalOmega]_]:>\[Eta]^3 Inactive[KerrGeoFrequencies][aa,\[Eta]^2 rr0,e,x][\[CapitalOmega]];
+values=values//ReplaceAll[{Inactive[SpinWeightedSpheroidalHarmonicS][ss_,ll_,mm_,\[Gamma]\[Gamma]_,\[Theta]\[Theta]_,\[Phi]\[Phi]_]:>Inactive[SpinWeightedSpheroidalHarmonicS][ss,ll,mm,\[Eta]^-3 \[Gamma]\[Gamma],\[Theta]\[Theta],\[Phi]\[Phi]],Derivative[x___][Inactive[SpinWeightedSpheroidalHarmonicS]][ss_,ll_,mm_,\[Gamma]\[Gamma]_,\[Theta]\[Theta]_,\[Phi]\[Phi]_]:>Derivative[x][Inactive[SpinWeightedSpheroidalHarmonicS]][ss,ll,mm,\[Eta]^-3 \[Gamma]\[Gamma],\[Theta]\[Theta],\[Phi]\[Phi]]}];
+minOrder=Assuming[{\[Eta]>0,r0>0,1>a>=0},values//Expand//CollectDerivatives[#,SpinWeightedSpheroidalHarmonicS[__],(Series[#,\[Eta]->0]&)]&//SeriesMinOrder//Min];
+values=Assuming[{\[Eta]>0,r0>0,1>a>=0},values//Expand//CollectDerivatives[#,SpinWeightedSpheroidalHarmonicS[__],(Series[#,{\[Eta],0,order+minOrder-1}]&)]&//StraightenSeries//Simplify];
+(*values=values//Series[#,{\[Eta],0,order+minOrder},Assumptions->{\[Eta]>0,r0>0,a>0}]&;*)
+values=values/.r0->r0Var//ChangeSeriesParameter[#,\[Eta]Var]&;
+aux=(keys->values)//Thread;
+aux
+]
+
+
 (* ::Subsubsection::Closed:: *)
 (*\[ScriptS] = -2*)
 
 
-Options[TeukolskySource]={"Form"->"Default"};
+Options[TeukolskySource]={"Form"->"Default","InactiveHaromonics"->False};
 
 
 TeukolskySource[-2,\[ScriptL]_,\[ScriptM]_,a_,{r_,r0_},OptionsPattern[]] :=Assuming[{r0>0,r>0,1>a>=0},
- Module[{\[ScriptS]=-2,aux,auxFactor,\[ScriptCapitalE], \[ScriptCapitalL], \[Theta]0, \[CapitalDelta],\[CapitalDelta]1d,\[CapitalDelta]2d, Kt, \[CapitalUpsilon]t, \[Omega],\[CapitalOmega], SH,S0, dS0, d2S0, L1, L2, L2S, L2p, L1Sp, L1L2S, rcomp, invFactor0,invFactor1,invFactor2,\[Theta]comp, \[Rho], \[Rho]bar, \[CapitalSigma], Ann0, Anmbar0, Anmbar1, Ambarmbar0, Ambarmbar1, Ambarmbar2, Cnnp1p1, Cnmbarp1p1, Cmbarmbarp1p1,ret},
+ Module[{\[ScriptS]=-2,aux,auxFactor,\[ScriptCapitalE], \[ScriptCapitalL], \[Theta]0, \[CapitalDelta],\[CapitalDelta]1d,\[CapitalDelta]2d, Kt, \[CapitalUpsilon]t, \[Omega],\[CapitalOmega], SH,S0, dS0, d2S0, L1, L2, L2S, L2p,aa, L1Sp, L1L2S, e,x,rcomp,\[Theta],\[Phi], invFactor0,invFactor1,invFactor2,\[Theta]comp, \[Rho], \[Rho]bar, \[CapitalSigma], Ann0, Anmbar0, Anmbar1, Ambarmbar0, Ambarmbar1, Ambarmbar2, Cnnp1p1, Cnmbarp1p1, Cmbarmbarp1p1,ret},
 \[ScriptCapitalE]=(a+(-2+r0) Sqrt[r0])/Sqrt[2 a r0^(3/2)+(-3+r0) r0^2];
 \[ScriptCapitalL]=(a^2-2 a Sqrt[r0]+r0^2)/(Sqrt[2 a+(-3+r0) Sqrt[r0]] r0^(3/4));
 
   \[CapitalUpsilon]t = (r0^(5/4) (a+r0^(3/2)))/Sqrt[2 a+(-3+r0) Sqrt[r0]];
-\[Omega]=\[ScriptM] \[CapitalOmega]Kerr;
+(*\[Omega]=\[ScriptM] \[CapitalOmega]Kerr;*)
+e=0;
+x=1;
+	\[CapitalOmega]=If[OptionValue[InactiveHaromonics],Inactive[KerrGeodesics`OrbitalFrequencies`KerrGeoFrequencies][a,r0,e,x]["\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"],KerrGeodesics`OrbitalFrequencies`KerrGeoFrequencies[a,r0,e,x]["\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"]];
+	\[Omega]=\[ScriptM] \[CapitalOmega];
 (*\[CapitalOmega]=1/Sqrt[r0^3];*)
   \[Theta]0 = \[Pi]/2;
 
@@ -1564,10 +1600,12 @@ TeukolskySource[-2,\[ScriptL]_,\[ScriptM]_,a_,{r_,r0_},OptionsPattern[]] :=Assum
   \[CapitalDelta]2d=D[\[CapitalDelta],{r0,2}];
   
   Kt=(r0^2+a^2)\[Omega]-\[ScriptM] a;
-  SH=SpinWeightedSpheroidalHarmonicS[\[ScriptS],\[ScriptL],\[ScriptM],a \[Omega]];
-  S0 = SH[\[Theta]0, 0];
-  dS0 = Derivative[1,0][SH][\[Theta]0, 0];
-  d2S0 = Derivative[2,0][SH][\[Theta]0, 0];
+  SH=SpinWeightedSpheroidalHarmonicS[\[ScriptS],\[ScriptL],\[ScriptM],aa \[Omega],\[Theta],\[Phi]];
+    If[OptionValue[InactiveHaromonics],SH=SH//Inactivate[#,SpinWeightedSpheroidalHarmonicS]&];
+    SH=SH/.aa->a;
+  S0 = SH//D[#,{\[Theta],0}]&//ReplaceAll[{\[Theta]->\[Theta]0,\[Phi]->0}];
+  dS0 = SH//D[#,{\[Theta],1}]&//ReplaceAll[{\[Theta]->\[Theta]0,\[Phi]->0}];
+  d2S0 =SH//D[#,{\[Theta],2}]&//ReplaceAll[{\[Theta]->\[Theta]0,\[Phi]->0}];
   L1 = -\[ScriptM]/Sin[\[Theta]0] + a \[Omega] Sin[\[Theta]0] + Cos[\[Theta]0]/Sin[\[Theta]0];
   L2 = -\[ScriptM]/Sin[\[Theta]0] + a \[Omega] Sin[\[Theta]0] + 2 Cos[\[Theta]0]/Sin[\[Theta]0];
   L2S = dS0 + L2 S0;
@@ -1645,14 +1683,18 @@ ret
 
 
 TeukolskySource[0,\[ScriptL]_,\[ScriptM]_,a_,{r_,r0_},OptionsPattern[]] :=Assuming[{r0>0,r>0,1>a>=0},
- Module[{aux,auxFactor,\[ScriptS]=0, \[Theta]0, \[Omega],\[CapitalOmega], \[CapitalUpsilon]t, S,SH,ret,\[CapitalDelta]},
+ Module[{aux,auxFactor,\[ScriptS]=0, \[Theta]0, \[Omega],\[CapitalOmega], \[CapitalUpsilon]t, S,SH,ret,e,x,\[CapitalDelta]},
 \[CapitalUpsilon]t =(r0^(5/4) (a+r0^(3/2)))/Sqrt[2 a+(-3+r0) Sqrt[r0]];
 \[Theta]0 = \[Pi]/2;
 \[CapitalDelta] = r0^2-2r0+a^2;
-\[Omega]=\[ScriptM] \[CapitalOmega]Kerr;
+(*\[Omega]=\[ScriptM] \[CapitalOmega]Kerr;*)
+e=0;
+x=1;
+	\[CapitalOmega]=KerrGeodesics`OrbitalFrequencies`KerrGeoFrequencies[a,r0,e,x]["\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"];
+	\[Omega]=\[ScriptM] \[CapitalOmega];
 (*\[CapitalOmega]=1/Sqrt[r0^3];*)
-SH=  SpinWeightedSpheroidalHarmonicS[\[ScriptS],\[ScriptL],\[ScriptM],a \[Omega]];
-S = SH[\[Pi]/2,0];
+  SH=SpinWeightedSpheroidalHarmonicS[\[ScriptS],\[ScriptL],\[ScriptM],a \[Omega],\[Theta],\[Phi]];
+  S = SH//D[#,{\[Theta],0}]&//ReplaceAll[{\[Theta]->\[Theta]0,\[Phi]->0}];
 aux = -((4 \[Pi])/\[CapitalUpsilon]t)  r0^2  S DiracDelta[r-r0];
 auxFactor=Switch[OptionValue["Form"],"Default",Kerr\[CapitalDelta][a,r]^-\[ScriptS],"InvariantWronskian",1];
 If[auxFactor//MatchQ[#,_Switch]&,Return[$Failed]];
@@ -1689,65 +1731,17 @@ ret
 (*s = +2*)
 
 
-(* ::Input:: *)
-(*(*TeukolskySource[2,\[ScriptL]_,\[ScriptM]_,OptionsPattern[]] := *)
-(* Block[{s=2,l=\[ScriptL], m=\[ScriptM], a, p, \[ScriptCapitalE], \[ScriptCapitalL], \[CapitalUpsilon]t,SH, \[Omega], r0, \[Theta]0, \[CapitalDelta],d\[CapitalDelta],d2\[CapitalDelta], Kt, S0, dS0, d2S0, \[Delta]L\[Dagger]1, \[Delta]L\[Dagger]2, d\[Delta]L\[Dagger]2, \[Rho], \[Rho]bar, d\[Rho]over\[Rho], d2\[Rho]over\[Rho], u\[Theta]0,invFactor0,invFactor1,invFactor2, rcomp, \[Theta]comp, All0, Alm0, Alm1, Amm0, Amm1, Amm2, Cllp1p1, Clmp1p1, Cmmp1p1, Cllp1m1, Clmp1m1,ret,A,B,C},*)
-(*  a = \[ScriptA];*)
-(*  p=r0;*)
-(*  \[ScriptCapitalE]=(a+(-2+p) Sqrt[p])/Sqrt[2 a p^(3/2)+(-3+p) p^2];*)
-(*\[ScriptCapitalL]=(a^2-2 a Sqrt[p]+p^2)/(Sqrt[2 a+(-3+p) Sqrt[p]] p^(3/4));*)
-(*  \[CapitalUpsilon]t = (p^(5/4) (a+p^(3/2)))/Sqrt[2 a+(-3+p) Sqrt[p]];*)
-(*  \[Theta]0 = \[Pi]/2;*)
-(* *)
-(*  \[CapitalDelta] = r0^2 + a^2 - 2 r0;*)
-(*d\[CapitalDelta]=2 (-1+r0);*)
-(*d2\[CapitalDelta]=2;*)
-(*  Kt = (r0^2 + a^2) \[Omega] - m a;*)
-(*  *)
-(*  invFactor0=If[OptionValue["InvariantWronskianForm"],1,\[CapitalDelta]^-3+3 d\[CapitalDelta]/\[CapitalDelta]^4-3 (-4 d\[CapitalDelta]^2+\[CapitalDelta] d2\[CapitalDelta])/\[CapitalDelta]^5];*)
-(*  invFactor1=If[OptionValue["InvariantWronskianForm"],1,(6 d\[CapitalDelta])/\[CapitalDelta]^4+\[CapitalDelta]^-3];*)
-(*  invFactor2=If[OptionValue["InvariantWronskianForm"],1,\[CapitalDelta]^-3];*)
-(*  *)
-(*  \[Rho] = -1/(r0 - I a Cos[\[Theta]0]);*)
-(*  \[Rho]bar = -1/(r0 + I a Cos[\[Theta]0]);*)
-(**)
-(*  SH=SpinWeightedSpheroidalHarmonicS[s,l,m,a \[Omega]];*)
-(*  S0 = SH[\[Theta]0, 0];*)
-(*  dS0 = Derivative[1,0][SH][\[Theta]0, 0];*)
-(*  d2S0 = Derivative[2,0][SH][\[Theta]0, 0];*)
-(*  \[Delta]L\[Dagger]1 = m/Sin[\[Theta]0] - a \[Omega] Sin[\[Theta]0] + Cos[\[Theta]0]/Sin[\[Theta]0];*)
-(*  \[Delta]L\[Dagger]2 = m/Sin[\[Theta]0] - a \[Omega] Sin[\[Theta]0] + 2 Cos[\[Theta]0]/Sin[\[Theta]0];*)
-(*  d\[Delta]L\[Dagger]2 = -m Cos[\[Theta]0]/Sin[\[Theta]0]^2 - a \[Omega] Cos[\[Theta]0] - 2/Sin[\[Theta]0]^2;*)
-(*  d\[Rho]over\[Rho] = I a \[Rho] Sin[\[Theta]0];*)
-(*  d2\[Rho]over\[Rho] = I a \[Rho](Cos[\[Theta]0] + 2 Sin[\[Theta]0] d\[Rho]over\[Rho]);*)
-(*  *)
-(*  All0 = -(1/2) \[Rho]^(-1) \[Rho]bar (d2S0 + (\[Delta]L\[Dagger]1 + \[Delta]L\[Dagger]2 + 2 d\[Rho]over\[Rho])dS0 + (d\[Delta]L\[Dagger]2 + \[Delta]L\[Dagger]1 \[Delta]L\[Dagger]2 - 6 d\[Rho]over\[Rho]^2 + 3 d2\[Rho]over\[Rho] + (3 \[Delta]L\[Dagger]1 - \[Delta]L\[Dagger]2)d\[Rho]over\[Rho]) S0);*)
-(*  Alm0 = (2/Sqrt[2]) \[Rho]^(-1) ( -(\[Rho] + \[Rho]bar + I Kt/\[CapitalDelta]) (dS0 + \[Delta]L\[Dagger]2 S0) + (\[Rho] - \[Rho]bar) a Sin[\[Theta]0] Kt/\[CapitalDelta] S0 );*)
-(*  Alm1 = (2/Sqrt[2]) \[Rho]^(-1) ( (dS0 + \[Delta]L\[Dagger]2 S0) + I (\[Rho] - \[Rho]bar) a Sin[\[Theta]0] S0 );*)
-(*  Amm0 = (Kt^2 S0)/(\[CapitalDelta]^2 \[Rho] \[Rho]bar)+(2 I Kt S0 (-1+r0-\[CapitalDelta] \[Rho]))/(\[CapitalDelta]^2 \[Rho] \[Rho]bar)-(2 I r0 S0 \[Omega])/(\[CapitalDelta] \[Rho] \[Rho]bar);*)
-(*  Amm1 = 2 \[Rho]^(-1) \[Rho]bar^(-1) S0 ( I Kt/\[CapitalDelta] + \[Rho] );*)
-(*  Amm2 = -\[Rho]^(-1) \[Rho]bar^(-1) S0;*)
-(**)
-(*  rcomp = (\[ScriptCapitalE](r0^2+a^2) - a \[ScriptCapitalL])/(\[CapitalDelta]);*)
-(*  \[Theta]comp = -\[Rho]bar (I Sin[\[Theta]0](a \[ScriptCapitalE] - \[ScriptCapitalL]/Sin[\[Theta]0]^2))/Sqrt[2];*)
-(*    *)
-(*  {Cllp1p1,Clmp1p1,Cmmp1p1} = {rcomp^2, rcomp \[Theta]comp, \[Theta]comp^2};*)
-(*A=(All0*Cllp1p1 + Alm0*Clmp1p1 + Amm0*Cmmp1p1);*)
-(*B=(Alm1*Clmp1p1 + Amm1*Cmmp1p1);*)
-(*C=Amm2*Cmmp1p1;*)
-(*    *)
-(*  ret =-((8Pi)/\[CapitalUpsilon]t)(invFactor0(\[CapitalDelta]^2 A -2\[CapitalDelta] d\[CapitalDelta] B+2(d\[CapitalDelta]^2+\[CapitalDelta] d2\[CapitalDelta])C )\[Delta][r-r0]+ invFactor1(\[CapitalDelta]^2 B-4 \[CapitalDelta] d\[CapitalDelta] C) \[Delta]'[r-r0] +invFactor2 \[CapitalDelta]^2 C  \[Delta]''[r-r0]);*)
-(*ret//Simplify*)
-(*]*)*)
-
-
 TeukolskySource[2,\[ScriptL]_,\[ScriptM]_,a_,{r_,r0_},OptionsPattern[]] :=Assuming[{r0>0,r>0,1>a>=0},
- Module[{aux,auxFactor,\[ScriptS]=2, \[ScriptCapitalE], \[ScriptCapitalL], \[CapitalUpsilon]t,SH, \[Omega], \[CapitalOmega], \[Theta]0, \[CapitalDelta],d\[CapitalDelta],d2\[CapitalDelta], Kt, S0, dS0, d2S0, \[Delta]L\[Dagger]1, \[Delta]L\[Dagger]2, d\[Delta]L\[Dagger]2, \[Rho], \[Rho]bar, d\[Rho]over\[Rho], d2\[Rho]over\[Rho], u\[Theta]0, rcomp, \[Theta]comp, All0, Alm0, Alm1, Amm0, Amm1, Amm2, Cllp1p1, Clmp1p1, Cmmp1p1, Cllp1m1, Clmp1m1,ret,A,B,C},
+ Module[{aux,auxFactor,\[ScriptS]=2, \[ScriptCapitalE], \[ScriptCapitalL], \[CapitalUpsilon]t,SH, \[Omega], \[CapitalOmega], \[Theta]0, \[CapitalDelta],d\[CapitalDelta],d2\[CapitalDelta], Kt, S0, dS0, d2S0, \[Delta]L\[Dagger]1, \[Delta]L\[Dagger]2, d\[Delta]L\[Dagger]2, \[Rho], \[Rho]bar, e,x,d\[Rho]over\[Rho], d2\[Rho]over\[Rho],\[Theta],\[Phi], u\[Theta]0, rcomp, \[Theta]comp, All0, Alm0, Alm1, Amm0, Amm1, Amm2, Cllp1p1, Clmp1p1, Cmmp1p1, Cllp1m1, Clmp1m1,ret,A,B,C},
   \[ScriptCapitalE]=(a+(-2+r0) Sqrt[r0])/Sqrt[2 a r0^(3/2)+(-3+r0) r0^2];
 \[ScriptCapitalL]=(a^2-2 a Sqrt[r0]+r0^2)/(Sqrt[2 a+(-3+r0) Sqrt[r0]] r0^(3/4));
   \[CapitalUpsilon]t = (r0^(5/4) (a+r0^(3/2)))/Sqrt[2 a+(-3+r0) Sqrt[r0]];
   \[Theta]0 = \[Pi]/2;
-\[Omega]=\[ScriptM] \[CapitalOmega]Kerr;
+(*\[Omega]=\[ScriptM] \[CapitalOmega]Kerr;*)
+e=0;
+x=1;
+	\[CapitalOmega]=KerrGeodesics`OrbitalFrequencies`KerrGeoFrequencies[a,r0,e,x]["\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"];
+	\[Omega]=\[ScriptM] \[CapitalOmega];
 (*\[CapitalOmega]=1/Sqrt[r0^3];*)
  
   \[CapitalDelta] = r0^2 + a^2 - 2 r0;
@@ -1758,10 +1752,10 @@ d2\[CapitalDelta]=2;
   \[Rho] = -1/(r0 - I a Cos[\[Theta]0]);
   \[Rho]bar = -1/(r0 + I a Cos[\[Theta]0]);
 
-  SH=SpinWeightedSpheroidalHarmonicS[\[ScriptS],\[ScriptL],\[ScriptM],a \[Omega]];
-  S0 = SH[\[Theta]0, 0];
-  dS0 = Derivative[1,0][SH][\[Theta]0, 0];
-  d2S0 = Derivative[2,0][SH][\[Theta]0, 0];
+  SH=SpinWeightedSpheroidalHarmonicS[\[ScriptS],\[ScriptL],\[ScriptM],a \[Omega],\[Theta],\[Phi]];
+  S0 = SH//D[#,{\[Theta],0}]&//ReplaceAll[{\[Theta]->\[Theta]0,\[Phi]->0}];
+  dS0 = SH//D[#,{\[Theta],1}]&//ReplaceAll[{\[Theta]->\[Theta]0,\[Phi]->0}];
+  d2S0 =SH//D[#,{\[Theta],2}]&//ReplaceAll[{\[Theta]->\[Theta]0,\[Phi]->0}];
   \[Delta]L\[Dagger]1 = \[ScriptM]/Sin[\[Theta]0] - a \[Omega] Sin[\[Theta]0] + Cos[\[Theta]0]/Sin[\[Theta]0];
   \[Delta]L\[Dagger]2 = \[ScriptM]/Sin[\[Theta]0] - a \[Omega] Sin[\[Theta]0] + 2 Cos[\[Theta]0]/Sin[\[Theta]0];
   d\[Delta]L\[Dagger]2 = -\[ScriptM] Cos[\[Theta]0]/Sin[\[Theta]0]^2 - a \[Omega] Cos[\[Theta]0] - 2/Sin[\[Theta]0]^2;
@@ -3595,7 +3589,7 @@ Keys[trfpn_TeukolskyRadialFunctionPN] ^:= DeleteElements[Join[Keys[trfpn[[-1]]],
 (*TeukolskyPointParticleModePN*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Getting internal association*)
 
 
@@ -3702,8 +3696,8 @@ args=source//Expand[#,DiracDelta]&//ExpandDiracDelta[#,r]&//If[Head[#]===Plus,#/
 If[Length[args]!=1,Abort[]];
 arg=#&@@args;
 r0Var=-arg/.r->0;
-cIn=-(Kerr\[CapitalDelta][aVar,varPN^-2  r]^\[ScriptS] source Rup[r])/wronskian//ExpandDiracDelta[#,r]&//ReplaceAll[{DiracDelta[a_]:>HeavisideTheta[r0Var-r],Derivative[n_][DiracDelta]:>Derivative[n-1][DiracDelta]}];
-cUp=(Kerr\[CapitalDelta][aVar,varPN^-2  r]^\[ScriptS] source Rin[r])/wronskian//ExpandDiracDelta[#,r]&//ReplaceAll[{DiracDelta[a_]:>HeavisideTheta[r-r0Var],Derivative[n_][DiracDelta]:>Derivative[n-1][DiracDelta]}];
+cIn=-(Kerr\[CapitalDelta][aVar,varPN^-2  r]^\[ScriptS] source Rup[r])/wronskian//ExpandDiracDelta[#,r]&//ExpandDiracDelta[#,r]&//ReplaceAll[{DiracDelta[a_]:>-HeavisideTheta[r0Var-r],Derivative[n_][DiracDelta][a_]:> Derivative[n-1][DiracDelta][a]}];
+cUp=(Kerr\[CapitalDelta][aVar,varPN^-2  r]^\[ScriptS] source Rin[r])/wronskian//ExpandDiracDelta[#,r]&//ExpandDiracDelta[#,r]&//ReplaceAll[{DiracDelta[a_]:>HeavisideTheta[r-r0Var],Derivative[n_][DiracDelta][a_]:> Derivative[n-1][DiracDelta][a]}];
 {cIn,cUp,deltaCoeff,source}={cIn,cUp,deltaCoeff,source}/.r0->r0Var/.a->aVar/.\[CapitalOmega]Kerr->\[Omega]Fourier/If[\[ScriptM]===0,Style[0,Red],\[ScriptM]];
 If[OptionValue["Simplify"]&&NumericQ[\[ScriptL]],{cIn,cUp,deltaCoeff,source}={cIn,cUp,deltaCoeff,source}//SeriesCollect[#,{SpinWeightedSpheroidalHarmonicS[__],Derivative[__][SpinWeightedSpheroidalHarmonicS][__]},(Simplify[#,{aVar>=0,r0Var>0,varPN>0}]&)]&];
 inner=cIn Rin[r]//ChooseSide[#,r<r0Var]&;
@@ -3722,6 +3716,51 @@ outerF=outer/.r->#&;
 sourceF=source[r]/.r->#&;
 (*SCoeffsF=Scoeffs/.r->#&;*)
 orbit=KerrGeodesics`KerrGeoOrbit`KerrGeoOrbit[aVar,r0Var,0,1];
+ret=<|"s"->\[ScriptS],"l"->\[ScriptL],"m"->\[ScriptM],"a"->aVar,"r0"->r0Var,"PN"->{varPN,order},"RadialFunction"->radialF(*,"CoefficientList"->SCoeffsF*),("ExtendedHomogeneous"->"\[ScriptCapitalI]")->outerF,("ExtendedHomogeneous"->"\[ScriptCapitalH]")->innerF,"\[Delta]"->deltaCoeff,"Amplitudes"->ampAssoc,"Wronskian"->wronskian,"Source"->sourceF,"SeriesMinOrder"->minOrder,"RadialFunctions"->aux,"\[Omega]"->Simplify[Activate[\[Omega]Fourier],r0Var>0],"Orbit"->orbit,"Simplify"->OptionValue["Simplify"],"Normalization"->OptionValue["Normalization"]|>;
+ret
+]
+]
+
+
+(* ::Subsubsection:: *)
+(*Circular orbit (new)*)
+
+
+RadialSourcedAssociation["CO",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,aVar_,r0Var_,{varPN_,order_}]:=Assuming[{varPN>0,r0>0,r>0,1>a>=0,\[ScriptA]>=0},Module[{aux,r,r0,sourceRepls,m,length,arg,args,ret,\[Omega]Fourier,orbit,Btrans,Ctrans,Scoeffs,SCoeffsF,Rin,dRin,ddRin,Rup,dRup,ddRup,wronskian,source,sourceF,sourceCoeffs,minOrder,cUp,cIn,cUpU,cInU,deltaCoeff,innerF,outerF,inner,outer,radialF,radial,ampAssoc},
+\[Omega]Fourier=If[\[ScriptM]===0,Style[0,Orange] KerrGeoFrequencies[aVar,r0Var,0,1]["\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"],\[ScriptM] KerrGeoFrequencies[aVar,r0Var,0,1]["\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"]];
+aux=TeukolskyRadialPN[\[ScriptS],\[ScriptL],\[ScriptM],aVar,\[Omega]Fourier,{varPN,order},"Normalization"->OptionValue["Normalization"]];
+Rin=aux["In"][[-1]]["RadialFunction"];
+Rup=aux["Up"][[-1]]["RadialFunction"];
+wronskian=InvariantWronskian[\[ScriptS],\[ScriptL],\[ScriptM],aVar,\[Omega]Fourier,{varPN, order},{"FreqRep"->False,"Normalization"->OptionValue["Normalization"]}];
+source=\!\(
+\*UnderoverscriptBox[\(\[Sum]\), \(m = 0\), \(2\)]\(C[m] \(\(Derivative[m]\)[DiracDelta]\)[r - r0]\)\);
+(*source=Function[Evaluate[r],Evaluate[source]];*)
+args=source//Expand[#,DiracDelta]&//ExpandDiracDelta[#,r]&//If[Head[#]===Plus,#//ReplacePart[0->List],{#}]&//ReplaceAll[{a_. DiracDelta[arg_]/;!FreeQ[arg,r]:>arg,a_. Derivative[n_][DiracDelta][arg_]/;!FreeQ[arg,r]:>arg}]//Union;
+If[Length[args]!=1,Abort[]];
+arg=#&@@args;
+cIn=-(Kerr\[CapitalDelta][aVar,varPN^-2  r]^\[ScriptS] source Rup[r])/wronskian//ExpandDiracDelta[#,r]&//ExpandDiracDelta[#,r]&//ReplaceAll[{DiracDelta[a_]:>HeavisideTheta[r0Var-r],Derivative[n_][DiracDelta]:>Derivative[n-1][DiracDelta]}];
+cUp=(Kerr\[CapitalDelta][aVar,varPN^-2  r]^\[ScriptS] source Rin[r])/wronskian//ExpandDiracDelta[#,r]&//ExpandDiracDelta[#,r]&//ReplaceAll[{DiracDelta[a_]:>HeavisideTheta[r-r0Var],Derivative[n_][DiracDelta]:>Derivative[n-1][DiracDelta]}];
+{cIn,cUp,deltaCoeff,source}={cIn,cUp,deltaCoeff,source}/.r0->r0Var/.a->aVar;
+sourceRepls=TeukolskyPointParticleSourceRepls[\[ScriptS],\[ScriptL],\[ScriptM],aVar,r0Var,{varPN,order}];
+Echo[sourceRepls//ChangeContext[#,"Teukolsky`PN`Private"]&];
+{cIn,cUp}={cIn,cUp}/.sourceRepls;
+If[OptionValue["Simplify"]&&NumericQ[\[ScriptL]],{cIn,cUp,deltaCoeff,source}={cIn,cUp,deltaCoeff,source}//SeriesCollect[#,{SpinWeightedSpheroidalHarmonicS[__],Derivative[__][SpinWeightedSpheroidalHarmonicS][__]},(Simplify[#,{aVar>=0,r0Var>0,varPN>0}]&)]&];
+inner=cIn Rin[r]//ChooseSide[#,r<r0Var]&;
+outer=cUp Rup[r]//ChooseSide[#,r>r0Var]&;
+{Btrans,Ctrans}={BAmplitude["Trans","Normalization"->OptionValue["Normalization"],"FreqRep"->False][\[ScriptS],\[ScriptL],\[ScriptM],aVar,order],CAmplitude["Trans","Normalization"->OptionValue["Normalization"],"FreqRep"->False][\[ScriptS],\[ScriptL],\[ScriptM],aVar,order]}/.\[Eta]->varPN/.\[Omega]->\[Omega]Fourier;
+{cInU,cUpU}={Normal[Btrans] ChooseSide[cIn,r<r0Var],Normal[Ctrans] ChooseSide[cUp,r>r0Var]};
+wronskian=wronskian/(Ctrans Btrans);
+ampAssoc=<|"\[ScriptCapitalI]"->cUpU,"\[ScriptCapitalH]"->cInU|>;
+(*If[\[ScriptM]===0,wronskian=(wronskian/(Normal[SeriesTake[Rup[r],1]/Ctrans]/.r->varPN^2)//Simplify)/.Log[a_ Style[0,Red]]:>Log[a Style[0,Orange]]/.Style[0,Red]->0];*)
+radial=cUp Rup[r] + cIn Rin[r];
+(*Scoeffs=SeriesToSCoeffs[radial];*)
+minOrder=radial//SeriesMinOrder;
+radialF=radial/.r->#&;
+innerF=inner/.r->#&;
+outerF=outer/.r->#&;
+sourceF=source[r]/.r->#&;
+(*SCoeffsF=Scoeffs/.r->#&;*)
+orbit=KerrGeoOrbit[aVar,r0Var,0,1];
 ret=<|"s"->\[ScriptS],"l"->\[ScriptL],"m"->\[ScriptM],"a"->aVar,"r0"->r0Var,"PN"->{varPN,order},"RadialFunction"->radialF(*,"CoefficientList"->SCoeffsF*),("ExtendedHomogeneous"->"\[ScriptCapitalI]")->outerF,("ExtendedHomogeneous"->"\[ScriptCapitalH]")->innerF,"\[Delta]"->deltaCoeff,"Amplitudes"->ampAssoc,"Wronskian"->wronskian,"Source"->sourceF,"SeriesMinOrder"->minOrder,"RadialFunctions"->aux,"\[Omega]"->Simplify[Activate[\[Omega]Fourier],r0Var>0],"Orbit"->orbit,"Simplify"->OptionValue["Simplify"],"Normalization"->OptionValue["Normalization"]|>;
 ret
 ]
@@ -3791,6 +3830,14 @@ If[!(inclination===1),Message[TeukolskyPointParticleModePN::orbit];Abort[];];*)
 assoc=RadialSourcedAssociation["PointParticleSource",opt][\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],source,{varPN,order}];
 ret=TeukolskyModePN[\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{varPN,order},assoc];
 ret
+]
+
+
+TeukolskyPointParticleModePN[\[ScriptS]_, \[ScriptL]_, \[ScriptM]_,a_,\[Omega]_,r0_,nDerivative_Integer,{varPN_,order_},opt:OptionsPattern[]]:=Module[{aux,r},
+aux=\!\(
+\*UnderoverscriptBox[\(\[Sum]\), \(m = 0\), \(nDerivative\)]\(C[m] \(\(Derivative[m]\)[DiracDelta]\)[r - r0]\)\);
+aux=Function[Evaluate[r],Evaluate[aux]];
+TeukolskyPointParticleModePN[\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],aux,{varPN,order}]
 ]
 
 
