@@ -2000,7 +2000,7 @@ aux
 ]*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*B Amplitudes*)
 
 
@@ -2254,12 +2254,12 @@ aux
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*K Amplitude*)
 
 
 (* ::Text:: *)
-(*These is the amplitudes \[ScriptCapitalK]^\[Nu]and \[ScriptCapitalK]^(-\[Nu]-1) from Sasaki Tagoshi Eq.(165)*)
+(*These is the amplitudes \[ScriptCapitalK]^\[Nu]and \[ScriptCapitalK]^(-\[Nu]-1) from Sasaki Tagoshi Eq.(165). Some factors of r have been lost here during simplifications but it is correct for r=0 and I don't want to touch it.  *)
 
 
 Options[\[ScriptCapitalK]AmplitudeFreq]={"Simplify"->False}
@@ -2652,7 +2652,7 @@ aux
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Constructing Rc*)
 
 
@@ -3523,7 +3523,7 @@ Derivative[n_Integer][trf_TeukolskyRadialFunctionPN][r_Symbol]:=(*trf[[6,1]]^(2 
 Keys[trfpn_TeukolskyRadialFunctionPN] ^:= DeleteElements[Join[Keys[trfpn[[-1]]], {}], {"RadialFunction","AmplitudesBool"}];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*TeukolskyPointParticleModePN*)
 
 
@@ -3822,7 +3822,7 @@ Keys[trfpn_TeukolskyModePN]^:= DeleteElements[Join[Keys[trfpn[[-1]]], {"Fluxes",
 Derivative[n_Integer][tppm_TeukolskyModePN][r_Symbol]:=(*tppm[[6,1]]^(2 n)*) Derivative[n][tppm[[-1]]["RadialFunction"]][r]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Fluxes*)
 
 
@@ -3846,7 +3846,7 @@ EnergyFlux[mode_TeukolskyModePN] :=
   \[Epsilon] = Sqrt[M^2-a^2]/(4 M rh);  
   absZ["\[ScriptCapitalI]"]=Z["\[ScriptCapitalI]"]CowboyConjugate[ExpandLog[Z["\[ScriptCapitalI]"],Inactive[KerrGeoFrequencies][a, r0, 0, 1]["\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"]>0]];
   absZ["\[ScriptCapitalH]"]=Z["\[ScriptCapitalH]"]CowboyConjugate[ExpandLog[Z["\[ScriptCapitalH]"],Inactive[KerrGeoFrequencies][a, r0, 0, 1]["\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"]>0]];
-
+	Echo[absZ["\[ScriptCapitalI]"]];
   FluxInf = 
   Switch[s,
   -2, absZ["\[ScriptCapitalI]"] \[Omega]^(2(1-Abs[s]))/(4 \[Pi]),
