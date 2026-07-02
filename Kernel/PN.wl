@@ -2065,7 +2065,7 @@ norm=Switch[normOp,
 	"SasakiTagoshi",SeriesData[\[Gamma], 0, {1}, 0, order\[CurlyEpsilon], 1],
 	"TidalResponse",1/(ISymmetryFactorFreq["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]]\[ScriptCapitalK]AmplitudeFreq["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]]),
 	"Default",1/(\[ScriptCapitalK]AmplitudeFreq["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]]),
-	"LogFree",1/(LogFreeFactorFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]]^-1 \[ScriptCapitalK]AmplitudeFreq["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]])
+	"LogFree",1/\[ScriptCapitalK]AmplitudeFreq["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]] LogFreeFactorFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]]/ISymmetryFactorFreq["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]]
 	]//DoABunchOfStuff;
 nMax=order\[CurlyEpsilon]-1;
 nMin=-(order\[CurlyEpsilon]+1);
@@ -2095,7 +2095,7 @@ norm=Switch[normOp,
 	"TidalResponse",1/ISymmetryFactorFreq["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]],
 	"Default",SeriesData[\[Gamma], 0, {1}, 0, order\[CurlyEpsilon], 1],
 	"SasakiTagoshi",1/ISymmetryFactorFreq["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]]\[ScriptCapitalK]AmplitudeFreq["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]],
-	"LogFree",LogFreeFactorFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]],
+	"LogFree",LogFreeFactorFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]]/ISymmetryFactorFreq["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]],
 	"UnitTransmission",1/BAmplitudeFreq["Trans"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]];
 ];
 A=AAmplitudeFreq["-"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]]//DoABunchOfStuff//SeriesCollect[#,Log[__]]&;
@@ -3362,7 +3362,7 @@ normalization["In"]=Switch[OptionValue["Normalization"],
 	"Default",SeriesData[\[Gamma], 0, {1}, 0, order\[CurlyEpsilon], 1],
 	"SasakiTagoshi",\[ScriptCapitalK]Amplitude["\[Nu]","FreqRep"->False][\[ScriptS],\[ScriptL],\[ScriptM],a,order],
 	"UnitTransmission",1/BAmplitude["Trans","FreqRep"->False][\[ScriptS],\[ScriptL],\[ScriptM],a,order],
-	"LogFree",LogFreeFactor[\[ScriptS],\[ScriptL],\[ScriptM],a,order]
+	"LogFree",LogFreeFactor[\[ScriptS],\[ScriptL],\[ScriptM],a,order](ISymmetryFactor["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order]^-1)
 ];
 aux=normalization["In"] aux//IgnoreExpansionParameter;
 If[OptionValue["CoulombWaveFunctions"],aux=RC1//SeriesTake[#,order]&];
@@ -3382,10 +3382,10 @@ If[NumericQ[\[ScriptL]],
 ];
 normalization["Up"]=Switch[OptionValue["Normalization"],
 	"TidalResponse",PNScalingsInternal[(I^(-1-2\[ScriptS]) E^(\[Pi] \[CurlyEpsilon]) E^(I \[Pi]/2 (\[Nu]MST+1+\[ScriptS])))^-1]/.repls//SeriesTake[#,order]&,
-	"Default",1,
+	"Default",SeriesData[\[Gamma], 0, {1}, 0, order\[CurlyEpsilon], 1],
 	"SasakiTagoshi",PNScalingsInternal[(I^(-1-2\[ScriptS]) E^(\[Pi] \[CurlyEpsilon]) E^(I \[Pi]/2 (\[Nu]MST+1+\[ScriptS])))^-1]/.repls//SeriesTake[#,order]&,
 	"UnitTransmission",1/CAmplitude["Trans","FreqRep"->False][\[ScriptS],\[ScriptL],\[ScriptM],a,order],
-	"LogFree",1
+	"LogFree",PNScalingsInternal[(I^(-1-2\[ScriptS]) E^(\[Pi] \[CurlyEpsilon]) E^(I \[Pi]/2 (\[Nu]MST+1+\[ScriptS])))^-1]/.repls//SeriesTake[#,order]&
 ];
 (*Echo[aux//ChangeContext[#,"Teukolsky`PN`Private`"]&,"Rup"];
 Echo[normalization["Up"]//ChangeContext[#,"Teukolsky`PN`Private`"]&,"Norm"];*)
