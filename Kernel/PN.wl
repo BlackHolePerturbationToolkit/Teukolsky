@@ -3359,7 +3359,7 @@ If[NumericQ[\[ScriptL]],
 ];
 normalization["In"]=Switch[OptionValue["Normalization"],
 	"TidalResponse",ISymmetryFactor["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order]^-1,
-	"Default",SeriesData[\[Gamma], 0, {1}, 0, order\[CurlyEpsilon], 1],
+	"Default",SeriesData[\[Gamma], 0, {1}, 0, order, 1],
 	"SasakiTagoshi",\[ScriptCapitalK]Amplitude["\[Nu]","FreqRep"->False][\[ScriptS],\[ScriptL],\[ScriptM],a,order],
 	"UnitTransmission",1/BAmplitude["Trans","FreqRep"->False][\[ScriptS],\[ScriptL],\[ScriptM],a,order],
 	"LogFree",LogFreeFactor[\[ScriptS],\[ScriptL],\[ScriptM],a,order](ISymmetryFactor["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order]^-1)
@@ -3382,7 +3382,7 @@ If[NumericQ[\[ScriptL]],
 ];
 normalization["Up"]=Switch[OptionValue["Normalization"],
 	"TidalResponse",PNScalingsInternal[(I^(-1-2\[ScriptS]) E^(\[Pi] \[CurlyEpsilon]) E^(I \[Pi]/2 (\[Nu]MST+1+\[ScriptS])))^-1]/.repls//SeriesTake[#,order]&,
-	"Default",SeriesData[\[Gamma], 0, {1}, 0, order\[CurlyEpsilon], 1],
+	"Default",SeriesData[\[Gamma], 0, {1}, 0, order, 1],
 	"SasakiTagoshi",PNScalingsInternal[(I^(-1-2\[ScriptS]) E^(\[Pi] \[CurlyEpsilon]) E^(I \[Pi]/2 (\[Nu]MST+1+\[ScriptS])))^-1]/.repls//SeriesTake[#,order]&,
 	"UnitTransmission",1/CAmplitude["Trans","FreqRep"->False][\[ScriptS],\[ScriptL],\[ScriptM],a,order],
 	"LogFree",PNScalingsInternal[(I^(-1-2\[ScriptS]) E^(\[Pi] \[CurlyEpsilon]) E^(I \[Pi]/2 (\[Nu]MST+1+\[ScriptS])))^-1]/.repls//SeriesTake[#,order]&
