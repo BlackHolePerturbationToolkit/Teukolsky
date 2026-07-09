@@ -965,7 +965,7 @@ aux
 ]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Definitions, replacements and auxiliary functions*)
 
 
@@ -1092,7 +1092,7 @@ ExpandSpheroidals[expr_Times,{\[Eta]_,n_}]:=ExpandSpheroidals[#,{\[Eta],n}]&/@ex
 ExpandSpheroidals[expr_,{\[Eta]_,n_}]:=expr;
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Tools for Series*)
 
 
@@ -1144,11 +1144,6 @@ SeriesLength[series]
 
 SeriesLength[expr_Plus]:=Max[SeriesLength[#]&/@(List@@expr)]
 SeriesLength[expr_List]:=SeriesLength[#]&/@expr;
-
-
-SeriesCollect[series_SeriesData,var__,func_:Identity]:=Collect[#,var,func]&/@series;
-SeriesCollect[list_List,var__,func_:Identity]:=SeriesCollect[#,var,func]&/@list;
-SeriesCollect[expr_,var__,func_:Identity]:=Collect[#,var,func]&@expr;
 
 
 SeriesTake[series_SeriesData,order_Integer:1]:=Block[{aux},
@@ -1310,6 +1305,17 @@ factor aux
 ];
 SeriesMap[function_,expr_Plus,levelspec_:Infinity]:=SeriesMap[function,#,levelspec]&/@expr;
 SeriesMap[function_,expr_,levelspec_]:=function[expr];
+
+
+(*SeriesCollect[series_SeriesData,var__,func_:Identity]:=Collect[#,var,func]&/@series;
+SeriesCollect[list_List,var__,func_:Identity]:=SeriesCollect[#,var,func]&/@list;
+SeriesCollect[expr_,var__,func_:Identity]:=Collect[#,var,func]&@expr;*)
+
+
+SeriesCollect[expr_,var_,func_:Identity]:=SeriesMap[(Collect[#,var,func]&),expr];
+
+
+SeriesExpand[expr_]:=SeriesMap[Expand,expr];
 
 
 DropZeroSeries=Quiet[#/.SeriesData[_,_,{},___]->0]&;
@@ -1934,7 +1940,7 @@ Derivative[n_][\[Theta]][arg_]:=Derivative[n-1][\[Delta]][arg];
 \[Delta]''[\[Eta]^-2 a_]:=\[Eta]^2 \[Delta]''[a];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Amplitudes*)
 
 
@@ -3272,7 +3278,7 @@ If[!MatchQ[order,_Integer],Message[TeukolskyRadialFunctionPN::paramorder,order];
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*TeukolskyRadialPN*)
 
 
@@ -3525,7 +3531,7 @@ Derivative[n_Integer][trf_TeukolskyRadialFunctionPN][r_Symbol]:=(*trf[[6,1]]^(2 
 Keys[trfpn_TeukolskyRadialFunctionPN] ^:= DeleteElements[Join[Keys[trfpn[[-1]]], {}], {"RadialFunction","AmplitudesBool"}];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*TeukolskyPointParticleModePN*)
 
 
