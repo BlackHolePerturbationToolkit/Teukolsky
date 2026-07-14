@@ -965,7 +965,7 @@ aux
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Definitions, replacements and auxiliary functions*)
 
 
@@ -1092,7 +1092,7 @@ ExpandSpheroidals[expr_Times,{\[Eta]_,n_}]:=ExpandSpheroidals[#,{\[Eta],n}]&/@ex
 ExpandSpheroidals[expr_,{\[Eta]_,n_}]:=expr;
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Tools for Series*)
 
 
@@ -1940,11 +1940,11 @@ Derivative[n_][\[Theta]][arg_]:=Derivative[n-1][\[Delta]][arg];
 \[Delta]''[\[Eta]^-2 a_]:=\[Eta]^2 \[Delta]''[a];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Amplitudes*)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*A Amplitudes*)
 
 
@@ -1988,7 +1988,7 @@ aux
 ]
 
 
-Options[AAmplitude]={"FreqRep"->True,"Normalization"->"Default"}
+Options[AAmplitude]={"FreqRep"->True,"Normalization"->"Default","Simplify"->False}
 
 
 AAmplitude[sol_,OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,order\[CurlyEpsilon],order},
@@ -1996,6 +1996,7 @@ order\[CurlyEpsilon]=Ceiling[order\[Eta],3]/3;
 order=If[OptionValue["FreqRep"],order\[Eta],order\[CurlyEpsilon]];
 aux=AAmplitudeFreq[sol][\[ScriptS],\[ScriptL],\[ScriptM],a,order];
 If[OptionValue["FreqRep"]===False,aux=aux//ChangeSeriesParameter[#,\[Eta]^3]&//SeriesTake[#,order\[Eta]]&];
+If[OptionValue["Simplify"],aux=aux//SeriesCollect[#,{E^__,Log[__],Gamma[__],PolyGamma[__]},(Simplify[#,{1>a>=0}]&)]&];
 aux
 ]
 
@@ -2051,7 +2052,6 @@ norm=Switch[normOp,
 ];
 A=AAmplitudeFreq["+"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]]//DoABunchOfStuff//SeriesCollect[#,Log[__]]&;
 aux= norm A coeff (1 + \[ScriptCapitalK]2coeff \[ScriptCapitalK]2)//DoABunchOfStuff;
-If[OptionValue["Simplify"],aux=aux//SeriesCollect[#,{Log[__],Gamma[__],PolyGamma[__]},Simplify]&];
 aux
 ]
 
@@ -2079,7 +2079,6 @@ sum=\!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(nMax\)]\(aMST[n]\)\)/.repls;
 
 aux=norm(coeff sum)//DoABunchOfStuff;
-If[OptionValue["Simplify"],aux=aux//SeriesCollect[#,{E^__,Log[__],Gamma[__],PolyGamma[__]},Simplify]&];
 aux
 ]
 
@@ -2106,14 +2105,13 @@ norm=Switch[normOp,
 ];
 A=AAmplitudeFreq["-"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]]//DoABunchOfStuff//SeriesCollect[#,Log[__]]&;
 aux=A norm coeff (1 + \[ScriptCapitalK]2coeff \[ScriptCapitalK]2)//DoABunchOfStuff;
-If[OptionValue["Simplify"],aux=aux//SeriesCollect[#,{Log[__],Gamma[__],PolyGamma[__]},Simplify]&];
 aux
 ]
 
 
-BAmplitudeFreq["Inc","Normalization"->"UnitTransmission"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=BAmplitudeFreq["Inc"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/BAmplitudeFreq["Trans"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]];
+(*BAmplitudeFreq["Inc","Normalization"->"UnitTransmission"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=BAmplitudeFreq["Inc"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/BAmplitudeFreq["Trans"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]];
 BAmplitudeFreq["Ref","Normalization"->"UnitTransmission"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=BAmplitudeFreq["Ref"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]]/BAmplitudeFreq["Trans"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]];
-(*BAmplitudeFreq["Trans","Normalization"->"UnitTransmission"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=1 (1+O[\[Gamma]] \[Gamma]^(order\[Eta]-1));*)
+(*BAmplitudeFreq["Trans","Normalization"->"UnitTransmission"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=1 (1+O[\[Gamma]] \[Gamma]^(order\[Eta]-1));*)*)
 
 
 Options[BAmplitude]={"Normalization"->"Default","FreqRep"->True,"Simplify"->False}
@@ -2125,10 +2123,11 @@ aux=BAmplitudeFreq[sol,"Normalization"->OptionValue["Normalization"]][\[ScriptS]
 ,
 (*else*)
 order\[CurlyEpsilon]=Ceiling[order\[Eta],3]/3;
-aux=BAmplitudeFreq[sol,"Normalization"->OptionValue["Normalization"],"Simplify"->OptionValue["Simplify"]][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]];
+aux=BAmplitudeFreq[sol,"Normalization"->OptionValue["Normalization"]][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]];
 aux=aux//ChangeSeriesParameter[#,\[Eta]^3]&//SeriesTake[#,order\[Eta]]&;
 aux
 ];
+If[OptionValue["Simplify"],aux=aux//SeriesCollect[#,{E^__,Log[__],Gamma[__],PolyGamma[__]},(Simplify[#,{1>a>=0}]&)]&];
 aux
 ]
 
@@ -2247,7 +2246,7 @@ CAmplitudeFreq["Ref","Normalization"->"UnitTransmission"][\[ScriptS]_,\[ScriptL]
 CAmplitudeFreq["Trans","Normalization"->"UnitTransmission"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=1 (1+O[\[Gamma]] \[Gamma]^(order\[Eta]-1));*)
 
 
-Options[CAmplitude]={"Normalization"->"Default","FreqRep"->True}
+Options[CAmplitude]={"Normalization"->"Default","FreqRep"->True,"Simplify"->False}
 
 
 CAmplitude[sol_,OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order_]:=Module[{aux,order\[CurlyEpsilon]},
@@ -2258,6 +2257,7 @@ aux=CAmplitudeFreq[sol,"Normalization"->OptionValue["Normalization"]][\[ScriptS]
 order\[CurlyEpsilon]=Ceiling[order,3]/3;
 aux=CAmplitudeFreq[sol,"Normalization"->OptionValue["Normalization"]][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]]//ChangeSeriesParameter[#,\[Eta]^3]&//SeriesTake[#,order]&;
 ];
+If[OptionValue["Simplify"],aux=aux//SeriesCollect[#,{E^__,Log[__],Gamma[__],PolyGamma[__],Csc[__],Cot[__],Sin[__],Cos[__]},(Simplify[#,{1>a>=0}]&)]&];
 aux
 ]
 
@@ -2474,9 +2474,10 @@ Options[\[ScriptCapitalK]Amplitude]={"FreqRep"->True,"Normalization"->"Default",
 \[ScriptCapitalK]Amplitude[sol_,OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,order\[CurlyEpsilon],order},
 order\[CurlyEpsilon]=Ceiling[order\[Eta],3]/3;
 order=If[OptionValue["FreqRep"],order\[Eta],order\[CurlyEpsilon]];
-aux=\[ScriptCapitalK]AmplitudeFreq[sol,"Simplify"->OptionValue["Simplify"]][\[ScriptS],\[ScriptL],\[ScriptM],a,order];
-If[OptionValue["Normalization"]==="DefaultSym",aux=aux ISymmetryFactorFreq[sol][\[ScriptS],\[ScriptL],\[ScriptM],a,order]];
+aux=\[ScriptCapitalK]AmplitudeFreq[sol][\[ScriptS],\[ScriptL],\[ScriptM],a,order];
+(*If[OptionValue["Normalization"]==="DefaultSym",aux=aux ISymmetryFactorFreq[sol][\[ScriptS],\[ScriptL],\[ScriptM],a,order]];*)
 If[OptionValue["FreqRep"]===False,aux=aux//ChangeSeriesParameter[#,\[Eta]^3]&//SeriesTake[#,order\[Eta]]&];
+If[OptionValue["Simplify"],aux=aux//SeriesCollect[#,{E^__,Log[__],Gamma[__],PolyGamma[__]},(Simplify[#,{1>a>=0}]&)]&];
 aux
 ]
 
@@ -2514,7 +2515,7 @@ aux
 ]*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Log Free*)
 
 
@@ -3143,7 +3144,7 @@ ret
 (*Positive spins *)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Teukolsky-Starobinsky identities*)
 
 
