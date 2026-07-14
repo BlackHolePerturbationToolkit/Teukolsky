@@ -19,7 +19,7 @@ BeginPackage["Teukolsky`PN`Tools`",{"Teukolsky`","Teukolsky`PN`"}]
 (*Unprotecting*)
 
 
-ClearAttributes[{SeriesTake,SeriesMap, SeriesMinOrder,SeriesMaxOrder,SeriesLength,SeriesCollect,SeriesTerms,IgnoreExpansionParameter,ChangeSeriesParameter,PowerCounting,StraightenSeries,SeriesPlusSimplify,DropZeroSeries}, {Protected, ReadProtected}];
+ClearAttributes[{SeriesTake,SeriesMap, SeriesMinOrder,SeriesMaxOrder,SeriesLength,SeriesCollect,SeriesExpand,SeriesTerms,IgnoreExpansionParameter,ChangeSeriesParameter,PowerCounting,StraightenSeries,SeriesPlusSimplify,DropZeroSeries}, {Protected, ReadProtected}];
 
 
 ClearAttributes[{PNScalings, RemovePN}, {Protected, ReadProtected}];
@@ -68,6 +68,7 @@ SeriesMinOrder::usage="SeriesMinOrder[series] gives the leading order of series"
 SeriesMaxOrder::usage="SeriesMaxOrder[series] gives the first surpressed order of series"
 SeriesLength::usage="SeriesLenght[series] gives the number of terms in series"
 SeriesCollect::usage="SeriesCollect[expr, var, func] works like Collect but applied to each order individually. Crucially, unlike Collect it keeps the SeriesData structure."
+SeriesExpand::usage="SeriesExpand[expr] works like Expand but applied to each order individually."
 SeriesTerms::usage="SeriesTerms[series, {x, x0, n}] works exactly like Series, with the difference that n gives the desired number of terms instead of a maximum order"
 IgnoreExpansionParameter::usage="IgnoreExpansionParameter[series,x] sets all occurences of the expansion parameter in the series coefficients to x. If no value is entered x defaults to 1."
 ChangeSeriesParameter::usage="ChangeSeriesParameter[series,expr] changes the expansion parameter in series to be expr." 
@@ -168,6 +169,7 @@ SeriesMinOrder=Teukolsky`PN`Private`SeriesMinOrder
 SeriesMaxOrder=Teukolsky`PN`Private`SeriesMaxOrder
 SeriesLength=Teukolsky`PN`Private`SeriesLength
 SeriesCollect=Teukolsky`PN`Private`SeriesCollect
+SeriesExpand=Teukolsky`PN`Private`SeriesExpand
 SeriesTerms=Teukolsky`PN`Private`SeriesTerms
 IgnoreExpansionParameter=Teukolsky`PN`Private`IgnoreExpansionParameter
 ChangeSeriesParameter=Teukolsky`PN`Private`ChangeSeriesParameter
@@ -253,10 +255,7 @@ TeukolskyEquation=Teukolsky`PN`Private`TeukolskyEquation
 (*Protecting*)
 
 
-SetAttributes[{SeriesTake,SeriesMap,SeriesMinOrder,SeriesMaxOrder,SeriesLength,SeriesTerms,IgnoreExpansionParameter,ChangeSeriesParameter,PowerCounting,StraightenSeries,SeriesPlusSimplify,DropZeroSeries}, {Protected, ReadProtected}];
-
-
-SetAttributes[{SeriesCollect}, {Protected, ReadProtected,Listable}];
+SetAttributes[{SeriesTake,SeriesMap,SeriesMinOrder,SeriesMaxOrder,SeriesLength,SeriesCollect,SeriesExpand,SeriesTerms,IgnoreExpansionParameter,ChangeSeriesParameter,PowerCounting,StraightenSeries,SeriesPlusSimplify,DropZeroSeries}, {Protected, ReadProtected}];
 
 
 SetAttributes[{PNScalings, RemovePN}, {Protected, ReadProtected}];
