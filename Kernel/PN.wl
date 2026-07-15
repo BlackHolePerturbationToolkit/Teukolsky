@@ -3626,7 +3626,7 @@ ret
 (*RadialSourcedAssociation["CO"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,r0Var_,{varPN_,order_}]/;NumericQ[r0Var]:=RadialSourcedAssociation["CO"][\[ScriptS],\[ScriptL],\[ScriptM],a,r0,{varPN,order}]/.r0->r0Var;*)*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Given point particle Source*)
 
 
@@ -3683,7 +3683,7 @@ RadialSourcedAssociation["CO",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[Sc
 (*\[CapitalOmega]\[Phi]Scaled=If[OptionValue["InactiveHarmonics"],Inactive[KerrGeoFrequencies][varPN^3 aVar,r0Var,0,1]["\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"],KerrGeoFrequencies[varPN^3 aVar,r0Var,0,1]["\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"]];
 \[Omega]FourierScaled=If[\[ScriptM]===0,Style[0,Orange]\[CapitalOmega]\[Phi]Scaled,\[ScriptM] \[CapitalOmega]\[Phi]Scaled];*)
 If[!(OptionValue["FourierFrequency"]==="OrbitalFrequency"),\[Omega]Fourier=OptionValue["FourierFrequency"]];
-EchoTiming[aux=TeukolskyRadialPN[\[ScriptS],\[ScriptL],\[ScriptM],aVar,\[Omega]Fourier,{varPN,order},"Normalization"->OptionValue["Normalization"]],"hom sols"];
+aux=TeukolskyRadialPN[\[ScriptS],\[ScriptL],\[ScriptM],aVar,\[Omega]Fourier,{varPN,order},"Normalization"->OptionValue["Normalization"]];
 Rin=aux["In"][[-1]]["RadialFunction"];
 Rup=aux["Up"][[-1]]["RadialFunction"];
 wronskian=InvariantWronskian[\[ScriptS],\[ScriptL],\[ScriptM],aVar,\[Omega]Fourier,{varPN, order},{"FreqRep"->False,"Normalization"->OptionValue["Normalization"]}];
@@ -3706,7 +3706,7 @@ inner=cIn Rin[r]//ChooseSide[#,r<r0Var]&;
 outer=cUp Rup[r]//ChooseSide[#,r>r0Var]&;
 {Btrans,Ctrans}={BAmplitude["Trans","Normalization"->OptionValue["Normalization"],"FreqRep"->False][\[ScriptS],\[ScriptL],\[ScriptM],aVar,order],CAmplitude["Trans","Normalization"->OptionValue["Normalization"],"FreqRep"->False][\[ScriptS],\[ScriptL],\[ScriptM],aVar,order]}/.\[Eta]->varPN/.\[Omega]->\[Omega]Fourier;
 {cInU,cUpU}={Normal[Btrans] ChooseSide[cIn,r<r0Var],Normal[Ctrans] ChooseSide[cUp,r>r0Var]};
-EchoTiming[If[OptionValue["Simplify"]&&NumericQ[\[ScriptL]],{cInU,cUpU(*,deltaCoeff,source*)}={cInU,cUpU(*,deltaCoeff,source*)}//SeriesCollect[#,{Inactive[SpinWeightedSpheroidalHarmonicS][__],Derivative[__][Inactive[SpinWeightedSpheroidalHarmonicS]][__]},(Simplify[#,{aVar>=0,r0Var>0,varPN>0}]&)]&],"Simplfiy"];
+If[OptionValue["Simplify"]&&NumericQ[\[ScriptL]],{cInU,cUpU(*,deltaCoeff,source*)}={cInU,cUpU(*,deltaCoeff,source*)}//SeriesCollect[#,{Inactive[SpinWeightedSpheroidalHarmonicS][__],Derivative[__][Inactive[SpinWeightedSpheroidalHarmonicS]][__]},(Simplify[#,{aVar>=0,r0Var>0,varPN>0}]&)]&];
 wronskian=wronskian/(Ctrans Btrans);
 ampAssoc=<|"\[ScriptCapitalI]"->cUpU,"\[ScriptCapitalH]"->cInU|>;
 (*If[\[ScriptM]===0,wronskian=(wronskian/(Normal[SeriesTake[Rup[r],1]/Ctrans]/.r->varPN^2)//Simplify)/.Log[a_ Style[0,Red]]:>Log[a Style[0,Orange]]/.Style[0,Red]->0];*)
