@@ -3719,7 +3719,7 @@ outerF=outer/.r->#&;
 sourceF=source[r]/.r->#&;
 (*SCoeffsF=Scoeffs/.r->#&;*)
 orbit=KerrGeoOrbit[aVar,r0Var,0,1];
-ret=<|"s"->\[ScriptS],"l"->\[ScriptL],"m"->\[ScriptM],"a"->aVar,"r0"->r0Var,"PN"->{varPN,order},"RadialFunction"->radialF(*,"CoefficientList"->SCoeffsF*),("ExtendedHomogeneous"->"\[ScriptCapitalI]")->outerF,("ExtendedHomogeneous"->"\[ScriptCapitalH]")->innerF,"\[Delta]"->deltaCoeff,"Amplitudes"->ampAssoc,"Wronskian"->wronskian,"Source"->sourceF,"SeriesMinOrder"->minOrder,"RadialFunctions"->aux,"\[Omega]"->Simplify[Activate[\[Omega]Fourier],r0Var>0],"Orbit"->orbit,"Simplify"->OptionValue["Simplify"],"Normalization"->OptionValue["Normalization"]|>;
+ret=<|"s"->\[ScriptS],"l"->\[ScriptL],"m"->\[ScriptM],"a"->aVar,"r0"->r0Var,"PN"->{varPN,order},"RadialFunction"->radialF(*,"CoefficientList"->SCoeffsF*),("ExtendedHomogeneous"->"\[ScriptCapitalI]")->outerF,("ExtendedHomogeneous"->"\[ScriptCapitalH]")->innerF,"\[Delta]"->deltaCoeff,"Amplitudes"->ampAssoc,"Wronskian"->wronskian,"Source"->sourceF,"SeriesMinOrder"->minOrder,"RadialFunctions"->aux,"\[Omega]"->Simplify[Activate[\[Omega]Fourier/.varPN->1],r0Var>0],"Orbit"->orbit,"Simplify"->OptionValue["Simplify"],"Normalization"->OptionValue["Normalization"]|>;
 ret
 ]
 ]
