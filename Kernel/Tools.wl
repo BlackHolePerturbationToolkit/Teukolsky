@@ -19,7 +19,7 @@ BeginPackage["Teukolsky`PN`Tools`",{"Teukolsky`","Teukolsky`PN`"}]
 (*Unprotecting*)
 
 
-ClearAttributes[{SeriesTake,SeriesMap, SeriesMinOrder,SeriesMaxOrder,SeriesLength,SeriesCollect,SeriesExpand,SeriesTerms,IgnoreExpansionParameter,ChangeSeriesParameter,PowerCounting,StraightenSeries,SeriesPlusSimplify,DropZeroSeries}, {Protected, ReadProtected}];
+ClearAttributes[{SeriesTake,SeriesMap,SeriesCoefficientList,SeriesMinOrder,SeriesMaxOrder,SeriesLength,SeriesCollect,SeriesExpand,SeriesTerms,IgnoreExpansionParameter,ChangeSeriesParameter,PowerCounting,StraightenSeries,SeriesPlusSimplify,DropZeroSeries}, {Protected, ReadProtected}];
 
 
 ClearAttributes[{PNScalings, RemovePN}, {Protected, ReadProtected}];
@@ -76,6 +76,7 @@ PowerCounting::usage="PowerCounting[series,symbol] replaces the expansion parame
 StraightenSeries::usage="StraightenSeries[expr] straightens out SeriesData objects with redundant denominator arguments, i.e., it removes counting in powers of roots, if all respective coefficients are zero."
 DropZeroSeries::usage="DropZeroSeries sets the 0 Series O[x\!\(\*SuperscriptBox[\(]\), \(n\)]\) to 0 without Normaling the entire expressions."
 SeriesPlusSimplify::usage="SeriesPlusSimplify[expr] simplifies sums of SeriesData objects. It will likely require use of the Assumptions option."
+SeriesCoefficientList::usage="SeriesCoefficientList[series] returns the Series coefficients as a list."
 
 
 (* ::Subsection:: *)
@@ -178,6 +179,7 @@ StraightenSeries=Teukolsky`PN`Private`StraightenSeries
 SeriesMap=Teukolsky`PN`Private`SeriesMap
 DropZeroSeries=Teukolsky`PN`Private`DropZeroSeries
 SeriesPlusSimplify=Teukolsky`PN`Private`SeriesPlusSimplify
+SeriesCoefficientList=Teukolsky`PN`Private`SeriesCoefficientList
 
 
 (* ::Subsection:: *)
@@ -255,7 +257,7 @@ TeukolskyEquation=Teukolsky`PN`Private`TeukolskyEquation
 (*Protecting*)
 
 
-SetAttributes[{SeriesTake,SeriesMap,SeriesMinOrder,SeriesMaxOrder,SeriesLength,SeriesCollect,SeriesExpand,SeriesTerms,IgnoreExpansionParameter,ChangeSeriesParameter,PowerCounting,StraightenSeries,SeriesPlusSimplify,DropZeroSeries}, {Protected, ReadProtected}];
+SetAttributes[{SeriesTake,SeriesMap,SeriesCoefficientList,SeriesMinOrder,SeriesMaxOrder,SeriesLength,SeriesCollect,SeriesExpand,SeriesTerms,IgnoreExpansionParameter,ChangeSeriesParameter,PowerCounting,StraightenSeries,SeriesPlusSimplify,DropZeroSeries}, {Protected, ReadProtected}];
 
 
 SetAttributes[{PNScalings, RemovePN}, {Protected, ReadProtected}];
