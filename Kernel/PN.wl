@@ -3673,7 +3673,7 @@ ret
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Circular orbit (new)*)
 
 
@@ -3845,15 +3845,15 @@ Derivative[n_Integer][tppm_TeukolskyModePN][r_Symbol]:=(*tppm[[6,1]]^(2 n)*) Der
 
 
 EnergyFlux[mode_TeukolskyModePN] :=
- Module[{M = 1, s, l, m, a, \[Omega], \[Lambda], Z, rh, \[CapitalOmega]h, \[Kappa], \[Epsilon],r0, AbsCSq, \[Alpha], p, FluxInf, FluxHor,absZ,PNvar},
+ Module[{M = 1, s, l, m, a, \[Omega], \[Lambda], Z, rh, \[CapitalOmega]h, \[Kappa], \[Epsilon],r0, AbsCSq, \[Alpha], p, FluxInf, FluxHor,absZ,PNvar,order\[Eta]},
   a = mode["a"];
   s = mode["s"];
   l = mode["l"];
   m = mode["m"];
-  PNvar=mode["PN"][[1]];
-  \[Omega] = PNvar^3 mode["\[Omega]"];
+  {PNvar,order\[Eta]}=mode["PN"];
+  \[Omega] = PNvar^3 ReplaceAll[mode["\[Omega]"],a->PNvar^3 a];
   r0=PNvar^-2 mode["r0"];
-  \[Lambda] =SpinWeightedSpheroidalEigenvalue[s, l, m, a \[Omega]];
+  \[Lambda] =SpinWeightedSpheroidalEigenvalue[s, l, m, a \[Omega]]//Series[#,{PNvar,0,order\[Eta]}]&;
   Z = mode["Amplitudes"];
 
   If[\[Omega] == 0, Return[<| "\[ScriptCapitalI]" -> 0, "\[ScriptCapitalH]" -> 0 |>]];
@@ -3862,7 +3862,7 @@ EnergyFlux[mode_TeukolskyModePN] :=
   \[CapitalOmega]h = a/(2 M rh);
   \[Kappa] = \[Omega] - m \[CapitalOmega]h;
   \[Epsilon] = Sqrt[M^2-a^2]/(4 M rh);  
-  absZ["\[ScriptCapitalI]"]=Z["\[ScriptCapitalI]"]CowboyConjugate[ExpandLog[Z["\[ScriptCapitalI]"],{Inactive[KerrGeoFrequencies][a, r0, 0, 1]["\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"]>0,r0>1,1>a>=0}]];
+	absZ["\[ScriptCapitalI]"]=Z["\[ScriptCapitalI]"]CowboyConjugate[ExpandLog[Z["\[ScriptCapitalI]"],{Inactive[KerrGeoFrequencies][a, r0, 0, 1]["\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"]>0,r0>1,1>a>=0}]];
   absZ["\[ScriptCapitalH]"]=Z["\[ScriptCapitalH]"]CowboyConjugate[ExpandLog[Z["\[ScriptCapitalH]"],{Inactive[KerrGeoFrequencies][a, r0, 0, 1]["\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"]>0,r0>1,1>a>=0}]];
   FluxInf = 
   Switch[s,
@@ -3880,9 +3880,9 @@ EnergyFlux[mode_TeukolskyModePN] :=
   (*Abs[Z["\[ScriptCapitalI]"]]^2 \[Omega]^(2(1-Abs[s]))/(4 \[Pi]);*)
   FluxHor = Switch[s,
 			-2,
-			  AbsCSq = ((\[Lambda]+2)^2 + 4 a m \[Omega] - 4a^2 \[Omega]^2)(\[Lambda]^2+36 m a \[Omega] - 36 a^2 \[Omega]^2) + (2\[Lambda]+3)(96 a^2 \[Omega]^2 - 48 m a \[Omega]) + 144 \[Omega]^2 (M^2-a^2);
+			 AbsCSq = ((\[Lambda]+2)^2 + 4 a m \[Omega] - 4a^2 \[Omega]^2)(\[Lambda]^2+36 m a \[Omega] - 36 a^2 \[Omega]^2) + (2\[Lambda]+3)(96 a^2 \[Omega]^2 - 48 m a \[Omega]) + 144 \[Omega]^2 (M^2-a^2);
               \[Alpha] = (256(2M rh)^5 \[Kappa](\[Kappa]^2+4\[Epsilon]^2)(\[Kappa]^2+16\[Epsilon]^2)\[Omega]^3)/AbsCSq;
-              \[Alpha] absZ["\[ScriptCapitalH]"]/(4 \[Pi] \[Omega]^2),
+             \[Alpha] absZ["\[ScriptCapitalH]"]/(4 \[Pi] \[Omega]^2),
 			-1,
 			  p = \[Lambda]^2 + 4*a*\[Omega]*(m - a*\[Omega]);
 			  2 \[Omega] absZ["\[ScriptCapitalH]"] (2 M rh \[Kappa]) 4 ((2 M rh \[Kappa])^2+(M^2-a^2))/ (p \[Pi]),
