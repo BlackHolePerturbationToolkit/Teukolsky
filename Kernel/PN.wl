@@ -976,7 +976,7 @@ aux
 assumps={r>2,r0>2,a>=0,\[Eta]>0,\[Omega]>=0}
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Spacetime replacements*)
 
 
@@ -1523,11 +1523,11 @@ aux
 ]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Point particle source*)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Interface*)
 
 
@@ -1944,7 +1944,7 @@ Derivative[n_][\[Theta]][arg_]:=Derivative[n-1][\[Delta]][arg];
 \[Delta]''[\[Eta]^-2 a_]:=\[Eta]^2 \[Delta]''[a];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Amplitudes*)
 
 
@@ -2627,7 +2627,7 @@ If[MatchQ[\[ScriptL],_Symbol],Message[MSTCoefficientsPN::warn,Max[order\[Eta]-1,
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Wronskian*)
 
 
@@ -3840,7 +3840,7 @@ Keys[trfpn_TeukolskyModePN]^:= DeleteElements[Join[Keys[trfpn[[-1]]], {"Fluxes",
 Derivative[n_Integer][tppm_TeukolskyModePN][r_Symbol]:=(*tppm[[6,1]]^(2 n)*) Derivative[n][tppm[[-1]]["RadialFunction"]][r]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Fluxes*)
 
 
@@ -3874,8 +3874,6 @@ EnergyFlux[mode_TeukolskyModePN] :=
   2, AbsCSq = (4+\[Lambda])^2 (6+\[Lambda])^2+144 M^2 \[Omega]^2+8 a (4+\[Lambda]) (-4+5 (6+\[Lambda])) \[Omega] (m-a \[Omega])+48 a^2 \[Omega]^2 (2 (4+\[Lambda])+3 (m-a \[Omega])^2);
   (16 \[Omega]^8 absZ["\[ScriptCapitalI]"])/(AbsCSq) \[Omega]^(2(1-Abs[s]))/(4 \[Pi])
   ];
-                
-  
   
   (*Abs[Z["\[ScriptCapitalI]"]]^2 \[Omega]^(2(1-Abs[s]))/(4 \[Pi]);*)
   FluxHor = Switch[s,
@@ -3894,8 +3892,8 @@ EnergyFlux[mode_TeukolskyModePN] :=
 			 2,
 			  (\[Omega] absZ["\[ScriptCapitalH]"])/(512 \[Pi] rh^3 \[Kappa] (\[Kappa]^2+4 \[Epsilon]^2))
 			];
-
-  <| "\[ScriptCapitalI]" -> FluxInf, "\[ScriptCapitalH]" -> FluxHor |>
+	{FluxInf,FluxHor}={FluxInf,FluxHor}//StraightenSeries;
+	<| "\[ScriptCapitalI]" -> FluxInf, "\[ScriptCapitalH]" -> FluxHor |>
 ];
 
 
