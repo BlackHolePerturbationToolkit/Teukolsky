@@ -965,7 +965,7 @@ aux
 ]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Tools*)
 
 
@@ -1523,7 +1523,7 @@ aux
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Point particle source*)
 
 
@@ -1944,11 +1944,11 @@ Derivative[n_][\[Theta]][arg_]:=Derivative[n-1][\[Delta]][arg];
 \[Delta]''[\[Eta]^-2 a_]:=\[Eta]^2 \[Delta]''[a];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Amplitudes*)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*A Amplitudes*)
 
 
@@ -1957,8 +1957,8 @@ Derivative[n_][\[Theta]][arg_]:=Derivative[n-1][\[Delta]][arg];
 
 
 AAmplitudeFreq["+"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[CurlyEpsilon]_]:=Module[{aux,\[CurlyEpsilon],\[Kappa],\[CurlyEpsilon]p,\[Tau],nMax,nMin,repls,coeff,sum,order},
-order=order\[CurlyEpsilon]+If[\[ScriptL]+\[ScriptS]+1===0,1,0]; (*This can't actually happen since \[ScriptL]>|\[ScriptS]|*)
-repls=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order];
+order=order\[CurlyEpsilon];
+repls=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,Max[order\[CurlyEpsilon]+1,2]];
 \[CurlyEpsilon]=2 \[Omega] \[Gamma];
 \[Kappa]=Sqrt[1-a^2];
 \[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;
@@ -1975,7 +1975,7 @@ aux
 
 AAmplitudeFreq["-"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[CurlyEpsilon]_]:=Module[{aux,\[CurlyEpsilon],\[Kappa],\[CurlyEpsilon]p,\[Tau],nMax,nMin,repls,coeff,sum,order},
 order=order\[CurlyEpsilon]+1;
-repls=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order];
+repls=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,Max[order\[CurlyEpsilon]+1,2]];
 \[CurlyEpsilon]=2 \[Omega] \[Gamma];
 \[Kappa]=Sqrt[1-a^2];
 \[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;
@@ -2011,7 +2011,7 @@ aux
 ]*)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*B Amplitudes*)
 
 
@@ -2627,7 +2627,7 @@ If[MatchQ[\[ScriptL],_Symbol],Message[MSTCoefficientsPN::warn,Max[order\[Eta]-1,
 ]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Wronskian*)
 
 
@@ -2654,7 +2654,7 @@ If[OptionValue["FreqRep"],
 aux=InvariantWronskianFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order,"Normalization"->OptionValue["Normalization"]];
 ,
 (*else*)
-order\[CurlyEpsilon]=Ceiling[order,3]/3;
+order\[CurlyEpsilon]=Max[Ceiling[order,3]/3,1];
 aux=InvariantWronskianFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon],"Normalization"->OptionValue["Normalization"]];
 aux=aux//ChangeSeriesParameter[#,\[Eta]^3]&;
 aux=aux//SeriesTake[#,order]&;
@@ -3673,7 +3673,7 @@ ret
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Circular orbit (new)*)
 
 
@@ -3683,10 +3683,14 @@ RadialSourcedAssociation["CO",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[Sc
 (*\[CapitalOmega]\[Phi]Scaled=If[OptionValue["InactiveHarmonics"],Inactive[KerrGeoFrequencies][varPN^3 aVar,r0Var,0,1]["\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"],KerrGeoFrequencies[varPN^3 aVar,r0Var,0,1]["\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"]];
 \[Omega]FourierScaled=If[\[ScriptM]===0,Style[0,Orange]\[CapitalOmega]\[Phi]Scaled,\[ScriptM] \[CapitalOmega]\[Phi]Scaled];*)
 If[!(OptionValue["FourierFrequency"]==="OrbitalFrequency"),\[Omega]Fourier=OptionValue["FourierFrequency"]];
+Echo["Here I am"];
 aux=TeukolskyRadialPN[\[ScriptS],\[ScriptL],\[ScriptM],aVar,\[Omega]Fourier,{varPN,order},"Normalization"->OptionValue["Normalization"]];
+Echo["This is me"];
 Rin=aux["In"][[-1]]["RadialFunction"];
 Rup=aux["Up"][[-1]]["RadialFunction"];
+Echo["There's nowhere else on earth"];
 wronskian=InvariantWronskian[\[ScriptS],\[ScriptL],\[ScriptM],aVar,\[Omega]Fourier,{varPN, order},{"FreqRep"->False,"Normalization"->OptionValue["Normalization"]}];
+Echo["I'd rather be"];
 source=\!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(m = 0\), \(2\)]\(C[m] 
 \*SuperscriptBox[\(r0Var\), \(m\)]\  \(\(Derivative[m]\)[DiracDelta]\)[r - r0]\)\);
@@ -3694,19 +3698,24 @@ source=\!\(
 args=source//Expand[#,DiracDelta]&//ExpandDiracDelta[#,r]&//If[Head[#]===Plus,#//ReplacePart[0->List],{#}]&//ReplaceAll[{a_. DiracDelta[arg_]/;!FreeQ[arg,r]:>arg,a_. Derivative[n_][DiracDelta][arg_]/;!FreeQ[arg,r]:>arg}]//Union;
 If[Length[args]!=1,Abort[]];
 arg=#&@@args;
+Echo["Here I am"];
 cIn=-(Kerr\[CapitalDelta][aVar,varPN^-2  r]^\[ScriptS] source Rup[r])/wronskian;
 cUp=(Kerr\[CapitalDelta][aVar,varPN^-2  r]^\[ScriptS] source Rin[r])/wronskian;
 If[!NumericQ[\[ScriptL]],{cIn,cUp}={cIn,cUp}//Assuming[{r>0,r0>0,1>a>=0,varPN>0},PowerExpand[#,Assumptions->$Assumptions]]&//ReplaceAll[E^a_:>Simplify[E^Expand[a],\[ScriptL]\[Element]Integers]]//StraightenSeries];
 cIn=cIn//ExpandDiracDelta[#,r]&//ExpandDiracDelta[#,r]&//ReplaceAll[{DiracDelta[a_]:>-HeavisideTheta[r0Var-r],Derivative[n_][DiracDelta][a_]:> Derivative[n-1][DiracDelta][a]}];
 cUp=cUp//ExpandDiracDelta[#,r]&//ExpandDiracDelta[#,r]&//ReplaceAll[{DiracDelta[a_]:>HeavisideTheta[r-r0Var],Derivative[n_][DiracDelta][a_]:> Derivative[n-1][DiracDelta][a]}];
 {cIn,cUp,deltaCoeff,source}={cIn,cUp,deltaCoeff,source}/.r0->r0Var/.a->aVar;
+Echo["It's me and you"];
 sourceRepls=TeukolskyPointParticleSourceRepls[\[ScriptS],\[ScriptL],\[ScriptM],aVar,r0Var,{varPN,order},"InactiveHarmonics"->OptionValue["InactiveHarmonics"]];
+Echo["Tonight we make our dreams"];
 (*Echo[sourceRepls//ChangeContext[#,"Teukolsky`PN`Private"]&,"sourceRepls"];
 Echo[cUp//ChangeContext[#,"Teukolsky`PN`Private"]&,"cUp"];*)
 {cIn,cUp}={cIn,cUp}//Normal//ReplaceAll[sourceRepls];
+Echo["Come true"];
 (*Echo[cUp//ChangeContext[#,"Teukolsky`PN`Private"]&,"cUp"];*)
 inner=cIn Rin[r]//ChooseSide[#,r<r0Var]&;
 outer=cUp Rup[r]//ChooseSide[#,r>r0Var]&;
+Echo["Ohhhhh..."];
 {Btrans,Ctrans}={BAmplitude["Trans","Normalization"->OptionValue["Normalization"],"FreqRep"->False][\[ScriptS],\[ScriptL],\[ScriptM],aVar,order],CAmplitude["Trans","Normalization"->OptionValue["Normalization"],"FreqRep"->False][\[ScriptS],\[ScriptL],\[ScriptM],aVar,order]}/.\[Eta]->varPN/.\[Omega]->\[Omega]Fourier;
 {cInU,cUpU}={Normal[Btrans] ChooseSide[cIn,r<r0Var],Normal[Ctrans] ChooseSide[cUp,r>r0Var]};
 If[OptionValue["Simplify"]&&NumericQ[\[ScriptL]],{cInU,cUpU(*,deltaCoeff,source*)}={cInU,cUpU(*,deltaCoeff,source*)}//SeriesCollect[#,{SpinWeightedSphericalHarmonicY[__],Derivative[__][SpinWeightedSphericalHarmonicY][__],Inactive[SpinWeightedSpheroidalHarmonicS][__],Derivative[__][Inactive[SpinWeightedSpheroidalHarmonicS]][__]},(Simplify[#,{aVar>=0,r0Var>0,varPN>0}]&)]&];
