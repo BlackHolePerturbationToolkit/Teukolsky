@@ -28,7 +28,7 @@ ClearAttributes[{MSTCoefficientsPN}, {Protected, ReadProtected}];
 packageDir=DirectoryName[$InputFileName]
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Public *)
 
 
@@ -2011,7 +2011,7 @@ aux
 ]*)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*B Amplitudes*)
 
 
@@ -2541,7 +2541,7 @@ aux
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Invariant Wronskian*)
 
 
@@ -2572,6 +2572,52 @@ aux=aux//SeriesTake[#,order]&;
 aux
 ];
 aux=aux/.\[Gamma]->varPN/.\[Eta]->varPN/.\[Omega]->\[Omega]Var;
+aux
+]
+
+
+(* ::Subsubsection:: *)
+(*Phase shift*)
+
+
+CTeukolskyStarobinsky[2,\[ScriptL]_,m_,a_,\[Omega]_,{\[Gamma]_,order_}]:=Module[{s=2,aux,D,\[ScriptW],\[Lambda]},
+\[ScriptW]=\[Omega] \[Gamma];
+\[Lambda]=SpinWeightedSpheroidalEigenvalue[s,\[ScriptL],m,a \[ScriptW] ]+s^2+s//Series[#,{\[Gamma],0,order}]&;
+D=Sqrt[(\[Lambda])^2 (\[Lambda]-2)^2+8a \[ScriptW](m-a \[ScriptW])(\[Lambda]-2)(5 \[Lambda]-4)+48(a \[ScriptW])^2 (2(\[Lambda]-2)+3(m-a \[ScriptW])^2)];
+aux=D+(-1)^(\[ScriptL]+m) 12 I \[ScriptW];
+aux
+]
+CTeukolskyStarobinsky[-2,\[ScriptL]_,m_,a_,\[Omega]_,{\[Gamma]_,order_}]:=CTeukolskyStarobinsky[2,\[ScriptL],m,a,\[Omega],{\[Gamma],order}];
+CTeukolskyStarobinsky[0,\[ScriptL]_,m_,a_,\[Omega]_,{\[Gamma]_,order_}]:=1;
+
+
+Options[phaseShift]={"Normalization"->"Default"}
+
+
+phaseShiftFreq[s_,\[ScriptL]_,m_,a_,order_,opt:OptionsPattern[]]:=Module[{aux,CTS,\[CurlyEpsilon]b,Binc,Bref},
+CTS=CTeukolskyStarobinsky[s,\[ScriptL],m,a,\[Omega],{\[Gamma],order}];
+Bref=BAmplitudeFreq["Ref",opt][s,\[ScriptL],m,a,order];
+Binc=BAmplitudeFreq["Inc",opt][s,\[ScriptL],m,a,order];
+aux=(-1)^(\[ScriptL]+1) CTS/(2\[Omega] \[Gamma])^Abs[s] Bref/Binc;
+(*aux=-(\[ImaginaryI]/2) Log[aux]//IgnoreExpansionParameter;*)
+aux
+]
+
+
+Options[phaseShift]={"Normalization"->"Default","FreqRep"->True,"Simplify"->False}
+
+
+phaseShift[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_,OptionsPattern[]]:=Module[{aux,order\[CurlyEpsilon]},
+If[OptionValue["FreqRep"],
+aux=phaseShiftFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta],"Normalization"->OptionValue["Normalization"]];
+,
+(*else*)
+order\[CurlyEpsilon]=Ceiling[order\[Eta],3]/3;
+aux=phaseShiftFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon],"Normalization"->OptionValue["Normalization"]];
+aux=aux//ChangeSeriesParameter[#,\[Eta]^3]&//SeriesTake[#,order\[Eta]]&;
+aux
+];
+If[OptionValue["Simplify"],aux=aux//SeriesCollect[#,{E^__,Log[__],Gamma[__],PolyGamma[__]},(Simplify[#,{1>a>=0}]&)]&];
 aux
 ]
 
@@ -2665,6 +2711,12 @@ If[MatchQ[\[ScriptL],_Symbol],Message[MSTCoefficientsPN::warn,Max[order\[Eta]-1,
 TeukolskyAmplitudePN["W",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_}] :=Module[{},
 If[MatchQ[\[ScriptL],_Symbol],Message[MSTCoefficientsPN::warn,Max[order\[Eta]-1,2],\[ScriptL]]];
 InvariantWronskian[\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{\[Gamma],order\[Eta]},opt]/.{\[Omega]->\[Omega]Var,\[Gamma]->\[Eta]Var}
+]
+
+
+TeukolskyAmplitudePN["PhaseShift",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_}] :=Module[{},
+If[MatchQ[\[ScriptL],_Symbol],Message[MSTCoefficientsPN::warn,Max[order\[Eta]-1,2],\[ScriptL]]];
+phaseShift[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta],opt]/.{\[Omega]->\[Omega]Var,\[Gamma]->\[Eta]Var}
 ]
 
 
