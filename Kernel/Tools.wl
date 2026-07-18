@@ -28,10 +28,10 @@ ClearAttributes[{PNScalings, RemovePN}, {Protected, ReadProtected}];
 ClearAttributes[{ExpandLog, ExpandGamma,ExpandPolyGamma,PochhammerToGamma,GammaToPochhammer,ExpandDiracDelta,ExpandSpheroidals,CollectDerivatives}, {Protected, ReadProtected}];
 
 
-ClearAttributes[{InvariantWronskian,TeukolskyPointParticleSource,TeukolskyEquation}, {Protected, ReadProtected}];
+ClearAttributes[{TeukolskyPointParticleSource}, {Protected, ReadProtected}];
 
 
-ClearAttributes[{Paint,CowboyConjugate,ChangeContext}, {Protected, ReadProtected}];
+ClearAttributes[{Paint,CowboyConjugate,ChangeContext,ChooseSide}, {Protected, ReadProtected}];
 
 
 (* ::Section:: *)
@@ -124,13 +124,7 @@ CollectDerivatives::usage="CollectDerivatives[expr,f] works exactly like Collect
 Paint::usage="Paint[expr,var] paints all occurences of var in expr Red."
 CowboyConjugate::usage="CowboyConjugate[expr] performs the complex conjugate by assuming everything but \[ImaginaryI] is real."
 ChangeContext::usage="ChangeContext[expr,context1,context2] is a debugging tool that allows to change the context of all symbols in expr"
-
-
-(* ::Subsection:: *)
-(*Wronskian*)
-
-
-InvariantWronskian::usage="InvariantWronskian[\[ScriptS], \[ScriptL], \[ScriptM], a, \[Omega], {\[Eta], n}] gives the invariant Wronskian."
+ChooseSide::usage="ChooseSide[expr,assumptions] Simplifies all HeavisideTheta and DiracDelta according to assumptions."
 
 
 (* ::Subsection:: *)
@@ -138,13 +132,6 @@ InvariantWronskian::usage="InvariantWronskian[\[ScriptS], \[ScriptL], \[ScriptM]
 
 
 TeukolskyPointParticleSource::usage="TeukolskyPointParticleSource[\[ScriptS],\[ScriptL],\[ScriptM],orbit][r] gives an analytical expression for the Teukolsky point particle source for a given {\[ScriptS],\[ScriptL],\[ScriptM]} mode. orbit needs to be a KerrGeoOrbit object "
-
-
-(* ::Subsection:: *)
-(*Teukolsky Equation*)
-
-
-TeukolskyEquation::usage="TeukolskyEquation[\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{\[Eta],order},R[r]] gives the Teukolsky equation with for a given {\[ScriptS],\[ScriptL],\[ScriptM]} mode with included \[Eta] scalings. The {\[Eta],order} argument can be left out for a general expression."
 
 
 (* ::Section:: *)
@@ -226,13 +213,7 @@ CollectDerivatives=Teukolsky`PN`Private`CollectDerivatives
 Paint=Teukolsky`PN`Private`Paint
 CowboyConjugate=Teukolsky`PN`Private`CowboyConjugate
 ChangeContext=Teukolsky`PN`Private`ChangeContext
-
-
-(* ::Subsection::Closed:: *)
-(*Wronskian*)
-
-
-InvariantWronskian=Teukolsky`PN`Private`InvariantWronskian
+ChooseSide=Teukolsky`PN`Private`ChooseSide
 
 
 (* ::Subsection:: *)
@@ -240,13 +221,6 @@ InvariantWronskian=Teukolsky`PN`Private`InvariantWronskian
 
 
 TeukolskyPointParticleSource=Teukolsky`PN`Private`TeukolskyPointParticleSource
-
-
-(* ::Subsection::Closed:: *)
-(*TeukolskyEquation*)
-
-
-TeukolskyEquation=Teukolsky`PN`Private`TeukolskyEquation
 
 
 (* ::Section:: *)
@@ -266,7 +240,7 @@ SetAttributes[{PNScalings, RemovePN}, {Protected, ReadProtected}];
 SetAttributes[{ExpandLog, ExpandGamma,ExpandPolyGamma,PochhammerToGamma,GammaToPochhammer,ExpandDiracDelta,ExpandSpheroidals,CollectDerivatives}, {Protected, ReadProtected}];
 
 
-SetAttributes[{InvariantWronskian,TeukolskyPointParticleSource,TeukolskyEquation}, {Protected, ReadProtected}];
+SetAttributes[{TeukolskyPointParticleSource}, {Protected, ReadProtected}];
 
 
 SetAttributes[{Paint,CowboyConjugate,ChangeContext}, {Protected, ReadProtected}];

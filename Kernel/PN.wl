@@ -965,7 +965,7 @@ aux
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Tools*)
 
 
@@ -976,7 +976,7 @@ aux
 assumps={r>2,r0>2,a>=0,\[Eta]>0,\[Omega]>=0}
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Spacetime replacements*)
 
 
@@ -1523,7 +1523,7 @@ aux
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Point particle source*)
 
 
@@ -1944,7 +1944,7 @@ Derivative[n_][\[Theta]][arg_]:=Derivative[n-1][\[Delta]][arg];
 \[Delta]''[\[Eta]^-2 a_]:=\[Eta]^2 \[Delta]''[a];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Amplitudes*)
 
 
@@ -2541,7 +2541,42 @@ aux
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
+(*Invariant Wronskian*)
+
+
+Options[InvariantWronskianFreq]={"Normalization"->"Default","Simplify"->False}
+
+
+InvariantWronskianFreq[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Gamma]_,opt:OptionsPattern[]]:=Module[{aux,Rup,Rin,B,C},
+C=CAmplitudeFreq["Trans",opt][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Gamma]];
+B=BAmplitudeFreq["Inc",opt][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Gamma]];
+aux=(2 I \[Omega] \[Gamma])B C;
+If[OptionValue["Simplify"],aux=aux//SeriesCollect[#,{E^__,Log[__],Gamma[__],PolyGamma[__]},(Simplify[#,{1>a>=0}]&)]&];
+aux
+]
+
+
+Options[InvariantWronskian]={"Normalization"->"Default","FreqRep"->True,"Simplify"->False}
+
+
+InvariantWronskian[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{varPN_,order_},OptionsPattern[]]:=Module[{aux,order\[CurlyEpsilon]},
+If[OptionValue["FreqRep"],
+aux=InvariantWronskianFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order,"Normalization"->OptionValue["Normalization"],"Simplify"->OptionValue["Simplify"]];
+,
+(*else*)
+order\[CurlyEpsilon]=Max[Ceiling[order,3]/3,1];
+aux=InvariantWronskianFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon],"Normalization"->OptionValue["Normalization"],"Simplify"->OptionValue["Simplify"]];
+aux=aux//ChangeSeriesParameter[#,\[Eta]^3]&;
+aux=aux//SeriesTake[#,order]&;
+aux
+];
+aux=aux/.\[Gamma]->varPN/.\[Eta]->varPN/.\[Omega]->\[Omega]Var;
+aux
+]
+
+
+(* ::Subsubsection:: *)
 (*Interface*)
 
 
@@ -2627,41 +2662,9 @@ If[MatchQ[\[ScriptL],_Symbol],Message[MSTCoefficientsPN::warn,Max[order\[Eta]-1,
 ]
 
 
-(* ::Subsection::Closed:: *)
-(*Wronskian*)
-
-
-(* ::Subsubsection::Closed:: *)
-(*Invariant Wronskian*)
-
-
-Options[InvariantWronskianFreq]={"Normalization"->"Default"}
-
-
-InvariantWronskianFreq[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Gamma]_,opt:OptionsPattern[]]:=Module[{aux,Rup,Rin,B,C,ret},
-C=CAmplitudeFreq["Trans",opt][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Gamma]];
-B=BAmplitudeFreq["Inc",opt][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Gamma]];
-ret=(2 I \[Omega] \[Gamma])B C;
-ret
-]
-
-
-Options[InvariantWronskian]={"Normalization"->"Default","FreqRep"->True}
-
-
-InvariantWronskian[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{varPN_,order_},OptionsPattern[]]:=Module[{aux,order\[CurlyEpsilon]},
-If[OptionValue["FreqRep"],
-aux=InvariantWronskianFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order,"Normalization"->OptionValue["Normalization"]];
-,
-(*else*)
-order\[CurlyEpsilon]=Max[Ceiling[order,3]/3,1];
-aux=InvariantWronskianFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon],"Normalization"->OptionValue["Normalization"]];
-aux=aux//ChangeSeriesParameter[#,\[Eta]^3]&;
-aux=aux//SeriesTake[#,order]&;
-aux
-];
-aux=aux/.\[Gamma]->varPN/.\[Eta]->varPN/.\[Omega]->\[Omega]Var;
-aux
+TeukolskyAmplitudePN["W",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_}] :=Module[{},
+If[MatchQ[\[ScriptL],_Symbol],Message[MSTCoefficientsPN::warn,Max[order\[Eta]-1,2],\[ScriptL]]];
+InvariantWronskian[\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{\[Gamma],order\[Eta]},opt]/.{\[Omega]->\[Omega]Var,\[Gamma]->\[Eta]Var}
 ]
 
 
