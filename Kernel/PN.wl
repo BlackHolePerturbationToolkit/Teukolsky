@@ -105,7 +105,6 @@ MSTCoefficientsInternalFreq
 KerrMSTSeries
 pIn
 rstar*)
-(*testBryan*)
 
 
 (* ::Section:: *)
@@ -124,12 +123,12 @@ Begin["`Private`"]
 <<KerrGeodesics`
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*MST Coefficients*)
 
 
 (* ::Subsubsection::Closed:: *)
-(*Adrian's code for MST coefficients*)
+(*Adrian's code for MST coefficients specific s specific l *)
 
 
 KerrMSTSeries[ss_Integer,ll_Integer,mm:(_Integer|_Symbol),ExpOrderReq_]:=Module[{s=-Abs[ss],pos=Positive[ss],ExpOrder=ExpOrderReq,ExpOrderSaved=ExpOrderOrig,l=ll,m=mm,\[CapitalDelta]\[Nu]pC,\[CapitalDelta]\[Nu]p2C,\[CapitalDelta]\[Nu]p3C,\[CapitalDelta]\[Nu]p4C,\[CapitalDelta]\[Nu]p5C,\[CapitalDelta]\[Nu]p6C,\[CapitalDelta]\[Nu]pcq,\[Alpha]C,\[Beta]C,\[Gamma]C,\[CapitalDelta]\[Alpha]\[Beta]C,\[Kappa]Simplify,aLeadingBehaviour,acSolved,acqSolved,aShift,eqShift,StructureGrid,AngExpOrder,\[CapitalDelta]E,\[CapitalDelta]EC,ProgressGrid,FinalProgressGrid,aMST,ac,acq,eqnlist,\[CapitalDelta]\[Nu]p,\[CapitalDelta]\[Nu]pc,EqC,\[CapitalDelta]EqC,EqCL,\[CapitalDelta]EqCL,\[CapitalDelta]EqCTable,Solveac,Solve\[CapitalDelta]\[Nu],i,j,k,n,p,flip,\[Nu]MST,MST},
@@ -873,7 +872,192 @@ MST=Append[MST,Table[a[i]->aMST[i]+If[i==0,0,O[\[Epsilon]]^(ExpOrder+1)],{i,-Exp
 ]*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
+(*Adrian's code for MST coefficients generic s *)
+
+
+(* ::Code::Initialization:: *)
+KerrMSTSeries[ss_Symbol,ll_Symbol,mm_Symbol,ExpOrder_Integer,ExpOrderOrig_Integer:0]:=Module[{s=ss,l=ll,m=mm,\[CapitalDelta]\[Nu]pC,\[CapitalDelta]\[Nu]p2C,\[CapitalDelta]\[Nu]p3C,\[CapitalDelta]\[Nu]p4C,\[CapitalDelta]\[Nu]p5C,\[CapitalDelta]\[Nu]p6C,\[CapitalDelta]\[Nu]pcq,\[Alpha]C,\[Beta]C,\[Gamma]C,\[CapitalDelta]\[Alpha]\[Beta]C,\[Kappa]Simplify,aLeadingBehaviour,acSolved,acqSolved,aShift,eqShift,StructureGrid,AngExpOrder,\[CapitalDelta]E,\[CapitalDelta]EC,ProgressGrid,aMST,aMSTsaved,ac,acq,eqnlist,\[CapitalDelta]\[Nu]p,\[CapitalDelta]\[Nu]pc,EqC,\[CapitalDelta]EqC,EqCL,\[CapitalDelta]EqCL,\[CapitalDelta]EqCTable,Solveac,Solve\[CapitalDelta]\[Nu],i,j,k,n,p,\[Nu]MST,MST},
+
+
+ClearAll[\[CapitalDelta]\[Nu]p2C];
+\[CapitalDelta]\[Nu]p2C[k_]:=\[CapitalDelta]\[Nu]p2C[k]=Sum[Expand[\[CapitalDelta]\[Nu]pC[i2]*\[CapitalDelta]\[Nu]pC[- i2 + k]], {i2, 0, k}];
+\[CapitalDelta]\[Nu]p3C[k_]:=\[CapitalDelta]\[Nu]p3C[k]=Sum[Expand[\[CapitalDelta]\[Nu]p2C[k - i3]*\[CapitalDelta]\[Nu]pC[i3]], {i3, 0, k}];
+\[CapitalDelta]\[Nu]p4C[k_]:=\[CapitalDelta]\[Nu]p4C[k]=Sum[Expand[\[CapitalDelta]\[Nu]p3C[k - i4]*\[CapitalDelta]\[Nu]pC[i4]], {i4, 0, k}];
+\[CapitalDelta]\[Nu]p5C[k_]:=\[CapitalDelta]\[Nu]p5C[k]=Sum[Expand[\[CapitalDelta]\[Nu]p4C[k - i5]*\[CapitalDelta]\[Nu]pC[i5]], {i5, 0, k}];
+\[CapitalDelta]\[Nu]p6C[k_]:=\[CapitalDelta]\[Nu]p6C[k]=Sum[Expand[\[CapitalDelta]\[Nu]p5C[k - i6]*\[CapitalDelta]\[Nu]pC[i6]], {i6, 0, k}];
+
+\[Alpha]C[n_,k_]:=\[Alpha]C[n,k]=((l-2 l^2+n-4 l n-2 n^2) If[-4+k==0,1,0]+I (2 l^2+n (-1+2 n)+l (-1+4 n)) (-I m q+(1+l+n) \[Kappa]) If[-3+k==0,1,0]+(-2 l^2-n (-1+2 n)-l (-1+4 n)) (1+l+n+s)^2 If[-2+k==0,1,0]+I (2 l^2+n (-1+2 n)+l (-1+4 n)) (1+l+n+s)^2 (-I m q+(1+l+n) \[Kappa]) If[-1+k==0,1,0]+
+2 I \[Kappa] \[CapitalDelta]\[Nu]p3C[k-9]+(-3-8 l-8 n-4 s) \[CapitalDelta]\[Nu]p3C[k-8]+I (-I m q (3+8 l+8 n+4 s)+(3+20 l^2+20 n^2+6 s+2 s^2+4 n (5+4 s)+4 l (5+10 n+4 s)) \[Kappa]) \[CapitalDelta]\[Nu]p3C[k-7]-
+2 \[CapitalDelta]\[Nu]p4C[k-10]+I (-2 I m q+(5+10 l+10 n+4 s) \[Kappa]) \[CapitalDelta]\[Nu]p4C[k-9]+2 I \[Kappa] \[CapitalDelta]\[Nu]p5C[k-11]-2\[CapitalDelta]\[Nu]p2C[k-8]+I (-2 I m q+\[Kappa]+6 l \[Kappa]+6 n \[Kappa]) \[CapitalDelta]\[Nu]p2C[k-7]+
+(-12 l^2-12 n^2-2 s (1+s)-3 n (3+4 s)-3 l (3+8 n+4 s))\[CapitalDelta]\[Nu]p2C[k-6]+I (-I m q (12 n^2+2 s (1+s)+3 n (3+4 s))+20 l^3 \[Kappa]+
+(-1+20 n^3+s^2+6 n^2 (5+4 s)+3 n (3+6 s+2 s^2)) \[Kappa]+6 l^2 (-2 I m q+(5+10 n+4 s) \[Kappa])+3 l (-I m q (3+8 n+4 s)+(3+20 n^2+6 s+2 s^2+4 n (5+4 s)) \[Kappa])) \[CapitalDelta]\[Nu]p2C[k-5]+
+(1-4 l-4 n) \[CapitalDelta]\[Nu]pC[-6+k]+I (-I m (-1+4 l+4 n) q+(-1+6 l^2+2 n+6 n^2+2 l (1+6 n)) \[Kappa]) \[CapitalDelta]\[Nu]pC[-5+k]+
+(-8 l^3-8 n^3-4 n s (1+s)+(1+s)^2-3 n^2 (3+4 s)-3 l^2 (3+8 n+4 s)-2 l (12 n^2+2 s (1+s)+3 n (3+4 s))) \[CapitalDelta]\[Nu]pC[-4+k]+
+I (1+l+n+s) (-I m q (-1+l+8 l^2+n+16 l n+8 n^2-s+4 l s+4 n s)+
+(-1+10 l^3+10 n^3-s+n (-1+2 s)+2 n^2 (5+3 s)+2 l^2 (5+15 n+3 s)+l (-1+30 n^2+2 s+4 n (5+3 s))) \[Kappa]) \[CapitalDelta]\[Nu]pC[-3+k]);
+
+\[Beta]C[n_,k_]:=\[Beta]C[n,k]=((-3+4 l^2+4 n+4 n^2+l (4+8 n)) If[-4+k==0,1,0]-m (-3+4 l^2+4 n+4 n^2+l (4+8 n)) q If[-3+k==0,1,0]+
+1/4 (3-4 l^2-4 n-4 n^2-l (4+8 n)) (l^2 (-8+q^2)+n (-8+q^2)+n^2 (-8+q^2)+l (1+2 n) (-8+q^2)-4 s^2) If[-2+k==0,1,0]-
+m (-3+4 l^2+4 n+4 n^2+l (4+8 n)) q s^2 If[-1+k==0,1,0]+n (8 l^5+4 l^4 (5+9 n)+n (1+n)^2 (-3+4 n+4 n^2)+2 l^3 (5+36 n+32 n^2)+
+l^2 (-5+29 n+96 n^2+56 n^3)+l (-3-7 n+28 n^2+56 n^3+24 n^4)) If[k==0,1,0]-8 (1+2 l+2 n) Sum[\[CapitalDelta]\[Nu]p3C[k-6-i]*\[CapitalDelta]EC[s, l, m, i], {i, 0, k-6}]-
+4 Sum[\[CapitalDelta]\[Nu]p4C[k-8-i]*\[CapitalDelta]EC[s, l, m, i], {i, 0, k - 8}]+(-1-24 l^2-24 n-24 n^2-24 l (1+2 n))Sum[\[CapitalDelta]\[Nu]p2C[k-4-i]*\[CapitalDelta]EC[s, l, m, i], {i, 0, k - 4}]-
+2 (1+2 l+2 n) (-8+q^2) \[CapitalDelta]\[Nu]p3C[k-8]+(-2+64 l^3+36 n+120 n^2+80 n^3+32 l^2 (3+7 n)+4 l (7+56 n+60 n^2))\[CapitalDelta]\[Nu]p3C[k-6]+
+(8-q^2) \[CapitalDelta]\[Nu]p4C[k-10]+(9+56 l^2+60 n+60 n^2+8 l (7+15 n))\[CapitalDelta]\[Nu]p4C[k-8] +12 (1+2 l+2 n) \[CapitalDelta]\[Nu]p5C[k-10]+
+4 \[CapitalDelta]\[Nu]p6C[k-12]+(3-16 l^3-2 n-24 n^2-16 n^3-24 l^2 (1+2 n)-l (2+48 n+48 n^2)) Sum[\[CapitalDelta]EC[s, l, m, i]*\[CapitalDelta]\[Nu]pC[-2 - i + k], {i, 0, -2 + k}]+
+4 \[CapitalDelta]\[Nu]p2C[k-8]-4 m q \[CapitalDelta]\[Nu]p2C[k-7]+(2-q^2/4-6 l^2 (-8+q^2)-6 n (-8+q^2)-6 n^2 (-8+q^2)-6 l (1+2 n) (-8+q^2)+4 s^2) \[CapitalDelta]\[Nu]p2C[k-6]-
+4 m q s^2 \[CapitalDelta]\[Nu]p2C[k-5]+(-3+36 l^4-6 n+54 n^2+120 n^3+60 n^4+24 l^3 (3+8 n)+l^2 (29+288 n+336 n^2)+l (-7+84 n+336 n^2+240 n^3)) \[CapitalDelta]\[Nu]p2C[k-4]+
+(-4 l^4-8 l^3 (1+2 n)-l^2 (1+24 n+24 n^2)-n (-3+n+8 n^2+4 n^3)-l (-3+2 n+24 n^2+16 n^3)) \[CapitalDelta]EC[s,l,m,k]+(4+8 l+8 n) \[CapitalDelta]\[Nu]pC[-6+k]-
+4 m (1+2 l+2 n) q \[CapitalDelta]\[Nu]pC[-5+k]+1/4 (-1-2 l-2 n) (24-3 q^2+8 l^2 (-8+q^2)+8 n (-8+q^2)+8 n^2 (-8+q^2)+8 l (1+2 n) (-8+q^2)-16 s^2) \[CapitalDelta]\[Nu]pC[-4+k]-
+4 m (1+2 l+2 n) q s^2 \[CapitalDelta]\[Nu]pC[-3+k]+(8 l^5+4 l^4 (5+18 n)+2 l^3 (5+72 n+96 n^2)+l^2 (-5+58 n+288 n^2+224 n^3)+6 n (-1-n+6 n^2+10 n^3+4 n^4)+
+l (-3-14 n+84 n^2+224 n^3+120 n^4)) \[CapitalDelta]\[Nu]pC[-2+k]);
+
+\[Gamma]C[n_,k_]:=\[Gamma]C[n,k]=((-3-2 l^2-5 n-2 n^2-l (5+4 n)) If[-4+k==0,1,0]-I (3+2 l^2+5 n+2 n^2+l (5+4 n)) (I m q+(l+n) \[Kappa]) If[-3+k==0,1,0]+
+(-3-2 l^2-5 n-2 n^2-l (5+4 n)) (l+n-s)^2 If[-2+k==0,1,0]-I (3+2 l^2+5 n+2 n^2+l (5+4 n)) (l+n-s)^2 (I m q+(l+n) \[Kappa]) If[-1+k==0,1,0]-
+2 I \[Kappa] \[CapitalDelta]\[Nu]p3C[k-9]+(-5-8 l-8 n+4 s)\[CapitalDelta]\[Nu]p3C[k-8]-I (I m q (5+8 l+8 n-4 s)+(3+20 l^2+20 n+20 n^2+4 l (5+10 n-4 s)-10 s-16 n s+2 s^2) \[Kappa]) \[CapitalDelta]\[Nu]p3C[k-7]-
+2 \[CapitalDelta]\[Nu]p4C[k-10]-I (2 I m q+(5+10 l+10 n-4 s) \[Kappa]) \[CapitalDelta]\[Nu]p4C[k-9]-2 I \[Kappa] \[CapitalDelta]\[Nu]p5C[k-11]-2 \[CapitalDelta]\[Nu]p2C[k-8]-I (2 I m q+(5+6 l+6 n) \[Kappa])\[CapitalDelta]\[Nu]p2C[k-7]+
+(-3-12 l^2-12 n^2-3 l (5+8 n-4 s)+10 s-2 s^2+3 n (-5+4 s))\[CapitalDelta]\[Nu]p2C[k-6]-I (I m q (3+12 l^2+12 n^2+3 l (5+8 n-4 s)-10 s+2 s^2-3 n (-5+4 s))+
+(20 l^3+20 n^3+6 l^2 (5+10 n-4 s)-6 n^2 (-5+4 s)+s (-6+5 s)+n (9-30 s+6 s^2)+l (9+60 n^2+n (60-48 s)-30 s+6 s^2)) \[Kappa]) \[CapitalDelta]\[Nu]p2C[k-5]+
+(-5-4 l-4 n) \[CapitalDelta]\[Nu]pC[-6+k]-I (I m (5+4 l+4 n) q+(3+6 l^2+10 n+6 n^2+2 l (5+6 n)) \[Kappa]) \[CapitalDelta]\[Nu]pC[-5+k]+
+(-8 l^3-8 n^3-3 l^2 (5+8 n-4 s)+(6-5 s) s+3 n^2 (-5+4 s)+n (-6+20 s-4 s^2)-2 l (3+12 n^2-10 s+2 s^2-3 n (-5+4 s))) \[CapitalDelta]\[Nu]pC[-4+k]-
+I (l+n-s) (I m q (6+8 l^2+8 n^2+n (15-4 s)+l (15+16 n-4 s)-5 s)+
+(10 l^3+10 n^3+n (9-10 s)+l (9+30 n^2+n (40-12 s)-10 s)+n^2 (20-6 s)+l^2 (20+30 n-6 s)-3 s) \[Kappa]) \[CapitalDelta]\[Nu]pC[-3+k]);
+
+Do[\[CapitalDelta]\[Nu]pC[k]=0,{k,-12,-1}];
+\[Beta]C[-l,2]=\[Beta]C[-l,2]//Simplify;
+\[Beta]C[-l,1]=\[Beta]C[-l,1]//Simplify;
+\[Alpha]C[-l-1,2]=\[Alpha]C[-l-1,2]//Simplify;
+
+\[Kappa]Simplify[x_]:=Expand[x]/.{\[Kappa]^2->(1-q^2),\[Kappa]^n_:>If[EvenQ[n],(1-q^2)^(n/2),(1-q^2)^((n-1)/2) \[Kappa]],1/\[Kappa]->\[Kappa]/(1-q^2)};
+\[CapitalDelta]\[Alpha]\[Beta]C[n_,k_]:=(\[Beta]C[-l,k]- \[Alpha]C[-l-1,k])//\[Kappa]Simplify;
+
+FracSimp[x_]:=Module[{tmp=x},
+Collect[Numerator[tmp],m,Simplify]/Factor[Denominator[tmp]]];
+
+ProgressGrid:=Grid[
+Table[
+If[i==0,If[j<2||NumericQ[\[CapitalDelta]\[Nu]pC[j-2]/.{q->1/Sqrt[2],\[Kappa]->1/Sqrt[2]}],Item[j,Background->Green],Item[j,Background->Yellow]],
+If[TrueQ[acSolved[i,j]],If[NumericQ[ac[i,j]/.{q->1/Sqrt[2],\[Kappa]->1/Sqrt[2]}],If[(ac[i,j]/.{q->1/Sqrt[2],\[Kappa]->1/Sqrt[2]})==0,Item[" ",Background->Magenta],Item[" ",Background->Red]],Item[" ",Background->Orange]] ,If[j<aLeadingBehaviour[l,i] ,If[j==-1,Item[i],Item[" "]] ,Item[" ",Background->Blue]]]],{i,ExpOrder+2,-ExpOrder-2,-1},{j,-1,ExpOrder+2}],ItemSize->All,Frame->All];
+StructureGrid:=Grid[
+Table[
+If[i==0,Item[j,Background->Yellow],
+If[j<aLeadingBehaviour[l,i],If[j==-1,Item[i],Item[" "]] ,Switch[i-j,-2l,Item[" ",Background->Cyan],-4l,Item[" ",Background->Gray],_,Item[" ",Background->Blue]]]],{i,ExpOrder+2,-ExpOrder-2,-1},{j,-1,ExpOrder+2}],ItemSize->All,Frame->All];
+
+AngExpOrder=ExpOrder;
+
+\[CapitalDelta]E[s,l,m]= (Normal[Series[SpinWeightedSpheroidalEigenvalue[s,l,m,\[Gamma]],{\[Gamma],0,AngExpOrder}]]/.\[Gamma]->q \[Epsilon]/2)+O[\[Epsilon]]^(AngExpOrder+1)-l(l+1)+s(s+1)+ m q \[Epsilon]-(q \[Epsilon]/2)^2;
+
+\[CapitalDelta]EC[s,l,m,0]=0;
+Do[\[CapitalDelta]EC[s,l,m,i]=Coefficient[\[CapitalDelta]E[s,l,m],\[Epsilon],i],{i,1,AngExpOrder}];
+
+ClearAll[aMST,ac,acq,eqnlist,\[CapitalDelta]\[Nu]p,\[CapitalDelta]\[Nu]pc];
+aShift[l_,n_]:=0;
+eqShift[l_,n_]:=0;
+
+aLeadingBehaviour[l,n_]=aLeadingBehaviour[l,n]=If[n>=0,n,-n+aShift[l,-n]];
+
+aMST[0]=1;
+ac[0,_]=0;
+ac[0,0]=1;
+Do[aMST[n]=Sum[ac[n,i]\[Epsilon]^i,{i,n,ExpOrder+1}],{n,1,ExpOrder+2}];
+Do[ac[n,i]=0,{n,1,ExpOrder+2},{i,0,n-1}];
+Do[ac[n,i]=If[EvenQ[i],Sum[acq[n,i,j]q^j,{j,0,i,2}]+I \[Kappa] Sum[acq[n,i,j]q^j,{j,1,i,2}],Sum[acq[n,i,j]q^j,{j,1,i,2}]+I \[Kappa] Sum[acq[n,i,j]q^j,{j,0,i,2}]],{n,1,ExpOrder+2},{i,n,ExpOrder+1}];
+Do[aMST[-n]=Sum[ac[-n,i]\[Epsilon]^i,{i,n+aShift[l,n],ExpOrder+1}],{n,1,ExpOrder+4}];
+Do[ac[-n,i]=0,{n,1,ExpOrder+4},{i,0,n+aShift[l,n]-1}];
+Do[ac[-n,i]=If[EvenQ[i],Sum[acq[-n,i,j]q^j,{j,0,i,2}]+I \[Kappa] Sum[acq[-n,i,j]q^j,{j,1,i,2}],Sum[acq[-n,i,j]q^j,{j,1,i,2}]+I \[Kappa] Sum[acq[-n,i,j]q^j,{j,0,i,2}]],{n,1,ExpOrder+4},{i,n+aShift[l,n],ExpOrder+1}];
+(*SetAttributes[aMST,NHoldAll];
+SetAttributes[ac,NHoldAll];*)
+
+\[CapitalDelta]\[Nu]p=Sum[\[CapitalDelta]\[Nu]pC[i] \[Epsilon]^i,{i,0,ExpOrder+1}];
+Do[\[CapitalDelta]\[Nu]pC[i]=If[EvenQ[i],Sum[\[CapitalDelta]\[Nu]pcq[i,j]q^j,{j,0,i,2}],Sum[\[CapitalDelta]\[Nu]pcq[i,j]q^j,{j,1,i,2}]],{i,0,ExpOrder+1}];
+
+EqC[n_,k_]:=Sum[\[Alpha]C[n-1,k-i]ac[n,i]+\[Beta]C[n-1,k-i]ac[n-1,i]+\[Gamma]C[n-1,k-i]ac[n-2,i],{i,Min[Abs[n]+aShift[l,-n],Abs[n-1]+aShift[l,-(n-1)],Abs[n-2]+aShift[l,-(n-2)]],k}];
+\[CapitalDelta]EqC[n_,k_]:=Sum[\[Alpha]C[n,k-i]ac[n+1,i]+(\[Beta]C[n,k-i]- \[Alpha]C[n-1,k-i])ac[n,i]+(\[Gamma]C[n,k-i]- \[Beta]C[n-1,k-i])ac[n-1,i]+(-\[Gamma]C[n-1,k-i])ac[n-2,i],{i,Min[Abs[n+1]+aShift[l,-(n+1)],Abs[n]+aShift[l,-n],Abs[n-1]+aShift[l,-(n-1)],Abs[n-2]+aShift[l,-(n-2)]],k}];
+
+EqCL[n_,p_]:=\[Kappa]Simplify[EqC[n,Min[Abs[n]-eqShift[l,-n]+If[n>1,0,2]+p,ExpOrder+eqShift[l,-n]+2]]];
+\[CapitalDelta]EqCL[n_,p_]:=\[Kappa]Simplify[\[CapitalDelta]EqC[n,Min[Abs[n]-eqShift[l,-n]+If[n>1,0,2]+p,ExpOrder+eqShift[l,-n]+2]]];
+
+\[CapitalDelta]EqCTable[n_,k_]:=Table[{\[Alpha]C[n,k-i]ac[n+1,i],(\[Beta]C[n,k-i]- \[Alpha]C[n-1,k-i])ac[n,i]+(\[Gamma]C[n,k-i]- \[Beta]C[n-1,k-i])ac[n-1,i],(-\[Gamma]C[n-1,k-i])ac[n-2,i]},{i,Min[Abs[n+1]+aShift[l,-(n+1)],Abs[n]+aShift[l,-n],Abs[n-1]+aShift[l,-(n-1)],Abs[n-2]+aShift[l,-(n-2)]],k}];
+
+Clear[Solveac];
+
+Solveac[i_?IntegerQ,j_?IntegerQ,Eq_,drop_?IntegerQ,OptionsPattern[]]:=Module[{tmpEq,tmp,tmpN,tmpD,acSolve=True},
+If[(i>0&&j>ExpOrder)||(i<0&&j>ExpOrder),acSolve=False;Return[]];
+If[Abs[j]<=ExpOrder+1&&acSolve,tmpEq=Drop[CoefficientList[Eq,q],drop];
+If[OptionValue@Verbose,Print[tmpEq,"\t",Dimensions[tmpEq][[1]]]];
+shift=0; 
+Do[
+	tmpN=\[Kappa]Simplify[Coefficient[tmpEq[[k+1]],acq[i,j,k+shift],0]];
+	tmpD=-\[Kappa]Simplify[Coefficient[tmpEq[[k+1]],acq[i,j,k+shift]]];
+	If[OptionValue@Verbose,Print["i=",i,"\t j=",j, "\t k=",k,"\t tmpN:=",tmpN,"\t tmpD:=",tmpD]];
+	If[tmpD==0,Print["Attempted division by 0 in Solveac\n i=",i,"\t j=",j,"\t k+shift=",k+shift,"\t tmpEq=",Simplify[tmpEq]];Continue[]];
+	tmp=tmpN/tmpD;
+	If[OptionValue@Verbose,Print["Eq:\t",tmpEq,"\t",tmpN,"\t",tmpD,"\t",tmp]];
+	acq[i,j,k+shift]=FracSimp[\[Kappa]Simplify[tmp]];
+	acqSolved[i,j,k+shift]=True;
+	If[OptionValue@Verbose && acq[i,j,k+shift]==0,Print["Vanishing acq for i=",i,"\t j=",j,"\t k=",k]],
+{k,0,j}];
+acSolved[i,j]=True];
+If[OptionValue@Verbose,Print[ac[i,j]]];
+];
+Options[Solveac]={Verbose->False,acSolve->True};
+
+
+Clear[Solve\[CapitalDelta]\[Nu]];
+Solve\[CapitalDelta]\[Nu][i_?IntegerQ,p_?IntegerQ, OptionsPattern[]]:=Module[{tmpEq,tmp,tmpN,tmpD,shift},
+shift=If[EvenQ[i],0,1];
+If[Length[CoefficientList[EqCL[1,p],q]]==0,Return[]];
+tmpEq=Take[CoefficientList[EqCL[1,p],q],{shift+1,-1,2}];
+Do[
+	tmpN=Coefficient[tmpEq[[k+1]],\[CapitalDelta]\[Nu]pcq[i,2k+shift],0];
+	tmpD=-Coefficient[tmpEq[[k+1]],\[CapitalDelta]\[Nu]pcq[i,2k+shift]];
+	(*If[tmpD==0,Print["Attempted division by 0 in Solve\[CapitalDelta]\[Nu] (i=",i,"\t 2k+shift=",2k+shift,")"],tmp=tmpN/tmpD];*)
+	\[CapitalDelta]\[Nu]pcq[i,2k+shift]=(*Factor*)FracSimp[Simplify[\[Kappa]Simplify[tmpN/tmpD]]],
+{k,0,Floor[i/2]}];
+If[OptionValue@Verbose,Print["i=",i,"\t \[CapitalDelta]\[Nu]pC[",i,"]=",\[CapitalDelta]\[Nu]pC[i]]];
+];
+Options[Solve\[CapitalDelta]\[Nu]]={Verbose->False};
+
+Print[ExpOrderOrig];
+If[ExpOrderOrig!=0,
+MST=Get["MSTs"<>ToString[s]<>"genlmO"<>ToString[ExpOrderOrig]<>".wl"];
+Do[\[CapitalDelta]\[Nu]pC[i]=SeriesCoefficient[MST[\[Nu]],i+2],{i,0,ExpOrderOrig-2}];
+       Do[If[EvenQ[i],Do[\[CapitalDelta]\[Nu]pcq[i,j]=Coefficient[\[CapitalDelta]\[Nu]pC[i],q,j],{j,0,i,2}];
+Do[\[CapitalDelta]\[Nu]pcq[i,j]=Coefficient[\[CapitalDelta]\[Nu]pC[i],q,j],{j,1,i,2}]],{i,0,ExpOrderOrig-2}];
+	Do[aMSTsaved[n]=Normal[MST[a[n]]],{n,-ExpOrderOrig,ExpOrderOrig}];
+ac[0,0]=1;
+ac[0,_]=0;
+Do[ac[n,i]=Coefficient[aMSTsaved[n],\[Epsilon]^i],{n,-ExpOrderOrig,-1},{i,Abs[n],ExpOrderOrig}];
+Do[ac[n,i]=Coefficient[aMSTsaved[n],\[Epsilon]^i](*CoefficientList[aMSTsaved[n],\[Epsilon]][[i]]*),{n,1,ExpOrderOrig},{i,Abs[n],ExpOrderOrig}];
+Do[acq[n,i,j]=Simplify[PadRight[CoefficientList[ac[n,i],q],i+1][[j+1]]]/(I \[Kappa])^Boole[OddQ[i+j]],{n,-ExpOrderOrig,-1},{i,Abs[n],ExpOrderOrig},{j,0,i}];
+Do[acq[n,i,j]=Simplify[PadRight[CoefficientList[ac[n,i],q],i+1][[j+1]]]/(I \[Kappa])^Boole[OddQ[i+j]],{n,1,ExpOrderOrig},{i,Abs[n],ExpOrderOrig},{j,0,i}];
+];
+
+verbose=False;
+(*Print["Starting ..."];*)
+start=SessionTime[];
+Do[
+Do[If[p>=n,Solveac[n,p,EqCL[n+1,-n+p-1],0];
+If[verbose,Print[n,"\t",ac[n,p]]]];
+Put[ac[n,p],"ac["<>ToString[n]<>","<>ToString[p]<>"]"],{n,ExpOrder,1,-1}]; 
+Do[If[p>=n,Solveac[-n,p,EqCL[-n+1,-n+p-1],0];If[verbose,Print[-n,"\t",ac[-n,p]]]];Put[ac[-n,p],"ac["<>ToString[-n]<>","<>ToString[p]<>"]"],{n,1ExpOrder,1,-1}];
+Solve\[CapitalDelta]\[Nu][p-2,p-3];
+PutAppend[ToString[p]<>" done; time elapsed "<>ToString[SessionTime[]-start]<>"; Memory used "<>ToString[MemoryInUse[]],"progress.wl"];
+\[Nu]MST=l+Sum[\[CapitalDelta]\[Nu]pC[i] \[Epsilon]^(i+2),{i,0,ExpOrder-2}]+O[\[Epsilon]]^(ExpOrder+1);
+MST=Association[{\[Nu]->\[Nu]MST}];
+MST=Append[MST,Table[a[i]->aMST[i]+If[i==0,0,O[\[Epsilon]]^(ExpOrder+1)],{i,-ExpOrder,ExpOrder}]];
+If[p==ExpOrder,Put[MST,"MSTs"<>ToString[s]<>"genlmO"<>ToString[ExpOrder]<>".wl"]];
+Print["done ",p],
+{p,ExpOrderOrig+1,ExpOrder}];
+
+MST
+]
+
+
+
+
+
+(* ::Subsubsection::Closed:: *)
 (*Interface*)
 
 
@@ -893,6 +1077,14 @@ keys->values//Thread//Association
 ]
 
 
+MSTCoefficientsInternal[\[ScriptS]_Symbol,\[ScriptL]_Symbol,\[ScriptM]_,aKerr_,order\[Eta]_Integer]:=Block[{aux,values,keys},
+aux=replsMST[\[ScriptS],\[ScriptL],\[ScriptM],order\[Eta]];
+values=Values[aux]/.a->aKerr;
+keys=Keys[aux]/.{a[n_]:>aMST[n],\[Nu]->\[Nu]MST};
+keys->values//Thread//Association
+]
+
+
 MSTCoefficientsInternal[\[ScriptS]_Integer,\[ScriptL]_,\[ScriptM]_,aKerr_,order\[Eta]_Integer]:=Block[{aux,values,keys,order\[CurlyEpsilon]},
 order\[CurlyEpsilon]=order\[Eta]/3//Ceiling;
 aux=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],aKerr,order\[CurlyEpsilon]];
@@ -903,6 +1095,21 @@ aux
 
 MSTCoefficientsInternalFreq[\[ScriptS]_Integer,\[ScriptL]_Integer,\[ScriptM]_,aKerr_,order\[CurlyEpsilon]_Integer]:=Module[{aux,repls,keys,values,ret},
 repls=Block[{Print},KerrMSTSeries[\[ScriptS],\[ScriptL],\[ScriptM],Max[order\[CurlyEpsilon]-1,2]]];
+repls[a[0]]=repls[a[0]](1+O[\[Epsilon]]^order\[CurlyEpsilon]);
+keys=repls//Keys;
+keys=keys/.{a[n_]:>aMST[n],\[Nu]->\[Nu]MST};
+values=repls//Values;
+values=values+O[\[Epsilon]]^order\[CurlyEpsilon];
+values=values//.replsKerr/.a->aKerr/.q->aKerr;
+values=values//ChangeSeriesParameter[#,2\[Omega]]&//PowerCounting[#,\[Gamma]]&;
+ret=keys->values//Thread//Association;
+ret
+]
+
+
+MSTCoefficientsInternalFreq[\[ScriptS]_Symbol,\[ScriptL]_Symbol,\[ScriptM]_,aKerr_,order\[CurlyEpsilon]_Integer]:=Module[{aux,repls,keys,values,ret},
+repls=Block[{Print},KerrMSTSeries[\[ScriptS],\[ScriptL],\[ScriptM],Max[order\[CurlyEpsilon]-1,2]]];
+repls=Append[repls,{a[-order\[CurlyEpsilon]-1]->O[\[Epsilon]]^order\[CurlyEpsilon],a[-order\[CurlyEpsilon]]->O[\[Epsilon]]^order\[CurlyEpsilon]}];
 repls[a[0]]=repls[a[0]](1+O[\[Epsilon]]^order\[CurlyEpsilon]);
 keys=repls//Keys;
 keys=keys/.{a[n_]:>aMST[n],\[Nu]->\[Nu]MST};
@@ -939,6 +1146,18 @@ aux=aux/.{\[Omega]->\[Omega]Var,\[Eta]->expVar};
 aux
 ]*)
 MSTCoefficientsPN[\[ScriptS]_Integer,\[ScriptL]_Integer,\[ScriptM]_,aKerr_,\[Omega]Var_,{expVar_,order_Integer},OptionsPattern[]]:=Module[{aux,keys,values,auxOrder},
+auxOrder=If[OptionValue["FreqRep"],order,Ceiling[order,3]/3];
+aux=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],aKerr,auxOrder];
+keys=aux//Keys//ReplaceAll[#,{\[Nu]MST->Symbol["\[Nu]MST"],aMST[n_]:>Symbol["aMST"][n]}]&;
+values=aux//Values;
+If[!OptionValue["FreqRep"],values=values//ChangeSeriesParameter[#,\[Gamma]^3]&//SeriesTake[#,order]&];
+aux=keys->values//Thread//Association;
+aux=aux/.{\[Omega]->\[Omega]Var,\[Gamma]->expVar};
+aux
+]
+
+
+MSTCoefficientsPN[\[ScriptS]_Symbol,\[ScriptL]_Symbol,\[ScriptM]_,aKerr_,\[Omega]Var_,{expVar_,order_Integer},OptionsPattern[]]:=Module[{aux,keys,values,auxOrder},
 auxOrder=If[OptionValue["FreqRep"],order,Ceiling[order,3]/3];
 aux=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],aKerr,auxOrder];
 keys=aux//Keys//ReplaceAll[#,{\[Nu]MST->Symbol["\[Nu]MST"],aMST[n_]:>Symbol["aMST"][n]}]&;
@@ -1342,6 +1561,8 @@ aux
 ]
 
 SeriesPlusSimplify[expr_,OptionsPattern[]]/;FreeQ[expr,SeriesData]:=expr;
+SeriesPlusSimplify[expr_SeriesData,OptionsPattern[]]:=expr;
+SeriesPlusSimplify[expr_,OptionsPattern[]]/;MatchQ[expr,a_ b_SeriesData]:=expr;
 
 SeriesPlusSimplify[expr_,assumptions_]:=SeriesPlusSimplify[expr,Assumptions->assumptions]
 
@@ -1525,7 +1746,7 @@ aux
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Bryan Adams (not working yet...)*)
 
 
@@ -1592,18 +1813,17 @@ $PreRead=Function[expr,Echo["test"];If[Last[#]&@@expr===";",Echo[ToString[$Line]
 BryanAdams[False]:=$PreRead=.;*)
 
 
-(*testBryan[]:=Module[{aux},
-BryanAdams[True];
-aa;
-BB;
-x=1;
-BryanAdams[False];
-y=2;
-y
+(*testBryan[]:=Module[{},
+aa
 ]*)
 
 
-(* ::Subsection:: *)
+(*testBryan[]:=Module[{aux},
+Message;
+]*)
+
+
+(* ::Subsection::Closed:: *)
 (*Point particle source*)
 
 
@@ -1778,7 +1998,7 @@ ret
  ]]*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*\[ScriptS] = +-1*)
 
 
@@ -2099,11 +2319,11 @@ Derivative[n_][\[Theta]][arg_]:=Derivative[n-1][\[Delta]][arg];
 \[Delta]''[\[Eta]^-2 a_]:=\[Eta]^2 \[Delta]''[a];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Amplitudes*)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*A Amplitudes*)
 
 
@@ -2286,7 +2506,7 @@ aux=BAmplitudeFreq[sol,"Normalization"->OptionValue["Normalization"]][\[ScriptS]
 aux=aux//ChangeSeriesParameter[#,\[Eta]^3]&//SeriesTake[#,order\[Eta]]&;
 aux
 ];
-If[!NumericQ[\[ScriptL]],aux=aux//TrigToExp//ReplaceAll[E^aa_:>Simplify[E^Expand[aa],{\[ScriptL]\[Element]Integers,\[ScriptM]\[Element]Integers,\[ScriptL]>=Abs[\[ScriptS]]}]]//Expand//SeriesPlusSimplify[#,\[ScriptL]>=Abs[\[ScriptS]]]&];
+If[!NumericQ[\[ScriptL]],aux=aux//TrigToExp//ExpandGamma//ExpandPolyGamma//ReplaceAll[E^aa_:>Simplify[E^Expand[aa],{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptM]\[Element]Integers,\[ScriptL]>=Abs[\[ScriptS]]}]]//Expand//SeriesPlusSimplify[#,\[ScriptL]>=Abs[\[ScriptS]]]&];
 If[OptionValue["Simplify"],aux=aux//SeriesCollect[#,{E^__,Log[__],Gamma[__],PolyGamma[__]},(Simplify[#,{1>a>=0}]&)]&];
 aux
 ]
@@ -2417,13 +2637,13 @@ aux=CAmplitudeFreq[sol,"Normalization"->OptionValue["Normalization"]][\[ScriptS]
 order\[CurlyEpsilon]=Ceiling[order,3]/3;
 aux=CAmplitudeFreq[sol,"Normalization"->OptionValue["Normalization"]][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]]//ChangeSeriesParameter[#,\[Eta]^3]&//SeriesTake[#,order]&;
 ];
-If[!NumericQ[\[ScriptL]],aux=aux//TrigToExp//ReplaceAll[E^aa_:>Simplify[E^Expand[aa],{\[ScriptL]\[Element]Integers,\[ScriptM]\[Element]Integers,\[ScriptL]>=Abs[\[ScriptS]]}]]//Expand//SeriesPlusSimplify[#,\[ScriptL]>=Abs[\[ScriptS]]]&];
+If[!NumericQ[\[ScriptL]],aux=aux//TrigToExp//ReplaceAll[E^aa_:>Simplify[E^Expand[aa],{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptM]\[Element]Integers,\[ScriptL]>=Abs[\[ScriptS]]}]]//Expand//SeriesPlusSimplify[#,\[ScriptL]>=Abs[\[ScriptS]]]&];
 If[OptionValue["Simplify"],aux=aux//SeriesCollect[#,{E^__,Log[__],Gamma[__],PolyGamma[__],Csc[__],Cot[__],Sin[__],Cos[__]},(Simplify[#,{1>a>=0}]&)]&];
 aux
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*K Amplitude*)
 
 
@@ -2635,8 +2855,8 @@ order=If[OptionValue["FreqRep"],order\[Eta],order\[CurlyEpsilon]];
 aux=\[ScriptCapitalK]AmplitudeFreq[sol][\[ScriptS],\[ScriptL],\[ScriptM],a,order];
 (*If[OptionValue["Normalization"]==="DefaultSym",aux=aux ISymmetryFactorFreq[sol][\[ScriptS],\[ScriptL],\[ScriptM],a,order]];*)
 If[OptionValue["FreqRep"]===False,aux=aux//ChangeSeriesParameter[#,\[Eta]^3]&//SeriesTake[#,order\[Eta]]&];
-If[!NumericQ[\[ScriptL]],aux=aux//TrigToExp//ReplaceAll[E^aa_:>Simplify[E^Expand[aa],{\[ScriptL]\[Element]Integers,\[ScriptM]\[Element]Integers,\[ScriptL]>=Abs[\[ScriptS]]}]]//Expand//SeriesPlusSimplify[#,\[ScriptL]>=Abs[\[ScriptS]]]&];
-If[OptionValue["Simplify"],aux=aux//SeriesCollect[#,{E^__,Log[__],Gamma[__],PolyGamma[__]},(Simplify[#,{1>a>=0}]&)]&];
+If[!NumericQ[\[ScriptL]],aux=aux//TrigToExp//ReplaceAll[E^aa_:>Simplify[E^Expand[aa],{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptM]\[Element]Integers,\[ScriptL]>=Abs[\[ScriptS]]}]]//Expand//SeriesPlusSimplify[#,\[ScriptL]>=Abs[\[ScriptS]]]&];
+If[OptionValue["Simplify"],aux=aux//SeriesExpand//SeriesCollect[#,{E^__,Log[__],Gamma[__],PolyGamma[__]},(Simplify[#,{1>a>=0}]&)]&];
 aux
 ]
 
@@ -2707,7 +2927,7 @@ InvariantWronskianFreq[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Gamma]_,opt
 C=CAmplitudeFreq["Trans",opt][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Gamma]];
 B=BAmplitudeFreq["Inc",opt][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Gamma]];
 aux=(2 I \[Omega] \[Gamma])B C;
-If[!NumericQ[\[ScriptL]],aux=aux//TrigToExp//ReplaceAll[E^aa_:>Simplify[E^Expand[aa],{\[ScriptL]\[Element]Integers,\[ScriptM]\[Element]Integers,\[ScriptL]>=Abs[\[ScriptS]]}]]//Expand//SeriesPlusSimplify[#,\[ScriptL]>=Abs[\[ScriptS]]]&];
+If[!NumericQ[\[ScriptL]],aux=aux//TrigToExp//ReplaceAll[E^aa_:>Simplify[E^Expand[aa],{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptM]\[Element]Integers,\[ScriptL]>=Abs[\[ScriptS]]}]]//Expand//SeriesPlusSimplify[#,\[ScriptL]>=Abs[\[ScriptS]]]&];
 If[OptionValue["Simplify"],aux=aux//SeriesCollect[#,{E^__,Log[__],Gamma[__],PolyGamma[__]},(Simplify[#,{1>a>=0}]&)]&];
 aux
 ]
@@ -3495,7 +3715,7 @@ If[!MatchQ[order,_Integer],Message[TeukolskyRadialFunctionPN::paramorder,order];
 ]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*TeukolskyRadialPN*)
 
 
@@ -3569,9 +3789,13 @@ CheckInput["In",\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{varPN,order}];
 \[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;
 \[Kappa]=Sqrt[1-a^2];
 \[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];
+Echo[lyrics[[1]]];
 repls=MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],a,order+7];
+Echo[lyrics[[2]]];
 RC1=RPN["C\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order+If[\[ScriptL]===0,2,0]];
+Echo[lyrics[[3]]];
 RC2=RPN["C-\[Nu]-1"][\[ScriptS],\[ScriptL],\[ScriptM],a,order+If[\[ScriptL]===0,2,0]];
+Echo[lyrics[[4]]];
 (*We then turn to R_In*)
 gap=InGap[If[NumericQ[\[ScriptL]],\[ScriptL],Abs[\[ScriptS]]],\[ScriptM] a];
 \[ScriptCapitalK]=\[ScriptCapitalK]Amplitude["Ratio","FreqRep"->False][\[ScriptS],\[ScriptL],\[ScriptM],a,Max[order-gap,2]]//ExpandGamma//ExpandPolyGamma//SeriesCollect[#,PolyGamma[__,__]]&;
