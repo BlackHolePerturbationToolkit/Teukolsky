@@ -105,6 +105,7 @@ MSTCoefficientsInternalFreq
 KerrMSTSeries
 pIn
 rstar*)
+(*testBryan*)
 
 
 (* ::Section:: *)
@@ -872,12 +873,12 @@ MST=Append[MST,Table[a[i]->aMST[i]+If[i==0,0,O[\[Epsilon]]^(ExpOrder+1)],{i,-Exp
 ]*)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Interface*)
 
 
 replsMST[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,order\[Eta]_]:=Module[{aux,values,res,\[Nu]Value},
-aux=Normal/@Block[{Print},KerrMSTSeries[\[ScriptS],\[ScriptL],\[ScriptM],order\[Eta]/3+1//Ceiling]//.replsKerr/.q->a];
+aux=Normal/@Block[{Print},KerrMSTSeries[\[ScriptS],\[ScriptL],\[ScriptM],Max[order\[Eta]/3+1//Ceiling,2]]//.replsKerr/.q->a];
 \[Nu]Value=Replace[#,a_:>a+O[\[Eta]]^(order\[Eta]+1)]&@(aux[\[Nu]]/.\[Epsilon]->2\[Omega]/.replsPN);
 values=Replace[#,a_:>a+O[\[Eta]]^(order\[Eta]+1)]&/@(Values@KeyDrop[#,\[Nu]]&@aux/.\[Epsilon]->2\[Omega]/.replsPN);
 values=Insert[values,\[Nu]Value,1];
@@ -901,11 +902,12 @@ aux
 
 
 MSTCoefficientsInternalFreq[\[ScriptS]_Integer,\[ScriptL]_Integer,\[ScriptM]_,aKerr_,order\[CurlyEpsilon]_Integer]:=Module[{aux,repls,keys,values,ret},
-repls=Block[{Print},KerrMSTSeries[\[ScriptS],\[ScriptL],\[ScriptM],order\[CurlyEpsilon]-1]];
+repls=Block[{Print},KerrMSTSeries[\[ScriptS],\[ScriptL],\[ScriptM],Max[order\[CurlyEpsilon]-1,2]]];
 repls[a[0]]=repls[a[0]](1+O[\[Epsilon]]^order\[CurlyEpsilon]);
 keys=repls//Keys;
 keys=keys/.{a[n_]:>aMST[n],\[Nu]->\[Nu]MST};
 values=repls//Values;
+values=values+O[\[Epsilon]]^order\[CurlyEpsilon];
 values=values//.replsKerr/.a->aKerr/.q->aKerr;
 values=values//ChangeSeriesParameter[#,2\[Omega]]&//PowerCounting[#,\[Gamma]]&;
 ret=keys->values//Thread//Association;
@@ -1523,7 +1525,85 @@ aux
 ]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsubsection:: *)
+(*Bryan Adams (not working yet...)*)
+
+
+lyrics={"Here I am","this is me",
+"There's nowhere else on earth", "I'd rather be",
+"Here I am","it's just me and you",
+"Tonight we make our dreams","come true","Oooohhh...",
+"It's a new world""it's a new start",
+"It's alive with the beating of","young hearts",
+"It's a new day","it's a new plan",
+"I've been waiting for you","Here I am","(here I am)","Here we are", "we've just begun",
+"And after all this time", "our time has come","Yeah here we are",
+" still going strong","Right here in the place", "where we belong","oohhhh...",
+"It's a new world"," it's a new start",
+"It's alive with the beating of","young hearts",
+"It's a new day","it's a new plan",
+"I've been waiting for you",
+"HERE I AM",
+"Yeah, here I am",
+"Here I am",
+"(Guitar riff)",
+"Waiting for you!",
+"Here I am","this is me",
+"There's nowhere else on earth", "I'd rather be",
+"Here I am", "it's just me and you",
+"Tonight we make our dreams...","come true",
+"OOOHHHH...",
+"IT'S A NEW WORLD","IT'S A NEW START",
+"IT'S ALIVE WITH THE BEATING OF","YOUNG HEARTS",
+"IT'S A NEW DAY","IT'S A NEW PLAN",
+"I'VE BEEN WAITING FOR YOU",
+"OOOHHHH...",
+"IT'S A NEW WORLD","IT'S A NEW START","(yeeahhh)",
+"IT'S ALIVE WITH THE BEATING OF","YOUNG HEARTS","(young hearts)",
+"IT'S A NEW DAY","IT'S A NEW PLAN",
+"I'VE BEEN WAITING FOR YOU",
+"(waiting, waiting, waiting)",
+"Here I am!",
+"(Uh ... Here I am)",
+"Here I am",
+"(Uh ... Here I am)",
+"Oh Right next to you",
+"(Uh ... Here I am)",
+"And suddenly the world is all brand new",
+"Here I am",
+"(Oh Oh oh oh)",
+"Here I am",
+"(Oh Oh oh oh)",
+"I'm gonna stay",
+"(I'm gonna stay)",
+"(Oh Oh oh oh)",
+"Now there's nothing standing in our way",
+"Oh Here I am",
+"(here I am)",
+"(music fades)",
+"Here I am","this is me!"
+};
+
+
+(*$BryanAdamsCounter=0
+BryanAdams[True]:=Module[{aux},
+$PreRead=Function[expr,Echo["test"];If[Last[#]&@@expr===";",Echo[ToString[$Line]<>"---"<>lyrics[[Mod[$BryanAdamsCounter,85]+1]]];$BryanAdamsCounter++];expr];
+]
+BryanAdams[False]:=$PreRead=.;*)
+
+
+(*testBryan[]:=Module[{aux},
+BryanAdams[True];
+aa;
+BB;
+x=1;
+BryanAdams[False];
+y=2;
+y
+]*)
+
+
+(* ::Subsection:: *)
 (*Point particle source*)
 
 
@@ -1649,39 +1729,48 @@ ret
 ]]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*\[ScriptS] = -1*)
 
 
 TeukolskySource[-1,\[ScriptL]_,\[ScriptM]_,a_,{r_,r0_},OptionsPattern[]] :=Assuming[{r0>0,r>0,1>a>=0},
- Module[{aux,auxFactor,\[ScriptS]=-1, \[ScriptCapitalE], \[ScriptCapitalL], \[CapitalDelta], Kt, \[CapitalUpsilon]t,SH,\[Omega],\[CapitalOmega],\[Theta]0,S0,dS0,L1,\[Rho],\[Rho]bar,\[CapitalSigma],An0,Ambar0,Ambar1,rcomp,\[Theta]comp,Cnp1,Cmbarp1,ret},
+ Module[{aux,auxFactor,\[ScriptS]=-1, \[ScriptCapitalE], \[ScriptCapitalL], \[CapitalDelta], Kt, \[CapitalUpsilon]t,SH,\[Omega],\[CapitalOmega],\[Theta]0,S0,dS0,L1,\[Rho],\[Rho]bar,\[CapitalSigma],An0,Ambar0,Ambar1,rcomp,\[Theta]comp,Cnp1,Cmbarp1,e,x,ret},
 \[ScriptCapitalE]=(a+(-2+r0) Sqrt[r0])/Sqrt[2 a r0^(3/2)+(-3+r0) r0^2];
 \[ScriptCapitalL]=(a^2-2 a Sqrt[r0]+r0^2)/(Sqrt[2 a+(-3+r0) Sqrt[r0]] r0^(3/4));
  \[CapitalUpsilon]t = (r0^(5/4) (a+r0^(3/2)))/Sqrt[2 a+(-3+r0) Sqrt[r0]];
-\[CapitalDelta] = r0^2-2r0+a^2;
-Kt=(r0^2+a^2)\[Omega]-\[ScriptM] a;
-\[Omega]=\[ScriptM] \[CapitalOmega]Kerr;
+ e=0;
+ x=1;
+\[CapitalOmega]=If[OptionValue["InactiveHarmonics"],Inactive[KerrGeoFrequencies][a,r0,e,x]["\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"],KerrGeoFrequencies[a,r0,e,x]["\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"]];
+	\[Omega]=\[ScriptM] \[CapitalOmega];
+	  Echo[\[Omega]];
 (*\[CapitalOmega]=1/Sqrt[r0^3];*)
-SH=  SpinWeightedSpheroidalHarmonicS[\[ScriptS],\[ScriptL],\[ScriptM],a \[Omega]];
-S0 = SH[\[Theta]0, 0];
-dS0 = Derivative[1,0][SH][\[Theta]0, 0];
+  \[Theta]0 = \[Pi]/2;
+
+  \[CapitalDelta] = Kerr\[CapitalDelta][a,r0];
+  Kt=(r0^2+a^2)\[Omega]-\[ScriptM] a;
+
+  SH=SpinWeightedSpheroidalHarmonicS[\[ScriptS],\[ScriptL],\[ScriptM],aa \[Omega],\[Theta],\[Phi]];
+
+    If[OptionValue["InactiveHarmonics"],SH=SH//Inactivate[#,SpinWeightedSpheroidalHarmonicS]&];
+    SH=SH/.aa->a;
+
+  S0 = SH//D[#,{\[Theta],0}]&//ReplaceAll[{\[Theta]->\[Theta]0,\[Phi]->0}];
+  dS0 = SH//D[#,{\[Theta],1}]&//ReplaceAll[{\[Theta]->\[Theta]0,\[Phi]->0}];
 L1 = -\[ScriptM]/Sin[\[Theta]0] + a \[Omega] Sin[\[Theta]0] + Cos[\[Theta]0]/Sin[\[Theta]0];
 \[Rho] = -1/(r0 - I a Cos[\[Theta]0]);
 \[Rho]bar = -1/(r0 + I a Cos[\[Theta]0]);
 \[CapitalSigma] = 1/(\[Rho] \[Rho]bar);
 \[Theta]0 =\[Pi]/2;
-
 An0 =-((dS0+L1 S0+I a S0 \[Rho] Sin[\[Theta]0])/(2Sqrt[2] \[CapitalDelta] \[Rho]^2 \[Rho]bar));
 Ambar0 =(S0 (-((I Kt)/\[CapitalDelta])+\[Rho]))/(4 \[Rho]^2);
 Ambar1 =-(S0/(4 \[Rho]^2));
-
+  Echo[lyrics[[5]]];
 rcomp = (\[ScriptCapitalE](r0^2+a^2) - a \[ScriptCapitalL] )/(2\[CapitalSigma]);
 \[Theta]comp = \[Rho] (I Sin[\[Theta]0](a \[ScriptCapitalE] - \[ScriptCapitalL]/Sin[\[Theta]0]^2))/Sqrt[2];
 Cnp1=rcomp;
 Cmbarp1=\[Theta]comp;
-
 aux=(-8Pi)/\[CapitalUpsilon]t (-(An0*Cnp1 + Ambar0*Cmbarp1) DiracDelta[r-r0]-(Ambar1*Cmbarp1) DiracDelta'[r-r0]);
-auxFactor=Switch[OptionValue["Form"],"Default",Kerr\[CapitalDelta][a,r]^-\[ScriptS],"InvariantWronskian",1];
+auxFactor=Switch[OptionValue["Form"],"Default", Kerr\[CapitalDelta][a,r]^-\[ScriptS],"InvariantWronskian",1];
 If[auxFactor//MatchQ[#,_Switch]&,Return[$Failed]];
 aux=auxFactor aux//ExpandDiracDelta[#,r]&//Collect[#,{DiracDelta[__],Derivative[__][DiracDelta][__]},Simplify]&;
 ret=aux;
@@ -2011,7 +2100,7 @@ aux
 ]*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*B Amplitudes*)
 
 
@@ -2577,7 +2666,7 @@ aux
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Phase shift*)
 
 
@@ -3751,8 +3840,8 @@ source=\!\(
 args=source//Expand[#,DiracDelta]&//ExpandDiracDelta[#,r]&//If[Head[#]===Plus,#//ReplacePart[0->List],{#}]&//ReplaceAll[{a_. DiracDelta[arg_]/;!FreeQ[arg,r]:>arg,a_. Derivative[n_][DiracDelta][arg_]/;!FreeQ[arg,r]:>arg}]//Union;
 If[Length[args]!=1,Abort[]];
 arg=#&@@args;
-cIn=-(Kerr\[CapitalDelta][aVar,varPN^-2  r]^\[ScriptS] source Rup[r])/wronskian;
-cUp=(Kerr\[CapitalDelta][aVar,varPN^-2  r]^\[ScriptS] source Rin[r])/wronskian;
+cIn=(-1)^(\[ScriptS]+1) (Kerr\[CapitalDelta][aVar,varPN^-2  r]^\[ScriptS] source Rup[r])/wronskian;
+cUp=(-1)^\[ScriptS] (Kerr\[CapitalDelta][aVar,varPN^-2  r]^\[ScriptS] source Rin[r])/wronskian;
 If[!NumericQ[\[ScriptL]],{cIn,cUp}={cIn,cUp}//Assuming[{r>0,r0>0,1>a>=0,varPN>0},PowerExpand[#,Assumptions->$Assumptions]]&//ReplaceAll[E^a_:>Simplify[E^Expand[a],\[ScriptL]\[Element]Integers]]//StraightenSeries];
 cIn=cIn//ExpandDiracDelta[#,r]&//ExpandDiracDelta[#,r]&//ReplaceAll[{DiracDelta[a_]:>-HeavisideTheta[r0Var-r],Derivative[n_][DiracDelta][a_]:> Derivative[n-1][DiracDelta][a]}];
 cUp=cUp//ExpandDiracDelta[#,r]&//ExpandDiracDelta[#,r]&//ReplaceAll[{DiracDelta[a_]:>HeavisideTheta[r-r0Var],Derivative[n_][DiracDelta][a_]:> Derivative[n-1][DiracDelta][a]}];
