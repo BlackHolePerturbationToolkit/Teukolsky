@@ -1729,11 +1729,11 @@ ret
 ]]
 
 
-(* ::Subsubsection:: *)
-(*\[ScriptS] = -1*)
+(* ::Subsubsection::Closed:: *)
+(*\[ScriptS] = -1 (depricated)*)
 
 
-TeukolskySource[-1,\[ScriptL]_,\[ScriptM]_,a_,{r_,r0_},OptionsPattern[]] :=Assuming[{r0>0,r>0,1>a>=0},
+(*TeukolskySource[-1,\[ScriptL]_,\[ScriptM]_,a_,{r_,r0_},OptionsPattern[]] :=Assuming[{r0>0,r>0,1>a>=0},
  Module[{aux,auxFactor,\[ScriptS]=-1, \[ScriptCapitalE], \[ScriptCapitalL], \[CapitalDelta], Kt, \[CapitalUpsilon]t,SH,\[Omega],\[CapitalOmega],\[Theta]0,S0,dS0,L1,\[Rho],\[Rho]bar,\[CapitalSigma],An0,Ambar0,Ambar1,rcomp,\[Theta]comp,Cnp1,Cmbarp1,e,x,ret},
 \[ScriptCapitalE]=(a+(-2+r0) Sqrt[r0])/Sqrt[2 a r0^(3/2)+(-3+r0) r0^2];
 \[ScriptCapitalL]=(a^2-2 a Sqrt[r0]+r0^2)/(Sqrt[2 a+(-3+r0) Sqrt[r0]] r0^(3/4));
@@ -1775,7 +1775,73 @@ If[auxFactor//MatchQ[#,_Switch]&,Return[$Failed]];
 aux=auxFactor aux//ExpandDiracDelta[#,r]&//Collect[#,{DiracDelta[__],Derivative[__][DiracDelta][__]},Simplify]&;
 ret=aux;
 ret
- ]]
+ ]]*)
+
+
+(* ::Subsubsection:: *)
+(*\[ScriptS] = +-1*)
+
+
+TeukolskySource[s:(-1|+1),\[ScriptL]_,\[ScriptM]_,a_,{r_,r0_},OptionsPattern[]] :=Assuming[{r0>0,r>0,1>a>=0},
+ Module[{aux,auxFactor,\[CapitalOmega], \[ScriptCapitalS], \[ScriptCapitalB], Ar, Ati, c, \[Theta], \[Omega], \[CapitalDelta], \[CapitalDelta]p, W, A, B,\[ScriptS]=s, RIn, ROut, dRIn,x,\[ScriptCapitalE],\[ScriptCapitalL],SH,S0,dS0,\[CapitalUpsilon]t,\[Theta]0,e, dROut, ZIn, ZOut, PIn, POut, dPIn, dPOut},
+\[ScriptCapitalE]=(a+(-2+r0) Sqrt[r0])/Sqrt[2 a r0^(3/2)+(-3+r0) r0^2];
+\[ScriptCapitalL]=(a^2-2 a Sqrt[r0]+r0^2)/(Sqrt[2 a+(-3+r0) Sqrt[r0]] r0^(3/4));
+ \[CapitalUpsilon]t = (r0^(5/4) (a+r0^(3/2)))/Sqrt[2 a+(-3+r0) Sqrt[r0]];
+ e=0;
+ x=1;
+\[CapitalOmega]=If[OptionValue["InactiveHarmonics"],Inactive[KerrGeoFrequencies][a,r0,e,x]["\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"],KerrGeoFrequencies[a,r0,e,x]["\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"]];
+	\[Omega]=\[ScriptM] \[CapitalOmega];
+(*\[CapitalOmega]=1/Sqrt[r0^3];*)
+  \[Theta]0 = \[Pi]/2;
+
+  \[CapitalDelta] = Kerr\[CapitalDelta][a,r0];
+  SH=SpinWeightedSpheroidalHarmonicS[\[ScriptS],\[ScriptL],\[ScriptM],aa \[Omega],\[Theta],\[Phi]];
+
+    If[OptionValue["InactiveHarmonics"],SH=SH//Inactivate[#,SpinWeightedSpheroidalHarmonicS]&];
+    SH=SH/.aa->a;
+
+  S0 = SH//D[#,{\[Theta],0}]&//ReplaceAll[{\[Theta]->\[Theta]0,\[Phi]->0}];
+  dS0 = SH//D[#,{\[Theta],1}]&//ReplaceAll[{\[Theta]->\[Theta]0,\[Phi]->0}];
+
+  (* s = -1 radial functions *)
+  RIn = R["In"][r0];
+  ROut = R["Up"][r0];
+
+  dRIn = R["In"]'[r0];
+  dROut = R["Up"]'[r0];
+
+  (* Convert R -> P: P+1 = \[CapitalDelta] R+1 and P-1 = R-1 *)
+  Which[
+    s == -1,
+      PIn = RIn;
+      POut = ROut;
+      dPIn = dRIn;
+      dPOut = dROut;,
+    s == +1,
+      PIn = \[CapitalDelta] RIn;
+      POut = \[CapitalDelta] ROut;
+      dPIn = \[CapitalDelta] dRIn + \[CapitalDelta]p RIn;
+      dPOut = \[CapitalDelta] dROut + \[CapitalDelta]p ROut;
+  ];
+
+
+  (* Define source terms: arXiv:2008.12703 Eq. (45). We have an extra factor of 1/2
+     for s=-1 because we want \[Zeta]^2Subscript[\[Phi], 2], not 2\[Zeta]^2Subscript[\[Phi], 2], cf. Eq. (20a).  *)
+  \[ScriptCapitalS] = (4*\[Pi])/(Sqrt[2]r0)*Which[s==-1, 1/2, s==+1, 1];
+  \[ScriptCapitalB] = \[CapitalDelta]((r0^2+a^2) \[CapitalOmega] - a);
+  Ar = r0(r0((r0^2+a^2)\[CapitalOmega]^2-1)+2 (1-a \[CapitalOmega])^2);
+  Ati = r0 \[CapitalDelta] \[CapitalOmega];
+  c = - \[CapitalDelta](1-a \[CapitalOmega]);
+
+  (* Define source terms: arXiv:2008.12703 Eq. (48) *)
+  A = \[ScriptCapitalS] ((\[ScriptM]*Ar + s I Ati)S0 + s c dS0);
+  B = s I \[ScriptCapitalS] \[ScriptCapitalB] S0;
+aux=\[CapitalDelta]^-1 Switch[s,1,Kerr\[CapitalDelta][a,r],-1,1](A DiracDelta[r-r0] + DiracDelta'[r-r0]*B);
+auxFactor=Switch[OptionValue["Form"],"Default", Kerr\[CapitalDelta][a,r]^-\[ScriptS],"InvariantWronskian",1];
+If[auxFactor//MatchQ[#,_Switch]&,Return[$Failed]];
+aux=auxFactor aux//ExpandDiracDelta[#,r]&//Collect[#,{DiracDelta[__],Derivative[__][DiracDelta][__]},Simplify]&;
+aux
+]]
 
 
 (* ::Subsubsection::Closed:: *)
