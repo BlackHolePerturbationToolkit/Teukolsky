@@ -123,7 +123,7 @@ Begin["`Private`"]
 <<KerrGeodesics`
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*MST Coefficients*)
 
 
@@ -1185,7 +1185,7 @@ aux
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Tools*)
 
 
@@ -1875,7 +1875,7 @@ values=values/.r0->\[Eta]^-2 r0;
 values=values/.Inactive[KerrGeoFrequencies][aa_,rr0_,e_,x_][\[CapitalOmega]_]:>\[Eta]^3 Inactive[KerrGeoFrequencies][aa,\[Eta]^2 rr0,e,x][\[CapitalOmega]];
 values=values//ReplaceAll[{Inactive[SpinWeightedSpheroidalHarmonicS][ss_,ll_,mm_,\[Gamma]\[Gamma]_,\[Theta]\[Theta]_,\[Phi]\[Phi]_]:>Inactive[SpinWeightedSpheroidalHarmonicS][ss,ll,mm,\[Eta]^-3 \[Gamma]\[Gamma],\[Theta]\[Theta],\[Phi]\[Phi]],Derivative[x___][Inactive[SpinWeightedSpheroidalHarmonicS]][ss_,ll_,mm_,\[Gamma]\[Gamma]_,\[Theta]\[Theta]_,\[Phi]\[Phi]_]:>Derivative[x][Inactive[SpinWeightedSpheroidalHarmonicS]][ss,ll,mm,\[Eta]^-3 \[Gamma]\[Gamma],\[Theta]\[Theta],\[Phi]\[Phi]]}];
 minOrder=Assuming[{\[Eta]>0,r0>0,1>a>=0},values//Expand//CollectDerivatives[#,SpinWeightedSpheroidalHarmonicS[__],(Series[#,\[Eta]->0]&)]&//SeriesMinOrder//Min];
-values=Assuming[{\[Eta]>0,r0>0,1>a>=0},values//Expand//CollectDerivatives[#,SpinWeightedSpheroidalHarmonicS[__],(Series[#,{\[Eta],0,order+minOrder-1}]&)]&//StraightenSeries//Simplify];
+values=Assuming[{\[Eta]>0,r0>0,1>a>=0},values//Expand//CollectDerivatives[#,SpinWeightedSpheroidalHarmonicS[__],(Series[#,{\[Eta],0,minOrder+Max[order-1,7]}]&)]&//StraightenSeries//SeriesTake[#,order]&//Simplify];
 (*values=values//Series[#,{\[Eta],0,order+minOrder},Assumptions->{\[Eta]>0,r0>0,a>0}]&;*)
 values=values/.r0->r0Var//ChangeSeriesParameter[#,\[Eta]Var]&;
 aux=(keys->values)//Thread;
@@ -2318,7 +2318,7 @@ Derivative[n_][\[Theta]][arg_]:=Derivative[n-1][\[Delta]][arg];
 \[Delta]''[\[Eta]^-2 a_]:=\[Eta]^2 \[Delta]''[a];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Amplitudes*)
 
 
@@ -2642,7 +2642,7 @@ aux
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*K Amplitude*)
 
 
@@ -3105,7 +3105,7 @@ phaseShift[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta],opt]/.{\[Omega]->\[Ome
 (*Constructing Rc*)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Alternative Definitions*)
 
 
@@ -3197,7 +3197,7 @@ aux//PNScalingsInternal
 
 RPN["C\[Nu]"][\[ScriptS]_,\[ScriptL]_Integer,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,repls,replsAux,replsCoeff,replsLeading,coeff,term,status,table,ret,nMin},
 nMin=Ceiling[(order\[Eta]+7)/3];
-repls=MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]+nMin+1];
+repls=MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]+nMin+1+If[order\[Eta]<=7,1,0]];
 replsCoeff=SeriesTake[#,Max[order\[Eta],7]]&/@repls;
 coeff=c["In"][\[ScriptS],\[ScriptL],\[ScriptM],a,z[a,r]]/.replsCoeff;
 term=\[ConstantC]D["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,n,j] z[a,r]^(n+j);
@@ -3229,7 +3229,7 @@ aux,{j,0,finalj}]
 ,{n,nMin,nMax}]];table]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Symbolic l*)
 
 
@@ -3317,7 +3317,7 @@ aux,{j,0,finalj}],{n,nMin,nMax}];
 table]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Constructing \!\(\*SubsuperscriptBox[\(R\), \(C\), \(\(-\[Nu]\) - 1\)]\) *)
 
 
@@ -3719,7 +3719,7 @@ If[!MatchQ[order,_Integer],Message[TeukolskyRadialFunctionPN::paramorder,order];
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*TeukolskyRadialPN*)
 
 
@@ -3779,7 +3779,7 @@ icons = <|
 (*]*)*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Getting internal association faster*)
 
 
@@ -3972,7 +3972,7 @@ Derivative[n_Integer][trf_TeukolskyRadialFunctionPN][r_Symbol]:=(*trf[[6,1]]^(2 
 Keys[trfpn_TeukolskyRadialFunctionPN] ^:= DeleteElements[Join[Keys[trfpn[[-1]]], {}], {"RadialFunction","AmplitudesBool"}];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*TeukolskyPointParticleModePN*)
 
 
@@ -4137,8 +4137,6 @@ cIn=cIn//ExpandDiracDelta[#,r]&//ExpandDiracDelta[#,r]&//ReplaceAll[{DiracDelta[
 cUp=cUp//ExpandDiracDelta[#,r]&//ExpandDiracDelta[#,r]&//ReplaceAll[{DiracDelta[a_]:>HeavisideTheta[r-r0Var],Derivative[n_][DiracDelta][a_]:> Derivative[n-1][DiracDelta][a]}];
 {cIn,cUp,deltaCoeff,source}={cIn,cUp,deltaCoeff,source}/.r0->r0Var/.a->aVar;
 sourceRepls=TeukolskyPointParticleSourceRepls[\[ScriptS],\[ScriptL],\[ScriptM],aVar,r0Var,{varPN,order},"InactiveHarmonics"->OptionValue["InactiveHarmonics"]];
-(*Echo[sourceRepls//ChangeContext[#,"Teukolsky`PN`Private"]&,"sourceRepls"];
-Echo[cUp//ChangeContext[#,"Teukolsky`PN`Private"]&,"cUp"];*)
 {cIn,cUp}={cIn,cUp}//Normal//ReplaceAll[sourceRepls];
 (*Echo[cUp//ChangeContext[#,"Teukolsky`PN`Private"]&,"cUp"];*)
 inner=cIn Rin[r]//ChooseSide[#,r<r0Var]&;
