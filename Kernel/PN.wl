@@ -2319,11 +2319,11 @@ Derivative[n_][\[Theta]][arg_]:=Derivative[n-1][\[Delta]][arg];
 \[Delta]''[\[Eta]^-2 a_]:=\[Eta]^2 \[Delta]''[a];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Amplitudes*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*A Amplitudes*)
 
 
@@ -2651,10 +2651,10 @@ aux
 (*These is the amplitudes \[ScriptCapitalK]^\[Nu]and \[ScriptCapitalK]^(-\[Nu]-1) from Sasaki Tagoshi Eq.(165). Some factors of r have been lost here during simplifications but it is correct for r=0 and I don't want to touch it.  *)
 
 
-Options[\[ScriptCapitalK]AmplitudeFreq]={"Simplify"->False}
+Options[\[ScriptCapitalK]AmplitudeFreq]={"Simplify"->False,"Normalization"->"Default"}
 
 
-\[ScriptCapitalK]AmplitudeFreq["\[Nu]",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_Integer,\[ScriptM]_,a_,order\[CurlyEpsilon]_]:=Module[{\[ScriptR]=0,ret,\[CapitalGamma]=Gamma,PH=Pochhammer,SeriesStuff,GammaStuff,order,coeff,sumUpPHCoeff,sumUp,sumDown,\[CurlyEpsilon]p,\[Tau],\[CurlyEpsilon],\[Kappa]=Sqrt[1-a^2],nMax,nMin,jump,jumpCount,repls,repls\[Nu]},
+\[ScriptCapitalK]AmplitudeFreq["\[Nu]",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_Integer,\[ScriptM]_,a_,order\[CurlyEpsilon]_]:=Module[{\[ScriptR]=0,ret,\[CapitalGamma]=Gamma,PH=Pochhammer,SeriesStuff,norm,GammaStuff,order,coeff,sumUpPHCoeff,sumUp,sumDown,\[CurlyEpsilon]p,\[Tau],\[CurlyEpsilon],\[Kappa]=Sqrt[1-a^2],nMax,nMin,jump,jumpCount,repls,repls\[Nu]},
 \[CurlyEpsilon]=2 \[Omega] \[Gamma];
 \[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;
 \[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];
@@ -2680,12 +2680,13 @@ sumDown=\!\(
 \*FractionBox[
 SuperscriptBox[\((\(-1\))\), \(n\)], \(\(\((\[ScriptR] - n)\)!\) PH[\[ScriptR] + 2\  \[Nu]MST + 2, n]\)] 
 \*FractionBox[\(PH[\[Nu]MST + 1 + \[ScriptS] - I\  \[CurlyEpsilon], n]\), \(PH[\[Nu]MST + 1 - \[ScriptS] + I\  \[CurlyEpsilon], n]\)] /. repls\[Nu][n])\) \((aMST[n] /. repls)\)\)\)//SeriesStuff;
-ret=coeff sumUp/sumDown //SeriesStuff//GammaStuff;
+norm=If[OptionValue["Normalization"]==="SasakiTagoshi",ISymmetryFactorFreq["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]],1];
+ret=norm coeff sumUp/sumDown //SeriesStuff//GammaStuff;
 ret
 ]
 
 
-\[ScriptCapitalK]AmplitudeFreq["\[Nu]",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[CurlyEpsilon]_]:=Module[{\[ScriptR]=0,ret,\[CapitalGamma]=Gamma,PH=Pochhammer,SeriesStuff,GammaStuff,order,coeff,sumUpPHCoeff,sumUp,sumDown,\[CurlyEpsilon]p,\[Tau],\[CurlyEpsilon],\[Kappa]=Sqrt[1-a^2],nMax,nMin,repls,repls\[Nu]},
+\[ScriptCapitalK]AmplitudeFreq["\[Nu]",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[CurlyEpsilon]_]:=Module[{\[ScriptR]=0,ret,\[CapitalGamma]=Gamma,PH=Pochhammer,SeriesStuff,GammaStuff,order,norm,coeff,sumUpPHCoeff,sumUp,sumDown,\[CurlyEpsilon]p,\[Tau],\[CurlyEpsilon],\[Kappa]=Sqrt[1-a^2],nMax,nMin,repls,repls\[Nu]},
 \[CurlyEpsilon]=2 \[Omega] \[Gamma];
 \[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;
 \[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];
@@ -2707,12 +2708,13 @@ sumDown=\!\(
 \*FractionBox[
 SuperscriptBox[\((\(-1\))\), \(n\)], \(\(\((\[ScriptR] - n)\)!\) PH[\[ScriptR] + 2\  \[Nu]MST + 2, n]\)] 
 \*FractionBox[\(PH[\[Nu]MST + 1 + \[ScriptS] - I\  \[CurlyEpsilon], n]\), \(PH[\[Nu]MST + 1 - \[ScriptS] + I\  \[CurlyEpsilon], n]\)] /. repls\[Nu][n])\) \((aMST[n] /. repls)\)\)\)//SeriesStuff;
-ret=coeff sumUp/sumDown //SeriesStuff;
+norm=If[OptionValue["Normalization"]==="SasakiTagoshi",ISymmetryFactorFreq["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]],1];
+ret=norm coeff sumUp/sumDown //SeriesStuff;
 ret
 ]
 
 
-\[ScriptCapitalK]AmplitudeFreq["-\[Nu]-1",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_Integer,\[ScriptM]_,a_,order\[CurlyEpsilon]_]:=Module[{\[ScriptR]=0,ret,\[CapitalGamma]=Gamma,PH=Pochhammer,order,coeff,DoABunchOfStuff,SeriesStuff,GammaStuff,sumUpPHCoeff,sumUp,sumDown,\[CurlyEpsilon]p,\[Tau],\[CurlyEpsilon],\[Kappa]=Sqrt[1-a^2],nMax,nMin,jump,jumpCount,repls,repls\[Nu]},
+\[ScriptCapitalK]AmplitudeFreq["-\[Nu]-1",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_Integer,\[ScriptM]_,a_,order\[CurlyEpsilon]_]:=Module[{\[ScriptR]=0,ret,\[CapitalGamma]=Gamma,PH=Pochhammer,order,coeff,norm,DoABunchOfStuff,SeriesStuff,GammaStuff,sumUpPHCoeff,sumUp,sumDown,\[CurlyEpsilon]p,\[Tau],\[CurlyEpsilon],\[Kappa]=Sqrt[1-a^2],nMax,nMin,jump,jumpCount,repls,repls\[Nu]},
 \[CurlyEpsilon]=2 \[Omega] \[Gamma];
 \[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;
 \[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];
@@ -2738,12 +2740,13 @@ sumDown=\!\(
 \*FractionBox[\(
 \*SuperscriptBox[\((\(-1\))\), \(-n\)]\  PH[\[ScriptS] - I\  \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\), \(\(\((n + \[ScriptR])\)!\)\  PH[\[ScriptR] - 2\  \[Nu]MST, \(-n\)]\  PH[\(-\[ScriptS]\) + I\  \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\)] /. repls\[Nu][n])\) \((aMST[n] /. repls)\)\)\)//SeriesStuff;
 
-ret=coeff sumUp/sumDown //SeriesStuff//GammaStuff;
+norm=If[OptionValue["Normalization"]==="SasakiTagoshi",ISymmetryFactorFreq["-\[Nu]-1"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]],1];
+ret=coeff norm sumUp/sumDown //SeriesStuff//GammaStuff;
 ret
 ]
 
 
-\[ScriptCapitalK]AmplitudeFreq["-\[Nu]-1",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[CurlyEpsilon]_]:=Module[{\[ScriptR]=0,ret,\[CapitalGamma]=Gamma,PH=Pochhammer,order,coeff,DoABunchOfStuff,SeriesStuff,sumUpPHCoeff,sumUp,sumDown,\[CurlyEpsilon]p,\[Tau],\[CurlyEpsilon],\[Kappa]=Sqrt[1-a^2],nMax,nMin,repls,repls\[Nu]},
+\[ScriptCapitalK]AmplitudeFreq["-\[Nu]-1",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[CurlyEpsilon]_]:=Module[{\[ScriptR]=0,ret,\[CapitalGamma]=Gamma,PH=Pochhammer,order,norm,coeff,DoABunchOfStuff,SeriesStuff,sumUpPHCoeff,sumUp,sumDown,\[CurlyEpsilon]p,\[Tau],\[CurlyEpsilon],\[Kappa]=Sqrt[1-a^2],nMax,nMin,repls,repls\[Nu]},
 \[CurlyEpsilon]=2 \[Omega] \[Gamma];
 \[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;
 \[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];
@@ -2763,13 +2766,13 @@ sumDown=\!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(n = \(-\[ScriptR]\)\), \(nMax\)]\(\((
 \*FractionBox[\(
 \*SuperscriptBox[\((\(-1\))\), \(-n\)]\  PH[\[ScriptS] - I\  \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\), \(\(\((n + \[ScriptR])\)!\)\  PH[\[ScriptR] - 2\  \[Nu]MST, \(-n\)]\  PH[\(-\[ScriptS]\) + I\  \[CurlyEpsilon] - \[Nu]MST, \(-n\)]\)] /. repls\[Nu][n])\) \((aMST[n] /. repls)\)\)\)//SeriesStuff;
-
-ret=coeff sumUp/sumDown //SeriesStuff;
+norm=If[OptionValue["Normalization"]==="SasakiTagoshi",ISymmetryFactorFreq["-\[Nu]-1"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]],1];
+ret=norm coeff sumUp/sumDown //SeriesStuff;
 ret
 ]
 
 
-\[ScriptCapitalK]AmplitudeFreq["Ratio",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_Integer,\[ScriptM]_,a_,order\[CurlyEpsilon]_]:=Module[{\[ScriptR]=0,ret,\[CapitalGamma]=Gamma,PH=Pochhammer,coeff,SeriesStuff,GammaStuff,\[Kappa],order,sumUp,sumUp2,sumUpPHCoeff,sumUpPH,sumDown,sumDown2,\[CurlyEpsilon]p,\[Tau],\[CurlyEpsilon],nMax,nMin,repls,repls\[Nu]},
+\[ScriptCapitalK]AmplitudeFreq["Ratio",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_Integer,\[ScriptM]_,a_,order\[CurlyEpsilon]_]:=Module[{\[ScriptR]=0,ret,\[CapitalGamma]=Gamma,PH=Pochhammer,coeff,norm,SeriesStuff,GammaStuff,\[Kappa],order,sumUp,sumUp2,sumUpPHCoeff,sumUpPH,sumDown,sumDown2,\[CurlyEpsilon]p,\[Tau],\[CurlyEpsilon],nMax,nMin,repls,repls\[Nu]},
 \[CurlyEpsilon]=2 \[Omega] \[Gamma];
 \[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;
 \[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];
@@ -2803,13 +2806,14 @@ sumDown2=\!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(n = \[ScriptR]\), \(nMax\)]\(\((
 \*FractionBox[\(
 \*SuperscriptBox[\((\(-1\))\), \(n\)]\  PH[1 + \[ScriptS] + I\  \[CurlyEpsilon] + \[Nu]MST, n]\  PH[1 + \[ScriptR] + 2\  \[Nu]MST, n]\  PH[1 + \[Nu]MST + I\  \[Tau], n]\), \(\(\((n - \[ScriptR])\)!\)\  PH[1 - \[ScriptS] - I\  \[CurlyEpsilon] + \[Nu]MST, n]\  PH[1 + \[Nu]MST - I\  \[Tau], n]\)] /. repls\[Nu][n])\) \((aMST[n]\  /. repls)\)\)\)//SeriesStuff;
-ret=coeff  sumUp2/sumDown  sumUpPH/sumDown2//SeriesStuff//GammaStuff;
+norm=If[OptionValue["Normalization"]==="SasakiTagoshi",ISymmetryFactorFreq["Ratio"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]],1];
+ret=coeff norm sumUp2/sumDown  sumUpPH/sumDown2//SeriesStuff//GammaStuff;
 ret=ret/.\[Kappa]->Sqrt[1-a^2];
 ret
 ]
 
 
-\[ScriptCapitalK]AmplitudeFreq["Ratio",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[CurlyEpsilon]_]:=Module[{\[ScriptR]=0,ret,\[CapitalGamma]=Gamma,PH=Pochhammer,coeff,SeriesStuff,GammaStuff,\[Kappa],order,sumUp,sumUp2,sumUpPHCoeff,sumUpPH,sumDown,sumDown2,\[CurlyEpsilon]p,\[Tau],\[CurlyEpsilon],nMax,nMin,repls,repls\[Nu]},
+\[ScriptCapitalK]AmplitudeFreq["Ratio",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[CurlyEpsilon]_]:=Module[{\[ScriptR]=0,ret,\[CapitalGamma]=Gamma,PH=Pochhammer,coeff,SeriesStuff,norm,GammaStuff,\[Kappa],order,sumUp,sumUp2,sumUpPHCoeff,sumUpPH,sumDown,sumDown2,\[CurlyEpsilon]p,\[Tau],\[CurlyEpsilon],nMax,nMin,repls,repls\[Nu]},
 \[CurlyEpsilon]=2 \[Omega] \[Gamma];
 \[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;
 \[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];
@@ -2841,7 +2845,8 @@ sumDown2=\!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(n = \[ScriptR]\), \(nMax\)]\(\((
 \*FractionBox[\(
 \*SuperscriptBox[\((\(-1\))\), \(n\)]\  PH[1 + \[ScriptS] + I\  \[CurlyEpsilon] + \[Nu]MST, n]\  PH[1 + \[ScriptR] + 2\  \[Nu]MST, n]\  PH[1 + \[Nu]MST + I\  \[Tau], n]\), \(\(\((n - \[ScriptR])\)!\)\  PH[1 - \[ScriptS] - I\  \[CurlyEpsilon] + \[Nu]MST, n]\  PH[1 + \[Nu]MST - I\  \[Tau], n]\)] /. repls\[Nu][n])\) \((aMST[n]\  /. repls)\)\)\)//SeriesStuff;
-ret=coeff  sumUp2/sumDown  sumUpPH/sumDown2//SeriesStuff;
+norm=If[OptionValue["Normalization"]==="SasakiTagoshi",ISymmetryFactorFreq["Ratio"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]],1];
+ret=coeff norm sumUp2/sumDown  sumUpPH/sumDown2//SeriesStuff;
 ret
 ]
 
@@ -2852,7 +2857,7 @@ Options[\[ScriptCapitalK]Amplitude]={"FreqRep"->True,"Normalization"->"Default",
 \[ScriptCapitalK]Amplitude[sol_,OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,order\[CurlyEpsilon],order},
 order\[CurlyEpsilon]=Ceiling[order\[Eta],3]/3;
 order=If[OptionValue["FreqRep"],order\[Eta],order\[CurlyEpsilon]];
-aux=\[ScriptCapitalK]AmplitudeFreq[sol][\[ScriptS],\[ScriptL],\[ScriptM],a,order];
+aux=\[ScriptCapitalK]AmplitudeFreq[sol,"Normalization"->OptionValue["Normalization"]][\[ScriptS],\[ScriptL],\[ScriptM],a,order];
 (*If[OptionValue["Normalization"]==="DefaultSym",aux=aux ISymmetryFactorFreq[sol][\[ScriptS],\[ScriptL],\[ScriptM],a,order]];*)
 If[OptionValue["FreqRep"]===False,aux=aux//ChangeSeriesParameter[#,\[Eta]^3]&//SeriesTake[#,order\[Eta]]&];
 If[!NumericQ[\[ScriptL]],aux=aux//TrigToExp//ReplaceAll[E^aa_:>Simplify[E^Expand[aa],{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptM]\[Element]Integers,\[ScriptL]>=Abs[\[ScriptS]]}]]//Expand//SeriesPlusSimplify[#,\[ScriptL]>=Abs[\[ScriptS]]]&];
@@ -3225,7 +3230,7 @@ aux,{j,0,finalj}]
 ,{n,nMin,nMax}]];table]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Symbolic l*)
 
 
@@ -3313,7 +3318,7 @@ aux,{j,0,finalj}],{n,nMin,nMax}];
 table]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Constructing \!\(\*SubsuperscriptBox[\(R\), \(C\), \(\(-\[Nu]\) - 1\)]\) *)
 
 
@@ -3775,7 +3780,7 @@ icons = <|
 (*]*)*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Getting internal association faster*)
 
 
