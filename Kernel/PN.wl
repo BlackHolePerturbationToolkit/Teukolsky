@@ -66,11 +66,11 @@ TeukolskyPointParticleModePN::orbit="As of now TeukolskyPointParticleModePN only
 TeukolskyPointParticleModePN::particle="TeukolskyPointParticleModePN cannot be evaluated directly at the particle. Try the Keys \"ExtendedHomogeneous\"\[Rule]\"\[ScriptCapitalI]\",\"ExtendedHomogeneous\"\[Rule]\"\[ScriptCapitalH]\" and \"\[Delta]\" ";
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Amplitudes*)
 
 
-TeukolskyAmplitudePN::usage="TeukolskyAmplitudePN[\"sol\"][\[ScriptS], \[ScriptL], \[ScriptM], a, \[Omega], {\[Gamma], n}] gives the desired PN expanded amplitude. Possible values for sol are as follows: A+, A-, Btrans, Binc, Bref, Ctrans, Cinc, Cref, K\[Nu], K-\[Nu]-1, K"
+TeukolskyAmplitudePN::usage="TeukolskyAmplitudePN[\"sol\"][\[ScriptS], \[ScriptL], \[ScriptM], a, \[Omega], {\[Gamma], n}] gives the desired PN expanded amplitude. Possible values for sol are as follows: A+, A-, \"Btrans\", Binc, Bref, Ctrans, Cinc, Cref, K\[Nu], K-\[Nu]-1, K"
 
 
 (* ::Subsection::Closed:: *)
@@ -1822,11 +1822,11 @@ Message;
 ]*)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Point particle source*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Interface*)
 
 
@@ -2318,7 +2318,7 @@ Derivative[n_][\[Theta]][arg_]:=Derivative[n-1][\[Delta]][arg];
 \[Delta]''[\[Eta]^-2 a_]:=\[Eta]^2 \[Delta]''[a];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Amplitudes*)
 
 
@@ -2956,14 +2956,14 @@ aux
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Phase shift*)
 
 
 CTeukolskyStarobinsky[2,\[ScriptL]_,m_,a_,\[Omega]_,{\[Gamma]_,order_}]:=Module[{s=2,aux,D,\[ScriptW],\[Lambda]},
 \[ScriptW]=\[Omega] \[Gamma];
 \[Lambda]=SpinWeightedSpheroidalEigenvalue[s,\[ScriptL],m,a \[ScriptW] ]+s^2+s//Series[#,{\[Gamma],0,order}]&;
-D=Sqrt[(\[Lambda])^2 (\[Lambda]-2)^2+8a \[ScriptW](m-a \[ScriptW])(\[Lambda]-2)(5 \[Lambda]-4)+48(a \[ScriptW])^2 (2(\[Lambda]-2)+3(m-a \[ScriptW])^2)];
+D=Sqrt[\[Lambda]^2 (\[Lambda]-2)^2+8 a \[ScriptW] (m-a \[ScriptW]) (\[Lambda]-2) (5 \[Lambda]-4)+48 (a \[ScriptW])^2 (2 (\[Lambda]-2)+3 (m-a \[ScriptW])^2)];
 aux=D+(-1)^(\[ScriptL]+m) 12 I \[ScriptW];
 aux
 ]
@@ -2978,7 +2978,7 @@ phaseShiftFreq[s_,\[ScriptL]_,m_,a_,order_,opt:OptionsPattern[]]:=Module[{aux,CT
 CTS=CTeukolskyStarobinsky[s,\[ScriptL],m,a,\[Omega],{\[Gamma],order}];
 Bref=BAmplitudeFreq["Ref",opt][s,\[ScriptL],m,a,order];
 Binc=BAmplitudeFreq["Inc",opt][s,\[ScriptL],m,a,order];
-aux=(-1)^(\[ScriptL]+1) CTS/(2\[Omega] \[Gamma])^Abs[s] Bref/Binc;
+aux=(-1)^(\[ScriptL]+1) CTS/(2\[Omega] \[Gamma])^(2 Abs[s]) Bref/Binc;
 (*aux=-(\[ImaginaryI]/2) Log[aux]//IgnoreExpansionParameter;*)
 If[!NumericQ[\[ScriptL]],aux=aux//TrigToExp//ReplaceAll[E^aa_:>Simplify[E^Expand[aa],{\[ScriptL]\[Element]Integers,\[ScriptL]>=Abs[\[ScriptS]]}]]];
 aux
@@ -3142,7 +3142,7 @@ aux//PNScalingsInternal
 ];
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Constructing \!\(\*SubsuperscriptBox[\(R\), \(C\), \(\[Nu]\)]\)*)
 
 
@@ -3972,7 +3972,7 @@ Derivative[n_Integer][trf_TeukolskyRadialFunctionPN][r_Symbol]:=(*trf[[6,1]]^(2 
 Keys[trfpn_TeukolskyRadialFunctionPN] ^:= DeleteElements[Join[Keys[trfpn[[-1]]], {}], {"RadialFunction","AmplitudesBool"}];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*TeukolskyPointParticleModePN*)
 
 
@@ -4109,7 +4109,7 @@ ret
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Circular orbit (new)*)
 
 
@@ -4274,7 +4274,7 @@ Keys[trfpn_TeukolskyModePN]^:= DeleteElements[Join[Keys[trfpn[[-1]]], {"Fluxes",
 Derivative[n_Integer][tppm_TeukolskyModePN][r_Symbol]:=(*tppm[[6,1]]^(2 n)*) Derivative[n][tppm[[-1]]["RadialFunction"]][r]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Fluxes*)
 
 
