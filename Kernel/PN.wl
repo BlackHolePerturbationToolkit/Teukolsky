@@ -70,7 +70,7 @@ TeukolskyPointParticleModePN::particle="TeukolskyPointParticleModePN cannot be e
 (*Amplitudes*)
 
 
-TeukolskyAmplitudePN::usage="TeukolskyAmplitudePN[\"sol\"][\[ScriptS], \[ScriptL], \[ScriptM], a, \[Omega], {\[Gamma], n}] gives the desired PN expanded amplitude. Possible values for sol are as follows: A+, A-, \"Btrans\", Binc, Bref, Ctrans, Cinc, Cref, K\[Nu], K-\[Nu]-1, K"
+TeukolskyAmplitudePN::usage="TeukolskyAmplitudePN[\"sol\"][\[ScriptS], \[ScriptL], \[ScriptM], a, \[Omega], {\[Gamma], n}] gives the desired PN expanded amplitude. Possible values for sol are as follows: A+, A-, Btrans, Binc, Bref, Ctrans, Cinc, Cref, K\[Nu], K-\[Nu]-1, K, W, PhaseShift"
 
 
 (* ::Subsection::Closed:: *)
@@ -1312,7 +1312,7 @@ ExpandSpheroidals[expr_Times,{\[Eta]_,n_}]:=ExpandSpheroidals[#,{\[Eta],n}]&/@ex
 ExpandSpheroidals[expr_,{\[Eta]_,n_}]:=expr;
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Tools for Series*)
 
 
@@ -1379,7 +1379,7 @@ SeriesTake[expr_,order_Integer:1]/;FreeQ[expr,SeriesData]:=expr;
 SeriesTake[expr_,order_Integer:1]:=SeriesTake[#,order]&/@expr;
 
 
-Options[SeriesTerms]=Options[Series];
+(*Options[SeriesTerms]=Options[Series];
 
 SeriesTerms[expr_,{x_,x0_,termOrder_},opt:OptionsPattern[]]:=Module[{aux,minOrder},
 minOrder=Series[expr,x->x0,opt]//SeriesMinOrder;
@@ -1387,7 +1387,18 @@ Series[expr,{x,x0,minOrder+termOrder-1},opt]
 ];
 SeriesTerms[expr_,{x_,x0_,termOrder_},opt:OptionsPattern[]]/;FreeQ[expr,x]:=expr;
 (*SeriesTerms[expr___]:=Module[{aux},
-Series[expr]]*)
+Series[expr]]*)*)
+
+
+Options[SeriesTerms]=Options[Series];
+
+SeriesTerms[expr_,{x_,x0_,termOrder_},opt:OptionsPattern[]]:=Module[{aux,minOrder},
+minOrder=Series[expr,x->x0,opt]//SeriesMinOrder;
+aux=x^-minOrder expr;
+aux=Series[aux,{x,x0,termOrder-1},opt];
+aux=x^minOrder aux
+];
+SeriesTerms[expr_,{x_,x0_,termOrder_},opt:OptionsPattern[]]/;FreeQ[expr,x]:=expr;
 
 
 polyToSeries[poly_,x_:\[Eta],x\:2080_:0]:=Block[{aux,maxPower},
@@ -1555,6 +1566,7 @@ maxMax=maxs[[minMinPos]];
 (*inquisition=Assuming[OptionValue[Assumptions],(If[#>maxMax,0,1]&/@mins)//Simplify];*)
 inquisition=Assuming[OptionValue[Assumptions],(maxMax-#&/@mins)//Ramp//Simplify];
 aux=SeriesTake[#[[1]],#[[2]]]&/@Transpose[{terms,inquisition}];
+aux=aux//ReplaceAll[Ramp[a_]:>(Ramp[a]/.Maximize[{a,OptionValue[Assumptions]},Variables[a]][[2]])];
 aux=aux//DropZeroSeries//Total;
 aux
 ]
@@ -1745,7 +1757,7 @@ aux
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Bryan Adams (not working yet...)*)
 
 
@@ -2385,7 +2397,7 @@ aux
 ]*)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*B Amplitudes*)
 
 
@@ -2407,7 +2419,7 @@ DoABunchOfStuff=(#//IgnoreExpansionParameter//SeriesTake[#,order\[CurlyEpsilon]]
 repls=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,Max[order\[CurlyEpsilon]+1,2]];
 coeff= E^(-I (\[CurlyEpsilon] Log[\[CurlyEpsilon]]-1/2 (1-\[Kappa]) \[CurlyEpsilon]))/(\[CurlyEpsilon]/2)//SeriesTerms[#,{\[Gamma],0,order\[CurlyEpsilon]}]&//DoABunchOfStuff;
 coeff=ISymmetryFactorFreq["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]] coeff;
-\[ScriptCapitalK]2coeff=Assuming[{\[ScriptL]\[Element]Integers},-((I E^(-I \[Pi] \[Nu]MST) Sin[\[Pi] (\[Nu]MST-\[ScriptS]+I \[CurlyEpsilon])])/Sin[\[Pi] (\[Nu]MST+\[ScriptS]-I \[CurlyEpsilon])])/.repls//DoABunchOfStuff];
+\[ScriptCapitalK]2coeff=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,Abs[\[ScriptS]]>=\[ScriptL]>0},-((I E^(-I \[Pi] \[Nu]MST) Sin[\[Pi] (\[Nu]MST-\[ScriptS]+I \[CurlyEpsilon])])/Sin[\[Pi] (\[Nu]MST+\[ScriptS]-I \[CurlyEpsilon])])/.repls//DoABunchOfStuff];
 (*\[ScriptCapitalK]1=Switch[normOp,
 	"TidalResponse",SeriesData[\[Gamma], 0, {1}, 0, order\[CurlyEpsilon], 1],
 	"Default",ISymmetryFactorFreq["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]]^-1,
@@ -2429,6 +2441,7 @@ norm=Switch[normOp,
 	"UnitTransmission",1/BAmplitudeFreq["Trans"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]]
 ];
 A=AAmplitudeFreq["+"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]]//DoABunchOfStuff//SeriesCollect[#,Log[__]]&;
+If[!NumericQ[\[ScriptL]],{norm,A,coeff,\[ScriptCapitalK]2coeff,\[ScriptCapitalK]2}={norm,A,coeff,\[ScriptCapitalK]2coeff,\[ScriptCapitalK]2}//TrigToExp//ExpandGamma//ExpandPolyGamma//ReplaceAll[E^aa_:>Simplify[E^Expand[aa],{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptM]\[Element]Integers,\[ScriptL]>=Abs[\[ScriptS]]}]]];
 aux= norm A coeff (1 + \[ScriptCapitalK]2coeff \[ScriptCapitalK]2)//DoABunchOfStuff;
 aux
 ]
@@ -2495,17 +2508,19 @@ BAmplitudeFreq["Ref","Normalization"->"UnitTransmission"][\[ScriptS]_,\[ScriptL]
 Options[BAmplitude]={"Normalization"->"Default","FreqRep"->True,"Simplify"->False}
 
 
-BAmplitude[sol_,OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,order\[CurlyEpsilon]},
+BAmplitude[sol_,OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,order\[CurlyEpsilon],\[ScriptL]min},
 If[OptionValue["FreqRep"],
+\[ScriptL]min=order\[Eta]-1;
 aux=BAmplitudeFreq[sol,"Normalization"->OptionValue["Normalization"]][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]];
 ,
 (*else*)
 order\[CurlyEpsilon]=Ceiling[order\[Eta],3]/3;
+\[ScriptL]min=order\[CurlyEpsilon]-1;
 aux=BAmplitudeFreq[sol,"Normalization"->OptionValue["Normalization"]][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]];
 aux=aux//ChangeSeriesParameter[#,\[Eta]^3]&//SeriesTake[#,order\[Eta]]&;
 aux
 ];
-If[!NumericQ[\[ScriptL]],aux=aux//TrigToExp//ExpandGamma//ExpandPolyGamma//ReplaceAll[E^aa_:>Simplify[E^Expand[aa],{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptM]\[Element]Integers,\[ScriptL]>=Abs[\[ScriptS]]}]]//Expand//SeriesPlusSimplify[#,\[ScriptL]>=Abs[\[ScriptS]]]&];
+If[!NumericQ[\[ScriptL]],aux=aux//TrigToExp//ExpandGamma//ExpandPolyGamma//ReplaceAll[E^aa_:>Simplify[E^Expand[aa],{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptM]\[Element]Integers,\[ScriptL]>=Abs[\[ScriptS]]}]]//Expand//SeriesPlusSimplify[#,{\[ScriptL]>=0,\[ScriptL]<=\[ScriptL]min}]&];
 If[OptionValue["Simplify"],aux=aux//SeriesCollect[#,{E^__,Log[__],Gamma[__],PolyGamma[__]},(Simplify[#,{1>a>=0}]&)]&];
 aux
 ]
@@ -2642,7 +2657,7 @@ aux
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*K Amplitude*)
 
 
@@ -2859,6 +2874,7 @@ order=If[OptionValue["FreqRep"],order\[Eta],order\[CurlyEpsilon]];
 aux=\[ScriptCapitalK]AmplitudeFreq[sol,"Normalization"->OptionValue["Normalization"]][\[ScriptS],\[ScriptL],\[ScriptM],a,order];
 (*If[OptionValue["Normalization"]==="DefaultSym",aux=aux ISymmetryFactorFreq[sol][\[ScriptS],\[ScriptL],\[ScriptM],a,order]];*)
 If[OptionValue["FreqRep"]===False,aux=aux//ChangeSeriesParameter[#,\[Eta]^3]&//SeriesTake[#,order\[Eta]]&];
+(*No ExpandGamma or ExpandPolyGamma here. They make things worse*)
 If[!NumericQ[\[ScriptL]],aux=aux//TrigToExp//ReplaceAll[E^aa_:>Simplify[E^Expand[aa],{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptM]\[Element]Integers,\[ScriptL]>=Abs[\[ScriptS]]}]]//Expand//SeriesPlusSimplify[#,\[ScriptL]>=Abs[\[ScriptS]]]&];
 If[OptionValue["Simplify"],aux=aux//SeriesExpand//SeriesCollect[#,{E^__,Log[__],Gamma[__],PolyGamma[__]},(Simplify[#,{1>a>=0}]&)]&];
 aux
@@ -2871,7 +2887,7 @@ aux
 ]*)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*i symmery factor*)
 
 
