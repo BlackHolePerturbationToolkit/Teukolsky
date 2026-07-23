@@ -52,7 +52,7 @@ TeukolskyRadialFunctionPN::PNInput="Input String does not contain \"PN\". Assume
 TeukolskyRadialFunctionPN::norm="`1` is not a recognized Value for the \"Normalization\" option. Assuming \"Default\". "
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Sourced things*)
 
 
@@ -71,6 +71,9 @@ TeukolskyPointParticleModePN::particle="TeukolskyPointParticleModePN cannot be e
 
 
 TeukolskyAmplitudePN::usage="TeukolskyAmplitudePN[\"sol\"][\[ScriptS], \[ScriptL], \[ScriptM], a, \[Omega], {\[Gamma], n}] gives the desired PN expanded amplitude. Possible values for sol are as follows: A+, A-, Btrans, Binc, Bref, Ctrans, Cinc, Cref, K\[Nu], K-\[Nu]-1, K, W, PhaseShift"
+
+
+TeukolskyAmplitudePN::sol="`1` is not a possible value. Possible values are "<>StringRiffle[$TKAPNpossibleVals,{"\"","\", \"", "\""}];
 
 
 (* ::Subsection::Closed:: *)
@@ -123,7 +126,7 @@ Begin["`Private`"]
 <<KerrGeodesics`
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*MST Coefficients*)
 
 
@@ -691,7 +694,7 @@ MST
 
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Interface*)
 
 
@@ -950,7 +953,7 @@ ExpandSpheroidals[expr_Times,{\[Eta]_,n_}]:=ExpandSpheroidals[#,{\[Eta],n}]&/@ex
 ExpandSpheroidals[expr_,{\[Eta]_,n_}]:=expr;
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Tools for Series*)
 
 
@@ -1968,7 +1971,7 @@ Derivative[n_][\[Theta]][arg_]:=Derivative[n-1][\[Delta]][arg];
 \[Delta]''[\[Eta]^-2 a_]:=\[Eta]^2 \[Delta]''[a];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Amplitudes*)
 
 
@@ -2764,7 +2767,15 @@ phaseShift[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta],opt]/.{\[Omega]->\[Ome
 ]
 
 
-(* ::Subsection:: *)
+$TKAPNmessageSent=False;
+$TKAPNpossibleVals={"Binc","Bref","Btrans","Cinc","Cref","Ctrans","K\[Nu]","K-\[Nu]-1","K","W","PhaseShift","A+","A-"};
+TeukolskyAmplitudePN[sol_,opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{\[Eta]Var_,order\[Eta]_}]/;(!$TKAPNmessageSent&&!MemberQ[$TKAPNpossibleVals,sol]):=Block[{$TKAPNmessageSent=True},
+	Message[TeukolskyAmplitudePN::sol,sol];
+	TeukolskyAmplitudePN[sol,opt][\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega]Var,{\[Eta]Var,order\[Eta]}]
+]
+
+
+(* ::Subsection::Closed:: *)
 (*Constructing Rc*)
 
 
@@ -2805,7 +2816,7 @@ aux//PNScalingsInternal
 ];
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Constructing \!\(\*SubsuperscriptBox[\(R\), \(C\), \(\[Nu]\)]\)*)
 
 
