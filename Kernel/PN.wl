@@ -1968,7 +1968,7 @@ Derivative[n_][\[Theta]][arg_]:=Derivative[n-1][\[Delta]][arg];
 \[Delta]''[\[Eta]^-2 a_]:=\[Eta]^2 \[Delta]''[a];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Amplitudes*)
 
 
@@ -2295,7 +2295,7 @@ aux
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*K Amplitude*)
 
 
@@ -2615,7 +2615,7 @@ aux
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Phase shift*)
 
 
@@ -2764,11 +2764,11 @@ phaseShift[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta],opt]/.{\[Omega]->\[Ome
 ]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Constructing Rc*)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Definitions*)
 
 
@@ -2800,7 +2800,7 @@ aux=((-1)^n (2 I)^(n+j) \[CapitalGamma][n+\[Nu]MST+1-\[ScriptS]+I \[CurlyEpsilon
 \[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;
 \[Kappa]=Sqrt[1-a^2];
 \[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];
-aux=((-1)^n (2 I)^(j+n)  PH[\[ScriptS]-I \[CurlyEpsilon]-\[Nu]MST,n] PH[n-\[ScriptS]+I \[CurlyEpsilon]-\[Nu]MST,j] \[CapitalGamma][n-\[ScriptS]+I \[CurlyEpsilon]-\[Nu]MST])/(j! PH[2 n-2 \[Nu]MST,j] PH[-\[ScriptS]+I \[CurlyEpsilon]-\[Nu]MST,n] \[CapitalGamma][2 n-2 \[Nu]MST]) aMST[-n];
+aux=((-1)^n (2 I)^(j+n) aMST[-n] Csc[\[Pi] (n-\[ScriptS]+I \[CurlyEpsilon]-\[Nu]MST)] PH[1-j-n+\[ScriptS]-I \[CurlyEpsilon]+\[Nu]MST,j] PH[1-n-\[ScriptS]+I \[CurlyEpsilon]+\[Nu]MST,n] Sin[2 \[Pi] (n-\[Nu]MST)] \[CapitalGamma][1-2 n+2 \[Nu]MST])/(j! PH[1-n+\[ScriptS]-I \[CurlyEpsilon]+\[Nu]MST,n] PH[1-j-2 n+2 \[Nu]MST,j] \[CapitalGamma][1-n+\[ScriptS]-I \[CurlyEpsilon]+\[Nu]MST]);
 aux//PNScalingsInternal
 ];
 
