@@ -694,7 +694,7 @@ MST
 
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Interface*)
 
 
@@ -2618,7 +2618,7 @@ aux
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Phase shift*)
 
 
@@ -2629,7 +2629,15 @@ D=Sqrt[\[Lambda]^2 (\[Lambda]-2)^2+8 a \[ScriptW] (m-a \[ScriptW]) (\[Lambda]-2)
 aux=D+(-1)^(\[ScriptL]+m) 12 I \[ScriptW];
 aux
 ]
+CTeukolskyStarobinsky[2,\[ScriptL]_,m_,a_,\[Omega]_,{\[Gamma]_,order_}]:=Module[{s=2,aux,D,\[ScriptW],\[Lambda]},
+\[ScriptW]=\[Omega] \[Gamma];
+\[Lambda]=SpinWeightedSpheroidalEigenvalue[s,\[ScriptL],m,a \[ScriptW] ]//Series[#,{\[Gamma],0,order}]&;
+aux=(\[Lambda]+2)^2+ 4 a \[ScriptW](m-a \[ScriptW]);
+aux
+]
+
 CTeukolskyStarobinsky[-2,\[ScriptL]_,m_,a_,\[Omega]_,{\[Gamma]_,order_}]:=CTeukolskyStarobinsky[2,\[ScriptL],m,a,\[Omega],{\[Gamma],order}];
+CTeukolskyStarobinsky[-1,\[ScriptL]_,m_,a_,\[Omega]_,{\[Gamma]_,order_}]:=CTeukolskyStarobinsky[1,\[ScriptL],m,a,\[Omega],{\[Gamma],order}];
 CTeukolskyStarobinsky[0,\[ScriptL]_,m_,a_,\[Omega]_,{\[Gamma]_,order_}]:=1;
 
 
@@ -2665,7 +2673,7 @@ aux
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Interface*)
 
 
@@ -2861,7 +2869,7 @@ aux,{j,0,finalj}]
 ,{n,nMin,nMax}]];table]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Symbolic l*)
 
 
@@ -2901,21 +2909,13 @@ aux,{j,0,finalj}]
 
 
 RPN["C-\[Nu]-1"][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,ret,repls,repls\[ScriptCapitalK],replsLeading,coeff,term,table,factor\[ScriptCapitalK],replsCut},
-Echo[lyrics[[1]]];
 (*repls=MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],a,Max[Ceiling[order\[Eta]+10,3],7]];*)
-EchoTiming[repls=MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],a,Max[order\[Eta]+Ceiling[(order\[Eta]+7)/3]+1,7]],"repls"];
-Echo[lyrics[[2]]];
+repls=MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],a,Max[order\[Eta]+Ceiling[(order\[Eta]+7)/3]+1,7]];
 replsCut=repls//SeriesTake[#,Max[order\[Eta]+1,7]]&;
-Echo[lyrics[[3]]];
 coeff=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptM]\[Element]Integers,\[ScriptL]>=Abs[\[ScriptS]],1>a>=0},c["In"][\[ScriptS],\[ScriptL],\[ScriptM],a,z[a,r]]/. \[Nu]MST->-\[Nu]MST-1/.replsCut//SeriesCollect[#,Log[__],Simplify]&];
-Echo[coeff//ChangeContext[#,"Teukolsky`PN`Private`"]&];
-Echo[lyrics[[4]]];
 term=\[ConstantC]D["C-\[Nu]-1"][\[ScriptS],\[ScriptL],\[ScriptM],a,n,j] z[a,r]^(n+j)//PNScalingsInternal;
-Echo[lyrics[[5]]];
 table=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]>=Abs[\[ScriptS]],\[ScriptL]\[Element]Integers},tableOverNJ["C-\[Nu]-1"][\[ScriptL],term,repls,order\[Eta]]];
-Echo[lyrics[[6]]];
 table=Assuming[{},Simplify[Total[Flatten[table]]]];
-Echo[lyrics[[7]]];
 ret=coeff table;
 ret=(SeriesTake[#1,order\[Eta]]&)[ret];
 ret
@@ -2958,7 +2958,7 @@ aux,{j,0,finalj}],{n,nMin,nMax}];
 table]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Constructing \!\(\*SubsuperscriptBox[\(R\), \(C\), \(\(-\[Nu]\) - 1\)]\) *)
 
 
@@ -3864,7 +3864,7 @@ Keys[trfpn_TeukolskyModePN]^:= DeleteElements[Join[Keys[trfpn[[-1]]], {"Fluxes",
 Derivative[n_Integer][tppm_TeukolskyModePN][r_Symbol]:=(*tppm[[6,1]]^(2 n)*) Derivative[n][tppm[[-1]]["RadialFunction"]][r]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Fluxes*)
 
 
