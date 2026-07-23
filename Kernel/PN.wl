@@ -73,10 +73,10 @@ TeukolskyPointParticleModePN::particle="TeukolskyPointParticleModePN cannot be e
 TeukolskyAmplitudePN::usage="TeukolskyAmplitudePN[\"sol\"][\[ScriptS], \[ScriptL], \[ScriptM], a, \[Omega], {\[Gamma], n}] gives the desired PN expanded amplitude. Possible values for sol are as follows: A+, A-, Btrans, Binc, Bref, Ctrans, Cinc, Cref, K\[Nu], K-\[Nu]-1, K, W, PhaseShift"
 
 
-TeukolskyAmplitudePN::sol="`1` is not a possible value. Possible values are "<>StringRiffle[$TKAPNpossibleVals,{"\"","\", \"", "\""}];
+TeukolskyAmplitudePN::sol="`1` is not a possible value. Possible values are \"Binc\", \"Bref\", \"Btrans\", \"Cinc\", \"Cref\", \"Ctrans\", \"K\[Nu]\", \"K-\[Nu]-1\", \"K\", \"W\", \"PhaseShift\" ,\"A+\" ,\"A-\".";
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*MST Coefficients*)
 
 
@@ -2393,12 +2393,12 @@ nMin=-(order+1);
 sumUp=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptL]>=0},\!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(-\[ScriptR]\)]\(\((
 \*FractionBox[\(
-\*SuperscriptBox[\((\(-1\))\), \(2\ n\)]\ PH[1 - n - \[ScriptS] - I\ \[CurlyEpsilon] + \[Nu]MST, n]\ PH[2 - n - \[ScriptR] + 2\ \[Nu]MST, n]\ PH[1 - n + \[Nu]MST - I\ \[Tau], n]\), \(\(\((n - \[ScriptR])\)!\)\ PH[1 - n + \[ScriptS] + I\ \[CurlyEpsilon] + \[Nu]MST, n]\ PH[1 - n + \[Nu]MST + I\ \[Tau], n]\)] /. repls\[Nu][n])\) \((aMST[n]\  /. repls)\)\)\)//SeriesStuff];
+\*SuperscriptBox[\((\(-1\))\), \(2\  n\)]\  PH[1 - n - \[ScriptS] - I\  \[CurlyEpsilon] + \[Nu]MST, n]\  PH[2 - n - \[ScriptR] + 2\  \[Nu]MST, n]\  PH[1 - n + \[Nu]MST - I\  \[Tau], n]\), \(\(\((n - \[ScriptR])\)!\)\  PH[1 - n + \[ScriptS] + I\  \[CurlyEpsilon] + \[Nu]MST, n]\  PH[1 - n + \[Nu]MST + I\  \[Tau], n]\)] /. repls\[Nu][n])\) \((aMST[n]\  /. repls)\)\)\)//SeriesStuff];
 sumUpPHCoeff=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptL]>=0},((Csc[\[Pi] (-1+\[ScriptR]-2 \[Nu]MST)] Sin[\[Pi] (\[ScriptS]+I \[CurlyEpsilon]+\[Nu]MST)] Sin[\[Pi] (\[Nu]MST+I \[Tau])] \[CapitalGamma][1+\[ScriptS]+I \[CurlyEpsilon]+\[Nu]MST] \[CapitalGamma][1+\[Nu]MST+I \[Tau]])/(\[Pi] \[CapitalGamma][2-\[ScriptR]+2 \[Nu]MST]))/.repls//SeriesStuff];
 coeff=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptL]>=0},(coeff sumUpPHCoeff)];
 sumDown=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptL]>=0},\!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(n = \(-\[ScriptR]\)\), \(nMax\)]\(\((
-\*FractionBox[\(PH[1 - n - \[ScriptS] + I\ \[CurlyEpsilon] + \[Nu]MST, n]\), \(\(\((\(-n\) + \[ScriptR])\)!\)\ PH[1 - n + \[ScriptS] - I\ \[CurlyEpsilon] + \[Nu]MST, n]\ PH[1 - n - \[ScriptR] + 2\ \[Nu]MST, n]\)] /. repls\[Nu][n])\) \((aMST[n] /. repls)\)\)\)//SeriesStuff];
+\*FractionBox[\(PH[1 - n - \[ScriptS] + I\  \[CurlyEpsilon] + \[Nu]MST, n]\), \(\(\((\(-n\) + \[ScriptR])\)!\)\  PH[1 - n + \[ScriptS] - I\  \[CurlyEpsilon] + \[Nu]MST, n]\  PH[1 - n - \[ScriptR] + 2\  \[Nu]MST, n]\)] /. repls\[Nu][n])\) \((aMST[n] /. repls)\)\)\)//SeriesStuff];
 
 norm=If[OptionValue["Normalization"]==="SasakiTagoshi",ISymmetryFactorFreq["-\[Nu]-1"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]],1];
 ret=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptL]>=0},coeff norm sumUp/sumDown //SeriesStuff//GammaStuff];
@@ -2450,7 +2450,7 @@ nMin=-(order+1);
 sumUpPH=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptL]>=0},\!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(-\[ScriptR]\)]\(\((
 \*FractionBox[\(
-\*SuperscriptBox[\((\(-1\))\), \(\(-2\)\ n\)]\ PH[1 + n - \[ScriptS] - I\ \[CurlyEpsilon] + \[Nu]MST, \(-n\)]\ PH[2 + n - \[ScriptR] + 2\ \[Nu]MST, \(-n\)]\ PH[1 + n + \[Nu]MST - I\ \[Tau], \(-n\)]\), \(\(\((\(-n\) - \[ScriptR])\)!\)\ PH[1 + n + \[ScriptS] + I\ \[CurlyEpsilon] + \[Nu]MST, \(-n\)]\ PH[1 + n + \[Nu]MST + I\ \[Tau], \(-n\)]\)] /. repls\[Nu][n])\) \((aMST[n]\  /. repls)\)\)\)//SeriesStuff];
+\*SuperscriptBox[\((\(-1\))\), \(\(-2\)\  n\)]\  PH[1 + n - \[ScriptS] - I\  \[CurlyEpsilon] + \[Nu]MST, \(-n\)]\  PH[2 + n - \[ScriptR] + 2\  \[Nu]MST, \(-n\)]\  PH[1 + n + \[Nu]MST - I\  \[Tau], \(-n\)]\), \(\(\((\(-n\) - \[ScriptR])\)!\)\  PH[1 + n + \[ScriptS] + I\  \[CurlyEpsilon] + \[Nu]MST, \(-n\)]\  PH[1 + n + \[Nu]MST + I\  \[Tau], \(-n\)]\)] /. repls\[Nu][n])\) \((aMST[n]\  /. repls)\)\)\)//SeriesStuff];
 sumUp2=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptL]>=0},\!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(\[ScriptR]\)]\(\((
 \*FractionBox[
@@ -2461,7 +2461,7 @@ sumUpPHCoeff=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers
 coeff=(coeff sumUpPHCoeff);
 sumDown=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptL]>=0},\!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(n = \(-\[ScriptR]\)\), \(nMax\)]\(\((
-\*FractionBox[\(PH[1 + n - \[ScriptS] + I\ \[CurlyEpsilon] + \[Nu]MST, \(-n\)]\), \(\(\((n + \[ScriptR])\)!\)\ PH[1 + n + \[ScriptS] - I\ \[CurlyEpsilon] + \[Nu]MST, \(-n\)]\ PH[1 + n - \[ScriptR] + 2\ \[Nu]MST, \(-n\)]\)] /. repls\[Nu][n])\) \((aMST[n] /. repls)\)\)\)//SeriesStuff];
+\*FractionBox[\(PH[1 + n - \[ScriptS] + I\  \[CurlyEpsilon] + \[Nu]MST, \(-n\)]\), \(\(\((n + \[ScriptR])\)!\)\  PH[1 + n + \[ScriptS] - I\  \[CurlyEpsilon] + \[Nu]MST, \(-n\)]\  PH[1 + n - \[ScriptR] + 2\  \[Nu]MST, \(-n\)]\)] /. repls\[Nu][n])\) \((aMST[n] /. repls)\)\)\)//SeriesStuff];
 sumDown2=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptL]>=0},\!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(n = \[ScriptR]\), \(nMax\)]\(\((
 \*FractionBox[\(
