@@ -19,7 +19,7 @@ BeginPackage["Teukolsky`PN`Tools`",{"Teukolsky`","Teukolsky`PN`"}]
 (*Unprotecting*)
 
 
-ClearAttributes[{SeriesTake,SeriesMap,SeriesCoefficientList,SeriesMinOrder,SeriesMaxOrder,SeriesLength,SeriesCollect,SeriesExpand,SeriesTerms,IgnoreExpansionParameter,ChangeSeriesParameter,PowerCounting,StraightenSeries,SeriesPlusSimplify,DropZeroSeries}, {Protected, ReadProtected}];
+ClearAttributes[{SeriesTake,SeriesMap,SeriesCoefficientList,SeriesMinOrder,SeriesMaxOrder,SeriesLength,SeriesCollect,SeriesExpand,SeriesTerms,IgnoreSeriesParameter,ChangeSeriesParameter,PowerCounting,StraightenSeries,SeriesPlusSimplify,DropZeroSeries}, {Protected, ReadProtected}];
 
 
 ClearAttributes[{PNScalings, RemovePN}, {Protected, ReadProtected}];
@@ -70,7 +70,7 @@ SeriesLength::usage="SeriesLenght[series] gives the number of terms in series"
 SeriesCollect::usage="SeriesCollect[expr, var, func] works like Collect but applied to each order individually. Crucially, unlike Collect it keeps the SeriesData structure."
 SeriesExpand::usage="SeriesExpand[expr] works like Expand but applied to each order individually."
 SeriesTerms::usage="SeriesTerms[series, {x, x0, n}] works exactly like Series, with the difference that n gives the desired number of terms instead of a maximum order"
-IgnoreExpansionParameter::usage="IgnoreExpansionParameter[series,x] sets all occurences of the expansion parameter in the series coefficients to x. If no value is entered x defaults to 1."
+IgnoreSeriesParameter::usage="IgnoreSeriesParameter[series,x] sets all occurences of the expansion parameter in the series coefficients to x. If no value is entered x defaults to 1."
 ChangeSeriesParameter::usage="ChangeSeriesParameter[series,expr] changes the expansion parameter in series to be expr." 
 PowerCounting::usage="PowerCounting[series,symbol] replaces the expansion parameter in series with symbol. Unlike ChangeParameter it keeps the original expansion parameter as a constant in each coefficient."
 StraightenSeries::usage="StraightenSeries[expr] straightens out SeriesData objects with redundant denominator arguments, i.e., it removes counting in powers of roots, if all respective coefficients are zero."
@@ -159,7 +159,7 @@ SeriesLength=Teukolsky`PN`Private`SeriesLength
 SeriesCollect=Teukolsky`PN`Private`SeriesCollect
 SeriesExpand=Teukolsky`PN`Private`SeriesExpand
 SeriesTerms=Teukolsky`PN`Private`SeriesTerms
-IgnoreExpansionParameter=Teukolsky`PN`Private`IgnoreExpansionParameter
+IgnoreSeriesParameter=Teukolsky`PN`Private`IgnoreExpansionParameter
 ChangeSeriesParameter=Teukolsky`PN`Private`ChangeSeriesParameter
 PowerCounting=Teukolsky`PN`Private`PowerCounting
 StraightenSeries=Teukolsky`PN`Private`StraightenSeries
@@ -231,7 +231,7 @@ TeukolskyPointParticleSource=Teukolsky`PN`Private`TeukolskyPointParticleSource
 (*Protecting*)
 
 
-SetAttributes[{SeriesTake,SeriesMap,SeriesCoefficientList,SeriesMinOrder,SeriesMaxOrder,SeriesLength,SeriesCollect,SeriesExpand,SeriesTerms,IgnoreExpansionParameter,ChangeSeriesParameter,PowerCounting,StraightenSeries,SeriesPlusSimplify,DropZeroSeries}, {Protected, ReadProtected}];
+SetAttributes[{SeriesTake,SeriesMap,SeriesCoefficientList,SeriesMinOrder,SeriesMaxOrder,SeriesLength,SeriesCollect,SeriesExpand,SeriesTerms,IgnoreSeriesParameter,ChangeSeriesParameter,PowerCounting,StraightenSeries,SeriesPlusSimplify,DropZeroSeries}, {Protected, ReadProtected}];
 
 
 SetAttributes[{PNScalings, RemovePN}, {Protected, ReadProtected}];
