@@ -826,7 +826,7 @@ aux
 ]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Tools*)
 
 
@@ -953,7 +953,7 @@ ExpandSpheroidals[expr_Times,{\[Eta]_,n_}]:=ExpandSpheroidals[#,{\[Eta],n}]&/@ex
 ExpandSpheroidals[expr_,{\[Eta]_,n_}]:=expr;
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Tools for Series*)
 
 
@@ -1189,6 +1189,7 @@ SeriesCollect[expr_,var_,func_:Identity]:=SeriesMap[(Collect[#,var,func]&),expr]
 
 
 SeriesExpand[expr_]:=SeriesMap[Expand,expr];
+SeriesExpand[expr_,patt_]:=SeriesMap[(Expand[#,patt]&),expr];
 
 
 DropZeroSeries=Quiet[#/.SeriesData[_,_,{},___]->0]&;
@@ -2038,7 +2039,7 @@ aux
 ]*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*B Amplitudes*)
 
 
