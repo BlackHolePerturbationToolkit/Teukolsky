@@ -22,10 +22,10 @@ BeginPackage["Teukolsky`PN`Tools`",{"Teukolsky`","Teukolsky`PN`"}]
 ClearAttributes[{SeriesTake,SeriesMap,SeriesCoefficientList,SeriesMinOrder,SeriesMaxOrder,SeriesLength,SeriesCollect,SeriesExpand,SeriesTerms,IgnoreSeriesParameter,ChangeSeriesParameter,PowerCounting,StraightenSeries,SeriesPlusSimplify,DropZeroSeries}, {Protected, ReadProtected}];
 
 
-ClearAttributes[{PNScalings, RemovePN}, {Protected, ReadProtected}];
+ClearAttributes[{Scalings, RemovePN}, {Protected, ReadProtected}];
 
 
-ClearAttributes[{ExpandLog, ExpandGamma,ExpandPolyGamma,PochhammerToGamma,GammaToPochhammer,ExpandDiracDelta,ExpandSpheroidals,CollectDerivatives}, {Protected, ReadProtected}];
+ClearAttributes[{ExpandLog, ExpandGamma,ExpandPolyGamma,PochhammerToGamma,GammaToPochhammer,ExpandDiracDelta,CollectDerivatives}, {Protected, ReadProtected}];
 
 
 ClearAttributes[{TeukolskyPointParticleSource}, {Protected, ReadProtected}];
@@ -38,26 +38,6 @@ ClearAttributes[{Paint,CowboyConjugate,ChangeContext,ChooseSide}, {Protected, Re
 (*Public*)
 
 
-(* ::Subsection::Closed:: *)
-(*MST Coefficients*)
-
-
-(* ::Input:: *)
-(*(*\[Nu]MST::usage="\[Nu]MST is representative of the \[Nu] coefficient in the MST solutions"*)
-(*aMST::usage="aMST[\!\(\**)
-(*StyleBox[\"n\",\nFontSlant->\"Italic\"]\)] is the \!\(\*SuperscriptBox[*)
-(*StyleBox[\"n\",\nFontSlant->\"Italic\"], \(th\)]\) MST coefficient";*)
-(*MSTCoefficients::usage="MSTCoefficients[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]] gives the PN expanded MST coefficients aMST[n] for a given {\[ScriptS],\[ScriptL],\[ScriptM]} mode up to \[Eta]^order\[Eta]."*)
-(*(*KerrMSTSeries::usage="KerrMSTSeries[\!\(\**)
-(*StyleBox[\"\[ScriptS]\",\nFontSlant->\"Italic\"]\),\!\(\**)
-(*StyleBox[\"\[ScriptL]\",\nFontSlant->\"Italic\"]\),\!\(\**)
-(*StyleBox[\"\[ScriptM]\",\nFontSlant->\"Italic\"]\),\!\(\**)
-(*StyleBox[\"order\[Epsilon]\",\nFontSlant->\"Italic\"]\)] gives the PN expanded MST coefficients a[n] for a given {\!\(\**)
-(*StyleBox[\"\[ScriptS]\",\nFontSlant->\"Italic\"]\), \!\(\**)
-(*StyleBox[\"\[ScriptL]\",\nFontSlant->\"Italic\"]\), \!\(\**)
-(*StyleBox[\"\[ScriptM]\",\nFontSlant->\"Italic\"]\)} mode up to \!\(\*SuperscriptBox[\(\[Epsilon]\), \(order\[Epsilon]\)]\). Where the relation to \[Eta] is given by \[Epsilon]=2 \[Omega] \!\(\*SuperscriptBox[\(\[Eta]\), \(3\)]\)."*)*)*)
-
-
 (* ::Subsection:: *)
 (*General Tools for Series*)
 
@@ -65,7 +45,7 @@ ClearAttributes[{Paint,CowboyConjugate,ChangeContext,ChooseSide}, {Protected, Re
 SeriesTake::usage="SeriesTake[series, n] takes the first n terms of series"
 SeriesMap::usage="SeriesMap[function,series] maps f onto the coefficients of series"
 SeriesMinOrder::usage="SeriesMinOrder[series] gives the leading order of series"
-SeriesMaxOrder::usage="SeriesMaxOrder[series] gives the first surpressed order of series"
+SeriesMaxOrder::usage="SeriesMaxOrder[series] gives the first suppressed order of series"
 SeriesLength::usage="SeriesLenght[series] gives the number of terms in series"
 SeriesCollect::usage="SeriesCollect[expr, var, func] works like Collect but applied to each order individually. Crucially, unlike Collect it keeps the SeriesData structure."
 SeriesExpand::usage="SeriesExpand[expr] works like Expand but applied to each order individually."
@@ -84,7 +64,7 @@ SeriesCoefficientList::usage="SeriesCoefficientList[series] returns the Series c
 
 
 Scalings::usage="Scalings[params,var][expr] applies the given powercounting scalings to the expression. E.g. Scalings[{{\[Omega],3,r,-2},\[Eta]][\[Omega] r]"
-PNScalings::usage="Same as Scalings but with different input. Just here to not break my older code but you should use Scalings instead"
+(*PNScalings::usage="Same as Scalings but with different input. Just here to not break my older code but you should use Scalings instead"*)
 RemovePN::usage="PNScalings[expr,var] takes the Normal[] and sets var to 1"
 (*Zero::usage="Zero[expr,vars] sets all vars in expr to 0"
 One::usage="One[expr,vars] sets all vars in expr to 1"*)
@@ -94,7 +74,7 @@ One::usage="One[expr,vars] sets all vars in expr to 1"*)
 (*Tools for Logs, Gammas, and PolyGammas*)
 
 
-ExpandLog::usage="ExpandLog[expr] replaces all Logs in expr with a PowerExpanded version"
+ExpandLog::usage="ExpandLog[expr] replaces all Logs in expr with a PowerExpanded version. Crucially it is not as careless as PowerExpand"
 ExpandGamma::usage="ExpandGamma[expr] factors out all Integer facors out of the Gammas in expr. E.g. Gamma[x+1]->x Gamma[x]"
 ExpandPolyGamma::usage="ExpandPolyGamma[expr] factors out all Integer facors out of the PolyGammas in expr. E.g. PolyGamma[x+1]->\!\(\*FractionBox[\(1\), \(x\)]\) PolyGamma[x]"
 PochhammerToGamma::usage="PochhammerToGamma[expr] replaces all Pochhammer in expr with the respecive Gamma."
@@ -113,7 +93,7 @@ ExpandDiracDelta::usage="ExpandDiracDelta[expr,r] applies identities for Dirac d
 (*Tools  for SpinWeightedSpheroidalHarmonics *)
 
 
-ExpandSpheroidals::usage="ExpandSpheroidal[expr,{param,order}] returns a all SpinWeightedSpheroidalHarmonicS in expr have been Series expanded around param->0 to order."
+(*ExpandSpheroidals::usage="ExpandSpheroidal[expr,{param,order}] returns a all SpinWeightedSpheroidalHarmonicS in expr have been Series expanded around param->0 to order."*)
 
 
 (* ::Subsection:: *)
@@ -122,7 +102,7 @@ ExpandSpheroidals::usage="ExpandSpheroidal[expr,{param,order}] returns a all Spi
 
 CollectDerivatives::usage="CollectDerivatives[expr,f] works exactly like Collect[] but also collects for derivatives of f."
 Paint::usage="Paint[expr,var] paints all occurences of var in expr Red."
-CowboyConjugate::usage="CowboyConjugate[expr] performs the complex conjugate by assuming everything but \[ImaginaryI] is real."
+CowboyConjugate::usage="\"Shoot first, ask questions later\". CowboyConjugate[expr] performs the complex conjugate by assuming everything but \[ImaginaryI] is real."
 ChangeContext::usage="ChangeContext[expr,context1,context2] is a debugging tool that allows to change the context of all symbols in expr"
 ChooseSide::usage="ChooseSide[expr,assumptions] Simplifies all HeavisideTheta and DiracDelta according to assumptions."
 
@@ -141,11 +121,11 @@ TeukolskyPointParticleSource::usage="TeukolskyPointParticleSource[\[ScriptS],\[S
 Begin["Private`"]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*MST Coefficients*)
 
 
-MSTCoefficients=Teukolsky`PN`Private`MSTCoefficients
+(*MSTCoefficients=Teukolsky`PN`Private`MSTCoefficients*)
 
 
 (* ::Subsection:: *)
@@ -173,7 +153,7 @@ SeriesCoefficientList=Teukolsky`PN`Private`SeriesCoefficientList
 (*Tools for PN Scalings*)
 
 
-PNScalings=Teukolsky`PN`Private`PNScalings
+(*PNScalings=Teukolsky`PN`Private`PNScalings*)
 Scalings=Teukolsky`PN`Private`Scalings
 RemovePN=Teukolsky`PN`Private`RemovePN
 (*Zero=Teukolsky`PN`Private`Zero
@@ -198,11 +178,11 @@ GammaToPochhammer=Teukolsky`PN`Private`GammaToPochhammer
 ExpandDiracDelta=Teukolsky`PN`Private`ExpandDiracDelta
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Tools  for SpinWeightedSpheroidalHarmonics *)
 
 
-ExpandSpheroidals=Teukolsky`PN`Private`ExpandSpheroidals
+(*ExpandSpheroidals=Teukolsky`PN`Private`ExpandSpheroidals*)
 
 
 (* ::Subsection:: *)
@@ -234,10 +214,10 @@ TeukolskyPointParticleSource=Teukolsky`PN`Private`TeukolskyPointParticleSource
 SetAttributes[{SeriesTake,SeriesMap,SeriesCoefficientList,SeriesMinOrder,SeriesMaxOrder,SeriesLength,SeriesCollect,SeriesExpand,SeriesTerms,IgnoreSeriesParameter,ChangeSeriesParameter,PowerCounting,StraightenSeries,SeriesPlusSimplify,DropZeroSeries}, {Protected, ReadProtected}];
 
 
-SetAttributes[{PNScalings, RemovePN}, {Protected, ReadProtected}];
+SetAttributes[{Scalings, RemovePN}, {Protected, ReadProtected}];
 
 
-SetAttributes[{ExpandLog, ExpandGamma,ExpandPolyGamma,PochhammerToGamma,GammaToPochhammer,ExpandDiracDelta,ExpandSpheroidals,CollectDerivatives}, {Protected, ReadProtected}];
+SetAttributes[{ExpandLog, ExpandGamma,ExpandPolyGamma,PochhammerToGamma,GammaToPochhammer,ExpandDiracDelta,CollectDerivatives}, {Protected, ReadProtected}];
 
 
 SetAttributes[{TeukolskyPointParticleSource}, {Protected, ReadProtected}];
