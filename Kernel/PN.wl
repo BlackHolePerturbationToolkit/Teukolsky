@@ -1004,7 +1004,7 @@ ExpandSpheroidals[expr_Times,{\[Eta]_,n_}]:=ExpandSpheroidals[#,{\[Eta],n}]&/@ex
 ExpandSpheroidals[expr_,{\[Eta]_,n_}]:=expr;
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Tools for Series*)
 
 
@@ -1255,6 +1255,7 @@ mins=terms//SeriesMinOrder;
 maxs=terms//SeriesMaxOrder;
 (*minMin=Assuming[OptionValue[Assumptions],mins//Min//Simplify];*)
 minMinPos=Assuming[OptionValue[Assumptions],FirstPosition[mins,Min[mins]//Simplify]//First];
+If[minMinPos=="NotFound",Return[expr]];
 maxMax=maxs[[minMinPos]];
 (*inquisition=Assuming[OptionValue[Assumptions],(If[#>maxMax,0,1]&/@mins)//Simplify];*)
 inquisition=Assuming[OptionValue[Assumptions],(maxMax-#&/@mins)//Ramp//Simplify];
@@ -3724,7 +3725,7 @@ Derivative[n_Integer][trf_TeukolskyRadialFunctionPN][r_Symbol]:=(*trf[[6,1]]^(2 
 Keys[trfpn_TeukolskyRadialFunctionPN] ^:= DeleteElements[Join[Keys[trfpn[[-1]]], {}], {"RadialFunction","AmplitudesBool"}];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*TeukolskyPointParticleModePN*)
 
 
@@ -3861,7 +3862,7 @@ ret
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Circular orbit (new)*)
 
 
@@ -3895,7 +3896,8 @@ inner=cIn Rin[r]//ChooseSide[#,r<r0Var]&;
 outer=cUp Rup[r]//ChooseSide[#,r>r0Var]&;
 {Btrans,Ctrans}={BAmplitude["Trans","Normalization"->OptionValue["Normalization"],"FreqRep"->False][\[ScriptS],\[ScriptL],\[ScriptM],aVar,order],CAmplitude["Trans","Normalization"->OptionValue["Normalization"],"FreqRep"->False][\[ScriptS],\[ScriptL],\[ScriptM],aVar,order]}/.\[Eta]->varPN/.\[Omega]->\[Omega]Fourier;
 {cInU,cUpU}={Normal[Btrans] ChooseSide[cIn,r<r0Var],Normal[Ctrans] ChooseSide[cUp,r>r0Var]};
-If[OptionValue["Simplify"]&&NumericQ[\[ScriptL]],{cInU,cUpU(*,deltaCoeff,source*)}={cInU,cUpU(*,deltaCoeff,source*)}//SeriesCollect[#,{SpinWeightedSphericalHarmonicY[__],Derivative[__][SpinWeightedSphericalHarmonicY][__],Inactive[SpinWeightedSpheroidalHarmonicS][__],Derivative[__][Inactive[SpinWeightedSpheroidalHarmonicS]][__]},(Simplify[#,{aVar>=0,r0Var>0,varPN>0}]&)]&];
+If[OptionValue["Simplify"]&&NumericQ[\[ScriptL]],{cInU,cUpU}={cInU,cUpU}//SeriesCollect[#,{SpinWeightedSphericalHarmonicY[__],Derivative[__][SpinWeightedSphericalHarmonicY][__],Inactive[SpinWeightedSpheroidalHarmonicS][__],Derivative[__][Inactive[SpinWeightedSpheroidalHarmonicS]][__]},(Simplify[#,{aVar>=0,r0Var>0,varPN>0}]&)]&];
+If[!OptionValue["Simplify"]&&!NumericQ[\[ScriptM]],{cInU,cUpU}={cInU,cUpU}//SeriesCollect[#,{SpinWeightedSphericalHarmonicY[__],Derivative[__][SpinWeightedSphericalHarmonicY][__],Inactive[SpinWeightedSpheroidalHarmonicS][__],Derivative[__][Inactive[SpinWeightedSpheroidalHarmonicS]][__]}]&];
 wronskian=wronskian/(Ctrans Btrans);
 ampAssoc=<|"\[ScriptCapitalI]"->cUpU,"\[ScriptCapitalH]"->cInU|>;
 (*If[\[ScriptM]===0,wronskian=(wronskian/(Normal[SeriesTake[Rup[r],1]/Ctrans]/.r->varPN^2)//Simplify)/.Log[a_ Style[0,Red]]:>Log[a Style[0,Orange]]/.Style[0,Red]->0];*)
