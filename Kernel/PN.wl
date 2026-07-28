@@ -1464,6 +1464,11 @@ aux
 ]
 
 
+(*Currently not public*)
+trigPattern=Sin|Cos|Tan|Csc|Sec|Cot|Sinh|Cosh|Tanh|Csch|Sech|Coth;
+ExpandTrig=#/. (f:trigPattern)[x_]:>f[Expand[x]]&;
+
+
 (* ::Subsubsection::Closed:: *)
 (*Bryan Adams (not working yet...)*)
 
@@ -2037,7 +2042,7 @@ Derivative[n_][\[Theta]][arg_]:=Derivative[n-1][\[Delta]][arg];
 \[Delta]''[\[Eta]^-2 a_]:=\[Eta]^2 \[Delta]''[a];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Amplitudes*)
 
 
@@ -2104,7 +2109,7 @@ aux
 ]*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*B Amplitudes*)
 
 
@@ -2237,7 +2242,7 @@ aux
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*C Amplitude*)
 
 
@@ -2519,7 +2524,7 @@ ret
 \[CurlyEpsilon]=2 \[Omega] \[Gamma];
 \[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;
 \[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];
-SeriesStuff=(#//IgnoreExpansionParameter//SeriesTake[#,order\[CurlyEpsilon]]&)&;
+SeriesStuff=(#//IgnoreExpansionParameter//SeriesTake[#,order\[CurlyEpsilon]]&//ExpandTrig)&;
 ReflectGammas=#/.{Gamma[x_]/;(Quiet[Simplify[-I Sign[Select[x//If[NumericQ[\[ScriptS]],Identity,ReplaceAll[\[ScriptS]->1]]//If[NumericQ[\[ScriptL]],Identity,ReplaceAll[\[ScriptL]->1]],(!IntegerQ[#]&)]],{1>a>0,1>\[Kappa]>0,\[ScriptM]>0}]]==-1):>(\[Pi] Csc[\[Pi] x])/Gamma[1-x],PolyGamma[n_,x_]/;(Quiet[Simplify[-I Sign[Select[x//If[NumericQ[\[ScriptS]],Identity,ReplaceAll[\[ScriptS]->1]]//If[NumericQ[\[ScriptL]],Identity,ReplaceAll[\[ScriptL]->1]],(!IntegerQ[#]&)]],{1>\[Kappa]>0,1>a>0,\[ScriptM]>0}]]==-1):>-\[Pi]^(n+1) Derivative[n][Cot][\[Pi] x]+(-1)^n PolyGamma[n,1-x]}&;
 GammaStuff=(#//ExpandPolyGamma[#,\[ScriptL]]&//ExpandGamma[#,\[ScriptL]]&//ReflectGammas//ExpandPolyGamma[#,-\[ScriptL]]&//ExpandGamma[#,-\[ScriptL]]&)&;
 If[!NumericQ[\[ScriptL]],GammaStuff=((#//ReflectGammas//ExpandGamma//ExpandPolyGamma)&)];
@@ -2584,7 +2589,7 @@ ret
 \[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];
 (*\[Kappa]=Sqrt[1-a^2];*)
 order=order\[CurlyEpsilon]+2//Max[#,3]&;
-SeriesStuff=(#//IgnoreExpansionParameter//SeriesTake[#,order\[CurlyEpsilon]]&)&;
+SeriesStuff=(#//IgnoreExpansionParameter//SeriesTake[#,order\[CurlyEpsilon]]&//ExpandTrig)&;
 ReflectGammas=#/.{Gamma[x_]/;(Quiet[Simplify[-I Sign[Select[x//If[NumericQ[\[ScriptS]],Identity,ReplaceAll[\[ScriptS]->1]]//If[NumericQ[\[ScriptL]],Identity,ReplaceAll[\[ScriptL]->1]],(!IntegerQ[#]&)]],{1>a>0,1>\[Kappa]>0,\[ScriptM]>0}]]==-1):>(\[Pi] Csc[\[Pi] x])/Gamma[1-x],PolyGamma[n_,x_]/;(Quiet[Simplify[-I Sign[Select[x//If[NumericQ[\[ScriptS]],Identity,ReplaceAll[\[ScriptS]->1]]//If[NumericQ[\[ScriptL]],Identity,ReplaceAll[\[ScriptL]->1]],(!IntegerQ[#]&)]],{1>\[Kappa]>0,1>a>0,\[ScriptM]>0}]]==-1):>-\[Pi]^(n+1) Derivative[n][Cot][\[Pi] x]+(-1)^n PolyGamma[n,1-x]}&;
 GammaStuff=(#//ExpandPolyGamma[#,\[ScriptL]]&//ExpandGamma[#,\[ScriptL]]&//ReflectGammas//ExpandPolyGamma[#,-\[ScriptL]]&//ExpandGamma[#,-\[ScriptL]]&)&;
 If[!NumericQ[\[ScriptL]],GammaStuff=((#//ReflectGammas//ExpandGamma//ExpandPolyGamma)&)];
@@ -2669,7 +2674,7 @@ aux=\[ScriptCapitalK]AmplitudeFreq[sol,"Normalization"->OptionValue["Normalizati
 If[OptionValue["FreqRep"]===False,aux=aux//ChangeSeriesParameter[#,\[Eta]^3]&//SeriesTake[#,order\[Eta]]&];
 (*No ExpandGamma or ExpandPolyGamma here. They make things worse*)
 If[!NumericQ[\[ScriptL]],aux=aux//TrigToExp//ReplaceAll[E^aa_:>Simplify[E^Expand[aa],{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptM]\[Element]Integers,\[ScriptL]>=Abs[\[ScriptS]]}]]//Expand//SeriesPlusSimplify[#,\[ScriptL]>=Abs[\[ScriptS]]]&];
-If[OptionValue["Simplify"],aux=aux//SeriesExpand//SeriesCollect[#,{E^__,Log[__],Gamma[__],PolyGamma[__]},(Simplify[#,{1>a>=0}]&)]&];
+If[OptionValue["Simplify"],aux=aux//SeriesExpand//SeriesCollect[#,{E^__,Log[__],Gamma[__],PolyGamma[__]},(Simplify[#,{1>a>=0,\[ScriptM]\[Element]Integers,\[ScriptL]\[Element]Integers>=0,\[ScriptS]\[Element]Integers}]&)]&];
 aux
 ]
 
@@ -2769,22 +2774,21 @@ aux
 (*Phase shift*)
 
 
-CTeukolskyStarobinsky[2,\[ScriptL]_,m_,a_,\[Omega]_,{\[Gamma]_,order_},P_]:=Module[{s=2,aux,D,\[ScriptW],\[Lambda]},
+CTeukolskyStarobinsky[s:(2|-2),\[ScriptL]_,m_,a_,\[Omega]_,{\[Gamma]_,order_},P_]:=Module[{aux,D,\[ScriptW],\[Lambda]Chs,\[Lambda]},
 \[ScriptW]=\[Omega] \[Gamma];
 \[Lambda]=SpinWeightedSpheroidalEigenvalue[s,\[ScriptL],m,a \[ScriptW] ]+s^2+s//Series[#,{\[Gamma],0,order}]&;
-D=Sqrt[\[Lambda]^2 (\[Lambda]-2)^2+8 a \[ScriptW] (m-a \[ScriptW]) (\[Lambda]-2) (5 \[Lambda]-4)+48 (a \[ScriptW])^2 (2 (\[Lambda]-2)+3 (m-a \[ScriptW])^2)];
+\[Lambda]Chs=\[Lambda]+s^2+s;
+D=Sqrt[\[Lambda]Chs^2 (\[Lambda]Chs-2)^2+8 a \[ScriptW] (m-a \[ScriptW]) (\[Lambda]Chs-2) (5 \[Lambda]Chs-4)+48 (a \[ScriptW])^2 (2 (\[Lambda]Chs-2)+3 (m-a \[ScriptW])^2)];
 aux=D+P 12 I \[ScriptW] (*(-1)^(\[ScriptL]+m)*);
 aux
 ]
-CTeukolskyStarobinsky[1,\[ScriptL]_,m_,a_,\[Omega]_,{\[Gamma]_,order_},P_]:=Module[{s=1,aux,D,\[ScriptW],\[Lambda]},
+CTeukolskyStarobinsky[s:(1|-1),\[ScriptL]_,m_,a_,\[Omega]_,{\[Gamma]_,order_},P_:1]:=Module[{aux,D,\[ScriptW],\[Lambda],\[Lambda]Chs},
 \[ScriptW]=\[Omega] \[Gamma];
 \[Lambda]=SpinWeightedSpheroidalEigenvalue[s,\[ScriptL],m,a \[ScriptW] ]//Series[#,{\[Gamma],0,order}]&;
-aux=(\[Lambda]+2)^2+ 4 a \[ScriptW](m-a \[ScriptW]);
+\[Lambda]Cs=\[Lambda]+s^2+s;
+aux=(\[Lambda]Chs)^2+ 4 a \[ScriptW](m-a \[ScriptW]);
 aux
 ]
-
-CTeukolskyStarobinsky[-2,\[ScriptL]_,m_,a_,\[Omega]_,{\[Gamma]_,order_},P_:1]:=CTeukolskyStarobinsky[2,\[ScriptL],m,a,\[Omega],{\[Gamma],order},P];
-CTeukolskyStarobinsky[-1,\[ScriptL]_,m_,a_,\[Omega]_,{\[Gamma]_,order_},P_:1]:=CTeukolskyStarobinsky[1,\[ScriptL],m,a,\[Omega],{\[Gamma],order},P];
 CTeukolskyStarobinsky[0,\[ScriptL]_,m_,a_,\[Omega]_,{\[Gamma]_,order_},P_:1]:=1;
 
 
@@ -2848,7 +2852,7 @@ ret
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Interface*)
 
 
@@ -3537,7 +3541,7 @@ icons = <|
 (*]*)*)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Getting internal association faster*)
 
 
@@ -3550,19 +3554,22 @@ InGap[\[ScriptL]_,0]:=4\[ScriptL]+2;
 Options[RadialAssociationBoth]={"Normalization"->"Default", "Amplitudes"->False, "Simplify"->True,"CoulombWaveFunctions"->False}
 
 
-RadialAssociationBoth[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{varPN_,order_},opt:OptionsPattern[]]:=Module[{aux,\[CurlyEpsilon],\[CurlyEpsilon]p,repls,\[Kappa],\[Tau],ret,\[ScriptCapitalK],RC1,RC2,R,RF,gap,boundaryCondition,coeffUp,C1,C2,BC,lead,minOrder,termCount,normalization,amplitudes,trans,inc,ref},
+RadialAssociationBoth[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{varPN_,order_},opt:OptionsPattern[]]:=Module[{aux,\[CurlyEpsilon],\[CurlyEpsilon]p,repls,\[Kappa],\[Tau],ret,trigPattern,\[ScriptCapitalK],ExpandTrig,RC1,RC2,R,RF,gap,boundaryCondition,coeffUp,C1,C2,BC,lead,minOrder,termCount,normalization,amplitudes,trans,inc,ref},
 CheckInput["In",\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{varPN,order}];
 (*We start with computing some essentials*)
 \[CurlyEpsilon]=2 \[Omega];
 \[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;
 \[Kappa]=Sqrt[1-a^2];
 \[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];
+trigPattern=Sin|Cos|Tan|Csc|Sec|Cot|Sinh|Cosh|Tanh|Csch|Sech|Coth;
+ExpandTrig=#/. (f:trigPattern)[x_]:>f[Expand[x]]&;
 repls=MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],a,order+7];
 RC1=RPN["C\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order+If[\[ScriptL]===0,2,0]];
 RC2=RPN["C-\[Nu]-1"][\[ScriptS],\[ScriptL],\[ScriptM],a,order+If[\[ScriptL]===0,2,0]];
 (*We then turn to R_In*)
+{RC1,RC2}={RC1,RC2}//ReplaceAll[PolyGamma[aa_?NumericQ,bb_?NumericQ]:>FunctionExpand[PolyGamma[aa,bb],Assumptions->$Assumptions]];
 gap=InGap[If[NumericQ[\[ScriptL]],\[ScriptL],If[NumericQ[\[ScriptS]],Abs[\[ScriptS]],0]],\[ScriptM] a];
-\[ScriptCapitalK]=\[ScriptCapitalK]Amplitude["Ratio","FreqRep"->False][\[ScriptS],\[ScriptL],\[ScriptM],a,Max[order-gap,2]]//ExpandGamma//ExpandPolyGamma//SeriesCollect[#,PolyGamma[__,__]]&;
+\[ScriptCapitalK]=\[ScriptCapitalK]Amplitude["Ratio","FreqRep"->False,"Simplify"->OptionValue["Simplify"]][\[ScriptS],\[ScriptL],\[ScriptM],a,Max[order-gap,2]]//ExpandGamma//ExpandPolyGamma//SeriesCollect[#,PolyGamma[__,__]]&;
 If[NumericQ[\[ScriptL]],
 	aux=RC1+\[ScriptCapitalK] RC2//SeriesTake[#,order]&,
 	(*else*)
@@ -3576,10 +3583,12 @@ normalization["In"]=Switch[OptionValue["Normalization"],
 	"LogFree",LogFreeFactor[\[ScriptS],\[ScriptL],\[ScriptM],a,order](ISymmetryFactor["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order]^-1)
 ];
 aux=normalization["In"] aux//IgnoreExpansionParameter;
+aux=aux//ExpandTrig;
 If[OptionValue["CoulombWaveFunctions"],aux=RC1//SeriesTake[#,order]&];
 R["In"]=aux/.\[Omega]->\[Omega]Var//ChangeSeriesParameter[#,varPN]&;
 R["In"]=R["In"]//SeriesCollect[#,{Log[__],PolyGamma[__]}]&;
-If[OptionValue["Simplify"],R["In"]=R["In"]//SeriesCollect[#,{Log[__],PolyGamma[__]},Simplify]&];
+(*EchoTiming[If[OptionValue["Simplify"],R["In"]=R["In"]//SeriesCollect[#,{Log[__],PolyGamma[__]},Simplify]&],"Simplify RIn"];*)
+If[OptionValue["Simplify"],R["In"]=R["In"]//SeriesCollect[#,{Sqrt[1-a^2],r,\[Omega],Log[__]},Simplify]&];
 (*We then move to Rup*)
 (*coeffUp=-(\[ImaginaryI]^(-1-2\[ScriptS]) \[ExponentialE]^(\[Pi] \[CurlyEpsilon]) \[ExponentialE]^(\[ImaginaryI] \[Pi]/2(\[Nu]MST+1+\[ScriptS])))(\[ImaginaryI] \[ExponentialE]^(-\[Pi] \[CurlyEpsilon]-\[ImaginaryI] \[Pi] \[ScriptS]) Sin[\[Pi] (\[Nu]MST+\[ScriptS]-\[ImaginaryI] \[CurlyEpsilon])])/Sin[2 \[Pi] \[Nu]MST];*)
 coeffUp=-I E^(-(1/2) I \[Pi] (3 \[ScriptS]-\[Nu]MST)) Csc[2 \[Pi] \[Nu]MST] Sin[\[Pi] (\[ScriptS]-I \[CurlyEpsilon]+\[Nu]MST)];
@@ -3604,7 +3613,8 @@ aux=aux normalization["Up"]//IgnoreExpansionParameter;
 If[OptionValue["CoulombWaveFunctions"],aux=RC2//SeriesTake[#,order]&];
 R["Up"]=aux/.\[Omega]->\[Omega]Var//ChangeSeriesParameter[#,varPN]&;
 R["Up"]=R["Up"]//SeriesCollect[#,{Log[__],PolyGamma[__]}]&;
-If[OptionValue["Simplify"],R["Up"]=R["Up"]//SeriesCollect[#,{Log[__],PolyGamma[__]},Simplify]&];
+(*EchoTiming[If[OptionValue["Simplify"],R["Up"]=R["Up"]//SeriesCollect[#,{Log[__],PolyGamma[__]},Simplify]&]];*)
+If[OptionValue["Simplify"],R["Up"]=R["Up"]//SeriesCollect[#,{Log[__],Sqrt[1-a^2],r,\[Omega]},Simplify]&];
 (*We then move getting the other keys*)
 RF["In"]=(Evaluate[R["In"]/.r->#])&;
 RF["Up"]=(Evaluate[R["Up"]/.r->#])&;
@@ -3735,7 +3745,7 @@ Derivative[n_Integer][trf_TeukolskyRadialFunctionPN][r_Symbol]:=(*trf[[6,1]]^(2 
 Keys[trfpn_TeukolskyRadialFunctionPN] ^:= DeleteElements[Join[Keys[trfpn[[-1]]], {}], {"RadialFunction","AmplitudesBool"}];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*TeukolskyPointParticleModePN*)
 
 
@@ -4043,7 +4053,7 @@ Keys[trfpn_TeukolskyModePN]^:= DeleteElements[Join[Keys[trfpn[[-1]]], {"Fluxes",
 Derivative[n_Integer][tppm_TeukolskyModePN][r_Symbol]:=(*tppm[[6,1]]^(2 n)*) Derivative[n][tppm[[-1]]["RadialFunction"]][r]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Fluxes*)
 
 
