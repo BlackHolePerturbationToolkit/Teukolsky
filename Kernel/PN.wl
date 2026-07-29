@@ -113,20 +113,21 @@ rstar*)
 Begin["`Private`"]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Loading dependencies*)
 
 
 (*<<BlackHoleAnalysis`SeriesTools`*)
 <<SpinWeightedSpheroidalHarmonics`
 <<KerrGeodesics`
+packageDir=DirectoryName[$InputFileName]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*MST Coefficients*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Adrian's code for MST coefficients specific s specific l *)
 
 
@@ -506,7 +507,7 @@ MST=Append[MST,Table[a[n]->aMST[n]+If[n==0,0,O[\[Epsilon]]^(ExpOrder+1)],{n,-Exp
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Adrian's code for MST coefficients generic s *)
 
 
@@ -1944,7 +1945,7 @@ Derivative[n_][\[Theta]][arg_]:=Derivative[n-1][\[Delta]][arg];
 \[Delta]''[\[Eta]^-2 a_]:=\[Eta]^2 \[Delta]''[a];*)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Amplitudes*)
 
 
@@ -2133,7 +2134,7 @@ aux
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*C Amplitude*)
 
 
@@ -2959,7 +2960,7 @@ If[!MatchQ[order,_Integer],Message[TeukolskyRadialFunctionPN::paramorder,order];
 ]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*TeukolskyRadialPN*)
 
 
@@ -2987,6 +2988,43 @@ icons = <|
 			Background->White,
 			ImageSize -> Dynamic[{Automatic, 3.5 CurrentValue["FontCapHeight"]/AbsoluteCurrentValue[Magnification]}]]
 |>;
+
+
+(* ::Subsubsection:: *)
+(*Getting Rin and Rup seperately (not used in TeukolskyRadialPN)*)
+
+
+Options[RPN]={"Normalization"->"Default", "Simplify"->True}
+
+
+RPN["In",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{varPN_,order_}]:=Module[{aux,RC1,RC2,gap,ret,\[ScriptCapitalK],normalization},
+gap=InGap[If[NumericQ[\[ScriptL]],\[ScriptL],If[NumericQ[\[ScriptS]],Abs[\[ScriptS]],0]],\[ScriptM] a];
+RC1=RPN["C\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order+If[\[ScriptL]===0,2,0]];
+RC2=RPN["C-\[Nu]-1"][\[ScriptS],\[ScriptL],\[ScriptM],a,Max[order+If[\[ScriptL]===0,2,0]-gap,2]];
+(*We then turn to R_In*)
+{RC1,RC2}={RC1,RC2}//ReplaceAll[PolyGamma[aa_?NumericQ,bb_?NumericQ]:>FunctionExpand[PolyGamma[aa,bb],Assumptions->$Assumptions]];
+\[ScriptCapitalK]=\[ScriptCapitalK]Amplitude["Ratio","FreqRep"->False,"Simplify"->OptionValue["Simplify"]][\[ScriptS],\[ScriptL],\[ScriptM],a,Max[order-gap,2]]//ExpandGamma//ExpandPolyGamma//SeriesCollect[#,PolyGamma[__,__]]&;
+If[NumericQ[\[ScriptL]],
+	aux=RC1+\[ScriptCapitalK] RC2//SeriesTake[#,order]&,
+	(*else*)
+	aux=RC1//SeriesTake[#,order]& (*The second term grows quicker than the minimum valid \[ScriptL]. The generic \[ScriptL] expressions therefore only need the first term in RIn*)
+];
+normalization["In"]=Switch[OptionValue["Normalization"],
+	"TidalResponse",ISymmetryFactor["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order]^-1,
+	"Default",SeriesData[\[Eta], 0, {1}, 0, order, 1],
+	"SasakiTagoshi",\[ScriptCapitalK]Amplitude["\[Nu]","FreqRep"->False][\[ScriptS],\[ScriptL],\[ScriptM],a,order],
+	"UnitTransmission",1/BAmplitude["Trans","FreqRep"->False][\[ScriptS],\[ScriptL],\[ScriptM],a,order],
+	"LogFree",LogFreeFactor[\[ScriptS],\[ScriptL],\[ScriptM],a,order](ISymmetryFactor["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order]^-1)
+];
+aux=normalization["In"] aux//IgnoreExpansionParameter;
+aux=aux//ExpandTrig;
+aux=aux/.\[Omega]->\[Omega]Var//ChangeSeriesParameter[#,varPN]&;
+aux=aux//SeriesCollect[#,{Log[__],PolyGamma[__]}]&;
+(*EchoTiming[If[OptionValue["Simplify"],R["In"]=R["In"]//SeriesCollect[#,{Log[__],PolyGamma[__]},Simplify]&],"Simplify RIn"];*)
+If[OptionValue["Simplify"],aux=aux//SeriesCollect[#,{Sqrt[1-a^2],\[Omega]Var,Log[__]},Simplify]&];
+ret=(Evaluate[aux/.r->#])&;
+ret
+]
 
 
 (* ::Subsubsection:: *)
@@ -3258,8 +3296,8 @@ RadialSourcedAssociation["CO",opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[Sc
 (*\[CapitalOmega]\[Phi]Scaled=If[OptionValue["InactiveHarmonics"],Inactive[KerrGeoFrequencies][varPN^3 aVar,r0Var,0,1]["\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"],KerrGeoFrequencies[varPN^3 aVar,r0Var,0,1]["\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"]];
 \[Omega]FourierScaled=If[\[ScriptM]===0,Style[0,Orange]\[CapitalOmega]\[Phi]Scaled,\[ScriptM] \[CapitalOmega]\[Phi]Scaled];*)
 If[!(OptionValue["FourierFrequency"]==="OrbitalFrequency"),\[Omega]Fourier=OptionValue["FourierFrequency"]];
-aux=TeukolskyRadialPN[\[ScriptS],\[ScriptL],\[ScriptM],aVar,\[Omega]Fourier,{varPN,order},"Normalization"->OptionValue["Normalization"]];
-Rin=aux["In"][[-1]]["RadialFunction"];
+If[!OptionValue["\[ScriptCapitalI]Only"],aux=TeukolskyRadialPN[\[ScriptS],\[ScriptL],\[ScriptM],aVar,\[Omega]Fourier,{varPN,order},"Normalization"->OptionValue["Normalization"]]];
+Rin=If[!OptionValue["\[ScriptCapitalI]Only"],aux["In"][[-1]]["RadialFunction"],RPN["In","Normalization"->OptionValue["Normalization"]][\[ScriptS],\[ScriptL],\[ScriptM],aVar,\[Omega]Fourier,{varPN,order}]];
 Rup=aux["Up"][[-1]]["RadialFunction"];
 wronskian=InvariantWronskian[\[ScriptS],\[ScriptL],\[ScriptM],aVar,\[Omega]Fourier,{varPN, order},{"FreqRep"->False,"Normalization"->OptionValue["Normalization"]}];
 source=\!\(
@@ -3308,7 +3346,7 @@ ret
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*TeukolskyModePN*)
 
 
@@ -3341,7 +3379,7 @@ TeukolskyModePN /:
 ];
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*TeukolskyPointParticleModePN*)
 
 
@@ -3420,7 +3458,7 @@ Keys[trfpn_TeukolskyModePN]^:= DeleteElements[Join[Keys[trfpn[[-1]]], {"Fluxes",
 Derivative[n_Integer][tppm_TeukolskyModePN][r_Symbol]:=(*tppm[[6,1]]^(2 n)*) Derivative[n][tppm[[-1]]["RadialFunction"]][r]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Fluxes*)
 
 
