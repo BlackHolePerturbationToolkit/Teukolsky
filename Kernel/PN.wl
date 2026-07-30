@@ -852,7 +852,7 @@ aux
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Tools*)
 
 
@@ -1939,7 +1939,7 @@ Derivative[n_][\[Theta]][arg_]:=Derivative[n-1][\[Delta]][arg];
 \[Delta]''[\[Eta]^-2 a_]:=\[Eta]^2 \[Delta]''[a];*)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Amplitudes*)
 
 
@@ -2129,7 +2129,7 @@ aux
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*C Amplitude*)
 
 
@@ -2334,7 +2334,7 @@ aux
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*K Amplitude*)
 
 
@@ -3034,7 +3034,7 @@ If[!MatchQ[order,_Integer],Message[TeukolskyRadialFunctionPN::paramorder,order];
 ]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*TeukolskyRadialPN*)
 
 
@@ -3064,7 +3064,7 @@ icons = <|
 |>;
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Getting Rin and Rup seperately (not used in TeukolskyRadialPN)*)
 
 
@@ -3124,8 +3124,8 @@ CheckInput["In",\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{varPN,order}];
 trigPattern=Sin|Cos|Tan|Csc|Sec|Cot|Sinh|Cosh|Tanh|Csch|Sech|Coth;
 ExpandTrig=#/. (f:trigPattern)[x_]:>f[Expand[x]]&;
 repls=MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],a,order+7];
-EchoTiming[RC1=RPN["C\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order+If[\[ScriptL]===0,2,0]],"RC\[Nu]"];
-EchoTiming[RC2=RPN["C-\[Nu]-1"][\[ScriptS],\[ScriptL],\[ScriptM],a,order+If[\[ScriptL]===0,2,0]],"RC-\[Nu]-1"];
+RC1=RPN["C\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order+If[\[ScriptL]===0,2,0]];
+RC2=RPN["C-\[Nu]-1"][\[ScriptS],\[ScriptL],\[ScriptM],a,order+If[\[ScriptL]===0,2,0]];
 (*We then turn to R_In*)
 {RC1,RC2}={RC1,RC2}//ReplaceAll[PolyGamma[aa_?NumericQ,bb_?NumericQ]:>FunctionExpand[PolyGamma[aa,bb],Assumptions->$Assumptions]];
 If[!NumericQ[\[ScriptL]]||!NumericQ[\[ScriptS]],{RC1,RC2}={RC1,RC2}//TrigToExp//ReplaceAll[E^aa_:>Simplify[E^Expand[aa],{\[ScriptL]\[Element]Integers}]]//ExpandGamma];
@@ -3150,8 +3150,7 @@ If[!NumericQ[\[ScriptL]]||!NumericQ[\[ScriptS]],aux=aux//TrigToExp//ReplaceAll[E
 R["In"]=aux/.\[Omega]->\[Omega]Var/.\[Eta]->varPN;
 R["In"]=R["In"]//SeriesCollect[#,{Log[__],PolyGamma[__]}]&;
 (*EchoTiming[If[OptionValue["Simplify"],R["In"]=R["In"]//SeriesCollect[#,{Log[__],PolyGamma[__]},Simplify]&],"Simplify RIn"];*)
-Echo[lyrics[[1]]];
-EchoTiming[If[OptionValue["Simplify"],R["In"]=R["In"]//SeriesCollect[#,{Sqrt[1-a^2],r,\[Omega],Log[__]},Simplify]&],"Simplify Rin"];
+If[OptionValue["Simplify"],R["In"]=R["In"]//SeriesCollect[#,{Sqrt[1-a^2],r,\[Omega],Log[__]},Simplify]&];
 (*We then move to Rup*)
 (*coeffUp=-(\[ImaginaryI]^(-1-2\[ScriptS]) \[ExponentialE]^(\[Pi] \[CurlyEpsilon]) \[ExponentialE]^(\[ImaginaryI] \[Pi]/2(\[Nu]MST+1+\[ScriptS])))(\[ImaginaryI] \[ExponentialE]^(-\[Pi] \[CurlyEpsilon]-\[ImaginaryI] \[Pi] \[ScriptS]) Sin[\[Pi] (\[Nu]MST+\[ScriptS]-\[ImaginaryI] \[CurlyEpsilon])])/Sin[2 \[Pi] \[Nu]MST];*)
 coeffUp=-I E^(-(1/2) I \[Pi] (3 \[ScriptS]-\[Nu]MST)) Csc[2 \[Pi] \[Nu]MST] Sin[\[Pi] (\[ScriptS]-I \[CurlyEpsilon]+\[Nu]MST)];
@@ -3178,8 +3177,7 @@ If[!NumericQ[\[ScriptL]]||!NumericQ[\[ScriptS]],aux=aux//TrigToExp//ReplaceAll[E
 R["Up"]=aux/.\[Omega]->\[Omega]Var/.\[Eta]->varPN;
 R["Up"]=R["Up"]//SeriesCollect[#,{Log[__],PolyGamma[__]}]&;
 (*EchoTiming[If[OptionValue["Simplify"],R["Up"]=R["Up"]//SeriesCollect[#,{Log[__],PolyGamma[__]},Simplify]&]];*)
-Echo[lyrics[[2]]];
-EchoTiming[If[OptionValue["Simplify"],R["Up"]=R["Up"]//SeriesCollect[#,{Log[__],Sqrt[1-a^2],r,\[Omega]},Simplify]&],"Simplify Rup"];
+If[OptionValue["Simplify"],R["Up"]=R["Up"]//SeriesCollect[#,{Log[__],Sqrt[1-a^2],r,\[Omega]},Simplify]&];
 (*We then move getting the other keys*)
 RF["In"]=(Evaluate[R["In"]/.r->#])&;
 RF["Up"]=(Evaluate[R["Up"]/.r->#])&;
