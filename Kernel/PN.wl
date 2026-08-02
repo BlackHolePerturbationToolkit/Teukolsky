@@ -1202,6 +1202,23 @@ SeriesMap[function_,expr_List,levelspec_:Infinity]:=SeriesMap[function,#,levelsp
 SeriesMap[function_,expr_,levelspec_]:=function[expr];*)
 
 
+SeriesMapAt[function_,expr_SeriesData,pos_]:=Module[{aux,coeffs},
+coeffs=expr[[3]];
+aux=MapAt[function,coeffs,pos];
+expr//ReplacePart[#,3->aux]&
+]
+SeriesMapAt[function_,expr_,pos_]:=expr/.a_SeriesData:>SeriesMapAt[function,a,pos];
+(*SeriesMap[function_,expr_,levelspec_:Infinity]/;MatchQ[expr,a__ b_SeriesData]:=Module[{aux,coeffs,factor,series},
+{factor,series}=expr/.a__ b_SeriesData:>{Times[a],b};
+coeffs=series[[3]];
+aux=SeriesMap[function,series,levelspec];
+factor aux
+];
+SeriesMap[function_,expr_Plus,levelspec_:Infinity]:=SeriesMap[function,#,levelspec]&/@expr;
+SeriesMap[function_,expr_List,levelspec_:Infinity]:=SeriesMap[function,#,levelspec]&/@expr;
+SeriesMap[function_,expr_,levelspec_]:=function[expr];*)
+
+
 (*SeriesCollect[series_SeriesData,var__,func_:Identity]:=Collect[#,var,func]&/@series;
 SeriesCollect[list_List,var__,func_:Identity]:=SeriesCollect[#,var,func]&/@list;
 SeriesCollect[expr_,var__,func_:Identity]:=Collect[#,var,func]&@expr;*)
@@ -1255,7 +1272,7 @@ aux
 InactiveSeriesPrefactor[expr_]:=expr/.a_SeriesData:>InactiveSeriesPrefactor[a];
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Tools for Logs, Gammas, and PolyGammas*)
 
 
@@ -1348,6 +1365,10 @@ PochhammerToGamma[expr_]:=(expr/.Pochhammer[x_,n_]:>Gamma[x+n]/Gamma[x]);
 
 
 GammaToPochhammer[expr_,n_]:=expr/.(Gamma[x_+sign_. n]:>Pochhammer[x,sign n]Gamma[x]);
+
+
+(*Not public*)
+ReplacePolyGamma=((#//ReplaceAll[PolyGamma[aa__](*/;(IntegerQ[aa]&&IntegerQ[bb])*):>FunctionExpand[PolyGamma[aa],Assumptions->$Assumptions]])&);
 
 
 (*Reflections=(#/.\[CapitalGamma][xx_]/;!FreeQ[xx,\[Nu]MST]:>\[Pi]/(Sin[\[Pi] xx]\[CapitalGamma][1-xx])/.PH[xx_,n_]/;!FreeQ[xx,\[Nu]MST]:>(-1)^nPH[-xx-n+1,n])&;*)
@@ -2342,7 +2363,7 @@ aux
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*K Amplitude*)
 
 
@@ -2359,21 +2380,21 @@ Options[\[ScriptCapitalK]AmplitudeFreq]={"Simplify"->False,"Normalization"->"Def
 \[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];
 SeriesStuff=(#//IgnoreExpansionParameter//SeriesTake[#,order\[CurlyEpsilon]]&)&;
 GammaStuff=(#//ExpandGamma[#,\[ScriptL]+1]&//ExpandPolyGamma[#,\[ScriptL]+1]&)&;
-If[!NumericQ[\[ScriptL]],GammaStuff=Identity];
+If[!NumericQ[\[ScriptL]],GammaStuff=(#//ExpandGamma//ExpandPolyGamma)&];
 jump[1]=\[ScriptS]+\[ScriptL]+1+n<=0;(*This is the upper Pochhammer in sumDown*)
 jumpCount=1+(jump[1]//Boole//Total);
 If[!NumericQ[\[ScriptL]],jumpCount=1];
 order=order\[CurlyEpsilon]+1//Max[#,3]&;
 repls=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order];
 repls\[Nu][n_]:=<|\[Nu]MST->(repls[\[Nu]MST]//SeriesTake[#,SeriesLength[repls[aMST[n]]]+jumpCount]&)|>;
-coeff=(E^(I \[CurlyEpsilon] \[Kappa]) I^(\[ScriptS]-\[Nu]MST) (\[CurlyEpsilon] \[Kappa])^(\[ScriptS]-\[Nu]MST-\[ScriptR]) 2^-\[Nu]MST I^-\[ScriptR] (\[CapitalGamma][1-\[ScriptS]-2 I \[CurlyEpsilon]p]))/\[CapitalGamma][\[ScriptR]+\[Nu]MST+1-\[ScriptS]+I \[CurlyEpsilon]];
+coeff=(E^(I \[CurlyEpsilon] \[Kappa]) I^(\[ScriptS]-\[Nu]MST) (\[CurlyEpsilon] \[Kappa])^(\[ScriptS]-\[Nu]MST-\[ScriptR]) 2^-\[Nu]MST I^-\[ScriptR] (\[CapitalGamma][1-\[ScriptS]-2 I \[CurlyEpsilon]p]))/(\[CapitalGamma][\[ScriptR]+\[Nu]MST+1-\[ScriptS]+I \[CurlyEpsilon]]\[CapitalGamma][1+\[Nu]MST-I \[Tau]]);
 coeff=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptL]>=0},coeff/.repls//SeriesStuff];
 nMax=order-1;
 nMin=-(order+1);
 sumUp=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptL]>=0},\!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(n = \[ScriptR]\), \(nMax\)]\(\((
 \*FractionBox[\(
-\*SuperscriptBox[\((\(-1\))\), \(n\)]\  PH[1 + \[ScriptS] + I\  \[CurlyEpsilon] + \[Nu]MST, n]\  \[CapitalGamma][1 + \[ScriptR] + 2\  \[Nu]MST + n]\  PH[1 + \[Nu]MST + I\  \[Tau], n]\), \(\(\((n - \[ScriptR])\)!\)\  \[CapitalGamma][1 - \[ScriptS] - I\  \[CurlyEpsilon] + \[Nu]MST + n]\  \[CapitalGamma][1 + \[Nu]MST - I\  \[Tau] + n]\)] /. repls\[Nu][n])\) \((aMST[n]\  /. repls)\)\)\)//SeriesStuff];
+\*SuperscriptBox[\((\(-1\))\), \(n\)]\  PH[1 + \[ScriptS] + I\  \[CurlyEpsilon] + \[Nu]MST, n]\  \[CapitalGamma][1 + \[ScriptR] + 2\  \[Nu]MST + n]\  PH[1 + \[Nu]MST + I\  \[Tau], n]\), \(\(\((n - \[ScriptR])\)!\)\  \[CapitalGamma][1 - \[ScriptS] - I\  \[CurlyEpsilon] + \[Nu]MST + n]\  PH[1 + \[Nu]MST - I\  \[Tau], n]\)] /. repls\[Nu][n])\) \((aMST[n]\  /. repls)\)\)\)//SeriesStuff];
 (*sumUpPHCoeff=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptL]>=0},Gamma[1+\[ScriptR]+2 \[Nu]MST]/(Gamma[1-\[ScriptS]-I \[CurlyEpsilon]+\[Nu]MST] Gamma[1+\[Nu]MST-I \[Tau]])/.repls//SeriesStuff];
 coeff=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptL]>=0},(coeff sumUpPHCoeff)];
 *)
@@ -2401,20 +2422,21 @@ If[!NumericQ[\[ScriptL]],jumpCount=1];
 order=order\[CurlyEpsilon]+1//Max[#,3]&;
 repls=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order];
 repls\[Nu][n_]:=<|\[Nu]MST->(repls[\[Nu]MST]//SeriesTake[#,SeriesLength[repls[aMST[n]]]+jumpCount]&)|>;
-coeff=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptL]>=0},(E^(I \[CurlyEpsilon] \[Kappa]) I^(\[ScriptS]-\[Nu]MST) (\[CurlyEpsilon] \[Kappa])^(\[ScriptS]-\[Nu]MST-\[ScriptR]) 2^-\[Nu]MST I^-\[ScriptR] (\[CapitalGamma][1-\[ScriptS]-2 I \[CurlyEpsilon]p] \[CapitalGamma][\[ScriptR]+2 \[Nu]MST+2]))/\[CapitalGamma][\[ScriptR]+\[Nu]MST+1-\[ScriptS]+I \[CurlyEpsilon]]/.repls//SeriesStuff];
+coeff=(E^(I \[CurlyEpsilon] \[Kappa]) I^(\[ScriptS]-\[Nu]MST) (\[CurlyEpsilon] \[Kappa])^(\[ScriptS]-\[Nu]MST-\[ScriptR]) 2^-\[Nu]MST I^-\[ScriptR] (\[CapitalGamma][1-\[ScriptS]-2 I \[CurlyEpsilon]p]))/\[CapitalGamma][\[ScriptR]+\[Nu]MST+1-\[ScriptS]+I \[CurlyEpsilon]];
+coeff=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptL]>=0},coeff/.repls//SeriesStuff];
 nMax=order-1;
 nMin=-(order+1);
 sumUp=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptL]>=0},\!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(n = \[ScriptR]\), \(nMax\)]\(\((
 \*FractionBox[\(
-\*SuperscriptBox[\((\(-1\))\), \(n\)]\ PH[1 + \[ScriptS] + I\ \[CurlyEpsilon] + \[Nu]MST, n]\ PH[1 + \[ScriptR] + 2\ \[Nu]MST, n]\ PH[1 + \[Nu]MST + I\ \[Tau], n]\), \(\(\((n - \[ScriptR])\)!\)\ PH[1 - \[ScriptS] - I\ \[CurlyEpsilon] + \[Nu]MST, n]\ PH[1 + \[Nu]MST - I\ \[Tau], n]\)] /. repls\[Nu][n])\)\((aMST[n]\  /. repls)\)\)\)//SeriesStuff];
-sumUpPHCoeff=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptL]>=0},Gamma[1+\[ScriptR]+2 \[Nu]MST]/(Gamma[1-\[ScriptS]-I \[CurlyEpsilon]+\[Nu]MST] Gamma[1+\[Nu]MST-I \[Tau]])/.repls//SeriesStuff];
+\*SuperscriptBox[\((\(-1\))\), \(n\)]\ PH[1 + \[ScriptS] + I\ \[CurlyEpsilon] + \[Nu]MST, n]\ \[CapitalGamma][1 + \[ScriptR] + 2\ \[Nu]MST + n]\ PH[1 + \[Nu]MST + I\ \[Tau], n]\), \(\(\((n - \[ScriptR])\)!\)\ \[CapitalGamma][1 - \[ScriptS] - I\ \[CurlyEpsilon] + \[Nu]MST + n]\ \[CapitalGamma][1 + \[Nu]MST - I\ \[Tau] + n]\)] /. repls\[Nu][n])\)\((aMST[n]\  /. repls)\)\)\)//SeriesStuff];
+(*sumUpPHCoeff=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptL]>=0},Gamma[1+\[ScriptR]+2 \[Nu]MST]/(Gamma[1-\[ScriptS]-I \[CurlyEpsilon]+\[Nu]MST] Gamma[1+\[Nu]MST-I \[Tau]])/.repls//SeriesStuff];
 coeff=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptL]>=0},(coeff sumUpPHCoeff)];
-
+*)
 sumDown=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptL]>=0},\!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(\[ScriptR]\)]\(\((
 \*FractionBox[
-SuperscriptBox[\((\(-1\))\), \(n\)], \(\(\((\[ScriptR] - n)\)!\)PH[\[ScriptR] + 2\ \[Nu]MST + 2, n]\)]
+SuperscriptBox[\((\(-1\))\), \(n\)], \(\(\((\[ScriptR] - n)\)!\)\[CapitalGamma][\[ScriptR] + 2\ \[Nu]MST + 2 + n]\)]
 \*FractionBox[\(PH[\[Nu]MST + 1 + \[ScriptS] - I\ \[CurlyEpsilon], n]\), \(PH[\[Nu]MST + 1 - \[ScriptS] + I\ \[CurlyEpsilon], n]\)] /. repls\[Nu][n])\)\((aMST[n] /. repls)\)\)\)//SeriesStuff];
 norm=If[OptionValue["Normalization"]==="SasakiTagoshi",ISymmetryFactorFreq["\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]],1];
 ret=norm coeff sumUp/sumDown //SeriesStuff//GammaStuff;
@@ -2422,35 +2444,46 @@ ret
 ]*)
 
 
-\[ScriptCapitalK]AmplitudeFreq["-\[Nu]-1",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[CurlyEpsilon]_]:=Module[{\[ScriptR]=0,ret,\[CapitalGamma]=Gamma,PH=Pochhammer,SeriesStuff,ReflectGammas,norm,GammaStuff,order,coeff,sumUpPHCoeff,sumUp,sumDown,\[CurlyEpsilon]p,\[Tau],\[CurlyEpsilon],\[Kappa]=Sqrt[1-a^2],nMax,nMin,jump,jumpCount,repls,repls\[Nu]},
+\[ScriptCapitalK]AmplitudeFreq["-\[Nu]-1",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[CurlyEpsilon]_]:=Module[{\[ScriptR]=0,ret,\[CapitalGamma]=Gamma,PH=Pochhammer,SeriesStuff,ReflectGammas,norm,flipcoeff,GammaStuff,order,coeff,sumUpPHCoeff,sumUp,sumDown,\[CurlyEpsilon]p,\[Tau],\[CurlyEpsilon],\[Kappa]=Sqrt[1-a^2],nMax,nMin,jump,jumpCount,repls,repls\[Nu]},
 \[CurlyEpsilon]=2 \[Omega] \[Gamma];
 \[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;
 \[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];
 ReflectGammas=#/.{Gamma[x_]/;(Quiet[Simplify[-I Sign[Select[x//If[NumericQ[\[ScriptS]],Identity,ReplaceAll[\[ScriptS]->1]]//If[NumericQ[\[ScriptL]],Identity,ReplaceAll[\[ScriptL]->1]],(!IntegerQ[#]&)]],{1>a>0,1>\[Kappa]>0,\[ScriptM]>0}]]==-1):>(\[Pi] Csc[\[Pi] x])/Gamma[1-x],PolyGamma[n_,x_]/;(Quiet[Simplify[-I Sign[Select[x//If[NumericQ[\[ScriptS]],Identity,ReplaceAll[\[ScriptS]->1]]//If[NumericQ[\[ScriptL]],Identity,ReplaceAll[\[ScriptL]->1]],(!IntegerQ[#]&)]],{1>\[Kappa]>0,1>a>0,\[ScriptM]>0}]]==-1):>-\[Pi]^(n+1) Derivative[n][Cot][\[Pi] x]+(-1)^n PolyGamma[n,1-x]}&;
 SeriesStuff=(#//IgnoreExpansionParameter//SeriesTake[#,order\[CurlyEpsilon]]&)&;
 GammaStuff=(#//ExpandGamma[#,\[ScriptL]+1]&//ExpandPolyGamma[#,\[ScriptL]+1]&)&;
-If[!NumericQ[\[ScriptL]],GammaStuff=Identity];
+If[!NumericQ[\[ScriptL]],GammaStuff=(#//ExpandGamma//ExpandPolyGamma)&];
 jump[1]=\[ScriptS]+\[ScriptL]+1+n<=0;(*This is the upper Pochhammer in sumDown*)
 jumpCount=1+(jump[1]//Boole//Total);
 If[!NumericQ[\[ScriptL]],jumpCount=1];
 order=order\[CurlyEpsilon]+1//Max[#,3]&;
-repls=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order];
+repls=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order+1];
 repls\[Nu][n_]:=<|\[Nu]MST->(repls[\[Nu]MST]//SeriesTake[#,SeriesLength[repls[aMST[n]]]+jumpCount]&)|>;
-coeff=-(((-1)^(\[ScriptR]-2 \[ScriptS]) I^(1-\[ScriptR]+\[ScriptS]+\[Nu]MST) 2^\[Nu]MST E^(I \[CurlyEpsilon] \[Kappa]) (\[CurlyEpsilon] \[Kappa])^(1-\[ScriptR]+\[ScriptS]+\[Nu]MST) (Cos[2 \[Pi] \[Nu]MST]-Cosh[2 \[Pi] \[CurlyEpsilon]]) Csc[2 \[Pi] \[Nu]MST]^2 Sin[\[Pi] (\[Nu]MST+I \[Tau])] \[CapitalGamma][1-\[ScriptR]+\[ScriptS]-I \[CurlyEpsilon]+\[Nu]MST] \[CapitalGamma][1-\[ScriptS]-I (\[CurlyEpsilon]+\[Tau])])/\[Pi]);
-coeff=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptL]>=0},coeff/.repls//SeriesStuff//ReflectGammas//ExpandTrig];
+coeff=-(((-1)^(\[ScriptR]-2 \[ScriptS]) I^(1-\[ScriptR]+\[ScriptS]+\[Nu]MST) 2^\[Nu]MST E^(I \[CurlyEpsilon] \[Kappa]) (\[CurlyEpsilon] \[Kappa])^(1-\[ScriptR]+\[ScriptS]+\[Nu]MST) (Cos[2 \[Pi] \[Nu]MST]-Cosh[2 \[Pi] \[CurlyEpsilon]]) Csc[2 \[Pi] \[Nu]MST]^2(* Sin[\[Pi] (\[Nu]MST+I \[Tau])] \[CapitalGamma][1+\[Nu]MST+\[ImaginaryI] \[Tau]]*)(*(-(\[Pi]/Gamma[-\[Nu]MST-\[ImaginaryI] \[Tau]]))*)\[CapitalGamma][1-\[ScriptR]+\[ScriptS]-I \[CurlyEpsilon]+\[Nu]MST])/\[Pi]);
+coeff=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptL]>=0},coeff/.repls//SeriesStuff//GammaStuff//ExpandTrig];
+If[OptionValue["Simplify"],coeff=coeff//SeriesCollect[#,{Gamma[__],PolyGamma[__],Log[__]},(Simplify[#,{1>a>=0,\[ScriptM]\[Element]Integers,\[ScriptL]\[Element]Integers>=0,\[ScriptS]\[Element]Integers}]&)]&];
+flipcoeff=If[!NumericQ[\[ScriptL]]||!NumericQ[\[ScriptS]],Sin[\[Pi] (\[Nu]MST+I \[Tau])]  \[CapitalGamma][1-\[ScriptS]-I (\[CurlyEpsilon]+\[Tau])]\[CapitalGamma][1+\[Nu]MST+I \[Tau]],(-((\[Pi] \[CapitalGamma][1-\[ScriptS]-I (\[CurlyEpsilon]+\[Tau])])/Gamma[-\[Nu]MST-I \[Tau]]))];
+flipcoeff=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptL]>=0},flipcoeff/.repls//SeriesStuff//GammaStuff//ReflectGammas//GammaStuff//ExpandTrig//ExpandTrig];
+If[OptionValue["Simplify"],flipcoeff=flipcoeff//ExpandGamma//ExpandPolyGamma//SeriesCollect[#,{Gamma[__],PolyGamma[__]},(Simplify[#,{1>a>=0,\[ScriptM]\[Element]Integers,\[ScriptL]\[Element]Integers>=0,\[ScriptS]\[Element]Integers}]&)]&//GammaStuff];
 nMax=order-1;
 nMin=-(order+1);
 sumUp=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptL]>=0},\!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(-\[ScriptR]\)]\(\((
-\*FractionBox[\(\(\ \)\(PH[1 + n - \[ScriptS] - I\  \[CurlyEpsilon] + \[Nu]MST, \(-n\)]\  PH[1 + n + \[Nu]MST - I\  \[Tau], \(-n\)]\ \  \[CapitalGamma][1 + n + \[ScriptS] + I\  \[CurlyEpsilon] + \[Nu]MST]\  \[CapitalGamma][1 + n + \[Nu]MST + I\  \[Tau]]\)\), \(\(\((\(-n\) - \[ScriptR])\)!\)\  \[CapitalGamma][2 + n - \[ScriptR] + 2\  \[Nu]MST]\)] /. repls\[Nu][n])\) \((aMST[n]\  /. repls)\)\)\)//SeriesStuff//ReflectGammas//ExpandTrig];
+\*FractionBox[\(\(\ \)\(\(PH[1 + n - \[ScriptS] - I\  \[CurlyEpsilon] + \[Nu]MST, \(-n\)]\)\(\ \ \) \(\[CapitalGamma][1 + n + \[ScriptS] + I\  \[CurlyEpsilon] + \[Nu]MST]\)\(\ \)\)\), \(\(\((\(-n\) - \[ScriptR])\)!\)\  \[CapitalGamma][2 + n - \[ScriptR] + 2\  \[Nu]MST]\)] 
+\*FractionBox[\(\(\ \)\(PH[1 + \[Nu]MST + I\  \[Tau], n]\)\), \(PH[1 + \[Nu]MST - I\  \[Tau], n]\)] /. repls\[Nu][n])\) \((aMST[n]\  /. repls)\)\)\)//SeriesStuff//ExpandTrig];
+If[OptionValue["Simplify"],sumUp=sumUp//SeriesCollect[#,{\[Omega],EulerGamma,\[Pi]},(Simplify[#,{1>a>=0,\[ScriptM]\[Element]Integers,\[ScriptL]\[Element]Integers>=0,\[ScriptS]\[Element]Integers}]&)]&];
 (*sumUpPHCoeff=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptL]>=0},Gamma[1+\[ScriptR]+2 \[Nu]MST]/(Gamma[1-\[ScriptS]-I \[CurlyEpsilon]+\[Nu]MST] Gamma[1+\[Nu]MST-I \[Tau]])/.repls//SeriesStuff];
 coeff=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptL]>=0},(coeff sumUpPHCoeff)];
 *)
 sumDown=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptL]>=0},\!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(n = \(-\[ScriptR]\)\), \(nMax\)]\(\((
-\*FractionBox[\(PH[1 + n - \[ScriptS] + I\  \[CurlyEpsilon] + \[Nu]MST, \(-n\)]\ \  \[CapitalGamma][1 + n - \[ScriptR] + 2\  \[Nu]MST]\), \(\(\ \)\(\(\((n + \[ScriptR])\)!\)\  PH[1 + n + \[ScriptS] - I\  \[CurlyEpsilon] + \[Nu]MST, \(-n\)]\)\)] /. repls\[Nu][n])\) \((aMST[n] /. repls)\)\)\)//SeriesStuff//ReflectGammas//ExpandTrig];
+\*FractionBox[\(PH[1 + n - \[ScriptS] + I\  \[CurlyEpsilon] + \[Nu]MST, \(-n\)]\ \  \[CapitalGamma][1 + n - \[ScriptR] + 2\  \[Nu]MST]\), \(\(\ \)\(\(\((n + \[ScriptR])\)!\)\  PH[1 + n + \[ScriptS] - I\  \[CurlyEpsilon] + \[Nu]MST, \(-n\)]\)\)] /. repls\[Nu][n])\) \((aMST[n] /. repls)\)\)\)//SeriesStuff//GammaStuff//ExpandTrig];
+If[OptionValue["Simplify"],sumDown=sumDown//SeriesCollect[#,{\[Omega],EulerGamma,\[Pi]},(Simplify[#,{1>a>=0,\[ScriptM]\[Element]Integers,\[ScriptL]\[Element]Integers>=0,\[ScriptS]\[Element]Integers}]&)]&];
 norm=If[OptionValue["Normalization"]==="SasakiTagoshi",ISymmetryFactorFreq["-\[Nu]-1"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]],1];
-ret=norm coeff sumUp/sumDown //SeriesStuff//GammaStuff;
+AAcoeff=coeff//ChangeContext[#,"Teukolsky`PN`Private`"]&;
+AA2coeff=flipcoeff//ChangeContext[#,"Teukolsky`PN`Private`"]&;
+AAsumUp=sumUp//ChangeContext[#,"Teukolsky`PN`Private`"]&;
+AAsumDown=sumDown//ChangeContext[#,"Teukolsky`PN`Private`"]&;
+ret=norm coeff flipcoeff sumUp/sumDown //SeriesStuff//GammaStuff//ReplacePolyGamma;
 ret
 ]
 
@@ -2492,7 +2525,7 @@ ret
 ]*)
 
 
-\[ScriptCapitalK]AmplitudeFreq["Ratio",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[CurlyEpsilon]_]:=Module[{\[ScriptR]=0,ret,\[CapitalGamma]=Gamma,PH=Pochhammer,SeriesStuff,ReflectGammas,norm,GammaStuff,order,coeff,sumUpPHCoeff,sumUp1,sumUp2,sumDown1,sumDown2,\[CurlyEpsilon]p,\[Tau],\[CurlyEpsilon],\[Kappa]=Sqrt[1-a^2],nMax,nMin,jump,jumpCount,repls,repls\[Nu]},
+\[ScriptCapitalK]AmplitudeFreq["Ratio",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[CurlyEpsilon]_]:=Module[{\[ScriptR]=0,ret,\[CapitalGamma]=Gamma,PH=Pochhammer,SeriesStuff,ReflectGammas,norm,GammaStuff,order,flipcoeff,coeff,sumUpPHCoeff,sumUp1,sumUp2,sumDown1,sumDown2,\[CurlyEpsilon]p,\[Tau],\[CurlyEpsilon],\[Kappa]=Sqrt[1-a^2],nMax,nMin,jump,jumpCount,repls,repls\[Nu]},
 \[CurlyEpsilon]=2 \[Omega] \[Gamma];
 \[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;
 \[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];
@@ -2504,7 +2537,55 @@ jump[1]=\[ScriptS]+\[ScriptL]+1+n<=0;(*This is the upper Pochhammer in sumDown*)
 jumpCount=1+(jump[1]//Boole//Total);
 If[!NumericQ[\[ScriptL]],jumpCount=1];
 order=order\[CurlyEpsilon]+1//Max[#,3]&;
-repls=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order];
+repls=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order+1];
+repls\[Nu][n_]:=<|\[Nu]MST->(repls[\[Nu]MST]//SeriesTake[#,SeriesLength[repls[aMST[n]]]+jumpCount]&)|>;
+coeff=-((I (-1)^(\[ScriptR]-2 \[ScriptS]) (2 I)^(2 \[Nu]MST) \[CurlyEpsilon] \[Kappa] (\[CurlyEpsilon] \[Kappa])^(2 \[Nu]MST) (Cos[2 \[Pi] \[Nu]MST]-Cosh[2 \[Pi] \[CurlyEpsilon]]) Csc[2 \[Pi] \[Nu]MST]^2 \[CapitalGamma][1-\[ScriptR]+\[ScriptS]-I \[CurlyEpsilon]+\[Nu]MST] \[CapitalGamma][1+\[ScriptR]-\[ScriptS]+I \[CurlyEpsilon]+\[Nu]MST])/\[Pi]);
+coeff=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptL]>=0},coeff/.repls//SeriesStuff//ReflectGammas//ExpandTrig];
+If[OptionValue["Simplify"],coeff=coeff//SeriesCollect[#,{Gamma[__],PolyGamma[__],Log[__]},(Simplify[#,{1>a>=0,\[ScriptM]\[Element]Integers,\[ScriptL]\[Element]Integers>=0,\[ScriptS]\[Element]Integers}]&)]&];
+flipcoeff=If[!NumericQ[\[ScriptL]]||!NumericQ[\[ScriptS]],Sin[\[Pi] (\[Nu]MST+I \[Tau])] \[CapitalGamma][1+\[Nu]MST+I \[Tau]]\[CapitalGamma][1+\[Nu]MST-I \[Tau]],(-((\[Pi] \[CapitalGamma][1+\[Nu]MST-I \[Tau]])/\[CapitalGamma][-\[Nu]MST-I \[Tau]]))];
+flipcoeff=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptL]>=0},flipcoeff/.repls//SeriesStuff//GammaStuff//ReflectGammas//GammaStuff//ExpandTrig//ExpandTrig];
+If[OptionValue["Simplify"],flipcoeff=flipcoeff//ExpandGamma//ExpandPolyGamma//SeriesCollect[#,{Gamma[__],PolyGamma[__]},(Simplify[#,{1>a>=0,\[ScriptM]\[Element]Integers,\[ScriptL]\[Element]Integers>=0,\[ScriptS]\[Element]Integers}]&)]&//GammaStuff];
+nMax=order-1;
+nMin=-(order+1);
+sumUp2=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptL]>=0},\!\(
+\*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(-\[ScriptR]\)]\(\((
+\*FractionBox[\(\(\ \)\(\(PH[1 + n - \[ScriptS] - I\ \[CurlyEpsilon] + \[Nu]MST, \(-n\)]\)\(\ \ \) \(\[CapitalGamma][1 + n + \[ScriptS] + I\ \[CurlyEpsilon] + \[Nu]MST]\)\(\ \)\)\), \(\(\((\(-n\) - \[ScriptR])\)!\)\ \[CapitalGamma][2 + n - \[ScriptR] + 2\ \[Nu]MST]\)] 
+\*FractionBox[\(\(\ \)\(PH[1 + \[Nu]MST + I\ \[Tau], n]\)\), \(PH[1 + \[Nu]MST - I\ \[Tau], n]\)] /. repls\[Nu][n])\) \((aMST[n]\  /. repls)\)\)\)//SeriesStuff//ExpandTrig];
+If[OptionValue["Simplify"],sumUp2=sumUp2//SeriesCollect[#,{\[Omega],EulerGamma,\[Pi]},(Simplify[#,{1>a>=0,\[ScriptM]\[Element]Integers,\[ScriptL]\[Element]Integers>=0,\[ScriptS]\[Element]Integers}]&)]&];
+sumDown2=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptL]>=0},\!\(
+\*UnderoverscriptBox[\(\[Sum]\), \(n = \(-\[ScriptR]\)\), \(nMax\)]\(\((
+\*FractionBox[\(PH[1 + n - \[ScriptS] + I\ \[CurlyEpsilon] + \[Nu]MST, \(-n\)]\ \ \[CapitalGamma][1 + n - \[ScriptR] + 2\ \[Nu]MST]\), \(\(\ \)\(\(\((n + \[ScriptR])\)!\)\ PH[1 + n + \[ScriptS] - I\ \[CurlyEpsilon] + \[Nu]MST, \(-n\)]\)\)] /. repls\[Nu][n])\) \((aMST[n] /. repls)\)\)\)//SeriesStuff//GammaStuff//ExpandTrig];
+If[OptionValue["Simplify"],sumDown2=sumDown2//SeriesCollect[#,{\[Omega],EulerGamma,\[Pi]},(Simplify[#,{1>a>=0,\[ScriptM]\[Element]Integers,\[ScriptL]\[Element]Integers>=0,\[ScriptS]\[Element]Integers}]&)]&];
+sumDown1=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptL]>=0},\!\(
+\*UnderoverscriptBox[\(\[Sum]\), \(n = \[ScriptR]\), \(nMax\)]\(\((
+\*FractionBox[\(
+\*SuperscriptBox[\((\(-1\))\), \(n\)]\ PH[1 + \[ScriptS] + I\ \[CurlyEpsilon] + \[Nu]MST, n]\ \[CapitalGamma][1 + \[ScriptR] + 2\ \[Nu]MST + n]\ PH[1 + \[Nu]MST + I\ \[Tau], n]\), \(\(\((n - \[ScriptR])\)!\)\ \[CapitalGamma][1 - \[ScriptS] - I\ \[CurlyEpsilon] + \[Nu]MST + n]\ PH[1 + \[Nu]MST - I\ \[Tau], n]\)] /. repls\[Nu][n])\) \((aMST[n]\  /. repls)\)\)\)//SeriesStuff];
+If[OptionValue["Simplify"],sumDown1=sumDown1//SeriesCollect[#,{\[Omega],EulerGamma,\[Pi]},(Simplify[#,{1>a>=0,\[ScriptM]\[Element]Integers,\[ScriptL]\[Element]Integers>=0,\[ScriptS]\[Element]Integers}]&)]&];
+sumUp1=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptL]>=0},\!\(
+\*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(\[ScriptR]\)]\(\((
+\*FractionBox[
+SuperscriptBox[\((\(-1\))\), \(n\)], \(\(\((\[ScriptR] - n)\)!\) \[CapitalGamma][\[ScriptR] + 2\ \[Nu]MST + 2 + n]\)] 
+\*FractionBox[\(PH[\[Nu]MST + 1 + \[ScriptS] - I\ \[CurlyEpsilon], n]\), \(PH[\[Nu]MST + 1 - \[ScriptS] + I\ \[CurlyEpsilon], n]\)] /. repls\[Nu][n])\) \((aMST[n] /. repls)\)\)\)//SeriesStuff];
+If[OptionValue["Simplify"],sumUp1=sumUp1//SeriesCollect[#,{\[Omega],EulerGamma,\[Pi]},(Simplify[#,{1>a>=0,\[ScriptM]\[Element]Integers,\[ScriptL]\[Element]Integers>=0,\[ScriptS]\[Element]Integers}]&)]&];
+norm=If[OptionValue["Normalization"]==="SasakiTagoshi",ISymmetryFactorFreq["Ratio"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]],1];
+ret=norm coeff flipcoeff sumUp1 sumUp2/(sumDown1 sumDown2) //SeriesStuff//GammaStuff;
+ret
+]
+
+
+(*\[ScriptCapitalK]AmplitudeFreq["Ratio",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[CurlyEpsilon]_]:=Module[{\[ScriptR]=0,ret,\[CapitalGamma]=Gamma,PH=Pochhammer,SeriesStuff,ReflectGammas,norm,GammaStuff,order,coeff,sumUpPHCoeff,sumUp1,sumUp2,sumDown1,sumDown2,\[CurlyEpsilon]p,\[Tau],\[CurlyEpsilon],\[Kappa]=Sqrt[1-a^2],nMax,nMin,jump,jumpCount,repls,repls\[Nu]},
+\[CurlyEpsilon]=2 \[Omega] \[Gamma];
+\[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;
+\[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];
+ReflectGammas=#/.{Gamma[x_]/;(Quiet[Simplify[-I Sign[Select[x//If[NumericQ[\[ScriptS]],Identity,ReplaceAll[\[ScriptS]->1]]//If[NumericQ[\[ScriptL]],Identity,ReplaceAll[\[ScriptL]->1]],(!IntegerQ[#]&)]],{1>a>0,1>\[Kappa]>0,\[ScriptM]>0}]]==-1):>(\[Pi] Csc[\[Pi] x])/Gamma[1-x],PolyGamma[n_,x_]/;(Quiet[Simplify[-I Sign[Select[x//If[NumericQ[\[ScriptS]],Identity,ReplaceAll[\[ScriptS]->1]]//If[NumericQ[\[ScriptL]],Identity,ReplaceAll[\[ScriptL]->1]],(!IntegerQ[#]&)]],{1>\[Kappa]>0,1>a>0,\[ScriptM]>0}]]==-1):>-\[Pi]^(n+1) Derivative[n][Cot][\[Pi] x]+(-1)^n PolyGamma[n,1-x]}&;
+SeriesStuff=(#//IgnoreExpansionParameter//SeriesTake[#,order\[CurlyEpsilon]]&)&;
+GammaStuff=(#//ExpandGamma[#,\[ScriptL]+1]&//ExpandPolyGamma[#,\[ScriptL]+1]&)&;
+If[!NumericQ[\[ScriptL]],GammaStuff=Identity];
+jump[1]=\[ScriptS]+\[ScriptL]+1+n<=0;(*This is the upper Pochhammer in sumDown*)
+jumpCount=1+(jump[1]//Boole//Total);
+If[!NumericQ[\[ScriptL]],jumpCount=1];
+order=order\[CurlyEpsilon]+1//Max[#,3]&;
+repls=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order+1];
 repls\[Nu][n_]:=<|\[Nu]MST->(repls[\[Nu]MST]//SeriesTake[#,SeriesLength[repls[aMST[n]]]+jumpCount]&)|>;
 coeff=-((I (-1)^(\[ScriptR]-2 \[ScriptS]) (2 I)^(2 \[Nu]MST) \[CurlyEpsilon] \[Kappa] (\[CurlyEpsilon] \[Kappa])^(2 \[Nu]MST) (Cos[2 \[Pi] \[Nu]MST]-Cosh[2 \[Pi] \[CurlyEpsilon]]) Csc[2 \[Pi] \[Nu]MST]^2 Sin[\[Pi] (\[Nu]MST+I \[Tau])] \[CapitalGamma][1-\[ScriptR]+\[ScriptS]-I \[CurlyEpsilon]+\[Nu]MST] \[CapitalGamma][1+\[ScriptR]-\[ScriptS]+I \[CurlyEpsilon]+\[Nu]MST])/\[Pi]);
 coeff=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptL]>=0},coeff/.repls//SeriesStuff//ReflectGammas//ExpandTrig];
@@ -2512,64 +2593,22 @@ nMax=order-1;
 nMin=-(order+1);
 sumUp2=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptL]>=0},\!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(-\[ScriptR]\)]\(\((
-\*FractionBox[\(\(\ \)\(PH[1 + n - \[ScriptS] - I\  \[CurlyEpsilon] + \[Nu]MST, \(-n\)]\  PH[1 + n + \[Nu]MST - I\  \[Tau], \(-n\)]\ \  \[CapitalGamma][1 + n + \[ScriptS] + I\  \[CurlyEpsilon] + \[Nu]MST]\  \[CapitalGamma][1 + n + \[Nu]MST + I\  \[Tau]]\)\), \(\(\((\(-n\) - \[ScriptR])\)!\)\  \[CapitalGamma][2 + n - \[ScriptR] + 2\  \[Nu]MST]\)] /. repls\[Nu][n])\) \((aMST[n]\  /. repls)\)\)\)//SeriesStuff//ReflectGammas//ExpandTrig];
+\*FractionBox[\(\(\ \)\(PH[1 + n - \[ScriptS] - I\ \[CurlyEpsilon] + \[Nu]MST, \(-n\)]\ PH[1 + n + \[Nu]MST - I\ \[Tau], \(-n\)]\ \ \[CapitalGamma][1 + n + \[ScriptS] + I\ \[CurlyEpsilon] + \[Nu]MST]\ \[CapitalGamma][1 + n + \[Nu]MST + I\ \[Tau]]\)\), \(\(\((\(-n\) - \[ScriptR])\)!\)\ \[CapitalGamma][2 + n - \[ScriptR] + 2\ \[Nu]MST]\)] /. repls\[Nu][n])\)\((aMST[n]\  /. repls)\)\)\)//SeriesStuff//ReflectGammas//ExpandTrig];
 sumDown2=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptL]>=0},\!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(n = \(-\[ScriptR]\)\), \(nMax\)]\(\((
-\*FractionBox[\(PH[1 + n - \[ScriptS] + I\  \[CurlyEpsilon] + \[Nu]MST, \(-n\)]\ \  \[CapitalGamma][1 + n - \[ScriptR] + 2\  \[Nu]MST]\), \(\(\ \)\(\(\((n + \[ScriptR])\)!\)\  PH[1 + n + \[ScriptS] - I\  \[CurlyEpsilon] + \[Nu]MST, \(-n\)]\)\)] /. repls\[Nu][n])\) \((aMST[n] /. repls)\)\)\)//SeriesStuff//ReflectGammas//ExpandTrig];
+\*FractionBox[\(PH[1 + n - \[ScriptS] + I\ \[CurlyEpsilon] + \[Nu]MST, \(-n\)]\ \ \[CapitalGamma][1 + n - \[ScriptR] + 2\ \[Nu]MST]\), \(\(\ \)\(\(\((n + \[ScriptR])\)!\)\ PH[1 + n + \[ScriptS] - I\ \[CurlyEpsilon] + \[Nu]MST, \(-n\)]\)\)] /. repls\[Nu][n])\)\((aMST[n] /. repls)\)\)\)//SeriesStuff//ReflectGammas//ExpandTrig];
 sumDown1=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptL]>=0},\!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(n = \[ScriptR]\), \(nMax\)]\(\((
 \*FractionBox[\(
-\*SuperscriptBox[\((\(-1\))\), \(n\)]\  PH[1 + \[ScriptS] + I\  \[CurlyEpsilon] + \[Nu]MST, n]\  \[CapitalGamma][1 + \[ScriptR] + 2\  \[Nu]MST + n]\  PH[1 + \[Nu]MST + I\  \[Tau], n]\), \(\(\((n - \[ScriptR])\)!\)\  \[CapitalGamma][1 - \[ScriptS] - I\  \[CurlyEpsilon] + \[Nu]MST + n]\  \[CapitalGamma][1 + \[Nu]MST - I\  \[Tau] + n]\)] /. repls\[Nu][n])\) \((aMST[n]\  /. repls)\)\)\)//SeriesStuff];
+\*SuperscriptBox[\((\(-1\))\), \(n\)]\ PH[1 + \[ScriptS] + I\ \[CurlyEpsilon] + \[Nu]MST, n]\ \[CapitalGamma][1 + \[ScriptR] + 2\ \[Nu]MST + n]\ PH[1 + \[Nu]MST + I\ \[Tau], n]\), \(\(\((n - \[ScriptR])\)!\)\ \[CapitalGamma][1 - \[ScriptS] - I\ \[CurlyEpsilon] + \[Nu]MST + n]\ \[CapitalGamma][1 + \[Nu]MST - I\ \[Tau] + n]\)] /. repls\[Nu][n])\)\((aMST[n]\  /. repls)\)\)\)//SeriesStuff];
 sumUp1=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptL]>=0},\!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(\[ScriptR]\)]\(\((
 \*FractionBox[
-SuperscriptBox[\((\(-1\))\), \(n\)], \(\(\((\[ScriptR] - n)\)!\) \[CapitalGamma][\[ScriptR] + 2\  \[Nu]MST + 2 + n]\)] 
-\*FractionBox[\(PH[\[Nu]MST + 1 + \[ScriptS] - I\  \[CurlyEpsilon], n]\), \(PH[\[Nu]MST + 1 - \[ScriptS] + I\  \[CurlyEpsilon], n]\)] /. repls\[Nu][n])\) \((aMST[n] /. repls)\)\)\)//SeriesStuff];
+SuperscriptBox[\((\(-1\))\), \(n\)], \(\(\((\[ScriptR] - n)\)!\)\[CapitalGamma][\[ScriptR] + 2\ \[Nu]MST + 2 + n]\)]
+\*FractionBox[\(PH[\[Nu]MST + 1 + \[ScriptS] - I\ \[CurlyEpsilon], n]\), \(PH[\[Nu]MST + 1 - \[ScriptS] + I\ \[CurlyEpsilon], n]\)] /. repls\[Nu][n])\)\((aMST[n] /. repls)\)\)\)//SeriesStuff];
 
 norm=If[OptionValue["Normalization"]==="SasakiTagoshi",ISymmetryFactorFreq["Ratio"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]],1];
 ret=norm coeff sumUp1 sumUp2/(sumDown1 sumDown2) //SeriesStuff//GammaStuff;
-ret
-]
-
-
-(*\[ScriptCapitalK]AmplitudeFreq["Ratio",OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[CurlyEpsilon]_]:=Module[{\[ScriptR]=0,ret,\[CapitalGamma]=Gamma,PH=Pochhammer,coeff,ReflectGammas,norm,SeriesStuff,GammaStuff,\[Kappa],order,sumUp,sumUp2,sumUpPHCoeff,sumUpPH,sumDown,sumDown2,\[CurlyEpsilon]p,\[Tau],\[CurlyEpsilon],nMax,nMin,repls,repls\[Nu]},
-\[CurlyEpsilon]=2 \[Omega] \[Gamma];
-\[CurlyEpsilon]p=(\[CurlyEpsilon]+\[Tau])/2;
-\[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];
-(*\[Kappa]=Sqrt[1-a^2];*)
-order=order\[CurlyEpsilon]+2//Max[#,3]&;
-SeriesStuff=(#//IgnoreExpansionParameter//SeriesTake[#,order\[CurlyEpsilon]]&//ExpandTrig)&;
-ReflectGammas=#/.{Gamma[x_]/;(Quiet[Simplify[-I Sign[Select[x//If[NumericQ[\[ScriptS]],Identity,ReplaceAll[\[ScriptS]->1]]//If[NumericQ[\[ScriptL]],Identity,ReplaceAll[\[ScriptL]->1]],(!IntegerQ[#]&)]],{1>a>0,1>\[Kappa]>0,\[ScriptM]>0}]]==-1):>(\[Pi] Csc[\[Pi] x])/Gamma[1-x],PolyGamma[n_,x_]/;(Quiet[Simplify[-I Sign[Select[x//If[NumericQ[\[ScriptS]],Identity,ReplaceAll[\[ScriptS]->1]]//If[NumericQ[\[ScriptL]],Identity,ReplaceAll[\[ScriptL]->1]],(!IntegerQ[#]&)]],{1>\[Kappa]>0,1>a>0,\[ScriptM]>0}]]==-1):>-\[Pi]^(n+1) Derivative[n][Cot][\[Pi] x]+(-1)^n PolyGamma[n,1-x]}&;
-GammaStuff=(#//ExpandPolyGamma[#,\[ScriptL]]&//ExpandGamma[#,\[ScriptL]]&//ReflectGammas//ExpandPolyGamma[#,-\[ScriptL]]&//ExpandGamma[#,-\[ScriptL]]&)&;
-If[!NumericQ[\[ScriptL]],GammaStuff=((#//ReflectGammas//ExpandGamma//ExpandPolyGamma)&)];
-repls=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,order];
-repls\[Nu][n_]:=<|\[Nu]MST->(repls[\[Nu]MST]//SeriesTake[#,SeriesLength[repls[aMST[n]]]+2]&)|>;
-coeff=(I 2^(1+2 \[Nu]MST) E^(\[Pi] (I \[ScriptS]+\[CurlyEpsilon])) (-1+E^(2 I \[Pi] (\[ScriptR]-\[ScriptS]+I \[CurlyEpsilon]-\[Nu]MST))) \[CurlyEpsilon] \[Kappa] (\[CurlyEpsilon] \[Kappa])^(2 \[Nu]MST) \[CapitalGamma][1-\[ScriptR]+\[ScriptS]-I \[CurlyEpsilon]+\[Nu]MST] \[CapitalGamma][1+\[ScriptR]-\[ScriptS]+I \[CurlyEpsilon]+\[Nu]MST])/((-1+E^(2 I \[Pi] (\[ScriptR]-2 \[Nu]MST))) \[CapitalGamma][1-\[ScriptR]+2 \[Nu]MST] \[CapitalGamma][2+\[ScriptR]+2 \[Nu]MST]);
-coeff=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptL]>=0},coeff/.repls//SeriesStuff];
-nMax=order-1;
-nMin=-(order+1);
-sumUpPH=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptL]>=0},\!\(
-\*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(-\[ScriptR]\)]\(\((
-\*FractionBox[\(
-\*SuperscriptBox[\((\(-1\))\), \(\(-2\)\ n\)]\ PH[1 + n - \[ScriptS] - I\ \[CurlyEpsilon] + \[Nu]MST, \(-n\)]\ PH[2 + n - \[ScriptR] + 2\ \[Nu]MST, \(-n\)]\ PH[1 + n + \[Nu]MST - I\ \[Tau], \(-n\)]\), \(\(\((\(-n\) - \[ScriptR])\)!\)\ PH[1 + n + \[ScriptS] + I\ \[CurlyEpsilon] + \[Nu]MST, \(-n\)]\ PH[1 + n + \[Nu]MST + I\ \[Tau], \(-n\)]\)] /. repls\[Nu][n])\)\((aMST[n]\  /. repls)\)\)\)//SeriesStuff];
-sumUp2=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptL]>=0},\!\(
-\*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(\[ScriptR]\)]\(\((
-\*FractionBox[
-SuperscriptBox[\((\(-1\))\), \(n\)], \(\(\((\[ScriptR] - n)\)!\)PH[\[ScriptR] + 2\ \[Nu]MST + 2, n]\)]
-\*FractionBox[\(PH[\[Nu]MST + 1 + \[ScriptS] - I\ \[CurlyEpsilon], n]\), \(PH[\[Nu]MST + 1 - \[ScriptS] + I\ \[CurlyEpsilon], n]\)] /. repls\[Nu][n])\)\((aMST[n] /. repls)\)\)\)//SeriesStuff];
-sumUpPHCoeff=-((Csc[\[Pi] (\[ScriptR]-2 \[Nu]MST)] Sin[\[Pi] (\[ScriptS]+I \[CurlyEpsilon]+\[Nu]MST)] Sin[\[Pi] (\[Nu]MST+I \[Tau])] \[CapitalGamma][1-\[ScriptS]-I \[CurlyEpsilon]+\[Nu]MST] \[CapitalGamma][1+\[ScriptS]+I \[CurlyEpsilon]+\[Nu]MST] \[CapitalGamma][1+\[Nu]MST-I \[Tau]] \[CapitalGamma][1+\[Nu]MST+I \[Tau]])/(\[Pi] \[CapitalGamma][2-\[ScriptR]+2 \[Nu]MST] \[CapitalGamma][1+\[ScriptR]+2 \[Nu]MST]));
-sumUpPHCoeff=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptL]>=0},sumUpPHCoeff/.repls//SeriesStuff//GammaStuff];
-coeff=(coeff sumUpPHCoeff);
-sumDown=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptL]>=0},\!\(
-\*UnderoverscriptBox[\(\[Sum]\), \(n = \(-\[ScriptR]\)\), \(nMax\)]\(\((
-\*FractionBox[\(PH[1 + n - \[ScriptS] + I\ \[CurlyEpsilon] + \[Nu]MST, \(-n\)]\), \(\(\((n + \[ScriptR])\)!\)\ PH[1 + n + \[ScriptS] - I\ \[CurlyEpsilon] + \[Nu]MST, \(-n\)]\ PH[1 + n - \[ScriptR] + 2\ \[Nu]MST, \(-n\)]\)] /. repls\[Nu][n])\)\((aMST[n] /. repls)\)\)\)//SeriesStuff];
-sumDown2=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptL]>=0},\!\(
-\*UnderoverscriptBox[\(\[Sum]\), \(n = \[ScriptR]\), \(nMax\)]\(\((
-\*FractionBox[\(
-\*SuperscriptBox[\((\(-1\))\), \(n\)]\ PH[1 + \[ScriptS] + I\ \[CurlyEpsilon] + \[Nu]MST, n]\ PH[1 + \[ScriptR] + 2\ \[Nu]MST, n]\ PH[1 + \[Nu]MST + I\ \[Tau], n]\), \(\(\((n - \[ScriptR])\)!\)\ PH[1 - \[ScriptS] - I\ \[CurlyEpsilon] + \[Nu]MST, n]\ PH[1 + \[Nu]MST - I\ \[Tau], n]\)] /. repls\[Nu][n])\)\((aMST[n]\  /. repls)\)\)\)//SeriesStuff];
-norm=If[OptionValue["Normalization"]==="SasakiTagoshi",ISymmetryFactorFreq["Ratio"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]],1];
-ret=coeff norm sumUp2/sumDown  sumUpPH/sumDown2//SeriesStuff//GammaStuff;
-ret=ret/.\[Kappa]->Sqrt[1-a^2];
 ret
 ]*)
 
@@ -2580,12 +2619,12 @@ Options[\[ScriptCapitalK]Amplitude]={"FreqRep"->True,"Normalization"->"Default",
 \[ScriptCapitalK]Amplitude[sol_,OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Module[{aux,order\[CurlyEpsilon],order},
 order\[CurlyEpsilon]=Ceiling[order\[Eta],3]/3;
 order=If[OptionValue["FreqRep"],order\[Eta],order\[CurlyEpsilon]];
-aux=\[ScriptCapitalK]AmplitudeFreq[sol,"Normalization"->OptionValue["Normalization"]][\[ScriptS],\[ScriptL],\[ScriptM],a,order];
+aux=\[ScriptCapitalK]AmplitudeFreq[sol,"Normalization"->OptionValue["Normalization"],"Simplify"->OptionValue["Simplify"]][\[ScriptS],\[ScriptL],\[ScriptM],a,order];
 (*If[OptionValue["Normalization"]==="DefaultSym",aux=aux ISymmetryFactorFreq[sol][\[ScriptS],\[ScriptL],\[ScriptM],a,order]];*)
 If[OptionValue["FreqRep"]===False,aux=aux//ChangeSeriesParameter[#,\[Eta]^3]&//SeriesTake[#,order\[Eta]]&];
 (*No ExpandGamma or ExpandPolyGamma here. They make things worse*)
 If[!NumericQ[\[ScriptL]],aux=aux//TrigToExp//ReplaceAll[E^aa_:>Simplify[E^Expand[aa],{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[ScriptM]\[Element]Integers,\[ScriptL]>=Abs[\[ScriptS]]}]]//Expand//SeriesPlusSimplify[#,\[ScriptL]>=Abs[\[ScriptS]]]&];
-If[OptionValue["Simplify"],aux=aux//SeriesExpand//SeriesCollect[#,{E^__,Log[__],Gamma[__],PolyGamma[__]},(Simplify[#,{1>a>=0,\[ScriptM]\[Element]Integers,\[ScriptL]\[Element]Integers>=0,\[ScriptS]\[Element]Integers}]&)]&];
+(*If[OptionValue["Simplify"],aux=aux//SeriesExpand//SeriesCollect[#,{E^__,Log[__],Gamma[__],PolyGamma[__]},(Simplify[#,{1>a>=0,\[ScriptM]\[Element]Integers,\[ScriptL]\[Element]Integers>=0,\[ScriptS]\[Element]Integers}]&)]&];*)
 aux
 ]
 
@@ -3243,11 +3282,11 @@ repls=MSTCoefficientsInternal[\[ScriptS],\[ScriptL],\[ScriptM],a,order+7];
 RC1=RPN["C\[Nu]"][\[ScriptS],\[ScriptL],\[ScriptM],a,order+If[\[ScriptL]===0,2,0]];
 RC2=RPN["C-\[Nu]-1"][\[ScriptS],\[ScriptL],\[ScriptM],a,order+If[\[ScriptL]===0,2,0]];
 (*We then turn to R_In*)
-ReplacePolyGamma=((#//ReplaceAll[PolyGamma[aa__](*/;(IntegerQ[aa]&&IntegerQ[bb])*):>FunctionExpand[PolyGamma[aa],Assumptions->$Assumptions]])&);
 RC1=SeriesMap[ReplacePolyGamma,RC1];
 RC2=SeriesMap[ReplacePolyGamma,RC2];
 If[!NumericQ[\[ScriptL]]||!NumericQ[\[ScriptS]],{RC1,RC2}={RC1,RC2}//TrigToExp//ReplaceAll[E^aa_:>Simplify[E^Expand[aa],{\[ScriptL]\[Element]Integers}]]//ExpandGamma];
 gap=InGap[If[NumericQ[\[ScriptL]],\[ScriptL],If[NumericQ[\[ScriptS]],Abs[\[ScriptS]],0]],\[ScriptM] a];
+(*The if statement is nessecarry because *)
 \[ScriptCapitalK]=\[ScriptCapitalK]Amplitude["Ratio","FreqRep"->False,"Simplify"->OptionValue["Simplify"]][\[ScriptS],\[ScriptL],\[ScriptM],a,Max[order-gap,2]]//ExpandGamma//ExpandPolyGamma(*//SeriesCollect[#,PolyGamma[__,__]]&*);
 If[NumericQ[\[ScriptL]],
 	aux=RC1+\[ScriptCapitalK] RC2//SeriesTake[#,order]&,
