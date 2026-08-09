@@ -34,6 +34,9 @@ ClearAttributes[{TeukolskyPointParticleSource}, {Protected, ReadProtected}];
 ClearAttributes[{Paint,CowboyConjugate,ChangeContext,ChooseSide}, {Protected, ReadProtected}];
 
 
+ClearAttributes[{AngularTeukolskyEquation,RadialTeukolskyEquation,RadialTeukolskyEquationPN}, {Protected, ReadProtected}];
+
+
 (* ::Section:: *)
 (*Public*)
 
@@ -97,6 +100,17 @@ ExpandDiracDelta::usage="ExpandDiracDelta[expr,r] applies identities for Dirac d
 (*ExpandSpheroidals::usage="ExpandSpheroidal[expr,{param,order}] returns a all SpinWeightedSpheroidalHarmonicS in expr have been Series expanded around param->0 to order."*)
 
 
+(* ::Subsection::Closed:: *)
+(*Teukolsky Equation*)
+
+
+AngularTeukolskyEquation::usage="AngularTeukolskyEquation[s,l,m,\[Gamma],\[Theta],\[Phi]] returns the angular Teukolsky equation equation. It is solved by the spin weighted spheroidal harmonics"
+
+
+RadialTeukolskyEquation::usage="RadialTeukolskyEquation[\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],R[r]] gives the radial Teukolsky equation."
+RadialTeukolskyEquationPN::usage="RadialTeukolskyEquation[\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],R[r],{\[Eta],order}] gives the PN expanded radial Teukolsky equation."
+
+
 (* ::Subsection:: *)
 (*Misc*)
 
@@ -152,7 +166,7 @@ InactiveSeriesPrefactor=Teukolsky`PN`Private`InactiveSeriesPrefactor
 InactiveSeriesPrefactor
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Tools for PN Scalings*)
 
 
@@ -181,14 +195,14 @@ GammaToPochhammer=Teukolsky`PN`Private`GammaToPochhammer
 ExpandDiracDelta=Teukolsky`PN`Private`ExpandDiracDelta
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Tools  for SpinWeightedSpheroidalHarmonics *)
 
 
 (*ExpandSpheroidals=Teukolsky`PN`Private`ExpandSpheroidals*)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Misc*)
 
 
@@ -204,6 +218,17 @@ ChooseSide=Teukolsky`PN`Private`ChooseSide
 
 
 TeukolskyPointParticleSource=Teukolsky`PN`Private`TeukolskyPointParticleSource
+
+
+(* ::Subsection:: *)
+(*Teukolsky Equation*)
+
+
+AngularTeukolskyEquation=Teukolsky`PN`Private`AngularTeukolskyEquation
+
+
+RadialTeukolskyEquation=Teukolsky`PN`Private`RadialTeukolskyEquation
+RadialTeukolskyEquationPN=Teukolsky`PN`Private`RadialTeukolskyEquationPN
 
 
 (* ::Section:: *)
@@ -227,6 +252,9 @@ SetAttributes[{TeukolskyPointParticleSource}, {Protected, ReadProtected}];
 
 
 SetAttributes[{Paint,CowboyConjugate,ChangeContext}, {Protected, ReadProtected}];
+
+
+SetAttributes[{AngularTeukolskyEquation,RadialTeukolskyEquation,RadialTeukolskyEquationPN}, {Protected, ReadProtected}];
 
 
 (* ::Subsection:: *)

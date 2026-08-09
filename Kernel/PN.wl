@@ -21,10 +21,10 @@ BeginPackage["Teukolsky`PN`",{"Teukolsky`"}]
 
 ClearAttributes[{TeukolskyRadialPN, TeukolskyRadialFunctionPN,TeukolskyPointParticleModePN,TeukolskyModePN,TeukolskyAmplitudePN}, {Protected, ReadProtected}];
 ClearAttributes[{MSTCoefficientsPN}, {Protected, ReadProtected}];
-ClearAttributes[{RadialTeukolskyEquation,RadialTeukolskyEquationPN}, {Protected, ReadProtected}];
+(*ClearAttributes[{RadialTeukolskyEquation,RadialTeukolskyEquationPN}, {Protected, ReadProtected}];*)
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Public *)
 
 
@@ -48,7 +48,7 @@ TeukolskyRadialFunctionPN::PNInput="Input String does not contain \"PN\". Assume
 TeukolskyRadialFunctionPN::norm="`1` is not a recognized Value for the \"Normalization\" option. Assuming \"Default\". "
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Sourced things*)
 
 
@@ -62,7 +62,7 @@ TeukolskyPointParticleModePN::orbit="As of now TeukolskyPointParticleModePN only
 TeukolskyPointParticleModePN::particle="TeukolskyPointParticleModePN cannot be evaluated directly at the particle. Try the Keys \"ExtendedHomogeneous\"\[Rule]\"\[ScriptCapitalI]\",\"ExtendedHomogeneous\"\[Rule]\"\[ScriptCapitalH]\" and \"\[Delta]\" ";
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Amplitudes*)
 
 
@@ -72,7 +72,7 @@ TeukolskyAmplitudePN::usage="TeukolskyAmplitudePN[\"sol\"][\[ScriptS], \[ScriptL
 TeukolskyAmplitudePN::sol="`1` is not a possible value. Possible values are \"Binc\", \"Bref\", \"Btrans\", \"Cinc\", \"Cref\", \"Ctrans\", \"K\[Nu]\", \"K-\[Nu]-1\", \"K\", \"W\", \"PhaseShift\" ,\"A+\" ,\"A-\".";
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*MST Coefficients*)
 
 
@@ -80,14 +80,6 @@ MSTCoefficientsPN::usage="MSTCoefficientsPN[\[ScriptS],\[ScriptL],\[ScriptM],a,\
 
 
 MSTCoefficientsPN::warn="Warning: These expressions are only valid for `2`\[GreaterEqual]`1`";
-
-
-(* ::Subsection:: *)
-(*Radial Teukolsky Equation*)
-
-
-RadialTeukolskyEquation::usage="RadialTeukolskyEquation[\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],R[r]] gives the radial Teukolsky equation."
-RadialTeukolskyEquationPN::usage="RadialTeukolskyEquation[\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],R[r],{\[Eta],order}] gives the PN expanded radial Teukolsky equation."
 
 
 (* ::Subsection::Closed:: *)
@@ -106,7 +98,7 @@ pIn
 rstar*)
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Private*)
 
 
@@ -1272,7 +1264,7 @@ aux
 InactiveSeriesPrefactor[expr_]:=expr/.a_SeriesData:>InactiveSeriesPrefactor[a];
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Tools for Logs, Gammas, and PolyGammas*)
 
 
@@ -1421,7 +1413,7 @@ ExpandDiracDelta[expr_Plus,x_]:=(ExpandDiracDelta[#,x]&/@expr);
 ExpandDiracDelta[expr_,x_]:=expr;
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Misc*)
 
 
@@ -1823,11 +1815,11 @@ ret
 ]]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Teukolsky Equation*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Old*)
 
 
@@ -1873,7 +1865,7 @@ teukolsky[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,order\[Eta]_] := Collect[equation[
 
 
 (* ::Subsubsection::Closed:: *)
-(*New*)
+(*Radial New *)
 
 
 RadialTeukolskyEquation[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]_,R_[r_]]:=Module[{aux,c0,c1,c2,K,\[CapitalDelta]},
@@ -1910,6 +1902,17 @@ aux=aux/.\[Gamma]->a\[Omega];
 aux
 ]
 ExpandSpinWeightedSpheroidalEigenvalue[expr_,order_]:=expr/.SpinWeightedSpheroidalEigenvalue[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a\[Omega]__]:>ExpandSpinWeightedSpheroidalEigenvalue[SpinWeightedSpheroidalEigenvalue[\[ScriptS],\[ScriptL],\[ScriptM],a\[Omega]],order];
+
+
+(* ::Subsubsection::Closed:: *)
+(*Angular*)
+
+
+AngularTeukolskyEquation[s_,\[ScriptL]_,m_,\[Gamma]_,\[CurlyTheta]_,\[CurlyPhi]_]:=Module[{aux,\[Theta],\[Phi]},
+aux=D[SpinWeightedSpheroidalHarmonicS[s,\[ScriptL],m,\[Gamma],\[Theta],\[Phi]],{\[Theta],2}]+Cot[\[Theta]]D[SpinWeightedSpheroidalHarmonicS[s,\[ScriptL],m,\[Gamma],\[Theta],\[Phi]],\[Theta]]+(2 \[Gamma] (m-s Cos[\[Theta]])-(m+s Cos[\[Theta]])^2/Sin[\[Theta]]^2+SpinWeightedSpheroidalEigenvalue[s,\[ScriptL],m,\[Gamma]]+s-\[Gamma]^2 Sin[\[Theta]]^2)SpinWeightedSpheroidalHarmonicS[s,\[ScriptL],m,\[Gamma],\[Theta],\[Phi]];
+aux=aux/.{\[Theta]->\[CurlyTheta],\[Phi]->\[CurlyPhi]};
+aux
+]
 
 
 (* ::Subsection::Closed:: *)
@@ -3774,7 +3777,7 @@ AngularMomentumFlux[mode_TeukolskyModePN] := If[!(mode["\[Omega]"]===0),EnergyFl
 
 SetAttributes[{TeukolskyRadialPN, TeukolskyRadialFunctionPN,TeukolskyPointParticleModePN,TeukolskyModePN,TeukolskyAmplitudePN}, {Protected, ReadProtected}];
 SetAttributes[{MSTCoefficientsPN}, {Protected, ReadProtected}];
-SetAttributes[{RadialTeukolskyEquation,RadialTeukolskyEquationPN}, {Protected, ReadProtected}];
+(*SetAttributes[{RadialTeukolskyEquation,RadialTeukolskyEquationPN}, {Protected, ReadProtected}];*)
 
 
 (* ::Subsection:: *)
