@@ -8,11 +8,11 @@
 (*Beginning Package*)
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Setting Context*)
 
 
-BeginPackage["Teukolsky`PN`",{"Teukolsky`"}]
+BeginPackage["Teukolsky`PN`",{"Teukolsky`","KerrGeodesics`","SpinWeightedSpheroidalHarmonics`"}]
 
 
 (* ::Subsection::Closed:: *)
@@ -24,7 +24,7 @@ ClearAttributes[{MSTCoefficientsPN}, {Protected, ReadProtected}];
 (*ClearAttributes[{RadialTeukolskyEquation,RadialTeukolskyEquationPN}, {Protected, ReadProtected}];*)
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Public *)
 
 
@@ -62,7 +62,7 @@ TeukolskyPointParticleModePN::orbit="As of now TeukolskyPointParticleModePN only
 TeukolskyPointParticleModePN::particle="TeukolskyPointParticleModePN cannot be evaluated directly at the particle. Try the Keys \"ExtendedHomogeneous\"\[Rule]\"\[ScriptCapitalI]\",\"ExtendedHomogeneous\"\[Rule]\"\[ScriptCapitalH]\" and \"\[Delta]\" ";
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Amplitudes*)
 
 
@@ -98,7 +98,7 @@ pIn
 rstar*)
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Private*)
 
 
@@ -110,12 +110,10 @@ Begin["`Private`"]
 
 
 (*<<BlackHoleAnalysis`SeriesTools`*)
-<<SpinWeightedSpheroidalHarmonics`
-<<KerrGeodesics`
 packageDir=DirectoryName[$InputFileName]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*MST Coefficients*)
 
 
@@ -683,7 +681,7 @@ MST
 
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Interface*)
 
 
@@ -845,7 +843,7 @@ aux
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Tools*)
 
 
@@ -1815,7 +1813,7 @@ ret
 ]]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Teukolsky Equation*)
 
 
@@ -1971,7 +1969,7 @@ Derivative[n_][\[Theta]][arg_]:=Derivative[n-1][\[Delta]][arg];
 \[Delta]''[\[Eta]^-2 a_]:=\[Eta]^2 \[Delta]''[a];*)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Amplitudes*)
 
 
@@ -3192,7 +3190,7 @@ If[!MatchQ[order,_Integer],Message[TeukolskyRadialFunctionPN::paramorder,order];
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*TeukolskyRadialPN*)
 
 
@@ -3222,8 +3220,8 @@ icons = <|
 |>;
 
 
-(* ::Subsubsection:: *)
-(*Getting Rin and Rup seperately (not used in TeukolskyRadialPN)*)
+(* ::Subsubsection::Closed:: *)
+(*Getting Rin and Rup seperately (used for infinty flux)*)
 
 
 Options[RPN]={"Normalization"->"Default", "Simplify"->True}
@@ -3262,7 +3260,7 @@ ret
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Getting internal association*)
 
 
