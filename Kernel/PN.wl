@@ -1534,11 +1534,11 @@ Message;
 ]*)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Point particle source*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Interface*)
 
 
@@ -1969,7 +1969,7 @@ Derivative[n_][\[Theta]][arg_]:=Derivative[n-1][\[Delta]][arg];
 \[Delta]''[\[Eta]^-2 a_]:=\[Eta]^2 \[Delta]''[a];*)
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Amplitudes*)
 
 
@@ -2364,7 +2364,7 @@ aux
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*K Amplitude*)
 
 
@@ -2480,10 +2480,6 @@ sumDown=Assuming[{\[ScriptS]\[Element]Integers,\[ScriptL]\[Element]Integers,\[Sc
 \*FractionBox[\(PH[1 + n - \[ScriptS] + I\  \[CurlyEpsilon] + \[Nu]MST, \(-n\)]\ \  \[CapitalGamma][1 + n - \[ScriptR] + 2\  \[Nu]MST]\), \(\(\ \)\(\(\((n + \[ScriptR])\)!\)\  PH[1 + n + \[ScriptS] - I\  \[CurlyEpsilon] + \[Nu]MST, \(-n\)]\)\)] /. repls\[Nu][n])\) \((aMST[n] /. repls)\)\)\)//SeriesStuff//GammaStuff//ExpandTrig];
 If[OptionValue["Simplify"],sumDown=sumDown//SeriesCollect[#,{\[Omega],EulerGamma,\[Pi]},(Simplify[#,{1>a>=0,\[ScriptM]\[Element]Integers,\[ScriptL]\[Element]Integers>=0,\[ScriptS]\[Element]Integers}]&)]&];
 norm=If[OptionValue["Normalization"]==="SasakiTagoshi",ISymmetryFactorFreq["-\[Nu]-1"][\[ScriptS],\[ScriptL],\[ScriptM],a,order\[CurlyEpsilon]],1];
-AAcoeff=coeff//ChangeContext[#,"Teukolsky`PN`Private`"]&;
-AA2coeff=flipcoeff//ChangeContext[#,"Teukolsky`PN`Private`"]&;
-AAsumUp=sumUp//ChangeContext[#,"Teukolsky`PN`Private`"]&;
-AAsumDown=sumDown//ChangeContext[#,"Teukolsky`PN`Private`"]&;
 ret=norm coeff flipcoeff sumUp/sumDown //SeriesStuff//GammaStuff//ReplacePolyGamma;
 ret
 ]
@@ -2729,13 +2725,13 @@ aux
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Phase shift*)
 
 
 CTeukolskyStarobinsky[s:(2|-2),\[ScriptL]_,m_,a_,\[Omega]_,{\[Gamma]_,order_},P_]:=Module[{aux,D,\[ScriptW],\[Lambda]Chs,\[Lambda]},
 \[ScriptW]=\[Omega] \[Gamma];
-\[Lambda]=SpinWeightedSpheroidalEigenvalue[s,\[ScriptL],m,a \[ScriptW] ]+s^2+s//Series[#,{\[Gamma],0,order}]&;
+\[Lambda]=SpinWeightedSpheroidalEigenvalue[s,\[ScriptL],m,a \[ScriptW] ]//Series[#,{\[Gamma],0,order}]&;
 \[Lambda]Chs=\[Lambda]+s^2+s;
 D=Sqrt[\[Lambda]Chs^2 (\[Lambda]Chs-2)^2+8 a \[ScriptW] (m-a \[ScriptW]) (\[Lambda]Chs-2) (5 \[Lambda]Chs-4)+48 (a \[ScriptW])^2 (2 (\[Lambda]Chs-2)+3 (m-a \[ScriptW])^2)];
 aux=D+P 12 I \[ScriptW] (*(-1)^(\[ScriptL]+m)*);
@@ -3472,7 +3468,7 @@ Derivative[n_Integer][trf_TeukolskyRadialFunctionPN][r_]:=(*trf[[6,1]]^(2 n)*) D
 Keys[trfpn_TeukolskyRadialFunctionPN] ^:= DeleteElements[Join[Keys[trfpn[[-1]]], {}], {"RadialFunction","AmplitudesBool"}];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*TeukolskyPointParticleModePN*)
 
 
