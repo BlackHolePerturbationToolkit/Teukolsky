@@ -113,7 +113,7 @@ Begin["`Private`"]
 packageDir=DirectoryName[$InputFileName]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*MST Coefficients*)
 
 
@@ -734,7 +734,20 @@ ret
 ]
 
 
-MSTCoefficientsInternalFreq[\[ScriptS]_Symbol,\[ScriptL]_,\[ScriptM]_,aKerr_,order\[CurlyEpsilon]_Integer,OptionsPattern[]]:=Module[{aux,repls,keys,values,ret},
+MSTCoefficientsInternalFreq[\[ScriptS]_Symbol,\[ScriptL]_,\[ScriptM]_,aKerr_,order\[CurlyEpsilon]_Integer,OptionsPattern[]]/;order\[CurlyEpsilon]<=7:=Module[{aux,repls,keys,FixContext,values,ret},
+aux=Import[ParentDirectory[packageDir]<>"/Data/MSTCoefficients_generic_s_generic_l.wl"];
+FixContext=(#/.s_Symbol/;Context[s]===$Context:>Symbol["Teukolsky`PN`Private`"<>SymbolName[s]]&);
+keys=aux//Keys//FixContext;
+values=aux//Values//FixContext;
+values=values+SeriesData[\[Gamma], 0, {}, order\[CurlyEpsilon], order\[CurlyEpsilon], 1];
+aux=keys->values//Thread//Association;
+(*If[\[ScriptS]>0,aux=FlipSpinMSTRepls[-\[ScriptS],aux]];*)
+aux=aux/.{s->\[ScriptS],l->\[ScriptL],m->\[ScriptM],\[Kappa]->Sqrt[1-aKerr^2],a->aKerr};
+aux
+]
+
+
+MSTCoefficientsInternalFreq[\[ScriptS]_Symbol,\[ScriptL]_,\[ScriptM]_,aKerr_,order\[CurlyEpsilon]_Integer,OptionsPattern[]]/;order\[CurlyEpsilon]>7:=Module[{aux,repls,keys,values,ret},
 repls=Block[{Print},KerrMSTSeries[\[ScriptS],\[ScriptL],\[ScriptM],Max[order\[CurlyEpsilon]-1,2]]];
 repls=Append[repls,{a[-order\[CurlyEpsilon]-1]->O[\[Epsilon]]^order\[CurlyEpsilon],a[-order\[CurlyEpsilon]]->O[\[Epsilon]]^order\[CurlyEpsilon]}];
 repls[a[0]]=repls[a[0]](1+O[\[Epsilon]]^order\[CurlyEpsilon]);
@@ -749,52 +762,64 @@ ret
 ]
 
 
-FlipSpinMSTRepls[s_,assoc_Association]:=Module[{aux,order,nmin,nmax,\[CurlyEpsilon],value,\[Nu]repls,arepls,cut,var},
-aux=assoc;
-var=assoc[\[Nu]MST][[1]];
-\[CurlyEpsilon]=2 \[Omega] var;
-order=SeriesMaxOrder[aux[aMST[0]]]-2;
-cut=SeriesData[var,0,{},order,order,1];
-\[Nu]repls={\[Nu]MST->aux[\[Nu]MST]+cut};
-{nmin,nmax}={Min[#]+2,Max[#]-2}&@(aux//Keys//ReplaceAll[{\[Nu]MST->0,aMST[n_]:>n}]);
-Table[value[n]=aMST[n]\!\(
-\*UnderoverscriptBox[\(\[Product]\), \(i = 1\), \(n\)]
-\*FractionBox[\(
-\*SuperscriptBox[\((i + \((s)\) + \[Nu]MST)\), \(2\)] + 
-\*SuperscriptBox[\(\[CurlyEpsilon]\), \(2\)]\), \(
-\*SuperscriptBox[\((i - \((s)\) + \[Nu]MST)\), \(2\)] + 
-\*SuperscriptBox[\(\[CurlyEpsilon]\), \(2\)]\)]\)/.aux(*//Simplify[#,{1>a>=0,\[ScriptL]\[Element]Integers,\[ScriptL]>=Abs[s]}]&*),{n,1,nmax}];
-value[0]=1+cut;
-Table[value[n]=aMST[n]\!\(
-\*UnderoverscriptBox[\(\[Product]\), \(i = 1\), \(-n\)]
-\*FractionBox[\(
-\*SuperscriptBox[\((\(-i\) + 1 - \((s)\) + \[Nu]MST)\), \(2\)] + 
-\*SuperscriptBox[\(\[CurlyEpsilon]\), \(2\)]\), \(
-\*SuperscriptBox[\((\(-i\) + 1 + \((s)\) + \[Nu]MST)\), \(2\)] + 
-\*SuperscriptBox[\(\[CurlyEpsilon]\), \(2\)]\)]\)/.aux(*//Simplify[#,{1>a>=0,\[ScriptL]\[Element]Integers,\[ScriptL]>=Abs[s]}]&*),{n,nmin,-1}];
-arepls=Table[aMST[n]->value[n]+cut,{n,nmin,nmax}];
-Append[\[Nu]repls,arepls]//Flatten//Association
-]
+(* ::Input:: *)
+(*(*FlipSpinMSTRepls[s_,assoc_Association]:=Module[{aux,order,nmin,nmax,\[CurlyEpsilon],value,\[Nu]repls,arepls,cut,var},*)
+(*aux=assoc;*)
+(*var=assoc[\[Nu]MST][[1]];*)
+(*\[CurlyEpsilon]=2 \[Omega] var;*)
+(*order=SeriesMaxOrder[aux[aMST[0]]]-2;*)
+(*cut=SeriesData[var,0,{},order,order,1];*)
+(*\[Nu]repls={\[Nu]MST->aux[\[Nu]MST]+cut};*)
+(*{nmin,nmax}={Min[#]+2,Max[#]-2}&@(aux//Keys//ReplaceAll[{\[Nu]MST->0,aMST[n_]:>n}]);*)
+(*Table[value[n]=aMST[n]\!\( *)
+(*\*UnderoverscriptBox[\(\[Product]\), \(i = 1\), \(n\)]*)
+(*\*FractionBox[\( *)
+(*\*SuperscriptBox[\((i + \((s)\) + \[Nu]MST)\), \(2\)] + *)
+(*\*SuperscriptBox[\(\[CurlyEpsilon]\), \(2\)]\), \( *)
+(*\*SuperscriptBox[\((i - \((s)\) + \[Nu]MST)\), \(2\)] + *)
+(*\*SuperscriptBox[\(\[CurlyEpsilon]\), \(2\)]\)]\)/.aux(*//Simplify[#,{1>a>=0,\[ScriptL]\[Element]Integers,\[ScriptL]>=Abs[s]}]&*),{n,1,nmax}];*)
+(*value[0]=1+cut;*)
+(*Table[value[n]=aMST[n]\!\( *)
+(*\*UnderoverscriptBox[\(\[Product]\), \(i = 1\), \(-n\)]*)
+(*\*FractionBox[\( *)
+(*\*SuperscriptBox[\((\(-i\) + 1 - \((s)\) + \[Nu]MST)\), \(2\)] + *)
+(*\*SuperscriptBox[\(\[CurlyEpsilon]\), \(2\)]\), \( *)
+(*\*SuperscriptBox[\((\(-i\) + 1 + \((s)\) + \[Nu]MST)\), \(2\)] + *)
+(*\*SuperscriptBox[\(\[CurlyEpsilon]\), \(2\)]\)]\)/.aux(*//Simplify[#,{1>a>=0,\[ScriptL]\[Element]Integers,\[ScriptL]>=Abs[s]}]&*),{n,nmin,-1}];*)
+(*arepls=Table[aMST[n]->value[n]+cut,{n,nmin,nmax}];*)
+(*Append[\[Nu]repls,arepls]//Flatten//Association*)
+(*]*)*)
 
 
-MSTCoefficientsInternalFreq[\[ScriptS]_Integer,\[ScriptL]Var_Symbol,\[ScriptM]Var_,aKerr_,order\[CurlyEpsilon]_Integer,OptionsPattern[]]:=Module[{aux,keys,values,FixContext},
-aux=Import[ParentDirectory[packageDir]<>"/Data/MSTCoefficients_s-"<>ToString[Abs[\[ScriptS]]]<>"_generic_l.wl"];
+MSTCoefficientsInternalFreq[\[ScriptS]_Integer,\[ScriptL]Var_Symbol,\[ScriptM]Var_,aKerr_,order\[CurlyEpsilon]_Integer,OptionsPattern[]]/;order\[CurlyEpsilon]<=13:=Module[{aux,keys,values,FixContext},
+aux=Import[ParentDirectory[packageDir]<>"/Data/MSTCoefficients_s"<>ToString[\[ScriptS]]<>"_generic_l.wl"];
 FixContext=(#/.s_Symbol/;Context[s]===$Context:>Symbol["Teukolsky`PN`Private`"<>SymbolName[s]]&);
 keys=aux//Keys//FixContext;
-keys=keys/.{a[n_]:>aMST[n],\[Nu]->\[Nu]MST};
-values=aux//Values//FixContext//ChangeSeriesParameter[#,\[Gamma]]&;
-values=values//Series[#,{\[Gamma],0,order\[CurlyEpsilon]-1+If[\[ScriptS]>0,2,0]}]&;
-values=values+SeriesData[\[Gamma], 0, {}, order\[CurlyEpsilon]+If[\[ScriptS]>0,2,0], order\[CurlyEpsilon]+If[\[ScriptS]>0,2,0], 1];
-values=values/.{q->a,l->\[ScriptL],m->\[ScriptM]};
+values=aux//Values//FixContext;
+values=values+SeriesData[\[Gamma], 0, {}, order\[CurlyEpsilon], order\[CurlyEpsilon], 1];
 aux=keys->values//Thread//Association;
-If[\[ScriptS]>0,aux=FlipSpinMSTRepls[-\[ScriptS],aux]];
-aux=aux/.{\[ScriptL]->\[ScriptL]Var,\[ScriptM]->\[ScriptM]Var,\[Kappa]->Sqrt[1-aKerr^2],a->aKerr};
+(*If[\[ScriptS]>0,aux=FlipSpinMSTRepls[-\[ScriptS],aux]];*)
+aux=aux/.{l->\[ScriptL]Var,m->\[ScriptM]Var,\[Kappa]->Sqrt[1-aKerr^2],a->aKerr};
 aux
 ]
 
 
-Options[MSTCoefficientsPN]={"FreqRep"->True,"Plot"->False}
+MSTCoefficientsInternalFreq[\[ScriptS]_Integer,\[ScriptL]Var_Symbol,\[ScriptM]Var_,aKerr_,order\[CurlyEpsilon]_Integer,OptionsPattern[]]/;order\[CurlyEpsilon]>13:=Module[{aux,repls,keys,values},
+repls=Block[{Print},KerrMSTSeries[\[ScriptS],\[ScriptL]Var,\[ScriptM]Var,Max[order\[CurlyEpsilon]-1,2]]];
+repls=Append[repls,{a[-order\[CurlyEpsilon]-1]->O[\[Epsilon]]^order\[CurlyEpsilon],a[-order\[CurlyEpsilon]]->O[\[Epsilon]]^order\[CurlyEpsilon]}];
+repls[a[0]]=repls[a[0]](1+O[\[Epsilon]]^order\[CurlyEpsilon]);
+keys=repls//Keys;
+keys=keys/.{a[n_]:>aMST[n],\[Nu]->\[Nu]MST};
+values=repls//Values;
+values=values+O[\[Epsilon]]^order\[CurlyEpsilon];
+values=values//.replsKerr/.a->aKerr/.q->aKerr;
+values=values//ChangeSeriesParameter[#,2\[Omega]]&//PowerCounting[#,\[Gamma]]&;
+ret=keys->values//Thread//Association;
+ret
+]
 
+
+Options[MSTCoefficientsPN]={"FreqRep"->True,"Plot"->False}
 
 
 MSTCoefficientsPN[\[ScriptS]_Integer,\[ScriptL]_Integer,\[ScriptM]_,aKerr_,\[Omega]Var_,{expVar_,order_Integer},OptionsPattern[]]:=Module[{aux,keys,values,auxOrder},
