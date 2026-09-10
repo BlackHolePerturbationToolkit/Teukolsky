@@ -113,7 +113,7 @@ Begin["`Private`"]
 packageDir=DirectoryName[$InputFileName]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*MST Coefficients*)
 
 
@@ -822,7 +822,7 @@ ret
 Options[MSTCoefficientsPN]={"FreqRep"->True,"Plot"->False}
 
 
-MSTCoefficientsPN[\[ScriptS]_Integer,\[ScriptL]_Integer,\[ScriptM]_,aKerr_,\[Omega]Var_,{expVar_,order_Integer},OptionsPattern[]]:=Module[{aux,keys,values,auxOrder},
+MSTCoefficientsPN[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,aKerr_,\[Omega]Var_,{expVar_,order_Integer},OptionsPattern[]]:=Module[{aux,auxOrder,keys,values},
 auxOrder=If[OptionValue["FreqRep"],order,Ceiling[order,3]/3];
 aux=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],aKerr,auxOrder,"Plot"->OptionValue["Plot"]];
 keys=aux//Keys//ReplaceAll[#,{\[Nu]MST->Symbol["\[Nu]MST"],aMST[n_]:>Symbol["aMST"][n]}]&;
@@ -834,7 +834,19 @@ aux
 ]
 
 
-MSTCoefficientsPN[\[ScriptS]_Symbol,\[ScriptL]_,\[ScriptM]_,aKerr_,\[Omega]Var_,{expVar_,order_Integer},OptionsPattern[]]:=Module[{aux,keys,values,auxOrder},
+(*MSTCoefficientsPN[\[ScriptS]_Integer,\[ScriptL]_Integer,\[ScriptM]_,aKerr_,\[Omega]Var_,{expVar_,order_Integer},OptionsPattern[]]:=Module[{aux,keys,values,auxOrder},
+auxOrder=If[OptionValue["FreqRep"],order,Ceiling[order,3]/3];
+aux=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],aKerr,auxOrder,"Plot"->OptionValue["Plot"]];
+keys=aux//Keys//ReplaceAll[#,{\[Nu]MST->Symbol["\[Nu]MST"],aMST[n_]:>Symbol["aMST"][n]}]&;
+values=aux//Values;
+If[!OptionValue["FreqRep"],values=values//ChangeSeriesParameter[#,\[Gamma]^3]&//SeriesTake[#,order]&];
+aux=keys->values//Thread//Association;
+aux=aux/.{\[Omega]->\[Omega]Var,\[Gamma]->expVar};
+aux
+]*)
+
+
+(*MSTCoefficientsPN[\[ScriptS]_Symbol,\[ScriptL]_,\[ScriptM]_,aKerr_,\[Omega]Var_,{expVar_,order_Integer},OptionsPattern[]]:=Module[{aux,keys,values,auxOrder},
 auxOrder=If[OptionValue["FreqRep"],order,Ceiling[order,3]/3];
 aux=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],aKerr,auxOrder];
 keys=aux//Keys//ReplaceAll[#,{\[Nu]MST->Symbol["\[Nu]MST"],aMST[n_]:>Symbol["aMST"][n]}]&;
@@ -843,10 +855,10 @@ If[!OptionValue["FreqRep"],values=values//ChangeSeriesParameter[#,\[Gamma]^3]&//
 aux=keys->values//Thread//Association;
 aux=aux/.{\[Omega]->\[Omega]Var,\[Gamma]->expVar};
 aux
-]
+]*)
 
 
-MSTCoefficientsPN[\[ScriptS]_Integer,\[ScriptL]Var_,\[ScriptM]Var_,aVar_,\[Omega]Var_,{var_,order_}]:=Module[{aux,keys,values,FixContext,min\[ScriptL]},
+(*MSTCoefficientsPN[\[ScriptS]_Integer,\[ScriptL]Var_,\[ScriptM]Var_,aVar_,\[Omega]Var_,{var_,order_}]:=Module[{aux,keys,values,FixContext,min\[ScriptL]},
 min\[ScriptL]=Max[order-1-If[\[ScriptS]>0,\[ScriptS],0]+If[aVar \[ScriptM]Var===0,1,0],Abs[\[ScriptS]]];
 Message[MSTCoefficientsPN::warn,min\[ScriptL],\[ScriptL]Var];
 FixContext=(#/.s_Symbol/;Context[s]==="Global`":>Symbol["Teukolsky`PN`Private`"<>SymbolName[s]]&);
@@ -865,7 +877,7 @@ keys=keys//ReplaceAll[#,{\[Nu]MST->Symbol["\[Nu]MST"],aMST[n_]:>Symbol["aMST"][n
 aux=keys->values//Thread//Association;
 aux=aux/.{\[ScriptL]->\[ScriptL]Var,\[ScriptM]->\[ScriptM]Var,\[Kappa]->Sqrt[1-aVar^2],a->aVar,\[Omega]->\[Omega]Var};
 aux
-]
+]*)
 
 
 (* ::Subsection:: *)
@@ -1001,7 +1013,7 @@ ExpandSpheroidals[expr_Times,{\[Eta]_,n_}]:=ExpandSpheroidals[#,{\[Eta],n}]&/@ex
 ExpandSpheroidals[expr_,{\[Eta]_,n_}]:=expr;
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Tools for Series*)
 
 
@@ -2846,7 +2858,7 @@ ret
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Interface*)
 
 
@@ -3225,7 +3237,7 @@ If[!MatchQ[order,_Integer],Message[TeukolskyRadialFunctionPN::paramorder,order];
 ]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*TeukolskyRadialPN*)
 
 
@@ -3400,7 +3412,7 @@ ret
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*TeukolskyRadialPN*)
 
 
