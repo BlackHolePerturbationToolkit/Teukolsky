@@ -55,10 +55,10 @@ SeriesExpand::usage="SeriesExpand[expr] works like Expand but applied to each or
 SeriesTerms::usage="SeriesTerms[series, {x, x0, n}] works exactly like Series, with the difference that n gives the desired number of terms instead of a maximum order"
 IgnoreSeriesParameter::usage="IgnoreSeriesParameter[series,x] sets all occurences of the expansion parameter in the series coefficients to x. If no value is entered x defaults to 1."
 ChangeSeriesParameter::usage="ChangeSeriesParameter[series,expr] changes the expansion parameter in series to be expr." 
-PowerCounting::usage="PowerCounting[series,symbol] replaces the expansion parameter in series with symbol. Unlike ChangeParameter it keeps the original expansion parameter as a constant in each coefficient."
+PowerCounting::usage="PowerCounting[series,symbol] replaces the expansion parameter in series with symbol. Unlike ChangeSeriesParameter it keeps the original expansion parameter as a constant in each coefficient."
 StraightenSeries::usage="StraightenSeries[expr] straightens out SeriesData objects with redundant denominator arguments, i.e., it removes counting in powers of roots, if all respective coefficients are zero."
 DropZeroSeries::usage="DropZeroSeries sets the 0 Series O[x\!\(\*SuperscriptBox[\(]\), \(n\)]\) to 0 without Normaling the entire expressions."
-SeriesPlusSimplify::usage="SeriesPlusSimplify[expr] simplifies sums of SeriesData objects. It will likely require use of the Assumptions option."
+SeriesPlusSimplify::usage="SeriesPlusSimplify[expr,assumptions] simplifies sums of SeriesData objects under assumptions."
 SeriesCoefficientList::usage="SeriesCoefficientList[series] returns the Series coefficients as a list."
 InactiveSeriesPrefactor::usage="InactiveSeriesPrefactor[series] pulls out the leading order of a series."
 
@@ -67,7 +67,7 @@ InactiveSeriesPrefactor::usage="InactiveSeriesPrefactor[series] pulls out the le
 (*Tools for PN Scalings*)
 
 
-Scalings::usage="Scalings[params,var][expr] applies the given powercounting scalings to the expression. E.g. Scalings[{{\[Omega],3,r,-2},\[Eta]][\[Omega] r]"
+Scalings::usage="Scalings[expr,params,var] applies the given scalings params with power counting parameter var to expr."
 (*PNScalings::usage="Same as Scalings but with different input. Just here to not break my older code but you should use Scalings instead"*)
 RemovePN::usage="PNScalings[expr,var] takes the Normal[] and sets var to 1"
 (*Zero::usage="Zero[expr,vars] sets all vars in expr to 0"
@@ -78,11 +78,11 @@ One::usage="One[expr,vars] sets all vars in expr to 1"*)
 (*Tools for Logs, Gammas, and PolyGammas*)
 
 
-ExpandLog::usage="ExpandLog[expr] replaces all Logs in expr with a PowerExpanded version. Crucially it is not as careless as PowerExpand"
+ExpandLog::usage="ExpandLog[expr,assumptions] expands all logaritms in expr under assumptions. Crucially unlike PowerExpand it does not make unprompted assumptions."
 ExpandGamma::usage="ExpandGamma[expr] factors out all Integer facors out of the Gammas in expr. E.g. Gamma[x+1]->x Gamma[x]"
 ExpandPolyGamma::usage="ExpandPolyGamma[expr] factors out all Integer facors out of the PolyGammas in expr. E.g. PolyGamma[x+1]->\!\(\*FractionBox[\(1\), \(x\)]\) PolyGamma[x]"
 PochhammerToGamma::usage="PochhammerToGamma[expr] replaces all Pochhammer in expr with the respecive Gamma."
-GammaToPochhammer::usage="PochhammerToGamma[expr,n] replaces all Gamma in expr that contain n with the respective Pochhammer[__,n]"
+GammaToPochhammer::usage="GammaToPochhammer[expr,n] replaces all Gamma in expr that contain n with the respective Pochhammer[__,n]"
 
 
 
@@ -100,7 +100,7 @@ ExpandDiracDelta::usage="ExpandDiracDelta[expr,r] applies identities for Dirac d
 (*ExpandSpheroidals::usage="ExpandSpheroidal[expr,{param,order}] returns a all SpinWeightedSpheroidalHarmonicS in expr have been Series expanded around param->0 to order."*)
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Teukolsky Equation*)
 
 
@@ -108,7 +108,7 @@ AngularTeukolskyEquation::usage="AngularTeukolskyEquation[s,l,m,\[Gamma],\[Theta
 
 
 RadialTeukolskyEquation::usage="RadialTeukolskyEquation[\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],R[r]] gives the radial Teukolsky equation."
-RadialTeukolskyEquationPN::usage="RadialTeukolskyEquation[\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],R[r],{\[Eta],order}] gives the PN expanded radial Teukolsky equation."
+RadialTeukolskyEquationPN::usage="RadialTeukolskyEquationPN[\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],R[r],{\[Eta],order}] gives the PN expanded radial Teukolsky equation."
 
 
 (* ::Subsection:: *)
