@@ -113,7 +113,7 @@ Begin["`Private`"]
 packageDir=DirectoryName[$InputFileName]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*MST Coefficients*)
 
 
@@ -868,7 +868,7 @@ aux
 ]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Tools*)
 
 
@@ -904,13 +904,19 @@ Kerr\[CapitalDelta][a_,r_]:=\[CapitalDelta][a,1,r];
 (*]*)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Post Newtonian Scalings*)
 
 
 replsPN={r->r \[Eta]^-2,r0->r0 \[Eta]^-2,\[Omega]->\[Omega] \[Eta]^3,\[CapitalOmega]Kerr->\[CapitalOmega]Kerr \[Eta]^3};
 RemovePNInternal=Normal[#]/.\[Eta]->1&
 RemovePN[expr_,\[Eta]_Symbol]:=Normal[expr]/.\[Eta]->1
+
+
+RemovePowerCounting[series_SeriesData,val_:1]:=Module[{var},
+var=series[[1]];
+Normal[series]/.var->val
+]
 
 
 PNScalingsInternal[expr_]:=expr/.\[Eta]->1/.replsPN

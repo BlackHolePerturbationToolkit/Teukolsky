@@ -22,7 +22,7 @@ BeginPackage["Teukolsky`PN`Tools`",{"Teukolsky`","Teukolsky`PN`"}]
 ClearAttributes[{SeriesTake,SeriesMap,SeriesCoefficientList,SeriesMinOrder,SeriesMaxOrder,SeriesLength,SeriesCollect,SeriesExpand,SeriesTerms,IgnoreSeriesParameter,ChangeSeriesParameter,PowerCounting,StraightenSeries,SeriesPlusSimplify,DropZeroSeries,InactiveSeriesPrefactor}, {Protected, ReadProtected}];
 
 
-ClearAttributes[{Scalings, RemovePN}, {Protected, ReadProtected}];
+ClearAttributes[{Scalings, RemovePowerCounting}, {Protected, ReadProtected}];
 
 
 ClearAttributes[{ExpandLog, ExpandGamma,ExpandPolyGamma,PochhammerToGamma,GammaToPochhammer,ExpandDiracDelta,CollectDerivatives}, {Protected, ReadProtected}];
@@ -69,7 +69,7 @@ InactiveSeriesPrefactor::usage="InactiveSeriesPrefactor[series] pulls out the le
 
 Scalings::usage="Scalings[expr,params,var] applies the given scalings params with power counting parameter var to expr."
 (*PNScalings::usage="Same as Scalings but with different input. Just here to not break my older code but you should use Scalings instead"*)
-RemovePN::usage="PNScalings[expr,var] takes the Normal[] and sets var to 1"
+RemovePowerCounting::usage="RemovePowerCounting[expr,var] takes the Normal[] and sets var to 1"
 (*Zero::usage="Zero[expr,vars] sets all vars in expr to 0"
 One::usage="One[expr,vars] sets all vars in expr to 1"*)
 
@@ -166,13 +166,13 @@ InactiveSeriesPrefactor=Teukolsky`PN`Private`InactiveSeriesPrefactor
 InactiveSeriesPrefactor
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Tools for PN Scalings*)
 
 
 (*PNScalings=Teukolsky`PN`Private`PNScalings*)
 Scalings=Teukolsky`PN`Private`Scalings
-RemovePN=Teukolsky`PN`Private`RemovePN
+RemovePowerCounting=Teukolsky`PN`Private`RemovePowerCounting
 (*Zero=Teukolsky`PN`Private`Zero
 One=Teukolsky`PN`Private`One*)
 
@@ -242,7 +242,7 @@ RadialTeukolskyEquationPN=Teukolsky`PN`Private`RadialTeukolskyEquationPN
 SetAttributes[{SeriesTake,SeriesMap,SeriesCoefficientList,SeriesMinOrder,SeriesMaxOrder,SeriesLength,SeriesCollect,SeriesExpand,SeriesTerms,IgnoreSeriesParameter,ChangeSeriesParameter,PowerCounting,StraightenSeries,SeriesPlusSimplify,DropZeroSeries,InactiveSeriesPrefactor}, {Protected, ReadProtected}];
 
 
-SetAttributes[{Scalings, RemovePN}, {Protected, ReadProtected}];
+SetAttributes[{Scalings, RemovePowerCounting}, {Protected, ReadProtected}];
 
 
 SetAttributes[{ExpandLog, ExpandGamma,ExpandPolyGamma,PochhammerToGamma,GammaToPochhammer,ExpandDiracDelta,CollectDerivatives}, {Protected, ReadProtected}];

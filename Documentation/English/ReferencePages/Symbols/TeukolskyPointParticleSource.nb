@@ -1,0 +1,1520 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 14.0' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[     54810,       1512]
+NotebookOptionsPosition[     48624,       1378]
+NotebookOutlinePosition[     49406,       1404]
+CellTagsIndexPosition[     49326,       1399]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell["TeukolskyPointParticleSource", "ObjectName",
+ CellID->2082136862,ExpressionUUID->"d8710532-c9d1-4021-8ea8-f4a716e0f122"],
+
+Cell[TextData[{
+ Cell["   ", "ModInfo",ExpressionUUID->"3b2ba27f-79a2-43b1-bda9-fbbe103cd324"],
+ Cell[BoxData[
+  RowBox[{
+   ButtonBox["TeukolskyPointParticleSource",
+    BaseStyle->"Link",
+    ButtonData->"paclet:TeukolskyPNTools/ref/TeukolskyPointParticleSource"], 
+   "[", 
+   RowBox[{"\[ScriptS]", ",", "\[ScriptL]", ",", "\[ScriptM]", ",", 
+    StyleBox["orbit", "TI"]}], "]"}]], "InlineFormula",ExpressionUUID->
+  "14921406-a108-4e8a-ab67-35787ef8fa17"],
+ "\[LineSeparator][r] gives an analytical expression for the Teukolsky point \
+particle source for a given {\[ScriptS],\[ScriptL],\[ScriptM]} mode. ",
+ Cell[BoxData[
+  StyleBox["orbit", "TI"]], "InlineFormula",ExpressionUUID->
+  "20f688fe-f5ac-4873-aecb-2952c45d490f"],
+ " needs to be a KerrGeoOrbit object "
+}], "Usage",
+ CellChangeTimes->{{3.998035975186607*^9, 3.998035975231813*^9}},
+ CellID->1949718587,ExpressionUUID->"632eaccd-7901-422f-bba0-b39b917bef76"],
+
+Cell["XXXX", "Notes",
+ CellID->186858151,ExpressionUUID->"e2c71df1-da33-43e8-9963-6b15682cebdc"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[TextData[{
+ "See Also",
+ Cell[BoxData[
+  TemplateBox[{"SeeAlso", 
+    Cell[
+     BoxData[
+      FrameBox[
+       Cell[
+       "Insert links to any related reference (function) pages.", 
+        "MoreInfoText"], BaseStyle -> "IFrameBox"]], "MoreInfoTextOuter"]},
+   "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
+  "2877d35e-8d44-4697-adef-e54d02703153"]
+}], "SeeAlsoSection",
+ CellID->1010149504,ExpressionUUID->"0a58718f-7e9c-4364-b890-4781c5e14193"],
+
+Cell[TextData[{
+ Cell[BoxData[
+  TagBox[
+   FrameBox["\<\"XXXX\"\>"],
+   "FunctionPlaceholder"]], "InlineSeeAlsoFunction",
+  TaggingRules->{"PageType" -> "Function"},ExpressionUUID->
+  "f5ed9cac-a5ae-4a9c-86f9-b3d8c086419e"],
+ Cell[BoxData[
+  RowBox[{
+  Cell[TextData[StyleBox[
+   " \[FilledVerySmallSquare] ", "InlineSeparator"]],ExpressionUUID->
+    "9206e0e4-0efe-4e73-bce3-56ee6b0a39b0"], 
+   DynamicModuleBox[{$CellContext`nbobj$$ = NotebookObject[
+    "e33f4cea-bfd7-456f-b14b-98d93db79cb4", 
+     "16e0a1b9-9e4a-4667-93ec-3ba73c4e8d1c"], $CellContext`cellobj$$ = 
+    CellObject[
+    "b9da81c8-3e5c-405a-8817-546d48218c58", 
+     "4863ece5-ebec-4402-8318-7d8dfec9d53f"]}, 
+    TemplateBox[{
+      GraphicsBox[{{
+         Thickness[0.06], 
+         StrokeForm[
+          Hue[0.4167, 0.406, 0.502]], 
+         CircleBox[{0, 0}]}, {
+         Thickness[0.06], 
+         StrokeForm[
+          Hue[0.4167, 0.406, 0.502]], 
+         LineBox[{{0, 0.62}, {0, -0.62}}]}, {
+         Thickness[0.06], 
+         StrokeForm[
+          Hue[0.4167, 0.406, 0.502]], 
+         LineBox[{{-0.62, 0}, {0.62, 0}}]}}, 
+       ImagePadding -> {{1., 1.}, {2.4, 1.}}, ImageSize -> 16, 
+       PlotRange -> {{-1.06, 1.06}, {-1.06, 1.06}}, 
+       BaselinePosition -> (Center -> 
+        Center)], $CellContext`nbobj$$, $CellContext`cellobj$$},
+     "InlineListingAddButton"],
+    Initialization:>($CellContext`nbobj$$ = 
+      EvaluationNotebook[]; $CellContext`cellobj$$ = EvaluationCell[])]}]], 
+  "InlineListingAddButton",ExpressionUUID->
+  "b9da81c8-3e5c-405a-8817-546d48218c58"]
+}], "SeeAlso",
+ CellID->1964960318,ExpressionUUID->"7cb5fc50-5016-4f69-a500-113a9534205f"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[TextData[{
+ "Tech Notes",
+ Cell[BoxData[
+  TemplateBox[{"TechNotes", 
+    Cell[
+     BoxData[
+      FrameBox[
+       Cell["Insert links to related tech notes.", "MoreInfoText"], BaseStyle -> 
+       "IFrameBox"]], "MoreInfoTextOuter"]},
+   "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
+  "9ca5198d-6c59-49db-97b0-50cf1097734a"]
+}], "TechNotesSection",
+ CellID->590668450,ExpressionUUID->"a3cbdb92-0a9f-4b1e-820f-ed87b551a084"],
+
+Cell["XXXX", "Tutorials",
+ CellID->484818946,ExpressionUUID->"b78786f0-d27c-4bd1-9d04-07c7f9502999"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Related Guides", "MoreAboutSection",
+ CellID->1755842021,ExpressionUUID->"77fac25a-1dec-4262-93bf-8812ccfaf9f7"],
+
+Cell["XXXX", "MoreAbout",
+ CellID->2020315518,ExpressionUUID->"3342f471-672f-4086-a8a5-4ab3036e197e"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[TextData[{
+ "Related Links",
+ Cell[BoxData[
+  TemplateBox[{"RelatedLinks", 
+    Cell[
+     BoxData[
+      FrameBox[
+       Cell[
+       "Insert links to any related page, including web pages.", 
+        "MoreInfoText"], BaseStyle -> "IFrameBox"]], "MoreInfoTextOuter"]},
+   "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
+  "fa4e106b-a0a0-44a4-ac71-5d8963758133"]
+}], "RelatedLinksSection",
+ CellID->354681957,ExpressionUUID->"cd4fc98f-d5d4-4041-89ce-78a898a60b5b"],
+
+Cell["XXXX", "RelatedLinks",
+ CellID->1365478989,ExpressionUUID->"ca4c2393-f998-4bc2-b7a3-7922adf75d73"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[TextData[{
+ "Examples Initialization",
+ Cell[BoxData[
+  TemplateBox[{"ExamplesInitialization", 
+    Cell[
+     BoxData[
+      FrameBox[
+       Cell[
+       "Input that is to be evaluated before any examples are run, e.g. \
+Needs[\[Ellipsis]].", "MoreInfoText"], BaseStyle -> "IFrameBox"]], 
+     "MoreInfoTextOuter"]},
+   "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
+  "3ccf6077-88c0-4013-a43c-17d5fef1b635"]
+}], "ExamplesInitializationSection",
+ CellID->1407946243,ExpressionUUID->"988e30a6-0c51-4e19-aecb-d8e0b966f0d3"],
+
+Cell[BoxData[
+ RowBox[{"Needs", "[", "\"\<Teukolsky`PN`Tools`\>\"", 
+  "]"}]], "ExampleInitialization",
+ CellChangeTimes->{{3.998035979533551*^9, 3.9980359820643997`*^9}},
+ CellID->554181952,ExpressionUUID->"65686aea-e0b0-461d-8c86-8ecb6306b9e7"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ InterpretationBox[GridBox[{
+    {
+     StyleBox[
+      RowBox[{"Basic", " ", "Examples"}], "PrimaryExamplesSection"], 
+     ButtonBox[
+      RowBox[{
+       RowBox[{"More", " ", "Examples"}], " ", "\[RightTriangle]"}],
+      BaseStyle->"ExtendedExamplesLink",
+      ButtonData:>"ExtendedExamples"]}
+   }],
+  $Line = 0; Null]], "PrimaryExamplesSection",
+ CellID->1249945120,ExpressionUUID->"7ae71449-7d0e-4617-9d81-a4f63a9e2725"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{"orbit", "=", 
+   RowBox[{"KerrGeoOrbit", "[", 
+    RowBox[{"a", ",", "r0", ",", "0", ",", "1"}], "]"}]}], 
+  ";"}], "\[IndentingNewLine]", 
+ RowBox[{
+  RowBox[{"TeukolskyPointParticleSource", "[", 
+   RowBox[{
+    RowBox[{"-", "2"}], ",", "2", ",", "2", ",", "orbit"}], "]"}], "[", "r", 
+  "]"}]}], "Input",
+ CellChangeTimes->{{3.998035985598619*^9, 3.99803604854525*^9}},
+ CellLabel->"In[12]:=",
+ CellID->22921858,ExpressionUUID->"0e4eb052-13f9-41dc-9b85-c3f7a3bc3c00"],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"-", 
+   RowBox[{"(", 
+    RowBox[{
+     RowBox[{"(", 
+      RowBox[{"\[Pi]", " ", 
+       SuperscriptBox[
+        RowBox[{"(", 
+         RowBox[{"a", "-", 
+          SqrtBox["r0"]}], ")"}], "2"], " ", 
+       SuperscriptBox["r0", 
+        RowBox[{"1", "/", "4"}]], " ", 
+       SuperscriptBox[
+        RowBox[{"(", 
+         RowBox[{
+          SuperscriptBox["a", "2"], "+", 
+          RowBox[{
+           RowBox[{"(", 
+            RowBox[{
+             RowBox[{"-", "2"}], "+", "r0"}], ")"}], " ", "r0"}]}], ")"}], 
+        "2"], " ", 
+       InterpretationBox[
+        FrameBox[
+         RowBox[{
+          SubscriptBox["", 
+           RowBox[{"-", "2"}]], 
+          SubscriptBox["S", 
+           RowBox[{"2", " \[InvisibleSpace]", "2"}]], 
+          RowBox[{"[", 
+           FractionBox[
+            RowBox[{"2", " ", "a"}], 
+            RowBox[{"a", "+", 
+             SuperscriptBox["r0", 
+              RowBox[{"3", "/", "2"}]]}]], ",", 
+           FractionBox["\[Pi]", "2"], ",", "0", "]"}]}],
+         Background->None,
+         FrameMargins->{{0, 1}, {0, 0}},
+         FrameStyle->None],
+        SpinWeightedSpheroidalHarmonics`SpinWeightedSpheroidalHarmonicS[-2, 2,
+          2, 2 $CellContext`a/($CellContext`a + $CellContext`r0^
+          Rational[3, 2]), Rational[1, 2] Pi, 0]], " ", 
+       RowBox[{
+        SuperscriptBox["DiracDelta", "\[Prime]\[Prime]",
+         MultilineFunction->None], "[", 
+        RowBox[{"r", "-", "r0"}], "]"}]}], ")"}], "/", 
+     RowBox[{"(", 
+      RowBox[{
+       SqrtBox[
+        RowBox[{
+         RowBox[{"2", " ", "a"}], "+", 
+         RowBox[{
+          RowBox[{"(", 
+           RowBox[{
+            RowBox[{"-", "3"}], "+", "r0"}], ")"}], " ", 
+          SqrtBox["r0"]}]}]], " ", 
+       RowBox[{"(", 
+        RowBox[{"a", "+", 
+         SuperscriptBox["r0", 
+          RowBox[{"3", "/", "2"}]]}], ")"}]}], ")"}]}], ")"}]}], "-", 
+  RowBox[{
+   RowBox[{"(", 
+    RowBox[{"2", " ", "\[Pi]", " ", 
+     RowBox[{"(", 
+      RowBox[{
+       SuperscriptBox["a", "2"], "+", 
+       RowBox[{
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"-", "2"}], "+", "r0"}], ")"}], " ", "r0"}]}], ")"}], " ", 
+     RowBox[{
+      SuperscriptBox["DiracDelta", "\[Prime]",
+       MultilineFunction->None], "[", 
+      RowBox[{"r", "-", "r0"}], "]"}], " ", 
+     RowBox[{"(", 
+      RowBox[{
+       RowBox[{"2", " ", 
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{"a", "-", 
+           SqrtBox["r0"]}], ")"}], "2"], " ", 
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"2", " ", "a"}], "+", 
+          RowBox[{
+           RowBox[{"(", 
+            RowBox[{
+             RowBox[{"-", "3"}], "+", "r0"}], ")"}], " ", 
+           SqrtBox["r0"]}]}], ")"}], " ", 
+        RowBox[{"(", 
+         RowBox[{"2", "-", 
+          RowBox[{"2", " ", "r0"}]}], ")"}], " ", 
+        SuperscriptBox["r0", 
+         RowBox[{"11", "/", "2"}]], " ", 
+        RowBox[{"(", 
+         RowBox[{"a", "+", 
+          SuperscriptBox["r0", 
+           RowBox[{"3", "/", "2"}]]}], ")"}], " ", 
+        InterpretationBox[
+         FrameBox[
+          RowBox[{
+           SubscriptBox["", 
+            RowBox[{"-", "2"}]], 
+           SubscriptBox["S", 
+            RowBox[{"2", " \[InvisibleSpace]", "2"}]], 
+           RowBox[{"[", 
+            FractionBox[
+             RowBox[{"2", " ", "a"}], 
+             RowBox[{"a", "+", 
+              SuperscriptBox["r0", 
+               RowBox[{"3", "/", "2"}]]}]], ",", 
+            FractionBox["\[Pi]", "2"], ",", "0", "]"}]}],
+          Background->None,
+          FrameMargins->{{0, 1}, {0, 0}},
+          FrameStyle->None],
+         SpinWeightedSpheroidalHarmonics`SpinWeightedSpheroidalHarmonicS[-2, 
+          2, 2, 2 $CellContext`a/($CellContext`a + $CellContext`r0^
+           Rational[3, 2]), Rational[1, 2] Pi, 0]]}], "+", 
+       RowBox[{
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{"a", "-", 
+           SqrtBox["r0"]}], ")"}], "2"], " ", 
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"2", " ", "a"}], "+", 
+          RowBox[{
+           RowBox[{"(", 
+            RowBox[{
+             RowBox[{"-", "3"}], "+", "r0"}], ")"}], " ", 
+           SqrtBox["r0"]}]}], ")"}], " ", 
+        SuperscriptBox["r0", 
+         RowBox[{"9", "/", "2"}]], " ", 
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{
+           RowBox[{"(", 
+            RowBox[{
+             SuperscriptBox["a", "2"], "+", 
+             RowBox[{
+              RowBox[{"(", 
+               RowBox[{
+                RowBox[{"-", "2"}], "+", "r0"}], ")"}], " ", "r0"}]}], ")"}], 
+           " ", 
+           RowBox[{"(", 
+            RowBox[{"a", "+", 
+             SuperscriptBox["r0", 
+              RowBox[{"3", "/", "2"}]]}], ")"}]}], "+", 
+          RowBox[{"2", " ", "\[ImaginaryI]", " ", "r0", " ", 
+           RowBox[{"(", 
+            RowBox[{
+             RowBox[{
+              RowBox[{"-", "a"}], " ", 
+              SuperscriptBox["r0", 
+               RowBox[{"3", "/", "2"}]]}], "+", 
+             SuperscriptBox["r0", "2"]}], ")"}]}]}], ")"}], " ", 
+        InterpretationBox[
+         FrameBox[
+          RowBox[{
+           SubscriptBox["", 
+            RowBox[{"-", "2"}]], 
+           SubscriptBox["S", 
+            RowBox[{"2", " \[InvisibleSpace]", "2"}]], 
+           RowBox[{"[", 
+            FractionBox[
+             RowBox[{"2", " ", "a"}], 
+             RowBox[{"a", "+", 
+              SuperscriptBox["r0", 
+               RowBox[{"3", "/", "2"}]]}]], ",", 
+            FractionBox["\[Pi]", "2"], ",", "0", "]"}]}],
+          Background->None,
+          FrameMargins->{{0, 1}, {0, 0}},
+          FrameStyle->None],
+         SpinWeightedSpheroidalHarmonics`SpinWeightedSpheroidalHarmonicS[-2, 
+          2, 2, 2 $CellContext`a/($CellContext`a + $CellContext`r0^
+           Rational[3, 2]), Rational[1, 2] Pi, 0]]}], "+", 
+       RowBox[{"\[ImaginaryI]", " ", 
+        RowBox[{"(", 
+         RowBox[{"a", "-", 
+          SqrtBox["r0"]}], ")"}], " ", 
+        SqrtBox[
+         RowBox[{
+          RowBox[{"2", " ", "a"}], "+", 
+          RowBox[{
+           RowBox[{"(", 
+            RowBox[{
+             RowBox[{"-", "3"}], "+", "r0"}], ")"}], " ", 
+           SqrtBox["r0"]}]}]], " ", 
+        SuperscriptBox["r0", 
+         RowBox[{"13", "/", "4"}]], " ", 
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{
+           SqrtBox[
+            RowBox[{
+             RowBox[{"2", " ", "a"}], "+", 
+             RowBox[{
+              RowBox[{"(", 
+               RowBox[{
+                RowBox[{"-", "3"}], "+", "r0"}], ")"}], " ", 
+              SqrtBox["r0"]}]}]], " ", 
+           RowBox[{"(", 
+            RowBox[{"a", "+", 
+             RowBox[{
+              RowBox[{"(", 
+               RowBox[{
+                RowBox[{"-", "2"}], "+", "r0"}], ")"}], " ", 
+              SqrtBox["r0"]}]}], ")"}], " ", 
+           SuperscriptBox["r0", 
+            RowBox[{"3", "/", "4"}]], " ", 
+           RowBox[{"(", 
+            RowBox[{
+             SuperscriptBox["a", "2"], "+", 
+             SuperscriptBox["r0", "2"]}], ")"}]}], "-", 
+          RowBox[{"a", " ", 
+           RowBox[{"(", 
+            RowBox[{
+             SuperscriptBox["a", "2"], "-", 
+             RowBox[{"2", " ", "a", " ", 
+              SqrtBox["r0"]}], "+", 
+             SuperscriptBox["r0", "2"]}], ")"}], " ", 
+           SqrtBox[
+            RowBox[{
+             RowBox[{"2", " ", "a", " ", 
+              SuperscriptBox["r0", 
+               RowBox[{"3", "/", "2"}]]}], "+", 
+             RowBox[{
+              RowBox[{"(", 
+               RowBox[{
+                RowBox[{"-", "3"}], "+", "r0"}], ")"}], " ", 
+              SuperscriptBox["r0", "2"]}]}]]}]}], ")"}], " ", 
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"2", " ", 
+           SuperscriptBox["r0", 
+            RowBox[{"3", "/", "2"}]], " ", 
+           InterpretationBox[
+            FrameBox[
+             RowBox[{
+              SubscriptBox["", 
+               RowBox[{"-", "2"}]], 
+              SubscriptBox["S", 
+               RowBox[{"2", " \[InvisibleSpace]", "2"}]], 
+              RowBox[{"[", 
+               FractionBox[
+                RowBox[{"2", " ", "a"}], 
+                RowBox[{"a", "+", 
+                 SuperscriptBox["r0", 
+                  RowBox[{"3", "/", "2"}]]}]], ",", 
+               FractionBox["\[Pi]", "2"], ",", "0", "]"}]}],
+             Background->None,
+             FrameMargins->{{0, 1}, {0, 0}},
+             FrameStyle->None],
+            
+            SpinWeightedSpheroidalHarmonics`SpinWeightedSpheroidalHarmonicS[-\
+2, 2, 2, 2 $CellContext`a/($CellContext`a + $CellContext`r0^Rational[3, 2]), 
+             Rational[1, 2] Pi, 0]]}], "-", 
+          RowBox[{
+           RowBox[{"(", 
+            RowBox[{"a", "+", 
+             SuperscriptBox["r0", 
+              RowBox[{"3", "/", "2"}]]}], ")"}], " ", 
+           InterpretationBox[
+            FrameBox[
+             RowBox[{
+              SubscriptBox["", 
+               RowBox[{"-", "2"}]], 
+              SubsuperscriptBox["S", 
+               RowBox[{"2", " \[InvisibleSpace]", "2"}], 
+               RowBox[{"(", "0", ",", "1", ",", "0", ")"}]], 
+              RowBox[{"[", 
+               FractionBox[
+                RowBox[{"2", " ", "a"}], 
+                RowBox[{"a", "+", 
+                 SuperscriptBox["r0", 
+                  RowBox[{"3", "/", "2"}]]}]], ",", 
+               FractionBox["\[Pi]", "2"], ",", "0", "]"}]}],
+             Background->None,
+             FrameMargins->{{0, 1}, {0, 0}},
+             FrameStyle->None],
+            Derivative[0, 0, 0, 0, 1, 0][
+            SpinWeightedSpheroidalHarmonics`SpinWeightedSpheroidalHarmonicS][-\
+2, 2, 2, 2 $CellContext`a/($CellContext`a + $CellContext`r0^Rational[3, 2]), 
+             Rational[1, 2] Pi, 0]]}]}], ")"}]}]}], ")"}]}], ")"}], "/", 
+   RowBox[{"(", 
+    RowBox[{
+     SqrtBox[
+      RowBox[{
+       RowBox[{"2", " ", "a"}], "+", 
+       RowBox[{
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"-", "3"}], "+", "r0"}], ")"}], " ", 
+        SqrtBox["r0"]}]}]], " ", 
+     SuperscriptBox["r0", 
+      RowBox[{"15", "/", "4"}]], " ", 
+     SuperscriptBox[
+      RowBox[{"(", 
+       RowBox[{"a", "+", 
+        SuperscriptBox["r0", 
+         RowBox[{"3", "/", "2"}]]}], ")"}], "2"], " ", 
+     RowBox[{"(", 
+      RowBox[{
+       RowBox[{"2", " ", "a", " ", 
+        SuperscriptBox["r0", 
+         RowBox[{"3", "/", "2"}]]}], "+", 
+       RowBox[{
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"-", "3"}], "+", "r0"}], ")"}], " ", 
+        SuperscriptBox["r0", "2"]}]}], ")"}]}], ")"}]}], "-", 
+  RowBox[{
+   RowBox[{"(", 
+    RowBox[{"\[Pi]", " ", 
+     RowBox[{"DiracDelta", "[", 
+      RowBox[{"r", "-", "r0"}], "]"}], " ", 
+     RowBox[{"(", 
+      RowBox[{
+       RowBox[{"4", " ", 
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{"a", "-", 
+           SqrtBox["r0"]}], ")"}], "2"], " ", 
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"2", " ", "a"}], "+", 
+          RowBox[{
+           RowBox[{"(", 
+            RowBox[{
+             RowBox[{"-", "3"}], "+", "r0"}], ")"}], " ", 
+           SqrtBox["r0"]}]}], ")"}], " ", 
+        SuperscriptBox["r0", 
+         RowBox[{"13", "/", "2"}]], " ", 
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{"a", "+", 
+           SuperscriptBox["r0", 
+            RowBox[{"3", "/", "2"}]]}], ")"}], "2"], " ", 
+        RowBox[{"(", 
+         RowBox[{"2", "+", 
+          SuperscriptBox["a", "2"], "-", 
+          RowBox[{"6", " ", "r0"}], "+", 
+          RowBox[{"3", " ", 
+           SuperscriptBox["r0", "2"]}]}], ")"}], " ", 
+        InterpretationBox[
+         FrameBox[
+          RowBox[{
+           SubscriptBox["", 
+            RowBox[{"-", "2"}]], 
+           SubscriptBox["S", 
+            RowBox[{"2", " \[InvisibleSpace]", "2"}]], 
+           RowBox[{"[", 
+            FractionBox[
+             RowBox[{"2", " ", "a"}], 
+             RowBox[{"a", "+", 
+              SuperscriptBox["r0", 
+               RowBox[{"3", "/", "2"}]]}]], ",", 
+            FractionBox["\[Pi]", "2"], ",", "0", "]"}]}],
+          Background->None,
+          FrameMargins->{{0, 1}, {0, 0}},
+          FrameStyle->None],
+         SpinWeightedSpheroidalHarmonics`SpinWeightedSpheroidalHarmonicS[-2, 
+          2, 2, 2 $CellContext`a/($CellContext`a + $CellContext`r0^
+           Rational[3, 2]), Rational[1, 2] Pi, 0]]}], "-", 
+       RowBox[{"4", " ", 
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{"a", "-", 
+           SqrtBox["r0"]}], ")"}], "2"], " ", 
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"2", " ", "a"}], "+", 
+          RowBox[{
+           RowBox[{"(", 
+            RowBox[{
+             RowBox[{"-", "3"}], "+", "r0"}], ")"}], " ", 
+           SqrtBox["r0"]}]}], ")"}], " ", 
+        SuperscriptBox["r0", 
+         RowBox[{"11", "/", "2"}]], " ", 
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"\[ImaginaryI]", " ", 
+           SuperscriptBox["r0", "2"], " ", 
+           RowBox[{"(", 
+            RowBox[{
+             SuperscriptBox["a", "2"], "+", 
+             RowBox[{
+              RowBox[{"(", 
+               RowBox[{
+                RowBox[{"-", "2"}], "+", "r0"}], ")"}], " ", "r0"}]}], ")"}], 
+           " ", 
+           RowBox[{"(", 
+            RowBox[{"a", "+", 
+             SuperscriptBox["r0", 
+              RowBox[{"3", "/", "2"}]]}], ")"}]}], "+", 
+          RowBox[{"r0", " ", 
+           SuperscriptBox[
+            RowBox[{"(", 
+             RowBox[{
+              RowBox[{
+               RowBox[{"-", "a"}], " ", 
+               SuperscriptBox["r0", 
+                RowBox[{"3", "/", "2"}]]}], "+", 
+              SuperscriptBox["r0", "2"]}], ")"}], "2"]}], "+", 
+          RowBox[{"\[ImaginaryI]", " ", 
+           RowBox[{"(", 
+            RowBox[{"a", "+", 
+             SuperscriptBox["r0", 
+              RowBox[{"3", "/", "2"}]]}], ")"}], " ", 
+           RowBox[{"(", 
+            RowBox[{
+             RowBox[{"a", " ", 
+              SuperscriptBox["r0", 
+               RowBox[{"3", "/", "2"}]]}], "-", 
+             SuperscriptBox["r0", "2"]}], ")"}], " ", 
+           RowBox[{"(", 
+            RowBox[{
+             SuperscriptBox["a", "2"], "+", 
+             RowBox[{"r0", " ", 
+              RowBox[{"(", 
+               RowBox[{
+                RowBox[{"-", "3"}], "+", 
+                RowBox[{"2", " ", "r0"}]}], ")"}]}]}], ")"}]}]}], ")"}], " ", 
+        
+        InterpretationBox[
+         FrameBox[
+          RowBox[{
+           SubscriptBox["", 
+            RowBox[{"-", "2"}]], 
+           SubscriptBox["S", 
+            RowBox[{"2", " \[InvisibleSpace]", "2"}]], 
+           RowBox[{"[", 
+            FractionBox[
+             RowBox[{"2", " ", "a"}], 
+             RowBox[{"a", "+", 
+              SuperscriptBox["r0", 
+               RowBox[{"3", "/", "2"}]]}]], ",", 
+            FractionBox["\[Pi]", "2"], ",", "0", "]"}]}],
+          Background->None,
+          FrameMargins->{{0, 1}, {0, 0}},
+          FrameStyle->None],
+         SpinWeightedSpheroidalHarmonics`SpinWeightedSpheroidalHarmonicS[-2, 
+          2, 2, 2 $CellContext`a/($CellContext`a + $CellContext`r0^
+           Rational[3, 2]), Rational[1, 2] Pi, 0]]}], "+", 
+       RowBox[{"4", " ", 
+        RowBox[{"(", 
+         RowBox[{"a", "-", 
+          SqrtBox["r0"]}], ")"}], " ", 
+        SqrtBox[
+         RowBox[{
+          RowBox[{"2", " ", "a"}], "+", 
+          RowBox[{
+           RowBox[{"(", 
+            RowBox[{
+             RowBox[{"-", "3"}], "+", "r0"}], ")"}], " ", 
+           SqrtBox["r0"]}]}]], " ", 
+        SuperscriptBox["r0", 
+         RowBox[{"13", "/", "4"}]], " ", 
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"a", " ", 
+           SuperscriptBox["r0", 
+            RowBox[{"5", "/", "2"}]]}], "-", 
+          SuperscriptBox["r0", "3"], "+", 
+          RowBox[{"\[ImaginaryI]", " ", 
+           RowBox[{"(", 
+            RowBox[{
+             SuperscriptBox["a", "2"], "+", 
+             RowBox[{
+              RowBox[{"(", 
+               RowBox[{
+                RowBox[{"-", "2"}], "+", "r0"}], ")"}], " ", "r0"}]}], ")"}], 
+           " ", 
+           RowBox[{"(", 
+            RowBox[{"a", "+", 
+             SuperscriptBox["r0", 
+              RowBox[{"3", "/", "2"}]]}], ")"}]}]}], ")"}], " ", 
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{
+           SqrtBox[
+            RowBox[{
+             RowBox[{"2", " ", "a"}], "+", 
+             RowBox[{
+              RowBox[{"(", 
+               RowBox[{
+                RowBox[{"-", "3"}], "+", "r0"}], ")"}], " ", 
+              SqrtBox["r0"]}]}]], " ", 
+           RowBox[{"(", 
+            RowBox[{"a", "+", 
+             RowBox[{
+              RowBox[{"(", 
+               RowBox[{
+                RowBox[{"-", "2"}], "+", "r0"}], ")"}], " ", 
+              SqrtBox["r0"]}]}], ")"}], " ", 
+           SuperscriptBox["r0", 
+            RowBox[{"3", "/", "4"}]], " ", 
+           RowBox[{"(", 
+            RowBox[{
+             SuperscriptBox["a", "2"], "+", 
+             SuperscriptBox["r0", "2"]}], ")"}]}], "-", 
+          RowBox[{"a", " ", 
+           RowBox[{"(", 
+            RowBox[{
+             SuperscriptBox["a", "2"], "-", 
+             RowBox[{"2", " ", "a", " ", 
+              SqrtBox["r0"]}], "+", 
+             SuperscriptBox["r0", "2"]}], ")"}], " ", 
+           SqrtBox[
+            RowBox[{
+             RowBox[{"2", " ", "a", " ", 
+              SuperscriptBox["r0", 
+               RowBox[{"3", "/", "2"}]]}], "+", 
+             RowBox[{
+              RowBox[{"(", 
+               RowBox[{
+                RowBox[{"-", "3"}], "+", "r0"}], ")"}], " ", 
+              SuperscriptBox["r0", "2"]}]}]]}]}], ")"}], " ", 
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"2", " ", 
+           SuperscriptBox["r0", 
+            RowBox[{"3", "/", "2"}]], " ", 
+           InterpretationBox[
+            FrameBox[
+             RowBox[{
+              SubscriptBox["", 
+               RowBox[{"-", "2"}]], 
+              SubscriptBox["S", 
+               RowBox[{"2", " \[InvisibleSpace]", "2"}]], 
+              RowBox[{"[", 
+               FractionBox[
+                RowBox[{"2", " ", "a"}], 
+                RowBox[{"a", "+", 
+                 SuperscriptBox["r0", 
+                  RowBox[{"3", "/", "2"}]]}]], ",", 
+               FractionBox["\[Pi]", "2"], ",", "0", "]"}]}],
+             Background->None,
+             FrameMargins->{{0, 1}, {0, 0}},
+             FrameStyle->None],
+            
+            SpinWeightedSpheroidalHarmonics`SpinWeightedSpheroidalHarmonicS[-\
+2, 2, 2, 2 $CellContext`a/($CellContext`a + $CellContext`r0^Rational[3, 2]), 
+             Rational[1, 2] Pi, 0]]}], "-", 
+          RowBox[{
+           RowBox[{"(", 
+            RowBox[{"a", "+", 
+             SuperscriptBox["r0", 
+              RowBox[{"3", "/", "2"}]]}], ")"}], " ", 
+           InterpretationBox[
+            FrameBox[
+             RowBox[{
+              SubscriptBox["", 
+               RowBox[{"-", "2"}]], 
+              SubsuperscriptBox["S", 
+               RowBox[{"2", " \[InvisibleSpace]", "2"}], 
+               RowBox[{"(", "0", ",", "1", ",", "0", ")"}]], 
+              RowBox[{"[", 
+               FractionBox[
+                RowBox[{"2", " ", "a"}], 
+                RowBox[{"a", "+", 
+                 SuperscriptBox["r0", 
+                  RowBox[{"3", "/", "2"}]]}]], ",", 
+               FractionBox["\[Pi]", "2"], ",", "0", "]"}]}],
+             Background->None,
+             FrameMargins->{{0, 1}, {0, 0}},
+             FrameStyle->None],
+            Derivative[0, 0, 0, 0, 1, 0][
+            SpinWeightedSpheroidalHarmonics`SpinWeightedSpheroidalHarmonicS][-\
+2, 2, 2, 2 $CellContext`a/($CellContext`a + $CellContext`r0^Rational[3, 2]), 
+             Rational[1, 2] Pi, 0]]}]}], ")"}]}], "+", 
+       RowBox[{"4", " ", 
+        RowBox[{"(", 
+         RowBox[{"2", "-", 
+          RowBox[{"2", " ", "r0"}]}], ")"}], " ", "r0", " ", 
+        RowBox[{"(", 
+         RowBox[{"a", "+", 
+          SuperscriptBox["r0", 
+           RowBox[{"3", "/", "2"}]]}], ")"}], " ", 
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{
+           SuperscriptBox[
+            RowBox[{"(", 
+             RowBox[{"a", "-", 
+              SqrtBox["r0"]}], ")"}], "2"], " ", 
+           RowBox[{"(", 
+            RowBox[{
+             RowBox[{"2", " ", "a"}], "+", 
+             RowBox[{
+              RowBox[{"(", 
+               RowBox[{
+                RowBox[{"-", "3"}], "+", "r0"}], ")"}], " ", 
+              SqrtBox["r0"]}]}], ")"}], " ", 
+           SuperscriptBox["r0", 
+            RowBox[{"9", "/", "2"}]], " ", 
+           RowBox[{"(", 
+            RowBox[{
+             RowBox[{
+              RowBox[{"(", 
+               RowBox[{
+                SuperscriptBox["a", "2"], "+", 
+                RowBox[{
+                 RowBox[{"(", 
+                  RowBox[{
+                   RowBox[{"-", "2"}], "+", "r0"}], ")"}], " ", "r0"}]}], 
+               ")"}], " ", 
+              RowBox[{"(", 
+               RowBox[{"a", "+", 
+                SuperscriptBox["r0", 
+                 RowBox[{"3", "/", "2"}]]}], ")"}]}], "+", 
+             RowBox[{"2", " ", "\[ImaginaryI]", " ", "r0", " ", 
+              RowBox[{"(", 
+               RowBox[{
+                RowBox[{
+                 RowBox[{"-", "a"}], " ", 
+                 SuperscriptBox["r0", 
+                  RowBox[{"3", "/", "2"}]]}], "+", 
+                SuperscriptBox["r0", "2"]}], ")"}]}]}], ")"}], " ", 
+           InterpretationBox[
+            FrameBox[
+             RowBox[{
+              SubscriptBox["", 
+               RowBox[{"-", "2"}]], 
+              SubscriptBox["S", 
+               RowBox[{"2", " \[InvisibleSpace]", "2"}]], 
+              RowBox[{"[", 
+               FractionBox[
+                RowBox[{"2", " ", "a"}], 
+                RowBox[{"a", "+", 
+                 SuperscriptBox["r0", 
+                  RowBox[{"3", "/", "2"}]]}]], ",", 
+               FractionBox["\[Pi]", "2"], ",", "0", "]"}]}],
+             Background->None,
+             FrameMargins->{{0, 1}, {0, 0}},
+             FrameStyle->None],
+            
+            SpinWeightedSpheroidalHarmonics`SpinWeightedSpheroidalHarmonicS[-\
+2, 2, 2, 2 $CellContext`a/($CellContext`a + $CellContext`r0^Rational[3, 2]), 
+             Rational[1, 2] Pi, 0]]}], "+", 
+          RowBox[{"\[ImaginaryI]", " ", 
+           RowBox[{"(", 
+            RowBox[{"a", "-", 
+             SqrtBox["r0"]}], ")"}], " ", 
+           SqrtBox[
+            RowBox[{
+             RowBox[{"2", " ", "a"}], "+", 
+             RowBox[{
+              RowBox[{"(", 
+               RowBox[{
+                RowBox[{"-", "3"}], "+", "r0"}], ")"}], " ", 
+              SqrtBox["r0"]}]}]], " ", 
+           SuperscriptBox["r0", 
+            RowBox[{"13", "/", "4"}]], " ", 
+           RowBox[{"(", 
+            RowBox[{
+             RowBox[{
+              SqrtBox[
+               RowBox[{
+                RowBox[{"2", " ", "a"}], "+", 
+                RowBox[{
+                 RowBox[{"(", 
+                  RowBox[{
+                   RowBox[{"-", "3"}], "+", "r0"}], ")"}], " ", 
+                 SqrtBox["r0"]}]}]], " ", 
+              RowBox[{"(", 
+               RowBox[{"a", "+", 
+                RowBox[{
+                 RowBox[{"(", 
+                  RowBox[{
+                   RowBox[{"-", "2"}], "+", "r0"}], ")"}], " ", 
+                 SqrtBox["r0"]}]}], ")"}], " ", 
+              SuperscriptBox["r0", 
+               RowBox[{"3", "/", "4"}]], " ", 
+              RowBox[{"(", 
+               RowBox[{
+                SuperscriptBox["a", "2"], "+", 
+                SuperscriptBox["r0", "2"]}], ")"}]}], "-", 
+             RowBox[{"a", " ", 
+              RowBox[{"(", 
+               RowBox[{
+                SuperscriptBox["a", "2"], "-", 
+                RowBox[{"2", " ", "a", " ", 
+                 SqrtBox["r0"]}], "+", 
+                SuperscriptBox["r0", "2"]}], ")"}], " ", 
+              SqrtBox[
+               RowBox[{
+                RowBox[{"2", " ", "a", " ", 
+                 SuperscriptBox["r0", 
+                  RowBox[{"3", "/", "2"}]]}], "+", 
+                RowBox[{
+                 RowBox[{"(", 
+                  RowBox[{
+                   RowBox[{"-", "3"}], "+", "r0"}], ")"}], " ", 
+                 SuperscriptBox["r0", "2"]}]}]]}]}], ")"}], " ", 
+           RowBox[{"(", 
+            RowBox[{
+             RowBox[{"2", " ", 
+              SuperscriptBox["r0", 
+               RowBox[{"3", "/", "2"}]], " ", 
+              InterpretationBox[
+               FrameBox[
+                RowBox[{
+                 SubscriptBox["", 
+                  RowBox[{"-", "2"}]], 
+                 SubscriptBox["S", 
+                  RowBox[{"2", " \[InvisibleSpace]", "2"}]], 
+                 RowBox[{"[", 
+                  FractionBox[
+                   RowBox[{"2", " ", "a"}], 
+                   RowBox[{"a", "+", 
+                    SuperscriptBox["r0", 
+                    RowBox[{"3", "/", "2"}]]}]], ",", 
+                  FractionBox["\[Pi]", "2"], ",", "0", "]"}]}],
+                Background->None,
+                FrameMargins->{{0, 1}, {0, 0}},
+                FrameStyle->None],
+               
+               SpinWeightedSpheroidalHarmonics`\
+SpinWeightedSpheroidalHarmonicS[-2, 2, 2, 
+                2 $CellContext`a/($CellContext`a + $CellContext`r0^
+                 Rational[3, 2]), Rational[1, 2] Pi, 0]]}], "-", 
+             RowBox[{
+              RowBox[{"(", 
+               RowBox[{"a", "+", 
+                SuperscriptBox["r0", 
+                 RowBox[{"3", "/", "2"}]]}], ")"}], " ", 
+              InterpretationBox[
+               FrameBox[
+                RowBox[{
+                 SubscriptBox["", 
+                  RowBox[{"-", "2"}]], 
+                 SubsuperscriptBox["S", 
+                  RowBox[{"2", " \[InvisibleSpace]", "2"}], 
+                  RowBox[{"(", "0", ",", "1", ",", "0", ")"}]], 
+                 RowBox[{"[", 
+                  FractionBox[
+                   RowBox[{"2", " ", "a"}], 
+                   RowBox[{"a", "+", 
+                    SuperscriptBox["r0", 
+                    RowBox[{"3", "/", "2"}]]}]], ",", 
+                  FractionBox["\[Pi]", "2"], ",", "0", "]"}]}],
+                Background->None,
+                FrameMargins->{{0, 1}, {0, 0}},
+                FrameStyle->None],
+               Derivative[0, 0, 0, 0, 1, 0][
+               SpinWeightedSpheroidalHarmonics`\
+SpinWeightedSpheroidalHarmonicS][-2, 2, 2, 
+                2 $CellContext`a/($CellContext`a + $CellContext`r0^
+                 Rational[3, 2]), Rational[1, 2] Pi, 0]]}]}], ")"}]}]}], 
+         ")"}]}], "-", 
+       RowBox[{"\[ImaginaryI]", " ", "r0", " ", 
+        SuperscriptBox[
+         RowBox[{"(", 
+          RowBox[{
+           RowBox[{
+            SqrtBox[
+             RowBox[{
+              RowBox[{"2", " ", "a"}], "+", 
+              RowBox[{
+               RowBox[{"(", 
+                RowBox[{
+                 RowBox[{"-", "3"}], "+", "r0"}], ")"}], " ", 
+               SqrtBox["r0"]}]}]], " ", 
+            RowBox[{"(", 
+             RowBox[{"a", "+", 
+              RowBox[{
+               RowBox[{"(", 
+                RowBox[{
+                 RowBox[{"-", "2"}], "+", "r0"}], ")"}], " ", 
+               SqrtBox["r0"]}]}], ")"}], " ", 
+            SuperscriptBox["r0", 
+             RowBox[{"3", "/", "4"}]], " ", 
+            RowBox[{"(", 
+             RowBox[{
+              SuperscriptBox["a", "2"], "+", 
+              SuperscriptBox["r0", "2"]}], ")"}]}], "-", 
+           RowBox[{"a", " ", 
+            RowBox[{"(", 
+             RowBox[{
+              SuperscriptBox["a", "2"], "-", 
+              RowBox[{"2", " ", "a", " ", 
+               SqrtBox["r0"]}], "+", 
+              SuperscriptBox["r0", "2"]}], ")"}], " ", 
+            SqrtBox[
+             RowBox[{
+              RowBox[{"2", " ", "a", " ", 
+               SuperscriptBox["r0", 
+                RowBox[{"3", "/", "2"}]]}], "+", 
+              RowBox[{
+               RowBox[{"(", 
+                RowBox[{
+                 RowBox[{"-", "3"}], "+", "r0"}], ")"}], " ", 
+               SuperscriptBox["r0", "2"]}]}]]}]}], ")"}], "2"], " ", 
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"4", " ", "a", " ", 
+           SuperscriptBox["r0", 
+            RowBox[{"3", "/", "2"}]], " ", 
+           RowBox[{"(", 
+            RowBox[{"a", "+", 
+             SuperscriptBox["r0", 
+              RowBox[{"3", "/", "2"}]]}], ")"}], " ", 
+           InterpretationBox[
+            FrameBox[
+             RowBox[{
+              SubscriptBox["", 
+               RowBox[{"-", "2"}]], 
+              SubscriptBox["S", 
+               RowBox[{"2", " \[InvisibleSpace]", "2"}]], 
+              RowBox[{"[", 
+               FractionBox[
+                RowBox[{"2", " ", "a"}], 
+                RowBox[{"a", "+", 
+                 SuperscriptBox["r0", 
+                  RowBox[{"3", "/", "2"}]]}]], ",", 
+               FractionBox["\[Pi]", "2"], ",", "0", "]"}]}],
+             Background->None,
+             FrameMargins->{{0, 1}, {0, 0}},
+             FrameStyle->None],
+            
+            SpinWeightedSpheroidalHarmonics`SpinWeightedSpheroidalHarmonicS[-\
+2, 2, 2, 2 $CellContext`a/($CellContext`a + $CellContext`r0^Rational[3, 2]), 
+             Rational[1, 2] Pi, 0]]}], "-", 
+          RowBox[{"2", " ", "a", " ", 
+           SuperscriptBox[
+            RowBox[{"(", 
+             RowBox[{"a", "+", 
+              SuperscriptBox["r0", 
+               RowBox[{"3", "/", "2"}]]}], ")"}], "2"], " ", 
+           InterpretationBox[
+            FrameBox[
+             RowBox[{
+              SubscriptBox["", 
+               RowBox[{"-", "2"}]], 
+              SubsuperscriptBox["S", 
+               RowBox[{"2", " \[InvisibleSpace]", "2"}], 
+               RowBox[{"(", "0", ",", "1", ",", "0", ")"}]], 
+              RowBox[{"[", 
+               FractionBox[
+                RowBox[{"2", " ", "a"}], 
+                RowBox[{"a", "+", 
+                 SuperscriptBox["r0", 
+                  RowBox[{"3", "/", "2"}]]}]], ",", 
+               FractionBox["\[Pi]", "2"], ",", "0", "]"}]}],
+             Background->None,
+             FrameMargins->{{0, 1}, {0, 0}},
+             FrameStyle->None],
+            Derivative[0, 0, 0, 0, 1, 0][
+            SpinWeightedSpheroidalHarmonics`SpinWeightedSpheroidalHarmonicS][-\
+2, 2, 2, 2 $CellContext`a/($CellContext`a + $CellContext`r0^Rational[3, 2]), 
+             Rational[1, 2] Pi, 0]]}], "-", 
+          RowBox[{"\[ImaginaryI]", " ", "r0", " ", 
+           RowBox[{"(", 
+            RowBox[{
+             RowBox[{
+              RowBox[{"-", "2"}], " ", 
+              RowBox[{"(", 
+               RowBox[{
+                SuperscriptBox["a", "2"], "+", 
+                RowBox[{"2", " ", "a", " ", 
+                 SuperscriptBox["r0", 
+                  RowBox[{"3", "/", "2"}]]}], "-", 
+                SuperscriptBox["r0", "3"]}], ")"}], " ", 
+              InterpretationBox[
+               FrameBox[
+                RowBox[{
+                 SubscriptBox["", 
+                  RowBox[{"-", "2"}]], 
+                 SubscriptBox["S", 
+                  RowBox[{"2", " \[InvisibleSpace]", "2"}]], 
+                 RowBox[{"[", 
+                  FractionBox[
+                   RowBox[{"2", " ", "a"}], 
+                   RowBox[{"a", "+", 
+                    SuperscriptBox["r0", 
+                    RowBox[{"3", "/", "2"}]]}]], ",", 
+                  FractionBox["\[Pi]", "2"], ",", "0", "]"}]}],
+                Background->None,
+                FrameMargins->{{0, 1}, {0, 0}},
+                FrameStyle->None],
+               
+               SpinWeightedSpheroidalHarmonics`\
+SpinWeightedSpheroidalHarmonicS[-2, 2, 2, 
+                2 $CellContext`a/($CellContext`a + $CellContext`r0^
+                 Rational[3, 2]), Rational[1, 2] Pi, 0]]}], "+", 
+             RowBox[{
+              RowBox[{"(", 
+               RowBox[{"a", "+", 
+                SuperscriptBox["r0", 
+                 RowBox[{"3", "/", "2"}]]}], ")"}], " ", 
+              RowBox[{"(", 
+               RowBox[{
+                RowBox[{
+                 RowBox[{"-", "4"}], " ", 
+                 SuperscriptBox["r0", 
+                  RowBox[{"3", "/", "2"}]], " ", 
+                 InterpretationBox[
+                  FrameBox[
+                   RowBox[{
+                    SubscriptBox["", 
+                    RowBox[{"-", "2"}]], 
+                    SubsuperscriptBox["S", 
+                    RowBox[{"2", " \[InvisibleSpace]", "2"}], 
+                    RowBox[{"(", "0", ",", "1", ",", "0", ")"}]], 
+                    RowBox[{"[", 
+                    FractionBox[
+                    RowBox[{"2", " ", "a"}], 
+                    RowBox[{"a", "+", 
+                    SuperscriptBox["r0", 
+                    RowBox[{"3", "/", "2"}]]}]], ",", 
+                    FractionBox["\[Pi]", "2"], ",", "0", "]"}]}],
+                   Background->None,
+                   FrameMargins->{{0, 1}, {0, 0}},
+                   FrameStyle->None],
+                  Derivative[0, 0, 0, 0, 1, 0][
+                  SpinWeightedSpheroidalHarmonics`\
+SpinWeightedSpheroidalHarmonicS][-2, 2, 2, 
+                   2 $CellContext`a/($CellContext`a + $CellContext`r0^
+                    Rational[3, 2]), Rational[1, 2] Pi, 0]]}], "+", 
+                RowBox[{
+                 RowBox[{"(", 
+                  RowBox[{"a", "+", 
+                   SuperscriptBox["r0", 
+                    RowBox[{"3", "/", "2"}]]}], ")"}], " ", 
+                 InterpretationBox[
+                  FrameBox[
+                   RowBox[{
+                    SubscriptBox["", 
+                    RowBox[{"-", "2"}]], 
+                    SubsuperscriptBox["S", 
+                    RowBox[{"2", " \[InvisibleSpace]", "2"}], 
+                    RowBox[{"(", "0", ",", "2", ",", "0", ")"}]], 
+                    RowBox[{"[", 
+                    FractionBox[
+                    RowBox[{"2", " ", "a"}], 
+                    RowBox[{"a", "+", 
+                    SuperscriptBox["r0", 
+                    RowBox[{"3", "/", "2"}]]}]], ",", 
+                    FractionBox["\[Pi]", "2"], ",", "0", "]"}]}],
+                   Background->None,
+                   FrameMargins->{{0, 1}, {0, 0}},
+                   FrameStyle->None],
+                  Derivative[0, 0, 0, 0, 2, 0][
+                  SpinWeightedSpheroidalHarmonics`\
+SpinWeightedSpheroidalHarmonicS][-2, 2, 2, 
+                   2 $CellContext`a/($CellContext`a + $CellContext`r0^
+                    Rational[3, 2]), Rational[1, 2] Pi, 0]]}]}], ")"}]}]}], 
+            ")"}]}]}], ")"}]}]}], ")"}]}], ")"}], "/", 
+   RowBox[{"(", 
+    RowBox[{
+     SqrtBox[
+      RowBox[{
+       RowBox[{"2", " ", "a"}], "+", 
+       RowBox[{
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"-", "3"}], "+", "r0"}], ")"}], " ", 
+        SqrtBox["r0"]}]}]], " ", 
+     SuperscriptBox["r0", 
+      RowBox[{"19", "/", "4"}]], " ", 
+     SuperscriptBox[
+      RowBox[{"(", 
+       RowBox[{"a", "+", 
+        SuperscriptBox["r0", 
+         RowBox[{"3", "/", "2"}]]}], ")"}], "3"], " ", 
+     RowBox[{"(", 
+      RowBox[{
+       RowBox[{"2", " ", "a", " ", 
+        SuperscriptBox["r0", 
+         RowBox[{"3", "/", "2"}]]}], "+", 
+       RowBox[{
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"-", "3"}], "+", "r0"}], ")"}], " ", 
+        SuperscriptBox["r0", "2"]}]}], ")"}]}], ")"}]}]}]], "Output",
+ CellChangeTimes->{{3.998036021535224*^9, 3.998036048956554*^9}},
+ CellLabel->"Out[13]=",
+ CellID->572361033,ExpressionUUID->"85a9aa79-cabe-4398-b36b-e3c1be888f15"]
+}, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[TextData[{
+ "More Examples",
+ Cell[BoxData[
+  TemplateBox[{"MoreExamples", 
+    Cell[
+     BoxData[
+      FrameBox[
+       Cell["Extended examples in standardized sections.", "MoreInfoText"], 
+       BaseStyle -> "IFrameBox"]], "MoreInfoTextOuter"]},
+   "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
+  "dbc90309-d104-45e5-a77e-54027b48f7ad"]
+}], "ExtendedExamplesSection",
+ CellTags->"ExtendedExamples",
+ CellID->1573624700,ExpressionUUID->"e13d939d-e124-4d7e-baad-f82b46bca53c"],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "Scope", "ExampleSection",ExpressionUUID->
+   "977735bf-aee8-47e6-beae-f42fed59032c"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->430427133,ExpressionUUID->"1f4fbbe1-ebc1-42db-a355-c3135c5fcf01"],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "Generalizations & Extensions", "ExampleSection",ExpressionUUID->
+   "8d3ec080-a26e-403b-93dd-010d54026cc8"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->1744016438,ExpressionUUID->"69bccde2-c7c6-4e4d-90c8-cddbf53dd95f"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "Options", "ExampleSection",ExpressionUUID->
+   "44a2d0e7-7d56-4b1d-8013-54e5e3f7f3b1"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->1364379162,ExpressionUUID->"46f5cb43-3fef-4bc6-b4ac-cda65eb56a47"],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "XXXX", "ExampleSubsection",ExpressionUUID->
+   "04bfa2db-3626-4a75-9d33-9d947cbc4a9e"],
+  $Line = 0; Null]], "ExampleSubsection",
+ CellID->485778703,ExpressionUUID->"2b3c0ddc-45fb-49bc-88bb-e1ad679580d6"],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "XXXX", "ExampleSubsection",ExpressionUUID->
+   "3052bdde-b13e-48d8-a49c-90dbd97cfa81"],
+  $Line = 0; Null]], "ExampleSubsection",
+ CellID->1482704823,ExpressionUUID->"c36ca917-13e3-428d-b247-bcd03de95a79"]
+}, Open  ]],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "Applications", "ExampleSection",ExpressionUUID->
+   "9e9bd2b9-9bd2-4117-8526-e2d368830359"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->845433015,ExpressionUUID->"1db24c5b-1e81-48b9-9c34-48fb51a2b457"],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "Properties & Relations", "ExampleSection",ExpressionUUID->
+   "528e842a-deb3-4379-8be0-21c39abfc15c"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->1007404796,ExpressionUUID->"1369e726-7338-47c4-b0c4-0df471f218ce"],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "Possible Issues", "ExampleSection",ExpressionUUID->
+   "04ceb46a-c0c9-44ac-9fe2-da17f0b24cc6"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->2033242877,ExpressionUUID->"04d607a0-5c71-4294-8b8f-1e99a8f85205"],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "Interactive Examples", "ExampleSection",ExpressionUUID->
+   "674a0206-84bc-42cb-9829-cf26de70bacf"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->535638459,ExpressionUUID->"c1744a87-6f30-4972-80c2-48afc6d19480"],
+
+Cell[BoxData[
+ InterpretationBox[Cell[
+  "Neat Examples", "ExampleSection",ExpressionUUID->
+   "ebc3854f-d507-4d8f-a567-89fdb081df7b"],
+  $Line = 0; Null]], "ExampleSection",
+ CellID->1182962927,ExpressionUUID->"70d0bb84-7a1f-42e5-8d79-960a59f1dfbc"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Metadata", "MetadataSection",
+ CellID->649346656,ExpressionUUID->"45f8f369-2b36-49e1-bef6-01f01f8e63bc"],
+
+Cell[TextData[{
+ "New in: ",
+ Cell["XX", "HistoryData",
+  CellTags->"New",ExpressionUUID->"d0e9cf45-3b24-4a0f-a657-9d8135db14a0"],
+ " | Modified in: ",
+ Cell[" ", "HistoryData",
+  CellTags->"Modified",ExpressionUUID->"27123fdb-5845-467c-9970-b0f0aa591792"],
+ " | Obsolete in: ",
+ Cell[" ", "HistoryData",
+  CellTags->"Obsolete",ExpressionUUID->
+  "cadf5f18-126a-496d-bd0c-94a286f990c0"]
+}], "History",
+ CellID->833866610,ExpressionUUID->"0a3df971-9547-46ce-b712-32b847d346e5"],
+
+Cell[CellGroupData[{
+
+Cell[TextData[{
+ "Categorization",
+ Cell[BoxData[
+  TemplateBox[{"Metadata", 
+    Cell[
+     BoxData[
+      FrameBox[
+       Cell[
+       "Metadata such as page URI, context, and type of documentation page.", 
+        "MoreInfoText"], BaseStyle -> "IFrameBox"]], "MoreInfoTextOuter"]},
+   "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
+  "2607141d-ed71-4cad-afbe-5ad0002b78ce"]
+}], "CategorizationSection",
+ CellID->222552275,ExpressionUUID->"3e77d22e-404c-4f32-bb91-a6cf16f491d5"],
+
+Cell["Symbol", "Categorization",
+ CellLabel->"Entity Type",
+ CellID->1758478447,ExpressionUUID->"a8c3cd6c-c4e4-4871-8a94-8d553d98ec3a"],
+
+Cell["Teukolsky", "Categorization",
+ CellLabel->"Paclet Name",
+ CellID->762459263,ExpressionUUID->"d256508c-9e61-426b-8800-ecf6831ed422"],
+
+Cell["Teukolsky`", "Categorization",
+ CellLabel->"Context",
+ CellID->1395298421,ExpressionUUID->"4ed3ef14-9f57-49a6-bd16-3df52722054b"],
+
+Cell["Teukolsky/ref/TeukolskyPointParticleSource", "Categorization",
+ CellLabel->"URI",
+ CellID->390661947,ExpressionUUID->"688ac768-0cdf-4047-bb5f-4326bc5d2923"]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["Keywords", "KeywordsSection",
+ CellID->1746831562,ExpressionUUID->"a63c3542-73bc-48b3-9131-1c145b622183"],
+
+Cell["XXXX", "Keywords",
+ CellID->298958943,ExpressionUUID->"f4513951-89a0-47b4-b168-a91e4e8b04b1"]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["Syntax Templates", "TemplatesSection",
+ CellID->555797518,ExpressionUUID->"c593f2e2-75c0-4d3d-8a15-1dfaa113f428"],
+
+Cell[BoxData[""], "Template",
+ CellLabel->"Additional Function Template",
+ CellID->1564308233,ExpressionUUID->"0df05a15-807b-4dec-b214-a5eb8b6c61ea"],
+
+Cell[BoxData[""], "Template",
+ CellLabel->"Arguments Pattern",
+ CellID->889627393,ExpressionUUID->"05ea19dc-33e5-4013-bdf1-bb8a4b2713c5"],
+
+Cell[BoxData[""], "Template",
+ CellLabel->"Local Variables",
+ CellID->1040616464,ExpressionUUID->"f6038d2c-8f6f-4983-8518-ec1a9ea26ffb"],
+
+Cell[BoxData[""], "Template",
+ CellLabel->"Color Equal Signs",
+ CellID->1172666606,ExpressionUUID->"7718a37d-2c38-4620-990f-7d97fda6539e"]
+}, Closed]]
+}, Open  ]]
+},
+WindowSize->{700.5, 770.25},
+WindowMargins->{{Automatic, -60}, {Automatic, 37.5}},
+TaggingRules-><|"Paclet" -> "Teukolsky"|>,
+CellContext->"Global`",
+FrontEndVersion->"14.0 for Linux x86 (64-bit) (December 12, 2023)",
+StyleDefinitions->FrontEnd`FileName[{"Wolfram"}, "FunctionPageStylesExt.nb", 
+  CharacterEncoding -> "UTF-8"],
+ExpressionUUID->"e33f4cea-bfd7-456f-b14b-98d93db79cb4"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{
+ "ExtendedExamples"->{
+  Cell[42842, 1204, 488, 13, 57, "ExtendedExamplesSection",ExpressionUUID->"e13d939d-e124-4d7e-baad-f82b46bca53c",
+   CellTags->"ExtendedExamples",
+   CellID->1573624700]}
+ }
+*)
+(*CellTagsIndex
+CellTagsIndex->{
+ {"ExtendedExamples", 49130, 1392}
+ }
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[580, 22, 126, 1, 74, "ObjectName",ExpressionUUID->"d8710532-c9d1-4021-8ea8-f4a716e0f122",
+ CellID->2082136862],
+Cell[709, 25, 924, 19, 96, "Usage",ExpressionUUID->"632eaccd-7901-422f-bba0-b39b917bef76",
+ CellID->1949718587],
+Cell[1636, 46, 96, 1, 27, "Notes",ExpressionUUID->"e2c71df1-da33-43e8-9963-6b15682cebdc",
+ CellID->186858151]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[1769, 52, 459, 13, 40, "SeeAlsoSection",ExpressionUUID->"0a58718f-7e9c-4364-b890-4781c5e14193",
+ CellID->1010149504],
+Cell[2231, 67, 1654, 42, 25, "SeeAlso",ExpressionUUID->"7cb5fc50-5016-4f69-a500-113a9534205f",
+ CellID->1964960318]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[3922, 114, 435, 12, 41, "TechNotesSection",ExpressionUUID->"a3cbdb92-0a9f-4b1e-820f-ed87b551a084",
+ CellID->590668450],
+Cell[4360, 128, 100, 1, 20, "Tutorials",ExpressionUUID->"b78786f0-d27c-4bd1-9d04-07c7f9502999",
+ CellID->484818946]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[4497, 134, 118, 1, 40, "MoreAboutSection",ExpressionUUID->"77fac25a-1dec-4262-93bf-8812ccfaf9f7",
+ CellID->1755842021],
+Cell[4618, 137, 101, 1, 20, "MoreAbout",ExpressionUUID->"3342f471-672f-4086-a8a5-4ab3036e197e",
+ CellID->2020315518]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[4756, 143, 472, 13, 40, "RelatedLinksSection",ExpressionUUID->"cd4fc98f-d5d4-4041-89ce-78a898a60b5b",
+ CellID->354681957],
+Cell[5231, 158, 104, 1, 20, "RelatedLinks",ExpressionUUID->"ca4c2393-f998-4bc2-b7a3-7922adf75d73",
+ CellID->1365478989]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[5372, 164, 531, 14, 69, "ExamplesInitializationSection",ExpressionUUID->"988e30a6-0c51-4e19-aecb-d8e0b966f0d3",
+ CellID->1407946243],
+Cell[5906, 180, 246, 4, 46, "ExampleInitialization",ExpressionUUID->"65686aea-e0b0-461d-8c86-8ecb6306b9e7",
+ CellID->554181952]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[6189, 189, 443, 12, 72, "PrimaryExamplesSection",ExpressionUUID->"7ae71449-7d0e-4617-9d81-a4f63a9e2725",
+ CellID->1249945120],
+Cell[CellGroupData[{
+Cell[6657, 205, 506, 13, 45, "Input",ExpressionUUID->"0e4eb052-13f9-41dc-9b85-c3f7a3bc3c00",
+ CellID->22921858],
+Cell[7166, 220, 35627, 978, 1366, "Output",ExpressionUUID->"85a9aa79-cabe-4398-b36b-e3c1be888f15",
+ CellID->572361033]
+}, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[42842, 1204, 488, 13, 57, "ExtendedExamplesSection",ExpressionUUID->"e13d939d-e124-4d7e-baad-f82b46bca53c",
+ CellTags->"ExtendedExamples",
+ CellID->1573624700],
+Cell[43333, 1219, 241, 5, 35, "ExampleSection",ExpressionUUID->"1f4fbbe1-ebc1-42db-a355-c3135c5fcf01",
+ CellID->430427133],
+Cell[43577, 1226, 265, 5, 23, "ExampleSection",ExpressionUUID->"69bccde2-c7c6-4e4d-90c8-cddbf53dd95f",
+ CellID->1744016438],
+Cell[CellGroupData[{
+Cell[43867, 1235, 244, 5, 23, "ExampleSection",ExpressionUUID->"46f5cb43-3fef-4bc6-b4ac-cda65eb56a47",
+ CellID->1364379162],
+Cell[44114, 1242, 246, 5, 26, "ExampleSubsection",ExpressionUUID->"2b3c0ddc-45fb-49bc-88bb-e1ad679580d6",
+ CellID->485778703],
+Cell[44363, 1249, 247, 5, 22, "ExampleSubsection",ExpressionUUID->"c36ca917-13e3-428d-b247-bcd03de95a79",
+ CellID->1482704823]
+}, Open  ]],
+Cell[44625, 1257, 248, 5, 35, "ExampleSection",ExpressionUUID->"1db24c5b-1e81-48b9-9c34-48fb51a2b457",
+ CellID->845433015],
+Cell[44876, 1264, 259, 5, 23, "ExampleSection",ExpressionUUID->"1369e726-7338-47c4-b0c4-0df471f218ce",
+ CellID->1007404796],
+Cell[45138, 1271, 252, 5, 23, "ExampleSection",ExpressionUUID->"04d607a0-5c71-4294-8b8f-1e99a8f85205",
+ CellID->2033242877],
+Cell[45393, 1278, 256, 5, 23, "ExampleSection",ExpressionUUID->"c1744a87-6f30-4972-80c2-48afc6d19480",
+ CellID->535638459],
+Cell[45652, 1285, 250, 5, 23, "ExampleSection",ExpressionUUID->"70d0bb84-7a1f-42e5-8d79-960a59f1dfbc",
+ CellID->1182962927]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[45939, 1295, 110, 1, 72, "MetadataSection",ExpressionUUID->"45f8f369-2b36-49e1-bef6-01f01f8e63bc",
+ CellID->649346656],
+Cell[46052, 1298, 476, 12, 27, "History",ExpressionUUID->"0a3df971-9547-46ce-b712-32b847d346e5",
+ CellID->833866610],
+Cell[CellGroupData[{
+Cell[46553, 1314, 484, 13, 21, "CategorizationSection",ExpressionUUID->"3e77d22e-404c-4f32-bb91-a6cf16f491d5",
+ CellID->222552275],
+Cell[47040, 1329, 135, 2, 34, "Categorization",ExpressionUUID->"a8c3cd6c-c4e4-4871-8a94-8d553d98ec3a",
+ CellID->1758478447],
+Cell[47178, 1333, 137, 2, 34, "Categorization",ExpressionUUID->"d256508c-9e61-426b-8800-ecf6831ed422",
+ CellID->762459263],
+Cell[47318, 1337, 135, 2, 34, "Categorization",ExpressionUUID->"4ed3ef14-9f57-49a6-bd16-3df52722054b",
+ CellID->1395298421],
+Cell[47456, 1341, 162, 2, 34, "Categorization",ExpressionUUID->"688ac768-0cdf-4047-bb5f-4326bc5d2923",
+ CellID->390661947]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[47655, 1348, 111, 1, 21, "KeywordsSection",ExpressionUUID->"a63c3542-73bc-48b3-9131-1c145b622183",
+ CellID->1746831562],
+Cell[47769, 1351, 99, 1, 70, "Keywords",ExpressionUUID->"f4513951-89a0-47b4-b168-a91e4e8b04b1",
+ CellID->298958943]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[47905, 1357, 119, 1, 21, "TemplatesSection",ExpressionUUID->"c593f2e2-75c0-4d3d-8a15-1dfaa113f428",
+ CellID->555797518],
+Cell[48027, 1360, 149, 2, 70, "Template",ExpressionUUID->"0df05a15-807b-4dec-b214-a5eb8b6c61ea",
+ CellID->1564308233],
+Cell[48179, 1364, 137, 2, 70, "Template",ExpressionUUID->"05ea19dc-33e5-4013-bdf1-bb8a4b2713c5",
+ CellID->889627393],
+Cell[48319, 1368, 136, 2, 70, "Template",ExpressionUUID->"f6038d2c-8f6f-4983-8518-ec1a9ea26ffb",
+ CellID->1040616464],
+Cell[48458, 1372, 138, 2, 70, "Template",ExpressionUUID->"7718a37d-2c38-4620-990f-7d97fda6539e",
+ CellID->1172666606]
+}, Closed]]
+}, Open  ]]
+}
+]
+*)
+
