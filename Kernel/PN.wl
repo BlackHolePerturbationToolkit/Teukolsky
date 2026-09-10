@@ -904,7 +904,7 @@ Kerr\[CapitalDelta][a_,r_]:=\[CapitalDelta][a,1,r];
 (*]*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Post Newtonian Scalings*)
 
 
@@ -1001,7 +1001,7 @@ ExpandSpheroidals[expr_Times,{\[Eta]_,n_}]:=ExpandSpheroidals[#,{\[Eta],n}]&/@ex
 ExpandSpheroidals[expr_,{\[Eta]_,n_}]:=expr;
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Tools for Series*)
 
 
@@ -1180,8 +1180,16 @@ newCoeffs=oldCoeffs (sym^#1&)/@exps;
 aux=ReplacePart[series,{1->var,3->newCoeffs}];
 aux
 ]
+PowerCounting[expr_/;MatchQ[expr,Times[__,_SeriesData]],symbol_]:=Block[{aux,factor,series,par},
+{factor,series}=expr/.Times[a__,b_SeriesData]:>{Times[a],b};
+par=series[[1]];
+factor=If[FreeQ[factor,SeriesData],factor/.par->symbol par,PowerCounting[factor,symbol]];
+factor PowerCounting[series,symbol]
+]
+PowerCounting[expr_Plus,var_]:=PowerCounting[#,var]&/@expr;
 PowerCounting[list_List,var_]:=PowerCounting[#,var]&/@list;
 PowerCounting[list_Association,var_]:=PowerCounting[#,var]&/@list;
+PowerCounting[expr_,var_]/;FreeQ[expr,SeriesData]:=expr;
 
 
 StraightenSeries[expr_]:=Quiet[expr/.SeriesData[x___]:>StraightenSeries[SeriesData[x]]];
