@@ -701,15 +701,15 @@ keys->values//Thread//Association
 ]
 
 
-MSTCoefficientsInternal[\[ScriptS]_Symbol,\[ScriptL]_Symbol,\[ScriptM]_,aKerr_,order\[Eta]_Integer]:=Block[{aux,values,keys},
+(*MSTCoefficientsInternal[\[ScriptS]_Symbol,\[ScriptL]_Symbol,\[ScriptM]_,aKerr_,order\[Eta]_Integer]:=Block[{aux,values,keys},
 aux=replsMST[\[ScriptS],\[ScriptL],\[ScriptM],order\[Eta]];
 values=Values[aux]/.a->aKerr;
 keys=Keys[aux]/.{a[n_]:>aMST[n],\[Nu]->\[Nu]MST};
 keys->values//Thread//Association
-]
+]*)
 
 
-MSTCoefficientsInternal[\[ScriptS]_Integer,\[ScriptL]_,\[ScriptM]_,aKerr_,order\[Eta]_Integer]:=Block[{aux,values,keys,order\[CurlyEpsilon]},
+MSTCoefficientsInternal[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,aKerr_,order\[Eta]_Integer]:=Block[{aux,values,keys,order\[CurlyEpsilon]},
 order\[CurlyEpsilon]=order\[Eta]/3//Ceiling;
 aux=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],aKerr,order\[CurlyEpsilon]];
 aux=aux//ChangeSeriesParameter[#,\[Eta]^3]&//Series[#,{\[Eta],0,order\[Eta]-1}]&;
