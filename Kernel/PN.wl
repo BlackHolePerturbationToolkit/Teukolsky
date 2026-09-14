@@ -113,7 +113,7 @@ Begin["`Private`"]
 packageDir=DirectoryName[$InputFileName]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*MST Coefficients*)
 
 
@@ -681,7 +681,7 @@ MST
 
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Interface*)
 
 
@@ -880,7 +880,7 @@ aux
 ]*)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Tools*)
 
 
@@ -2020,7 +2020,7 @@ Derivative[n_][\[Theta]][arg_]:=Derivative[n-1][\[Delta]][arg];
 \[Delta]''[\[Eta]^-2 a_]:=\[Eta]^2 \[Delta]''[a];*)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Amplitudes*)
 
 
@@ -2776,7 +2776,7 @@ aux
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Phase shift*)
 
 
@@ -2858,7 +2858,7 @@ ret
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Interface*)
 
 
@@ -3237,7 +3237,7 @@ If[!MatchQ[order,_Integer],Message[TeukolskyRadialFunctionPN::paramorder,order];
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*TeukolskyRadialPN*)
 
 
@@ -3307,7 +3307,7 @@ ret
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Getting internal association*)
 
 
@@ -3412,7 +3412,7 @@ ret
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*TeukolskyRadialPN*)
 
 
@@ -3519,11 +3519,11 @@ Derivative[n_Integer][trf_TeukolskyRadialFunctionPN][r_]:=(*trf[[6,1]]^(2 n)*) D
 Keys[trfpn_TeukolskyRadialFunctionPN] ^:= DeleteElements[Join[Keys[trfpn[[-1]]], {}], {"RadialFunction","AmplitudesBool"}];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*TeukolskyPointParticleModePN*)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Given point particle Source*)
 
 
@@ -3637,7 +3637,7 @@ ret
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*TeukolskyModePN*)
 
 
@@ -3657,8 +3657,11 @@ TeukolskyModePN /:
              BoxForm`SummaryItem[{"Orbit: ", "Circular Equatorial"}]};           
   extended = {
   BoxForm`SummaryItem[{"Min order: ",assoc["SeriesMinOrder"]}],
-  BoxForm`SummaryItem[{"Simplify: ",assoc["Simplify"]}],
-  BoxForm`SummaryItem[{"Homogeneous Normalization: ",assoc["Normalization"]}]};
+  BoxForm`SummaryItem[{"Homogeneous Normalization:  ",assoc["Options"]["Normalization"]}],
+    BoxForm`SummaryItem[{"Simplify: ",assoc["Options"]["Simplify"]}],
+      BoxForm`SummaryItem[{"FourierFrequency: ",assoc["Options"]["FourierFrequency"]}],
+            BoxForm`SummaryItem[{"InactiveHarmonics: ",assoc["Options"]["InactiveHarmonics"]}],
+  BoxForm`SummaryItem[{"Only infinity amplitdues computed: ",assoc["Options"]["\[ScriptCapitalI]Only"]}]};
 
   BoxForm`ArrangeSummaryBox[
     TeukolskyModePN,
@@ -3670,7 +3673,7 @@ TeukolskyModePN /:
 ];
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*TeukolskyPointParticleModePN*)
 
 
@@ -3711,7 +3714,7 @@ TeukolskyPointParticleModePN[\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],aux,{va
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Accessing functions and keys*)
 
 
@@ -3749,7 +3752,7 @@ Keys[trfpn_TeukolskyModePN]^:= DeleteElements[Join[Keys[trfpn[[-1]]], {"Fluxes",
 Derivative[n_Integer][tppm_TeukolskyModePN][r_Symbol]:=(*tppm[[6,1]]^(2 n)*) Derivative[n][tppm[[-1]]["RadialFunction"]][r]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Fluxes*)
 
 
