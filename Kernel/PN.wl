@@ -3237,7 +3237,7 @@ If[!MatchQ[order,_Integer],Message[TeukolskyRadialFunctionPN::paramorder,order];
 ]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*TeukolskyRadialPN*)
 
 
@@ -3307,7 +3307,7 @@ ret
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Getting internal association*)
 
 
@@ -3320,7 +3320,7 @@ InGap[\[ScriptL]_,0]:=4\[ScriptL]+2;
 Options[RadialAssociationBoth]={"Normalization"->"Default", "Amplitudes"->False, "Simplify"->True,"CoulombWaveFunctions"->False}
 
 
-RadialAssociationBoth[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{varPN_,order_},opt:OptionsPattern[]]:=Module[{aux,\[CurlyEpsilon],\[CurlyEpsilon]p,repls,\[Kappa],\[Tau],ret,trigPattern,\[ScriptCapitalK],ExpandTrig,RC1,RC2,R,RF,gap,boundaryCondition,coeffUp,C1,C2,BC,lead,minOrder,termCount,normalization,amplitudes,trans,inc,ref},
+RadialAssociationBoth[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,\[Omega]Var_,{varPN_,order_},opt:OptionsPattern[]]:=Module[{aux,\[CurlyEpsilon],\[CurlyEpsilon]p,repls,\[Kappa],\[Tau],ret,options,trigPattern,\[ScriptCapitalK],ExpandTrig,RC1,RC2,R,RF,gap,boundaryCondition,coeffUp,C1,C2,BC,lead,minOrder,termCount,normalization,amplitudes,trans,inc,ref},
 CheckInput["In",\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{varPN,order}];
 (*We start with computing some essentials*)
 \[CurlyEpsilon]=2 \[Omega];
@@ -3405,14 +3405,15 @@ amplitudes["In"]=<|"Incidence"->inc["In"],"Transmission"->trans["In"],"Reflectio
 amplitudes["Up"]=<|"Incidence"->inc["Up"],"Transmission"->trans["Up"],"Reflection"->ref["Up"]|>;
 boundaryCondition["In"]=If[OptionValue["CoulombWaveFunctions"],"C\[Nu]","In"];
 boundaryCondition["Up"]=If[OptionValue["CoulombWaveFunctions"],"C-\[Nu]-1","Up"];
-ret["In"]=<|"s"->\[ScriptS],"l"->\[ScriptL],"m"->\[ScriptM],"a"->a,"PN"->{varPN,order},"RadialFunction"->RF["In"],"BoundaryCondition"->boundaryCondition["In"],"SeriesMinOrder"->minOrder["In"],"TermCount"->termCount["In"],"Normalization"->normalization,"Amplitudes"->amplitudes["In"],"Simplify"->OptionValue["Simplify"],"AmplitudesBool"->OptionValue["Amplitudes"]|>;
-ret["Up"]=<|"s"->\[ScriptS],"l"->\[ScriptL],"m"->\[ScriptM],"a"->a,"PN"->{varPN,order},"RadialFunction"->RF["Up"],"BoundaryCondition"->boundaryCondition["Up"],"SeriesMinOrder"->minOrder["Up"],"TermCount"->termCount["Up"],"Normalization"->normalization,"Amplitudes"->amplitudes["Up"],"Simplify"->OptionValue["Simplify"],"AmplitudesBool"->OptionValue["Amplitudes"]|>;
+options=<|"Normalization"->OptionValue["Normalization"],"Amplitudes"->OptionValue["Amplitudes"],"Simplify"->OptionValue["Simplify"],"CoulombWaveFunctions"->OptionValue["CoulombWaveFunctions"]|>;
+ret["In"]=<|"s"->\[ScriptS],"l"->\[ScriptL],"m"->\[ScriptM],"a"->a,"PN"->{varPN,order},"RadialFunction"->RF["In"],"BoundaryCondition"->boundaryCondition["In"],"SeriesMinOrder"->minOrder["In"],"TermCount"->termCount["In"],"Normalization"->normalization,"Amplitudes"->amplitudes["In"],"Options"->options|>;
+ret["Up"]=<|"s"->\[ScriptS],"l"->\[ScriptL],"m"->\[ScriptM],"a"->a,"PN"->{varPN,order},"RadialFunction"->RF["Up"],"BoundaryCondition"->boundaryCondition["Up"],"SeriesMinOrder"->minOrder["Up"],"TermCount"->termCount["Up"],"Normalization"->normalization,"Amplitudes"->amplitudes["Up"],"Options"->options|>;
 ret=<|"In"->ret["In"],"Up"->ret["Up"]|>;
 ret
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*TeukolskyRadialPN*)
 
 
@@ -3427,6 +3428,9 @@ If[!check1,Message[TeukolskyRadialFunctionPN::PNInput,ret]];
 If[!check2,ret=aux];
 ret
 ]
+
+
+Options[TeukolskyRadialPN]={"Normalization"->"Default", "Amplitudes"->False, "Simplify"->True,"CoulombWaveFunctions"->False}
 
 
 TeukolskyRadialPN[\[ScriptS]_, \[ScriptL]_, \[ScriptM]_, a_, \[Omega]_,{varPN_,order_String},opt:OptionsPattern[]]:=Module[{aux},
@@ -3447,7 +3451,7 @@ aux
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*TeukolskyRadialFunctionPN*)
 
 
@@ -3473,8 +3477,8 @@ TeukolskyRadialFunctionPN /:
   extended = {
     BoxForm`SummaryItem[{"Min order: ",assoc["SeriesMinOrder"]}],
     BoxForm`SummaryItem[{"Number of terms: ",assoc["TermCount"]}],
-    BoxForm`SummaryItem[{"Simplify: ",assoc["Simplify"]}],
-    BoxForm`SummaryItem[{"Amplitudes: ",assoc["AmplitudesBool"]}]};
+    BoxForm`SummaryItem[{"Simplify: ",assoc["Options"]["Simplify"]}],
+    BoxForm`SummaryItem[{"Amplitudes: ",assoc["Options"]["Amplitudes"]}]};
 
   BoxForm`ArrangeSummaryBox[
     TeukolskyRadialFunctionPN,
@@ -3493,7 +3497,7 @@ ret
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Accessing functions and keys*)
 
 
@@ -3519,7 +3523,7 @@ Derivative[n_Integer][trf_TeukolskyRadialFunctionPN][r_]:=(*trf[[6,1]]^(2 n)*) D
 Keys[trfpn_TeukolskyRadialFunctionPN] ^:= DeleteElements[Join[Keys[trfpn[[-1]]], {}], {"RadialFunction","AmplitudesBool"}];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*TeukolskyPointParticleModePN*)
 
 
