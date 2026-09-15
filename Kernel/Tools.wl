@@ -31,7 +31,7 @@ ClearAttributes[{ExpandLog, ExpandGamma,ExpandPolyGamma,PochhammerToGamma,GammaT
 ClearAttributes[{TeukolskyPointParticleSource}, {Protected, ReadProtected}];
 
 
-ClearAttributes[{Paint,CowboyConjugate,ChangeContext,ChooseSide}, {Protected, ReadProtected}];
+ClearAttributes[{Paint,CowboyConjugate,ChooseSide}, {Protected, ReadProtected}];
 
 
 ClearAttributes[{AngularTeukolskyEquation,RadialTeukolskyEquation,RadialTeukolskyEquationPN}, {Protected, ReadProtected}];
@@ -118,7 +118,7 @@ RadialTeukolskyEquationPN::usage="RadialTeukolskyEquationPN[\[ScriptS],\[ScriptL
 CollectDerivatives::usage="CollectDerivatives[expr,f] works exactly like Collect[] but also collects for derivatives of f."
 Paint::usage="Paint[expr,var] paints all occurences of var in expr Red."
 CowboyConjugate::usage="\"Shoot first, ask questions later\". CowboyConjugate[expr] performs the complex conjugate by assuming everything but \[ImaginaryI] is real."
-ChangeContext::usage="ChangeContext[expr,context1,context2] is a debugging tool that allows to change the context of all symbols in expr"
+(*ChangeContext::usage="ChangeContext[expr,context1,context2] is a debugging tool that allows to change the context of all symbols in expr"*)
 ChooseSide::usage="ChooseSide[expr,assumptions] Simplifies all HeavisideTheta and DiracDelta according to assumptions."
 
 
@@ -202,14 +202,14 @@ ExpandDiracDelta=Teukolsky`PN`Private`ExpandDiracDelta
 (*ExpandSpheroidals=Teukolsky`PN`Private`ExpandSpheroidals*)
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Misc*)
 
 
 CollectDerivatives=Teukolsky`PN`Private`CollectDerivatives
 Paint=Teukolsky`PN`Private`Paint
 CowboyConjugate=Teukolsky`PN`Private`CowboyConjugate
-ChangeContext=Teukolsky`PN`Private`ChangeContext
+(*ChangeContext=Teukolsky`PN`Private`ChangeContext*)
 ChooseSide=Teukolsky`PN`Private`ChooseSide
 
 
@@ -251,7 +251,7 @@ SetAttributes[{ExpandLog, ExpandGamma,ExpandPolyGamma,PochhammerToGamma,GammaToP
 SetAttributes[{TeukolskyPointParticleSource}, {Protected, ReadProtected}];
 
 
-SetAttributes[{Paint,CowboyConjugate,ChangeContext}, {Protected, ReadProtected}];
+SetAttributes[{Paint,CowboyConjugate}, {Protected, ReadProtected}];
 
 
 SetAttributes[{AngularTeukolskyEquation,RadialTeukolskyEquation,RadialTeukolskyEquationPN}, {Protected, ReadProtected}];
