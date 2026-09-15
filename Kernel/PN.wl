@@ -3391,7 +3391,6 @@ RF["In"]=(Evaluate[R["In"]/.r->#])&;
 RF["Up"]=(Evaluate[R["Up"]/.r->#])&;
 (minOrder[#]=R[#]//Activate//Expand//SeriesMinOrder//Simplify[#,{\[ScriptL]>=Abs[\[ScriptS]]}]&)&/@{"In","Up"};
 (termCount[#]=R[#]//Activate//Expand//SeriesLength//Simplify[#,{\[ScriptL]>=Abs[\[ScriptS]]}]&)&/@{"In","Up"};
-normalization=OptionValue["Normalization"];
 trans["In"]=If[OptionValue["Amplitudes"],TeukolskyAmplitudePN["Btrans","Normalization"->OptionValue["Normalization"],"FreqRep"->False][\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega]Var,{varPN,order}],Missing["NotComputed"]];
 trans["Up"]=If[OptionValue["Amplitudes"],TeukolskyAmplitudePN["Ctrans","Normalization"->OptionValue["Normalization"],"FreqRep"->False][\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega]Var,{varPN,order}],Missing["NotComputed"]];
 inc["In"]=If[OptionValue["Amplitudes"],TeukolskyAmplitudePN["Binc","Normalization"->OptionValue["Normalization"],"FreqRep"->False][\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega]Var,{varPN,order}],Missing["NotComputed"]];
@@ -3406,8 +3405,8 @@ amplitudes["Up"]=<|"Incidence"->inc["Up"],"Transmission"->trans["Up"],"Reflectio
 boundaryCondition["In"]=If[OptionValue["CoulombWaveFunctions"],"C\[Nu]","In"];
 boundaryCondition["Up"]=If[OptionValue["CoulombWaveFunctions"],"C-\[Nu]-1","Up"];
 options=<|"Normalization"->OptionValue["Normalization"],"Amplitudes"->OptionValue["Amplitudes"],"Simplify"->OptionValue["Simplify"],"CoulombWaveFunctions"->OptionValue["CoulombWaveFunctions"]|>;
-ret["In"]=<|"s"->\[ScriptS],"l"->\[ScriptL],"m"->\[ScriptM],"a"->a,"PN"->{varPN,order},"RadialFunction"->RF["In"],"BoundaryCondition"->boundaryCondition["In"],"SeriesMinOrder"->minOrder["In"],"TermCount"->termCount["In"],"Normalization"->normalization,"Amplitudes"->amplitudes["In"],"Options"->options|>;
-ret["Up"]=<|"s"->\[ScriptS],"l"->\[ScriptL],"m"->\[ScriptM],"a"->a,"PN"->{varPN,order},"RadialFunction"->RF["Up"],"BoundaryCondition"->boundaryCondition["Up"],"SeriesMinOrder"->minOrder["Up"],"TermCount"->termCount["Up"],"Normalization"->normalization,"Amplitudes"->amplitudes["Up"],"Options"->options|>;
+ret["In"]=<|"s"->\[ScriptS],"l"->\[ScriptL],"m"->\[ScriptM],"a"->a,"PN"->{varPN,order},"RadialFunction"->RF["In"],"BoundaryCondition"->boundaryCondition["In"],"SeriesMinOrder"->minOrder["In"],"TermCount"->termCount["In"],"Amplitudes"->amplitudes["In"],"Options"->options|>;
+ret["Up"]=<|"s"->\[ScriptS],"l"->\[ScriptL],"m"->\[ScriptM],"a"->a,"PN"->{varPN,order},"RadialFunction"->RF["Up"],"BoundaryCondition"->boundaryCondition["Up"],"SeriesMinOrder"->minOrder["Up"],"TermCount"->termCount["Up"],"Amplitudes"->amplitudes["Up"],"Options"->options|>;
 ret=<|"In"->ret["In"],"Up"->ret["Up"]|>;
 ret
 ]
