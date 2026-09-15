@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[    631833,      13836]
-NotebookOptionsPosition[    609875,      13360]
-NotebookOutlinePosition[    610660,      13386]
-CellTagsIndexPosition[    610578,      13381]
+NotebookDataLength[    636517,      13958]
+NotebookOptionsPosition[    612685,      13446]
+NotebookOutlinePosition[    613470,      13472]
+CellTagsIndexPosition[    613388,      13467]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -236,10 +236,10 @@ Cell[TextData[{
     "83d1757e-96d2-44c4-8211-de196c886561"], 
    DynamicModuleBox[{$CellContext`nbobj$$ = NotebookObject[
     "4cdc53be-4474-4e7d-8aa9-8c4b6af9a759", 
-     "458588c1-cbcb-4972-8dcc-ddf89a3266c2"], $CellContext`cellobj$$ = 
+     "899454d7-7687-46e6-8b43-2e5768cb04c0"], $CellContext`cellobj$$ = 
     CellObject[
     "bfafe1ae-4382-474b-97c7-755897deb3ff", 
-     "2a9f169c-7f51-446c-8c96-26923bdd8a3e"]}, 
+     "8031f78a-ef4a-4004-9f99-26bd2179554e"]}, 
     TemplateBox[{
       GraphicsBox[{{
          Thickness[0.06], 
@@ -2994,7 +2994,7 @@ Cell[BoxData[
           "PN" -> {$CellContext`\[Eta], 3}, 
           "RadialFunction" -> (
            SeriesData[$CellContext`\[Eta], 0, {Complex[0, 
-               Rational[-3, 2]] $CellContext`r0^Rational[3, 2]/#, -3, 
+               Rational[-3, 2]] ($CellContext`r0^Rational[3, 2]/#), -3, 
              Rational[1, 2] (Complex[0, -3] + 
                4 $CellContext`a) $CellContext`r0^Rational[3, 2] #^(-2) + 
              Complex[0, 3] $CellContext`r0^Rational[-3, 2] #}, -1, 2, 1]& ), 
@@ -3053,12 +3053,12 @@ $CellContext`a^2 +
            6 $CellContext`a $CellContext`r0^
              Rational[
               1, 2] + (-5 + $CellContext`r0) $CellContext`r0 + \
-($CellContext`a - $CellContext`r0^Rational[1, 2])^2 ($CellContext`a^2 - 
-             4 $CellContext`a $CellContext`r0^
-              Rational[1, 2] - (-4 + $CellContext`r0) $CellContext`r0)/
-            Abs[$CellContext`a^2 - 
-             4 $CellContext`a $CellContext`r0^
-              Rational[1, 2] - (-4 + $CellContext`r0) $CellContext`r0]))^
+($CellContext`a - $CellContext`r0^Rational[1, 2])^2 (($CellContext`a^2 - 
+              4 $CellContext`a $CellContext`r0^
+               Rational[1, 2] - (-4 + $CellContext`r0) $CellContext`r0)/
+             Abs[$CellContext`a^2 - 
+              4 $CellContext`a $CellContext`r0^
+               Rational[1, 2] - (-4 + $CellContext`r0) $CellContext`r0])))^
          Rational[1, 2], "PolarFrequency" -> 
         Abs[(2 $CellContext`a + (-3 + $CellContext`r0) $CellContext`r0^
               Rational[1, 2])^Rational[-1, 2] $CellContext`r0^
@@ -3078,12 +3078,12 @@ $CellContext`a^2 +
              6 $CellContext`a $CellContext`r0^
                Rational[
                 1, 2] + (-5 + $CellContext`r0) $CellContext`r0 + \
-($CellContext`a - $CellContext`r0^Rational[1, 2])^2 ($CellContext`a^2 - 
-               4 $CellContext`a $CellContext`r0^
-                Rational[1, 2] - (-4 + $CellContext`r0) $CellContext`r0)/
-              Abs[$CellContext`a^2 - 
-               4 $CellContext`a $CellContext`r0^
-                Rational[1, 2] - (-4 + $CellContext`r0) $CellContext`r0]))^
+($CellContext`a - $CellContext`r0^Rational[1, 2])^2 (($CellContext`a^2 - 
+                4 $CellContext`a $CellContext`r0^
+                 Rational[1, 2] - (-4 + $CellContext`r0) $CellContext`r0)/
+               Abs[$CellContext`a^2 - 
+                4 $CellContext`a $CellContext`r0^
+                 Rational[1, 2] - (-4 + $CellContext`r0) $CellContext`r0])))^
            Rational[1, 2], 
           "\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(\[Theta]\)]\)" -> 
           Abs[(2 $CellContext`a + (-3 + $CellContext`r0) $CellContext`r0^
@@ -3228,11 +3228,11 @@ $CellContext`r0^Rational[1, 2])^2/(
                     Rational[
                     3, 2] + (-3 + $CellContext`r0) \
 $CellContext`r0^2))^(-1))^2)^Rational[1, 2])^(-2) + 
-               2 $CellContext`r0 (
-                 2 $CellContext`r0 - (
-                  1 - ($CellContext`a + (-2 + $CellContext`r0) \
+               2 $CellContext`r0 ((
+                  2 $CellContext`r0 - (
+                   1 - ($CellContext`a + (-2 + $CellContext`r0) \
 $CellContext`r0^Rational[1, 2])^2/(
-                  2 $CellContext`a $CellContext`r0^
+                   2 $CellContext`a $CellContext`r0^
                     Rational[
                     3, 2] + (-3 + $CellContext`r0) $CellContext`r0^2))^(-1) - \
 (($CellContext`r0 - (
@@ -3242,10 +3242,10 @@ $CellContext`r0^Rational[1, 2])^2/(
                     Rational[
                     3, 2] + (-3 + $CellContext`r0) \
 $CellContext`r0^2))^(-1))^2)^
-                 Rational[1, 2])/((-2) $CellContext`r0 + (
-                  1 - ($CellContext`a + (-2 + $CellContext`r0) \
+                  Rational[1, 2])/((-2) $CellContext`r0 + (
+                   1 - ($CellContext`a + (-2 + $CellContext`r0) \
 $CellContext`r0^Rational[1, 2])^2/(
-                  2 $CellContext`a $CellContext`r0^
+                   2 $CellContext`a $CellContext`r0^
                     Rational[
                     3, 2] + (-3 + $CellContext`r0) $CellContext`r0^2))^(-1) + \
 (($CellContext`r0 - (
@@ -3254,7 +3254,7 @@ $CellContext`r0^Rational[1, 2])^2/(
                     2 $CellContext`a $CellContext`r0^
                     Rational[
                     3, 2] + (-3 + $CellContext`r0) \
-$CellContext`r0^2))^(-1))^2)^Rational[1, 2]))^(-1) (-$CellContext`a (
+$CellContext`r0^2))^(-1))^2)^Rational[1, 2])))^(-1) ((-$CellContext`a) (
                  2 $CellContext`a + (-3 + $CellContext`r0) $CellContext`r0^
                    Rational[1, 2])^Rational[-1, 2] $CellContext`r0^
                 Rational[-3, 4] ($CellContext`a^2 - 
@@ -3363,11 +3363,11 @@ $CellContext`r0^Rational[1, 2])^2/(
                     Rational[
                     3, 2] + (-3 + $CellContext`r0) \
 $CellContext`r0^2))^(-1))^2)^Rational[1, 2])^(-2) + 
-               2 $CellContext`r0 (
-                 2 $CellContext`r0 - (
-                  1 - ($CellContext`a + (-2 + $CellContext`r0) \
+               2 $CellContext`r0 ((
+                  2 $CellContext`r0 - (
+                   1 - ($CellContext`a + (-2 + $CellContext`r0) \
 $CellContext`r0^Rational[1, 2])^2/(
-                  2 $CellContext`a $CellContext`r0^
+                   2 $CellContext`a $CellContext`r0^
                     Rational[
                     3, 2] + (-3 + $CellContext`r0) $CellContext`r0^2))^(-1) - \
 (($CellContext`r0 - (
@@ -3377,10 +3377,10 @@ $CellContext`r0^Rational[1, 2])^2/(
                     Rational[
                     3, 2] + (-3 + $CellContext`r0) \
 $CellContext`r0^2))^(-1))^2)^
-                 Rational[1, 2])/((-2) $CellContext`r0 + (
-                  1 - ($CellContext`a + (-2 + $CellContext`r0) \
+                  Rational[1, 2])/((-2) $CellContext`r0 + (
+                   1 - ($CellContext`a + (-2 + $CellContext`r0) \
 $CellContext`r0^Rational[1, 2])^2/(
-                  2 $CellContext`a $CellContext`r0^
+                   2 $CellContext`a $CellContext`r0^
                     Rational[
                     3, 2] + (-3 + $CellContext`r0) $CellContext`r0^2))^(-1) + \
 (($CellContext`r0 - (
@@ -3389,7 +3389,7 @@ $CellContext`r0^Rational[1, 2])^2/(
                     2 $CellContext`a $CellContext`r0^
                     Rational[
                     3, 2] + (-3 + $CellContext`r0) \
-$CellContext`r0^2))^(-1))^2)^Rational[1, 2]))^(-1) (-$CellContext`a (
+$CellContext`r0^2))^(-1))^2)^Rational[1, 2])))^(-1) ((-$CellContext`a) (
                  2 $CellContext`a + (-3 + $CellContext`r0) $CellContext`r0^
                    Rational[1, 2])^Rational[-1, 2] $CellContext`r0^
                 Rational[-3, 4] ($CellContext`a^2 - 
@@ -4493,7 +4493,7 @@ Cell[BoxData[
        3}, <|"s" -> -2, "l" -> 2, "m" -> 2, "a" -> $CellContext`a, 
        "PN" -> {$CellContext`\[Eta], 3}, 
        "RadialFunction" -> (SeriesData[$CellContext`\[Eta], 0, {Complex[0, 
-            Rational[-3, 2]] $CellContext`r0^Rational[3, 2]/#, -3, 
+            Rational[-3, 2]] ($CellContext`r0^Rational[3, 2]/#), -3, 
           Rational[1, 2] (Complex[0, -3] + 4 $CellContext`a) $CellContext`r0^
             Rational[3, 2] #^(-2) + 
           Complex[0, 3] $CellContext`r0^Rational[-3, 2] #}, -1, 2, 1]& ), 
@@ -5186,12 +5186,12 @@ $CellContext`a^2 +
        6 $CellContext`a $CellContext`r0^
          Rational[
           1, 2] + (-5 + $CellContext`r0) $CellContext`r0 + ($CellContext`a - \
-$CellContext`r0^Rational[1, 2])^2 ($CellContext`a^2 - 
-         4 $CellContext`a $CellContext`r0^
-          Rational[1, 2] - (-4 + $CellContext`r0) $CellContext`r0)/
-        Abs[$CellContext`a^2 - 
-         4 $CellContext`a $CellContext`r0^
-          Rational[1, 2] - (-4 + $CellContext`r0) $CellContext`r0]))^
+$CellContext`r0^Rational[1, 2])^2 (($CellContext`a^2 - 
+          4 $CellContext`a $CellContext`r0^
+           Rational[1, 2] - (-4 + $CellContext`r0) $CellContext`r0)/
+         Abs[$CellContext`a^2 - 
+          4 $CellContext`a $CellContext`r0^
+           Rational[1, 2] - (-4 + $CellContext`r0) $CellContext`r0])))^
      Rational[1, 2], "PolarFrequency" -> 
     Abs[(2 $CellContext`a + (-3 + $CellContext`r0) $CellContext`r0^
           Rational[1, 2])^Rational[-1, 2] $CellContext`r0^
@@ -5210,12 +5210,12 @@ $CellContext`a^2 +
          6 $CellContext`a $CellContext`r0^
            Rational[
             1, 2] + (-5 + $CellContext`r0) $CellContext`r0 + ($CellContext`a - \
-$CellContext`r0^Rational[1, 2])^2 ($CellContext`a^2 - 
-           4 $CellContext`a $CellContext`r0^
-            Rational[1, 2] - (-4 + $CellContext`r0) $CellContext`r0)/
-          Abs[$CellContext`a^2 - 
-           4 $CellContext`a $CellContext`r0^
-            Rational[1, 2] - (-4 + $CellContext`r0) $CellContext`r0]))^
+$CellContext`r0^Rational[1, 2])^2 (($CellContext`a^2 - 
+            4 $CellContext`a $CellContext`r0^
+             Rational[1, 2] - (-4 + $CellContext`r0) $CellContext`r0)/
+           Abs[$CellContext`a^2 - 
+            4 $CellContext`a $CellContext`r0^
+             Rational[1, 2] - (-4 + $CellContext`r0) $CellContext`r0])))^
        Rational[1, 2], 
       "\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(\[Theta]\)]\)" -> 
       Abs[(2 $CellContext`a + (-3 + $CellContext`r0) $CellContext`r0^
@@ -5352,33 +5352,33 @@ $CellContext`r0^Rational[1, 2])^2/(
                     Rational[
                     3, 2] + (-3 + $CellContext`r0) \
 $CellContext`r0^2))^(-1))^2)^Rational[1, 2])^(-2) + 
-           2 $CellContext`r0 (
-             2 $CellContext`r0 - (
-              1 - ($CellContext`a + (-2 + $CellContext`r0) $CellContext`r0^
-                  Rational[1, 2])^2/(
-              2 $CellContext`a $CellContext`r0^
-                Rational[
-                 3, 2] + (-3 + $CellContext`r0) $CellContext`r0^2))^(-1) - \
+           2 $CellContext`r0 ((
+              2 $CellContext`r0 - (
+               1 - ($CellContext`a + (-2 + $CellContext`r0) $CellContext`r0^
+                   Rational[1, 2])^2/(
+               2 $CellContext`a $CellContext`r0^
+                 Rational[
+                  3, 2] + (-3 + $CellContext`r0) $CellContext`r0^2))^(-1) - \
 (($CellContext`r0 - (
-                1 - ($CellContext`a + (-2 + $CellContext`r0) $CellContext`r0^
+                 1 - ($CellContext`a + (-2 + $CellContext`r0) $CellContext`r0^
                     Rational[1, 2])^2/(
-                2 $CellContext`a $CellContext`r0^
-                  Rational[
-                   3, 2] + (-3 + $CellContext`r0) \
+                 2 $CellContext`a $CellContext`r0^
+                   Rational[
+                    3, 2] + (-3 + $CellContext`r0) \
 $CellContext`r0^2))^(-1))^2)^
-             Rational[1, 2])/((-2) $CellContext`r0 + (
-              1 - ($CellContext`a + (-2 + $CellContext`r0) $CellContext`r0^
-                  Rational[1, 2])^2/(
-              2 $CellContext`a $CellContext`r0^
-                Rational[
-                 3, 2] + (-3 + $CellContext`r0) $CellContext`r0^2))^(-1) + \
+              Rational[1, 2])/((-2) $CellContext`r0 + (
+               1 - ($CellContext`a + (-2 + $CellContext`r0) $CellContext`r0^
+                   Rational[1, 2])^2/(
+               2 $CellContext`a $CellContext`r0^
+                 Rational[
+                  3, 2] + (-3 + $CellContext`r0) $CellContext`r0^2))^(-1) + \
 (($CellContext`r0 - (
-                1 - ($CellContext`a + (-2 + $CellContext`r0) $CellContext`r0^
+                 1 - ($CellContext`a + (-2 + $CellContext`r0) $CellContext`r0^
                     Rational[1, 2])^2/(
-                2 $CellContext`a $CellContext`r0^
-                  Rational[
-                   3, 2] + (-3 + $CellContext`r0) \
-$CellContext`r0^2))^(-1))^2)^Rational[1, 2]))^(-1) (-$CellContext`a (
+                 2 $CellContext`a $CellContext`r0^
+                   Rational[
+                    3, 2] + (-3 + $CellContext`r0) \
+$CellContext`r0^2))^(-1))^2)^Rational[1, 2])))^(-1) ((-$CellContext`a) (
              2 $CellContext`a + (-3 + $CellContext`r0) $CellContext`r0^
                Rational[1, 2])^Rational[-1, 2] $CellContext`r0^
             Rational[-3, 4] ($CellContext`a^2 - 
@@ -5485,33 +5485,33 @@ $CellContext`r0^Rational[1, 2])^2/(
                     Rational[
                     3, 2] + (-3 + $CellContext`r0) \
 $CellContext`r0^2))^(-1))^2)^Rational[1, 2])^(-2) + 
-           2 $CellContext`r0 (
-             2 $CellContext`r0 - (
-              1 - ($CellContext`a + (-2 + $CellContext`r0) $CellContext`r0^
-                  Rational[1, 2])^2/(
-              2 $CellContext`a $CellContext`r0^
-                Rational[
-                 3, 2] + (-3 + $CellContext`r0) $CellContext`r0^2))^(-1) - \
+           2 $CellContext`r0 ((
+              2 $CellContext`r0 - (
+               1 - ($CellContext`a + (-2 + $CellContext`r0) $CellContext`r0^
+                   Rational[1, 2])^2/(
+               2 $CellContext`a $CellContext`r0^
+                 Rational[
+                  3, 2] + (-3 + $CellContext`r0) $CellContext`r0^2))^(-1) - \
 (($CellContext`r0 - (
-                1 - ($CellContext`a + (-2 + $CellContext`r0) $CellContext`r0^
+                 1 - ($CellContext`a + (-2 + $CellContext`r0) $CellContext`r0^
                     Rational[1, 2])^2/(
-                2 $CellContext`a $CellContext`r0^
-                  Rational[
-                   3, 2] + (-3 + $CellContext`r0) \
+                 2 $CellContext`a $CellContext`r0^
+                   Rational[
+                    3, 2] + (-3 + $CellContext`r0) \
 $CellContext`r0^2))^(-1))^2)^
-             Rational[1, 2])/((-2) $CellContext`r0 + (
-              1 - ($CellContext`a + (-2 + $CellContext`r0) $CellContext`r0^
-                  Rational[1, 2])^2/(
-              2 $CellContext`a $CellContext`r0^
-                Rational[
-                 3, 2] + (-3 + $CellContext`r0) $CellContext`r0^2))^(-1) + \
+              Rational[1, 2])/((-2) $CellContext`r0 + (
+               1 - ($CellContext`a + (-2 + $CellContext`r0) $CellContext`r0^
+                   Rational[1, 2])^2/(
+               2 $CellContext`a $CellContext`r0^
+                 Rational[
+                  3, 2] + (-3 + $CellContext`r0) $CellContext`r0^2))^(-1) + \
 (($CellContext`r0 - (
-                1 - ($CellContext`a + (-2 + $CellContext`r0) $CellContext`r0^
+                 1 - ($CellContext`a + (-2 + $CellContext`r0) $CellContext`r0^
                     Rational[1, 2])^2/(
-                2 $CellContext`a $CellContext`r0^
-                  Rational[
-                   3, 2] + (-3 + $CellContext`r0) \
-$CellContext`r0^2))^(-1))^2)^Rational[1, 2]))^(-1) (-$CellContext`a (
+                 2 $CellContext`a $CellContext`r0^
+                   Rational[
+                    3, 2] + (-3 + $CellContext`r0) \
+$CellContext`r0^2))^(-1))^2)^Rational[1, 2])))^(-1) ((-$CellContext`a) (
              2 $CellContext`a + (-3 + $CellContext`r0) $CellContext`r0^
                Rational[1, 2])^Rational[-1, 2] $CellContext`r0^
             Rational[-3, 4] ($CellContext`a^2 - 
@@ -9198,7 +9198,7 @@ Cell[BoxData[
          "PN" -> {$CellContext`\[Eta], 3}, 
          "RadialFunction" -> (
           SeriesData[$CellContext`\[Eta], 0, {
-           Complex[0, -3] $CellContext`\[Omega]^(-1)/#, -3, (Complex[0, -3] + 
+           Complex[0, -3] ($CellContext`\[Omega]^(-1)/#), -3, (Complex[0, -3] + 
               4 $CellContext`a) $CellContext`\[Omega]^(-1) #^(-2) + Complex[0, 
                Rational[3, 2]] $CellContext`\[Omega] #}, -1, 2, 1]& ), 
          "BoundaryCondition" -> "Up", "SeriesMinOrder" -> -1, "TermCount" -> 
@@ -9256,12 +9256,12 @@ $CellContext`a^2 +
           6 $CellContext`a $CellContext`r0^
             Rational[
              1, 2] + (-5 + $CellContext`r0) $CellContext`r0 + ($CellContext`a - \
-$CellContext`r0^Rational[1, 2])^2 ($CellContext`a^2 - 
-            4 $CellContext`a $CellContext`r0^
-             Rational[1, 2] - (-4 + $CellContext`r0) $CellContext`r0)/
-           Abs[$CellContext`a^2 - 
-            4 $CellContext`a $CellContext`r0^
-             Rational[1, 2] - (-4 + $CellContext`r0) $CellContext`r0]))^
+$CellContext`r0^Rational[1, 2])^2 (($CellContext`a^2 - 
+             4 $CellContext`a $CellContext`r0^
+              Rational[1, 2] - (-4 + $CellContext`r0) $CellContext`r0)/
+            Abs[$CellContext`a^2 - 
+             4 $CellContext`a $CellContext`r0^
+              Rational[1, 2] - (-4 + $CellContext`r0) $CellContext`r0])))^
         Rational[1, 2], "PolarFrequency" -> 
        Abs[(2 $CellContext`a + (-3 + $CellContext`r0) $CellContext`r0^
              Rational[1, 2])^Rational[-1, 2] $CellContext`r0^
@@ -9281,12 +9281,12 @@ $CellContext`a^2 +
             6 $CellContext`a $CellContext`r0^
               Rational[
                1, 2] + (-5 + $CellContext`r0) $CellContext`r0 + \
-($CellContext`a - $CellContext`r0^Rational[1, 2])^2 ($CellContext`a^2 - 
-              4 $CellContext`a $CellContext`r0^
-               Rational[1, 2] - (-4 + $CellContext`r0) $CellContext`r0)/
-             Abs[$CellContext`a^2 - 
-              4 $CellContext`a $CellContext`r0^
-               Rational[1, 2] - (-4 + $CellContext`r0) $CellContext`r0]))^
+($CellContext`a - $CellContext`r0^Rational[1, 2])^2 (($CellContext`a^2 - 
+               4 $CellContext`a $CellContext`r0^
+                Rational[1, 2] - (-4 + $CellContext`r0) $CellContext`r0)/
+              Abs[$CellContext`a^2 - 
+               4 $CellContext`a $CellContext`r0^
+                Rational[1, 2] - (-4 + $CellContext`r0) $CellContext`r0])))^
           Rational[1, 2], 
          "\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(\[Theta]\)]\)" -> 
          Abs[(2 $CellContext`a + (-3 + $CellContext`r0) $CellContext`r0^
@@ -9425,33 +9425,33 @@ $CellContext`r0^Rational[1, 2])^2/(
                     Rational[
                     3, 2] + (-3 + $CellContext`r0) \
 $CellContext`r0^2))^(-1))^2)^Rational[1, 2])^(-2) + 
-              2 $CellContext`r0 (
-                2 $CellContext`r0 - (
-                 1 - ($CellContext`a + (-2 + $CellContext`r0) $CellContext`r0^
-                    Rational[1, 2])^2/(
-                 2 $CellContext`a $CellContext`r0^
-                   Rational[
+              2 $CellContext`r0 ((
+                 2 $CellContext`r0 - (
+                  1 - ($CellContext`a + (-2 + $CellContext`r0) \
+$CellContext`r0^Rational[1, 2])^2/(
+                  2 $CellContext`a $CellContext`r0^
+                    Rational[
                     3, 2] + (-3 + $CellContext`r0) $CellContext`r0^2))^(-1) - \
 (($CellContext`r0 - (
-                   1 - ($CellContext`a + (-2 + $CellContext`r0) \
+                    1 - ($CellContext`a + (-2 + $CellContext`r0) \
 $CellContext`r0^Rational[1, 2])^2/(
-                   2 $CellContext`a $CellContext`r0^
+                    2 $CellContext`a $CellContext`r0^
                     Rational[
                     3, 2] + (-3 + $CellContext`r0) \
 $CellContext`r0^2))^(-1))^2)^
-                Rational[1, 2])/((-2) $CellContext`r0 + (
-                 1 - ($CellContext`a + (-2 + $CellContext`r0) $CellContext`r0^
-                    Rational[1, 2])^2/(
-                 2 $CellContext`a $CellContext`r0^
-                   Rational[
+                 Rational[1, 2])/((-2) $CellContext`r0 + (
+                  1 - ($CellContext`a + (-2 + $CellContext`r0) \
+$CellContext`r0^Rational[1, 2])^2/(
+                  2 $CellContext`a $CellContext`r0^
+                    Rational[
                     3, 2] + (-3 + $CellContext`r0) $CellContext`r0^2))^(-1) + \
 (($CellContext`r0 - (
-                   1 - ($CellContext`a + (-2 + $CellContext`r0) \
+                    1 - ($CellContext`a + (-2 + $CellContext`r0) \
 $CellContext`r0^Rational[1, 2])^2/(
-                   2 $CellContext`a $CellContext`r0^
+                    2 $CellContext`a $CellContext`r0^
                     Rational[
                     3, 2] + (-3 + $CellContext`r0) \
-$CellContext`r0^2))^(-1))^2)^Rational[1, 2]))^(-1) (-$CellContext`a (
+$CellContext`r0^2))^(-1))^2)^Rational[1, 2])))^(-1) ((-$CellContext`a) (
                 2 $CellContext`a + (-3 + $CellContext`r0) $CellContext`r0^
                   Rational[1, 2])^Rational[-1, 2] $CellContext`r0^
                Rational[-3, 4] ($CellContext`a^2 - 
@@ -9558,33 +9558,33 @@ $CellContext`r0^Rational[1, 2])^2/(
                     Rational[
                     3, 2] + (-3 + $CellContext`r0) \
 $CellContext`r0^2))^(-1))^2)^Rational[1, 2])^(-2) + 
-              2 $CellContext`r0 (
-                2 $CellContext`r0 - (
-                 1 - ($CellContext`a + (-2 + $CellContext`r0) $CellContext`r0^
-                    Rational[1, 2])^2/(
-                 2 $CellContext`a $CellContext`r0^
-                   Rational[
+              2 $CellContext`r0 ((
+                 2 $CellContext`r0 - (
+                  1 - ($CellContext`a + (-2 + $CellContext`r0) \
+$CellContext`r0^Rational[1, 2])^2/(
+                  2 $CellContext`a $CellContext`r0^
+                    Rational[
                     3, 2] + (-3 + $CellContext`r0) $CellContext`r0^2))^(-1) - \
 (($CellContext`r0 - (
-                   1 - ($CellContext`a + (-2 + $CellContext`r0) \
+                    1 - ($CellContext`a + (-2 + $CellContext`r0) \
 $CellContext`r0^Rational[1, 2])^2/(
-                   2 $CellContext`a $CellContext`r0^
+                    2 $CellContext`a $CellContext`r0^
                     Rational[
                     3, 2] + (-3 + $CellContext`r0) \
 $CellContext`r0^2))^(-1))^2)^
-                Rational[1, 2])/((-2) $CellContext`r0 + (
-                 1 - ($CellContext`a + (-2 + $CellContext`r0) $CellContext`r0^
-                    Rational[1, 2])^2/(
-                 2 $CellContext`a $CellContext`r0^
-                   Rational[
+                 Rational[1, 2])/((-2) $CellContext`r0 + (
+                  1 - ($CellContext`a + (-2 + $CellContext`r0) \
+$CellContext`r0^Rational[1, 2])^2/(
+                  2 $CellContext`a $CellContext`r0^
+                    Rational[
                     3, 2] + (-3 + $CellContext`r0) $CellContext`r0^2))^(-1) + \
 (($CellContext`r0 - (
-                   1 - ($CellContext`a + (-2 + $CellContext`r0) \
+                    1 - ($CellContext`a + (-2 + $CellContext`r0) \
 $CellContext`r0^Rational[1, 2])^2/(
-                   2 $CellContext`a $CellContext`r0^
+                    2 $CellContext`a $CellContext`r0^
                     Rational[
                     3, 2] + (-3 + $CellContext`r0) \
-$CellContext`r0^2))^(-1))^2)^Rational[1, 2]))^(-1) (-$CellContext`a (
+$CellContext`r0^2))^(-1))^2)^Rational[1, 2])))^(-1) ((-$CellContext`a) (
                 2 $CellContext`a + (-3 + $CellContext`r0) $CellContext`r0^
                   Rational[1, 2])^Rational[-1, 2] $CellContext`r0^
                Rational[-3, 4] ($CellContext`a^2 - 
@@ -10056,12 +10056,12 @@ $CellContext`a^2 +
           6 $CellContext`a $CellContext`r0^
             Rational[
              1, 2] + (-5 + $CellContext`r0) $CellContext`r0 + ($CellContext`a - \
-$CellContext`r0^Rational[1, 2])^2 ($CellContext`a^2 - 
-            4 $CellContext`a $CellContext`r0^
-             Rational[1, 2] - (-4 + $CellContext`r0) $CellContext`r0)/
-           Abs[$CellContext`a^2 - 
-            4 $CellContext`a $CellContext`r0^
-             Rational[1, 2] - (-4 + $CellContext`r0) $CellContext`r0]))^
+$CellContext`r0^Rational[1, 2])^2 (($CellContext`a^2 - 
+             4 $CellContext`a $CellContext`r0^
+              Rational[1, 2] - (-4 + $CellContext`r0) $CellContext`r0)/
+            Abs[$CellContext`a^2 - 
+             4 $CellContext`a $CellContext`r0^
+              Rational[1, 2] - (-4 + $CellContext`r0) $CellContext`r0])))^
         Rational[1, 2], "PolarFrequency" -> 
        Abs[(2 $CellContext`a + (-3 + $CellContext`r0) $CellContext`r0^
              Rational[1, 2])^Rational[-1, 2] $CellContext`r0^
@@ -10081,12 +10081,12 @@ $CellContext`a^2 +
             6 $CellContext`a $CellContext`r0^
               Rational[
                1, 2] + (-5 + $CellContext`r0) $CellContext`r0 + \
-($CellContext`a - $CellContext`r0^Rational[1, 2])^2 ($CellContext`a^2 - 
-              4 $CellContext`a $CellContext`r0^
-               Rational[1, 2] - (-4 + $CellContext`r0) $CellContext`r0)/
-             Abs[$CellContext`a^2 - 
-              4 $CellContext`a $CellContext`r0^
-               Rational[1, 2] - (-4 + $CellContext`r0) $CellContext`r0]))^
+($CellContext`a - $CellContext`r0^Rational[1, 2])^2 (($CellContext`a^2 - 
+               4 $CellContext`a $CellContext`r0^
+                Rational[1, 2] - (-4 + $CellContext`r0) $CellContext`r0)/
+              Abs[$CellContext`a^2 - 
+               4 $CellContext`a $CellContext`r0^
+                Rational[1, 2] - (-4 + $CellContext`r0) $CellContext`r0])))^
           Rational[1, 2], 
          "\!\(\*SubscriptBox[\(\[CapitalUpsilon]\), \(\[Theta]\)]\)" -> 
          Abs[(2 $CellContext`a + (-3 + $CellContext`r0) $CellContext`r0^
@@ -10225,33 +10225,33 @@ $CellContext`r0^Rational[1, 2])^2/(
                     Rational[
                     3, 2] + (-3 + $CellContext`r0) \
 $CellContext`r0^2))^(-1))^2)^Rational[1, 2])^(-2) + 
-              2 $CellContext`r0 (
-                2 $CellContext`r0 - (
-                 1 - ($CellContext`a + (-2 + $CellContext`r0) $CellContext`r0^
-                    Rational[1, 2])^2/(
-                 2 $CellContext`a $CellContext`r0^
-                   Rational[
+              2 $CellContext`r0 ((
+                 2 $CellContext`r0 - (
+                  1 - ($CellContext`a + (-2 + $CellContext`r0) \
+$CellContext`r0^Rational[1, 2])^2/(
+                  2 $CellContext`a $CellContext`r0^
+                    Rational[
                     3, 2] + (-3 + $CellContext`r0) $CellContext`r0^2))^(-1) - \
 (($CellContext`r0 - (
-                   1 - ($CellContext`a + (-2 + $CellContext`r0) \
+                    1 - ($CellContext`a + (-2 + $CellContext`r0) \
 $CellContext`r0^Rational[1, 2])^2/(
-                   2 $CellContext`a $CellContext`r0^
+                    2 $CellContext`a $CellContext`r0^
                     Rational[
                     3, 2] + (-3 + $CellContext`r0) \
 $CellContext`r0^2))^(-1))^2)^
-                Rational[1, 2])/((-2) $CellContext`r0 + (
-                 1 - ($CellContext`a + (-2 + $CellContext`r0) $CellContext`r0^
-                    Rational[1, 2])^2/(
-                 2 $CellContext`a $CellContext`r0^
-                   Rational[
+                 Rational[1, 2])/((-2) $CellContext`r0 + (
+                  1 - ($CellContext`a + (-2 + $CellContext`r0) \
+$CellContext`r0^Rational[1, 2])^2/(
+                  2 $CellContext`a $CellContext`r0^
+                    Rational[
                     3, 2] + (-3 + $CellContext`r0) $CellContext`r0^2))^(-1) + \
 (($CellContext`r0 - (
-                   1 - ($CellContext`a + (-2 + $CellContext`r0) \
+                    1 - ($CellContext`a + (-2 + $CellContext`r0) \
 $CellContext`r0^Rational[1, 2])^2/(
-                   2 $CellContext`a $CellContext`r0^
+                    2 $CellContext`a $CellContext`r0^
                     Rational[
                     3, 2] + (-3 + $CellContext`r0) \
-$CellContext`r0^2))^(-1))^2)^Rational[1, 2]))^(-1) (-$CellContext`a (
+$CellContext`r0^2))^(-1))^2)^Rational[1, 2])))^(-1) ((-$CellContext`a) (
                 2 $CellContext`a + (-3 + $CellContext`r0) $CellContext`r0^
                   Rational[1, 2])^Rational[-1, 2] $CellContext`r0^
                Rational[-3, 4] ($CellContext`a^2 - 
@@ -10358,33 +10358,33 @@ $CellContext`r0^Rational[1, 2])^2/(
                     Rational[
                     3, 2] + (-3 + $CellContext`r0) \
 $CellContext`r0^2))^(-1))^2)^Rational[1, 2])^(-2) + 
-              2 $CellContext`r0 (
-                2 $CellContext`r0 - (
-                 1 - ($CellContext`a + (-2 + $CellContext`r0) $CellContext`r0^
-                    Rational[1, 2])^2/(
-                 2 $CellContext`a $CellContext`r0^
-                   Rational[
+              2 $CellContext`r0 ((
+                 2 $CellContext`r0 - (
+                  1 - ($CellContext`a + (-2 + $CellContext`r0) \
+$CellContext`r0^Rational[1, 2])^2/(
+                  2 $CellContext`a $CellContext`r0^
+                    Rational[
                     3, 2] + (-3 + $CellContext`r0) $CellContext`r0^2))^(-1) - \
 (($CellContext`r0 - (
-                   1 - ($CellContext`a + (-2 + $CellContext`r0) \
+                    1 - ($CellContext`a + (-2 + $CellContext`r0) \
 $CellContext`r0^Rational[1, 2])^2/(
-                   2 $CellContext`a $CellContext`r0^
+                    2 $CellContext`a $CellContext`r0^
                     Rational[
                     3, 2] + (-3 + $CellContext`r0) \
 $CellContext`r0^2))^(-1))^2)^
-                Rational[1, 2])/((-2) $CellContext`r0 + (
-                 1 - ($CellContext`a + (-2 + $CellContext`r0) $CellContext`r0^
-                    Rational[1, 2])^2/(
-                 2 $CellContext`a $CellContext`r0^
-                   Rational[
+                 Rational[1, 2])/((-2) $CellContext`r0 + (
+                  1 - ($CellContext`a + (-2 + $CellContext`r0) \
+$CellContext`r0^Rational[1, 2])^2/(
+                  2 $CellContext`a $CellContext`r0^
+                    Rational[
                     3, 2] + (-3 + $CellContext`r0) $CellContext`r0^2))^(-1) + \
 (($CellContext`r0 - (
-                   1 - ($CellContext`a + (-2 + $CellContext`r0) \
+                    1 - ($CellContext`a + (-2 + $CellContext`r0) \
 $CellContext`r0^Rational[1, 2])^2/(
-                   2 $CellContext`a $CellContext`r0^
+                    2 $CellContext`a $CellContext`r0^
                     Rational[
                     3, 2] + (-3 + $CellContext`r0) \
-$CellContext`r0^2))^(-1))^2)^Rational[1, 2]))^(-1) (-$CellContext`a (
+$CellContext`r0^2))^(-1))^2)^Rational[1, 2])))^(-1) ((-$CellContext`a) (
                 2 $CellContext`a + (-3 + $CellContext`r0) $CellContext`r0^
                   Rational[1, 2])^Rational[-1, 2] $CellContext`r0^
                Rational[-3, 4] ($CellContext`a^2 - 
@@ -10434,7 +10434,7 @@ $CellContext`r0, 0, 1], "InitialPhases" -> {0, 0, 0, 0}|>],
   Editable->False,
   SelectWithContents->True,
   Selectable->False]], "Output",
- CellChangeTimes->{{3.9983825570340033`*^9, 3.998382576574793*^9}},
+ CellChangeTimes->{{3.9983825570340037`*^9, 3.998382576574793*^9}},
  CellLabel->"Out[22]=",
  CellID->1274361448,ExpressionUUID->"01d7b43c-c191-4953-af25-d5377225a9e7"]
 }, Open  ]],
@@ -13356,6 +13356,92 @@ jWCuL6CqmueN8syF6M2JRhBlZbhRW+CNtStl50/UGYF5wIedhWXe+A/nt++S
 }, Open  ]]
 }, Open  ]]
 }, Open  ]]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Metadata", "MetadataSection",
+ CellID->1449408201,ExpressionUUID->"93f57149-8542-4896-9e77-15aa994f5d73"],
+
+Cell[TextData[{
+ "New in: ",
+ Cell["XX", "HistoryData",
+  CellTags->"New",ExpressionUUID->"e5519a6b-a786-4398-a9f6-9f3c3df54d50"],
+ " | Modified in: ",
+ Cell[" ", "HistoryData",
+  CellTags->"Modified",ExpressionUUID->"2e168852-d40a-425b-8962-3f9e896f5912"],
+ " | Obsolete in: ",
+ Cell[" ", "HistoryData",
+  CellTags->"Obsolete",ExpressionUUID->
+  "64f01b71-6899-48b5-b282-4f87134b5068"]
+}], "History",
+ CellID->816268076,ExpressionUUID->"c591f4f8-d7df-48d3-a99d-cd438af0c157"],
+
+Cell[CellGroupData[{
+
+Cell[TextData[{
+ "Categorization",
+ Cell[BoxData[
+  TemplateBox[{"Metadata", 
+    Cell[
+     BoxData[
+      FrameBox[
+       Cell[
+       "Metadata such as page URI, context, and type of documentation page.", 
+        "MoreInfoText"], BaseStyle -> "IFrameBox"]], "MoreInfoTextOuter"]},
+   "MoreInfoOpenerButtonTemplate"]],ExpressionUUID->
+  "975c847b-bf19-491c-b7b0-ae6be150667e"]
+}], "CategorizationSection",
+ CellID->951496877,ExpressionUUID->"9d0a38be-898e-407c-be53-0bd35338f396"],
+
+Cell["Symbol", "Categorization",
+ CellLabel->"Entity Type",
+ CellID->4768391,ExpressionUUID->"7e3e04ac-6e6f-4587-9d85-08c376f5c201"],
+
+Cell["Teukolsky", "Categorization",
+ CellLabel->"Paclet Name",
+ CellID->51525159,ExpressionUUID->"8ca35f16-dc8a-4ce7-8022-36dc471399d2"],
+
+Cell["Teukolsky`", "Categorization",
+ CellLabel->"Context",
+ CellID->403768227,ExpressionUUID->"058beec2-5a83-4dc1-a286-b67cce51caed"],
+
+Cell["Teukolsky/ref/TeukolskyPointParticleModePN", "Categorization",
+ CellChangeTimes->{{3.998470625579393*^9, 3.998470636346925*^9}},
+ CellLabel->"URI",
+ CellID->167577097,ExpressionUUID->"742486c0-f006-49de-9e5b-0b7192206e7e"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell["Keywords", "KeywordsSection",
+ CellID->907781103,ExpressionUUID->"c7d55225-0dac-48a0-a42d-5d09e0b1f771"],
+
+Cell["XXXX", "Keywords",
+ CellID->1105673377,ExpressionUUID->"804b2519-0d06-48bd-bc13-81c2aa3a6b9b"]
+}, Closed]],
+
+Cell[CellGroupData[{
+
+Cell["Syntax Templates", "TemplatesSection",
+ CellID->415668795,ExpressionUUID->"86d06495-d8f7-4705-905d-e6971d731f92"],
+
+Cell[BoxData[""], "Template",
+ CellLabel->"Additional Function Template",
+ CellID->447466766,ExpressionUUID->"a789d9be-fc0a-4cb9-aee6-effe179e9ece"],
+
+Cell[BoxData[""], "Template",
+ CellLabel->"Arguments Pattern",
+ CellID->1715670862,ExpressionUUID->"e85b8a67-c20e-4e12-ae40-73caf985425d"],
+
+Cell[BoxData[""], "Template",
+ CellLabel->"Local Variables",
+ CellID->1195948677,ExpressionUUID->"8ba04bff-190c-45db-b9e1-8fb663eb52b8"],
+
+Cell[BoxData[""], "Template",
+ CellLabel->"Color Equal Signs",
+ CellID->1220537702,ExpressionUUID->"bc0e609e-f5f4-498a-85fc-3cc717007b08"]
+}, Closed]]
 }, Open  ]]
 },
 WindowSize->{633.75, 851.25},
@@ -13380,7 +13466,7 @@ CellTagsIndex->{
 *)
 (*CellTagsIndex
 CellTagsIndex->{
- {"ExtendedExamples", 610383, 13374}
+ {"ExtendedExamples", 613193, 13460}
  }
 *)
 (*NotebookFileOutline
@@ -13532,7 +13618,7 @@ Cell[98783, 2239, 5077, 131, 253, "Output",ExpressionUUID->"acd19adc-bfe6-45fd-9
 Cell[CellGroupData[{
 Cell[103897, 2375, 304, 6, 26, "Input",ExpressionUUID->"c6df2485-e4d9-4d4a-9bba-08c84e5b8f6a",
  CellID->448714339],
-Cell[104204, 2383, 4300, 118, 268, "Output",ExpressionUUID->"5a486e43-ba4a-4ab6-a7cf-682a3b1272bd",
+Cell[104204, 2383, 4300, 118, 248, "Output",ExpressionUUID->"5a486e43-ba4a-4ab6-a7cf-682a3b1272bd",
  CellID->1187490742]
 }, Open  ]]
 }, Open  ]],
@@ -13558,285 +13644,321 @@ Cell[115475, 2691, 226, 3, 24, "ExampleText",ExpressionUUID->"4f69dd26-a22c-4ef9
 Cell[CellGroupData[{
 Cell[115726, 2698, 241, 6, 26, "Input",ExpressionUUID->"776a4341-b013-49c2-b8de-662230443d5d",
  CellID->118111607],
-Cell[115970, 2706, 36318, 740, 120, "Output",ExpressionUUID->"5da7b155-64e4-4cea-8037-bbc3ca19ea14",
+Cell[115970, 2706, 36354, 740, 120, "Output",ExpressionUUID->"5da7b155-64e4-4cea-8037-bbc3ca19ea14",
  CellID->643375760]
 }, Open  ]]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[152337, 3452, 227, 3, 24, "ExampleSubsection",ExpressionUUID->"72984bca-9535-4a6e-805f-68725d34fa36",
+Cell[152373, 3452, 227, 3, 24, "ExampleSubsection",ExpressionUUID->"72984bca-9535-4a6e-805f-68725d34fa36",
  CellID->1078444693],
-Cell[152567, 3457, 577, 9, 58, "ExampleText",ExpressionUUID->"16e0e578-12be-4417-a68a-d18ad72e0e7e",
+Cell[152603, 3457, 577, 9, 58, "ExampleText",ExpressionUUID->"16e0e578-12be-4417-a68a-d18ad72e0e7e",
  CellID->1000349281],
 Cell[CellGroupData[{
-Cell[153169, 3470, 348, 8, 26, "Input",ExpressionUUID->"a8a843eb-48f4-457a-8b13-a2ce5d7d1d13",
+Cell[153205, 3470, 348, 8, 26, "Input",ExpressionUUID->"a8a843eb-48f4-457a-8b13-a2ce5d7d1d13",
  CellID->570692951],
-Cell[153520, 3480, 1062, 25, 39, "Output",ExpressionUUID->"af1fe74f-fa26-4f84-9a88-661d89e6fbaa",
+Cell[153556, 3480, 1062, 25, 39, "Output",ExpressionUUID->"af1fe74f-fa26-4f84-9a88-661d89e6fbaa",
  CellID->679506937]
 }, Open  ]],
-Cell[154597, 3508, 217, 2, 24, "ExampleText",ExpressionUUID->"81549646-a32a-4683-ad2f-31844a3d8511",
+Cell[154633, 3508, 217, 2, 24, "ExampleText",ExpressionUUID->"81549646-a32a-4683-ad2f-31844a3d8511",
  CellID->1774042492],
 Cell[CellGroupData[{
-Cell[154839, 3514, 1148, 31, 87, "Input",ExpressionUUID->"72f376c7-dfa7-4a49-8f83-838271b86bd3",
+Cell[154875, 3514, 1148, 31, 87, "Input",ExpressionUUID->"72f376c7-dfa7-4a49-8f83-838271b86bd3",
  CellID->570332619],
-Cell[155990, 3547, 416, 10, 25, "Output",ExpressionUUID->"ba4deda0-8cef-4cef-b08e-f31fbaee9145",
+Cell[156026, 3547, 416, 10, 25, "Output",ExpressionUUID->"ba4deda0-8cef-4cef-b08e-f31fbaee9145",
  CellID->1084898604]
 }, Open  ]]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[156455, 3563, 278, 4, 24, "ExampleSubsection",ExpressionUUID->"6a722c13-cecd-419a-b94c-f7dcd4d2706b",
+Cell[156491, 3563, 278, 4, 24, "ExampleSubsection",ExpressionUUID->"6a722c13-cecd-419a-b94c-f7dcd4d2706b",
  CellID->1882692908],
-Cell[156736, 3569, 431, 8, 41, "ExampleText",ExpressionUUID->"7f271fd7-394b-4037-830c-e28a3230b3e8",
+Cell[156772, 3569, 431, 8, 41, "ExampleText",ExpressionUUID->"7f271fd7-394b-4037-830c-e28a3230b3e8",
  CellID->596665638],
 Cell[CellGroupData[{
-Cell[157192, 3581, 297, 6, 26, "Input",ExpressionUUID->"881213ae-90e8-43ce-93c5-cd8364351803",
+Cell[157228, 3581, 297, 6, 26, "Input",ExpressionUUID->"881213ae-90e8-43ce-93c5-cd8364351803",
  CellID->1941013192],
-Cell[157492, 3589, 1056, 30, 59, "Output",ExpressionUUID->"b8fb7b83-4bb0-4573-81c3-b6220c5614fc",
+Cell[157528, 3589, 1056, 30, 59, "Output",ExpressionUUID->"b8fb7b83-4bb0-4573-81c3-b6220c5614fc",
  CellID->6616773]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[158585, 3624, 345, 7, 26, "Input",ExpressionUUID->"06c0edf9-080b-413a-bd31-6833c7777298",
+Cell[158621, 3624, 345, 7, 26, "Input",ExpressionUUID->"06c0edf9-080b-413a-bd31-6833c7777298",
  CellID->714714207],
-Cell[158933, 3633, 2411, 68, 85, "Output",ExpressionUUID->"84867262-4d76-473c-b1aa-2ec19628238b",
+Cell[158969, 3633, 2411, 68, 85, "Output",ExpressionUUID->"84867262-4d76-473c-b1aa-2ec19628238b",
  CellID->1953868385]
 }, Open  ]]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[161393, 3707, 251, 3, 24, "ExampleSubsection",ExpressionUUID->"0949db43-a288-4382-9205-e793a9950aa3",
+Cell[161429, 3707, 251, 3, 24, "ExampleSubsection",ExpressionUUID->"0949db43-a288-4382-9205-e793a9950aa3",
  CellID->1952683165],
-Cell[161647, 3712, 702, 20, 25, "ExampleText",ExpressionUUID->"6128c03b-1270-41fd-8cd2-4cce9dbc8326",
+Cell[161683, 3712, 702, 20, 25, "ExampleText",ExpressionUUID->"6128c03b-1270-41fd-8cd2-4cce9dbc8326",
  CellID->1424699676],
 Cell[CellGroupData[{
-Cell[162374, 3736, 401, 8, 26, "Input",ExpressionUUID->"0c11346b-e974-47a1-af84-ed0adde5f6cc",
+Cell[162410, 3736, 401, 8, 26, "Input",ExpressionUUID->"0c11346b-e974-47a1-af84-ed0adde5f6cc",
  CellID->1179931945],
-Cell[162778, 3746, 1585, 42, 85, "Output",ExpressionUUID->"ed552eea-c146-46bb-a91e-b0031128d94e",
+Cell[162814, 3746, 1585, 42, 85, "Output",ExpressionUUID->"ed552eea-c146-46bb-a91e-b0031128d94e",
  CellID->714201966]
 }, Open  ]]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[164412, 3794, 224, 3, 24, "ExampleSubsection",ExpressionUUID->"09536c7a-9e03-41e8-9ba5-ab39b0758440",
+Cell[164448, 3794, 224, 3, 24, "ExampleSubsection",ExpressionUUID->"09536c7a-9e03-41e8-9ba5-ab39b0758440",
  CellID->159000033],
-Cell[164639, 3799, 387, 6, 41, "ExampleText",ExpressionUUID->"34577a80-7b7f-40ce-8034-59ce3de5e0cc",
+Cell[164675, 3799, 387, 6, 41, "ExampleText",ExpressionUUID->"34577a80-7b7f-40ce-8034-59ce3de5e0cc",
  CellID->900728594],
 Cell[CellGroupData[{
-Cell[165051, 3809, 384, 7, 26, "Input",ExpressionUUID->"edb10b0f-5bf5-4a17-af4b-698874fb4b8e",
+Cell[165087, 3809, 384, 7, 26, "Input",ExpressionUUID->"edb10b0f-5bf5-4a17-af4b-698874fb4b8e",
  CellID->1327405499],
-Cell[165438, 3818, 4008, 99, 193, "Output",ExpressionUUID->"0d4b3fd5-d177-4105-b665-d4f775dbdafc",
+Cell[165474, 3818, 4008, 99, 193, "Output",ExpressionUUID->"0d4b3fd5-d177-4105-b665-d4f775dbdafc",
  CellID->2012950671]
 }, Open  ]]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[169495, 3923, 235, 3, 24, "ExampleSubsection",ExpressionUUID->"d79d1cdd-d00c-415c-8ba3-95ccbae4d037",
+Cell[169531, 3923, 235, 3, 24, "ExampleSubsection",ExpressionUUID->"d79d1cdd-d00c-415c-8ba3-95ccbae4d037",
  CellID->779321149],
-Cell[169733, 3928, 337, 6, 24, "ExampleText",ExpressionUUID->"994c7a77-533c-4141-8cd2-fbf8d168c342",
+Cell[169769, 3928, 337, 6, 24, "ExampleText",ExpressionUUID->"994c7a77-533c-4141-8cd2-fbf8d168c342",
  CellID->785083211],
 Cell[CellGroupData[{
-Cell[170095, 3938, 293, 5, 26, "Input",ExpressionUUID->"7269d11d-6c17-41e0-9b2e-88640d71927e",
+Cell[170131, 3938, 293, 5, 26, "Input",ExpressionUUID->"7269d11d-6c17-41e0-9b2e-88640d71927e",
  CellID->352894177],
-Cell[170391, 3945, 26044, 566, 200, "Output",ExpressionUUID->"b1b8cae8-7ba1-4c41-8a7b-ba25c94e2165",
+Cell[170427, 3945, 26046, 566, 200, "Output",ExpressionUUID->"b1b8cae8-7ba1-4c41-8a7b-ba25c94e2165",
  CellID->517710267]
 }, Open  ]],
-Cell[196450, 4514, 496, 8, 58, "ExampleText",ExpressionUUID->"7ab67f56-3b6c-4d45-887a-88916c712773",
+Cell[196488, 4514, 496, 8, 58, "ExampleText",ExpressionUUID->"7ab67f56-3b6c-4d45-887a-88916c712773",
  CellID->1643759580]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[196983, 4527, 277, 4, 24, "ExampleSubsection",ExpressionUUID->"67c1ef6b-79b4-4111-ab65-65e70f46b9d3",
+Cell[197021, 4527, 277, 4, 24, "ExampleSubsection",ExpressionUUID->"67c1ef6b-79b4-4111-ab65-65e70f46b9d3",
  CellID->1444655797],
-Cell[197263, 4533, 246, 3, 24, "ExampleText",ExpressionUUID->"94cd7053-373b-469e-bab4-689bbdef90ce",
+Cell[197301, 4533, 246, 3, 24, "ExampleText",ExpressionUUID->"94cd7053-373b-469e-bab4-689bbdef90ce",
  CellID->887133503],
 Cell[CellGroupData[{
-Cell[197534, 4540, 288, 5, 26, "Input",ExpressionUUID->"244ac6c1-8d2e-4950-9000-9784f4bbc002",
+Cell[197572, 4540, 288, 5, 26, "Input",ExpressionUUID->"244ac6c1-8d2e-4950-9000-9784f4bbc002",
  CellID->2029621612],
-Cell[197825, 4547, 667, 14, 63, "Output",ExpressionUUID->"8e8c71e2-11dd-4246-ba82-50b2b1bcdc14",
+Cell[197863, 4547, 667, 14, 63, "Output",ExpressionUUID->"8e8c71e2-11dd-4246-ba82-50b2b1bcdc14",
  CellID->18179136]
 }, Open  ]]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[198541, 4567, 321, 4, 24, "ExampleSubsection",ExpressionUUID->"48a6aca3-f78d-4a1e-8307-59a474cd433b",
+Cell[198579, 4567, 321, 4, 24, "ExampleSubsection",ExpressionUUID->"48a6aca3-f78d-4a1e-8307-59a474cd433b",
  CellID->159624479],
-Cell[198865, 4573, 262, 5, 24, "ExampleText",ExpressionUUID->"a50aa877-0a22-46c7-9458-45e9654b8c13",
+Cell[198903, 4573, 262, 5, 24, "ExampleText",ExpressionUUID->"a50aa877-0a22-46c7-9458-45e9654b8c13",
  CellID->851110601],
 Cell[CellGroupData[{
-Cell[199152, 4582, 236, 4, 26, "Input",ExpressionUUID->"9087b6f4-d4d4-43de-ad9a-f34d3e81c6e9",
+Cell[199190, 4582, 236, 4, 26, "Input",ExpressionUUID->"9087b6f4-d4d4-43de-ad9a-f34d3e81c6e9",
  CellID->1056340378],
-Cell[199391, 4588, 6088, 157, 194, "Output",ExpressionUUID->"23b8489f-fc06-4e46-820e-bb20cb554c05",
+Cell[199429, 4588, 6088, 157, 194, "Output",ExpressionUUID->"23b8489f-fc06-4e46-820e-bb20cb554c05",
  CellID->49177762]
 }, Open  ]],
-Cell[205494, 4748, 312, 5, 41, "ExampleText",ExpressionUUID->"93bbfed2-b0ba-4564-b9b7-e5efaf17619c",
+Cell[205532, 4748, 312, 5, 41, "ExampleText",ExpressionUUID->"93bbfed2-b0ba-4564-b9b7-e5efaf17619c",
  CellID->43854682],
 Cell[CellGroupData[{
-Cell[205831, 4757, 240, 4, 26, "Input",ExpressionUUID->"2627827d-46d0-49d5-a7ff-d4d3a609389a",
+Cell[205869, 4757, 240, 4, 26, "Input",ExpressionUUID->"2627827d-46d0-49d5-a7ff-d4d3a609389a",
  CellID->1028706500],
-Cell[206074, 4763, 2443, 67, 97, "Output",ExpressionUUID->"38dea07d-3c9f-4a91-b439-f22ebb9f29aa",
+Cell[206112, 4763, 2443, 67, 97, "Output",ExpressionUUID->"38dea07d-3c9f-4a91-b439-f22ebb9f29aa",
  CellID->370650971]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[208554, 4835, 248, 4, 26, "Input",ExpressionUUID->"5e49e370-b33f-4696-b780-62bf6fb01248",
+Cell[208592, 4835, 248, 4, 26, "Input",ExpressionUUID->"5e49e370-b33f-4696-b780-62bf6fb01248",
  CellID->514844608],
-Cell[208805, 4841, 3217, 87, 99, "Output",ExpressionUUID->"1a98bbe9-143a-4514-899b-6caccb0eca9a",
+Cell[208843, 4841, 3217, 87, 99, "Output",ExpressionUUID->"1a98bbe9-143a-4514-899b-6caccb0eca9a",
  CellID->505903328]
 }, Open  ]]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[212071, 4934, 300, 4, 24, "ExampleSubsection",ExpressionUUID->"c7b14af0-c2a0-4244-bf4a-66fde827a79c",
+Cell[212109, 4934, 300, 4, 24, "ExampleSubsection",ExpressionUUID->"c7b14af0-c2a0-4244-bf4a-66fde827a79c",
  CellID->63799787],
-Cell[212374, 4940, 275, 5, 24, "ExampleText",ExpressionUUID->"05fc88d8-8fb8-4303-a5c0-b48cad5efd2d",
+Cell[212412, 4940, 275, 5, 24, "ExampleText",ExpressionUUID->"05fc88d8-8fb8-4303-a5c0-b48cad5efd2d",
  CellID->247260815],
 Cell[CellGroupData[{
-Cell[212674, 4949, 239, 4, 26, "Input",ExpressionUUID->"bd121989-89f0-43b7-aeb0-851c2abaf672",
+Cell[212712, 4949, 239, 4, 26, "Input",ExpressionUUID->"bd121989-89f0-43b7-aeb0-851c2abaf672",
  CellID->913214302],
-Cell[212916, 4955, 284, 7, 40, "Output",ExpressionUUID->"b8320051-2728-44a3-8a5f-dddd3ae738e6",
+Cell[212954, 4955, 284, 7, 40, "Output",ExpressionUUID->"b8320051-2728-44a3-8a5f-dddd3ae738e6",
  CellID->76347797]
 }, Open  ]]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[213249, 4968, 349, 5, 24, "ExampleSubsection",ExpressionUUID->"f24f9be8-cf09-4830-af04-a9e8225564ce",
+Cell[213287, 4968, 349, 5, 24, "ExampleSubsection",ExpressionUUID->"f24f9be8-cf09-4830-af04-a9e8225564ce",
  CellID->1746470935],
-Cell[213601, 4975, 188, 2, 24, "ExampleText",ExpressionUUID->"37667c8f-112a-4cea-a151-84e4f22c15da",
+Cell[213639, 4975, 188, 2, 24, "ExampleText",ExpressionUUID->"37667c8f-112a-4cea-a151-84e4f22c15da",
  CellID->1110185204],
 Cell[CellGroupData[{
-Cell[213814, 4981, 234, 4, 26, "Input",ExpressionUUID->"30bcf6be-da1b-453b-b03a-ff02a31acb5d",
+Cell[213852, 4981, 234, 4, 26, "Input",ExpressionUUID->"30bcf6be-da1b-453b-b03a-ff02a31acb5d",
  CellID->912466896],
-Cell[214051, 4987, 27512, 574, 59, "Output",ExpressionUUID->"45388fe8-3cfe-4353-8278-3bd4bbc689f6",
+Cell[214089, 4987, 27574, 574, 59, "Output",ExpressionUUID->"45388fe8-3cfe-4353-8278-3bd4bbc689f6",
  CellID->1600942649]
 }, Open  ]]
 }, Open  ]]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[241624, 5568, 184, 2, 32, "ExampleSection",ExpressionUUID->"b27b0f2d-7929-46dc-b4f2-00a6b673ce03",
+Cell[241724, 5568, 184, 2, 32, "ExampleSection",ExpressionUUID->"b27b0f2d-7929-46dc-b4f2-00a6b673ce03",
  CellID->1017607781],
 Cell[CellGroupData[{
-Cell[241833, 5574, 316, 6, 26, "ExampleSubsection",ExpressionUUID->"215cb6dd-f703-42ff-a9cd-a9fa8de0b0e9",
+Cell[241933, 5574, 316, 6, 26, "ExampleSubsection",ExpressionUUID->"215cb6dd-f703-42ff-a9cd-a9fa8de0b0e9",
  CellID->596638323],
-Cell[242152, 5582, 444, 7, 41, "ExampleText",ExpressionUUID->"51631728-79f5-4060-ab12-5f39cc30d140",
+Cell[242252, 5582, 444, 7, 41, "ExampleText",ExpressionUUID->"51631728-79f5-4060-ab12-5f39cc30d140",
  CellID->16677363],
 Cell[CellGroupData[{
-Cell[242621, 5593, 1239, 29, 121, "Input",ExpressionUUID->"e14042f9-6298-4b67-aeb0-3e9faa087790",
+Cell[242721, 5593, 1239, 29, 121, "Input",ExpressionUUID->"e14042f9-6298-4b67-aeb0-3e9faa087790",
  CellID->1746481987],
-Cell[243863, 5624, 160, 2, 23, "EchoTiming",ExpressionUUID->"5c7b6055-454e-4775-ba95-74a8c9f4798f",
+Cell[243963, 5624, 160, 2, 23, "EchoTiming",ExpressionUUID->"5c7b6055-454e-4775-ba95-74a8c9f4798f",
  CellID->19262792],
-Cell[244026, 5628, 246, 4, 25, "Output",ExpressionUUID->"8f1b5735-fbb0-478b-a3ab-3bf34bffb2ec",
+Cell[244126, 5628, 246, 4, 25, "Output",ExpressionUUID->"8f1b5735-fbb0-478b-a3ab-3bf34bffb2ec",
  CellID->1698393311],
-Cell[244275, 5634, 158, 2, 23, "EchoTiming",ExpressionUUID->"a0d6a363-b465-4961-8e34-a126592a78bb",
+Cell[244375, 5634, 158, 2, 23, "EchoTiming",ExpressionUUID->"a0d6a363-b465-4961-8e34-a126592a78bb",
  CellID->463942412],
-Cell[244436, 5638, 243, 4, 25, "Output",ExpressionUUID->"0196da60-3cb4-4319-896c-678f3cd6a4d5",
+Cell[244536, 5638, 243, 4, 25, "Output",ExpressionUUID->"0196da60-3cb4-4319-896c-678f3cd6a4d5",
  CellID->1519742891]
 }, Open  ]]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[244728, 5648, 324, 6, 26, "ExampleSubsection",ExpressionUUID->"43e32fa6-c544-452c-bd25-a654dcc2c58c",
+Cell[244828, 5648, 324, 6, 26, "ExampleSubsection",ExpressionUUID->"43e32fa6-c544-452c-bd25-a654dcc2c58c",
  CellID->55793444],
-Cell[245055, 5656, 513, 8, 41, "ExampleText",ExpressionUUID->"3cb24b46-ef44-4681-8409-2ecfe3643620",
+Cell[245155, 5656, 513, 8, 41, "ExampleText",ExpressionUUID->"3cb24b46-ef44-4681-8409-2ecfe3643620",
  CellID->181479368]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[245605, 5669, 378, 7, 26, "ExampleSubsection",ExpressionUUID->"afeca1be-cf97-43e9-b0d9-b9fd83153e43",
+Cell[245705, 5669, 378, 7, 26, "ExampleSubsection",ExpressionUUID->"afeca1be-cf97-43e9-b0d9-b9fd83153e43",
  CellID->2081072682],
-Cell[245986, 5678, 234, 4, 24, "ExampleText",ExpressionUUID->"221b7936-bb91-406e-b02c-672486bf6809",
+Cell[246086, 5678, 234, 4, 24, "ExampleText",ExpressionUUID->"221b7936-bb91-406e-b02c-672486bf6809",
  CellID->1647313742],
 Cell[CellGroupData[{
-Cell[246245, 5686, 1313, 29, 102, "Input",ExpressionUUID->"21017dba-77f4-4882-8f2c-a551fbbff7e3",
+Cell[246345, 5686, 1313, 29, 102, "Input",ExpressionUUID->"21017dba-77f4-4882-8f2c-a551fbbff7e3",
  CellID->831215816],
-Cell[247561, 5717, 53208, 1089, 67, "Output",ExpressionUUID->"5cf887e2-33ef-4ec9-933b-f81799e30952",
+Cell[247661, 5717, 53208, 1089, 67, "Output",ExpressionUUID->"5cf887e2-33ef-4ec9-933b-f81799e30952",
  CellID->792854191],
-Cell[300772, 6808, 35838, 726, 67, "Output",ExpressionUUID->"2b00043e-33bc-453c-93df-219a50d97182",
+Cell[300872, 6808, 35838, 726, 67, "Output",ExpressionUUID->"2b00043e-33bc-453c-93df-219a50d97182",
  CellID->281533821]
 }, Closed]],
 Cell[CellGroupData[{
-Cell[336647, 7539, 274, 6, 26, "Input",ExpressionUUID->"939ac832-84a1-4f93-ba6e-833a04ed6ed7",
+Cell[336747, 7539, 274, 6, 26, "Input",ExpressionUUID->"939ac832-84a1-4f93-ba6e-833a04ed6ed7",
  CellID->1543997002],
-Cell[336924, 7547, 1006, 29, 59, "Output",ExpressionUUID->"09e6b70e-74e7-49ac-826a-eb9ba91a24f4",
+Cell[337024, 7547, 1006, 29, 59, "Output",ExpressionUUID->"09e6b70e-74e7-49ac-826a-eb9ba91a24f4",
  CellID->335012080]
 }, Closed]],
 Cell[CellGroupData[{
-Cell[337967, 7581, 299, 6, 26, "Input",ExpressionUUID->"c364ee40-18e9-42ce-b052-253e17eb147e",
+Cell[338067, 7581, 299, 6, 26, "Input",ExpressionUUID->"c364ee40-18e9-42ce-b052-253e17eb147e",
  CellID->1964953520],
-Cell[338269, 7589, 29030, 697, 1169, "Output",ExpressionUUID->"69b0269e-8d06-41c4-bc65-a7069cd32b66",
+Cell[338369, 7589, 29030, 697, 1169, "Output",ExpressionUUID->"69b0269e-8d06-41c4-bc65-a7069cd32b66",
  CellID->483154530]
 }, Closed]],
-Cell[367314, 8289, 346, 8, 26, "ExampleText",ExpressionUUID->"3181e4d2-faa9-4750-9d15-11760368c9f9",
+Cell[367414, 8289, 346, 8, 26, "ExampleText",ExpressionUUID->"3181e4d2-faa9-4750-9d15-11760368c9f9",
  CellID->1872310362],
 Cell[CellGroupData[{
-Cell[367685, 8301, 332, 7, 26, "Input",ExpressionUUID->"0ac2258f-d60a-476d-bd2f-b705e36443f9",
+Cell[367785, 8301, 332, 7, 26, "Input",ExpressionUUID->"0ac2258f-d60a-476d-bd2f-b705e36443f9",
  CellID->2009391760],
-Cell[368020, 8310, 22540, 543, 665, "Output",ExpressionUUID->"bde532e9-fec3-4632-a04b-2b3050d98280",
+Cell[368120, 8310, 22540, 543, 665, "Output",ExpressionUUID->"bde532e9-fec3-4632-a04b-2b3050d98280",
  CellID->1315749092]
 }, Closed]]
 }, Closed]],
 Cell[CellGroupData[{
-Cell[390609, 8859, 428, 8, 22, "ExampleSubsection",ExpressionUUID->"bcc96fb8-94a1-45b4-88dc-0e3716c6a0c8",
+Cell[390709, 8859, 428, 8, 22, "ExampleSubsection",ExpressionUUID->"bcc96fb8-94a1-45b4-88dc-0e3716c6a0c8",
  CellID->2080950800],
-Cell[391040, 8869, 338, 6, 41, "ExampleText",ExpressionUUID->"13b4edfd-ad6d-4e35-bb42-2497d9bed9fb",
+Cell[391140, 8869, 338, 6, 41, "ExampleText",ExpressionUUID->"13b4edfd-ad6d-4e35-bb42-2497d9bed9fb",
  CellID->409743861],
 Cell[CellGroupData[{
-Cell[391403, 8879, 650, 16, 64, "Input",ExpressionUUID->"2eb77d0d-b49d-499f-b296-f3c14c6ad4a2",
+Cell[391503, 8879, 650, 16, 64, "Input",ExpressionUUID->"2eb77d0d-b49d-499f-b296-f3c14c6ad4a2",
  CellID->1961753137],
-Cell[392056, 8897, 36816, 741, 59, "Output",ExpressionUUID->"a00b39aa-c4d5-4000-83b8-0e277c9a6e09",
+Cell[392156, 8897, 36788, 741, 59, "Output",ExpressionUUID->"a00b39aa-c4d5-4000-83b8-0e277c9a6e09",
  CellID->985854760]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[428909, 9643, 305, 6, 26, "Input",ExpressionUUID->"ec3cd50a-04f1-4176-98e9-04d1c9c0f2e9",
+Cell[428981, 9643, 305, 6, 26, "Input",ExpressionUUID->"ec3cd50a-04f1-4176-98e9-04d1c9c0f2e9",
  CellID->1601190783],
-Cell[429217, 9651, 2780, 77, 138, "Output",ExpressionUUID->"5052e97a-ab0e-4fb7-8fa8-b34545941dd9",
+Cell[429289, 9651, 2780, 77, 138, "Output",ExpressionUUID->"5052e97a-ab0e-4fb7-8fa8-b34545941dd9",
  CellID->1150347142]
 }, Open  ]]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[432046, 9734, 481, 8, 26, "ExampleSubsection",ExpressionUUID->"705afa37-fef1-42e6-8b2c-dca938c6bb64",
+Cell[432118, 9734, 481, 8, 26, "ExampleSubsection",ExpressionUUID->"705afa37-fef1-42e6-8b2c-dca938c6bb64",
  CellID->1898706296],
-Cell[432530, 9744, 287, 5, 24, "ExampleText",ExpressionUUID->"410c2e78-f8b5-4a5e-992c-88bd1ac83a5c",
+Cell[432602, 9744, 287, 5, 24, "ExampleText",ExpressionUUID->"410c2e78-f8b5-4a5e-992c-88bd1ac83a5c",
  CellID->35537273],
 Cell[CellGroupData[{
-Cell[432842, 9753, 661, 16, 45, "Input",ExpressionUUID->"6d393afa-1d79-437c-83dc-03d4975fa906",
+Cell[432914, 9753, 661, 16, 45, "Input",ExpressionUUID->"6d393afa-1d79-437c-83dc-03d4975fa906",
  CellID->1888277195],
-Cell[433506, 9771, 32727, 667, 67, "Output",ExpressionUUID->"01d7b43c-c191-4953-af25-d5377225a9e7",
+Cell[433578, 9771, 32697, 667, 67, "Output",ExpressionUUID->"01d7b43c-c191-4953-af25-d5377225a9e7",
  CellID->1274361448]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[466270, 10443, 316, 6, 26, "Input",ExpressionUUID->"90561363-8e5a-4c09-8e6e-2a3a047ca4b3",
+Cell[466312, 10443, 316, 6, 26, "Input",ExpressionUUID->"90561363-8e5a-4c09-8e6e-2a3a047ca4b3",
  CellID->1510724661],
-Cell[466589, 10451, 1010, 29, 59, "Output",ExpressionUUID->"411713fa-0eef-49a1-91d3-48525383f82b",
+Cell[466631, 10451, 1010, 29, 59, "Output",ExpressionUUID->"411713fa-0eef-49a1-91d3-48525383f82b",
  CellID->1042733237]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[467636, 10485, 248, 5, 26, "Input",ExpressionUUID->"5f4e9aa1-cb33-4cb4-a4ec-3600af4610cb",
+Cell[467678, 10485, 248, 5, 26, "Input",ExpressionUUID->"5f4e9aa1-cb33-4cb4-a4ec-3600af4610cb",
  CellID->1678951143],
-Cell[467887, 10492, 245, 4, 27, "Output",ExpressionUUID->"51f5dc01-344b-4b91-af8a-a90ac7b53f26",
+Cell[467929, 10492, 245, 4, 27, "Output",ExpressionUUID->"51f5dc01-344b-4b91-af8a-a90ac7b53f26",
  CellID->487724192]
 }, Open  ]]
 }, Open  ]]
 }, Open  ]],
 Cell[CellGroupData[{
-Cell[468193, 10503, 257, 5, 35, "ExampleSection",ExpressionUUID->"be9d393b-027f-4a34-840b-55a3a281b02e",
+Cell[468235, 10503, 257, 5, 35, "ExampleSection",ExpressionUUID->"be9d393b-027f-4a34-840b-55a3a281b02e",
  CellID->1614255968],
 Cell[CellGroupData[{
-Cell[468475, 10512, 384, 7, 26, "ExampleSubsection",ExpressionUUID->"08e4ff09-dca5-46af-96e8-069ddf67d1ab",
+Cell[468517, 10512, 384, 7, 26, "ExampleSubsection",ExpressionUUID->"08e4ff09-dca5-46af-96e8-069ddf67d1ab",
  CellID->481089257],
-Cell[468862, 10521, 237, 4, 24, "ExampleText",ExpressionUUID->"f372b764-239a-4a66-86f5-13e77c6a6310",
+Cell[468904, 10521, 237, 4, 24, "ExampleText",ExpressionUUID->"f372b764-239a-4a66-86f5-13e77c6a6310",
  CellID->43059422],
 Cell[CellGroupData[{
-Cell[469124, 10529, 10298, 227, 697, "Input",ExpressionUUID->"95a1b573-dc2a-4cc6-ba3f-a0e8873e0234",
+Cell[469166, 10529, 10298, 227, 697, "Input",ExpressionUUID->"95a1b573-dc2a-4cc6-ba3f-a0e8873e0234",
  CellID->6467874],
 Cell[CellGroupData[{
-Cell[479447, 10760, 223, 5, 23, "EchoTiming",ExpressionUUID->"91afcbc5-bbd8-46cf-98f8-ecf6d4a4d00a",
+Cell[479489, 10760, 223, 5, 23, "EchoTiming",ExpressionUUID->"91afcbc5-bbd8-46cf-98f8-ecf6d4a4d00a",
  CellID->877992298],
-Cell[479673, 10767, 231, 5, 23, "EchoTiming",ExpressionUUID->"fe12d31d-a51f-4156-a776-380eb42f3827",
+Cell[479715, 10767, 231, 5, 23, "EchoTiming",ExpressionUUID->"fe12d31d-a51f-4156-a776-380eb42f3827",
  CellID->1199794495],
-Cell[479907, 10774, 222, 5, 23, "EchoTiming",ExpressionUUID->"16568dd9-b8fe-4ff1-a409-63484c92cde8",
+Cell[479949, 10774, 222, 5, 23, "EchoTiming",ExpressionUUID->"16568dd9-b8fe-4ff1-a409-63484c92cde8",
  CellID->1787543765],
-Cell[480132, 10781, 225, 5, 23, "EchoTiming",ExpressionUUID->"b39e30b0-b67d-4dbd-95cd-f0baa6e77d23",
+Cell[480174, 10781, 225, 5, 23, "EchoTiming",ExpressionUUID->"b39e30b0-b67d-4dbd-95cd-f0baa6e77d23",
  CellID->2045239337],
-Cell[480360, 10788, 224, 5, 23, "EchoTiming",ExpressionUUID->"ca41b57d-00fc-4532-a91f-9a45a039760a",
+Cell[480402, 10788, 224, 5, 23, "EchoTiming",ExpressionUUID->"ca41b57d-00fc-4532-a91f-9a45a039760a",
  CellID->322273485],
-Cell[480587, 10795, 229, 5, 23, "EchoTiming",ExpressionUUID->"85013909-e6d2-47d8-bd42-7ef86f201f47",
+Cell[480629, 10795, 229, 5, 23, "EchoTiming",ExpressionUUID->"85013909-e6d2-47d8-bd42-7ef86f201f47",
  CellID->1311333164],
-Cell[480819, 10802, 220, 5, 23, "EchoTiming",ExpressionUUID->"ef8bad88-5d41-43ad-9734-1b8007ce12df",
+Cell[480861, 10802, 220, 5, 23, "EchoTiming",ExpressionUUID->"ef8bad88-5d41-43ad-9734-1b8007ce12df",
  CellID->1964757683]
 }, Open  ]],
-Cell[481054, 10810, 128769, 2544, 372, "Output",ExpressionUUID->"bba49efa-b8bf-414b-9ecc-bd185c2c6563",
+Cell[481096, 10810, 128769, 2544, 372, "Output",ExpressionUUID->"bba49efa-b8bf-414b-9ecc-bd185c2c6563",
  CellID->783349119]
 }, Open  ]]
 }, Open  ]]
 }, Open  ]]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[609938, 13362, 111, 1, 72, "MetadataSection",ExpressionUUID->"93f57149-8542-4896-9e77-15aa994f5d73",
+ CellID->1449408201],
+Cell[610052, 13365, 476, 12, 27, "History",ExpressionUUID->"c591f4f8-d7df-48d3-a99d-cd438af0c157",
+ CellID->816268076],
+Cell[CellGroupData[{
+Cell[610553, 13381, 484, 13, 21, "CategorizationSection",ExpressionUUID->"9d0a38be-898e-407c-be53-0bd35338f396",
+ CellID->951496877],
+Cell[611040, 13396, 132, 2, 34, "Categorization",ExpressionUUID->"7e3e04ac-6e6f-4587-9d85-08c376f5c201",
+ CellID->4768391],
+Cell[611175, 13400, 136, 2, 34, "Categorization",ExpressionUUID->"8ca35f16-dc8a-4ce7-8022-36dc471399d2",
+ CellID->51525159],
+Cell[611314, 13404, 134, 2, 34, "Categorization",ExpressionUUID->"058beec2-5a83-4dc1-a286-b67cce51caed",
+ CellID->403768227],
+Cell[611451, 13408, 228, 3, 34, "Categorization",ExpressionUUID->"742486c0-f006-49de-9e5b-0b7192206e7e",
+ CellID->167577097]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[611716, 13416, 110, 1, 31, "KeywordsSection",ExpressionUUID->"c7d55225-0dac-48a0-a42d-5d09e0b1f771",
+ CellID->907781103],
+Cell[611829, 13419, 100, 1, 21, "Keywords",ExpressionUUID->"804b2519-0d06-48bd-bc13-81c2aa3a6b9b",
+ CellID->1105673377]
+}, Closed]],
+Cell[CellGroupData[{
+Cell[611966, 13425, 119, 1, 21, "TemplatesSection",ExpressionUUID->"86d06495-d8f7-4705-905d-e6971d731f92",
+ CellID->415668795],
+Cell[612088, 13428, 148, 2, 28, "Template",ExpressionUUID->"a789d9be-fc0a-4cb9-aee6-effe179e9ece",
+ CellID->447466766],
+Cell[612239, 13432, 138, 2, 28, "Template",ExpressionUUID->"e85b8a67-c20e-4e12-ae40-73caf985425d",
+ CellID->1715670862],
+Cell[612380, 13436, 136, 2, 28, "Template",ExpressionUUID->"8ba04bff-190c-45db-b9e1-8fb663eb52b8",
+ CellID->1195948677],
+Cell[612519, 13440, 138, 2, 28, "Template",ExpressionUUID->"bc0e609e-f5f4-498a-85fc-3cc717007b08",
+ CellID->1220537702]
+}, Closed]]
 }, Open  ]]
 }
 ]
