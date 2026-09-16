@@ -113,7 +113,7 @@ Begin["`Private`"]
 packageDir=DirectoryName[$InputFileName]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*MST Coefficients*)
 
 
@@ -916,7 +916,7 @@ Kerr\[CapitalDelta][a_,r_]:=\[CapitalDelta][a,1,r];
 (*]*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Post Newtonian Scalings*)
 
 
@@ -1499,90 +1499,6 @@ aux
 (*Currently not public*)
 trigPattern=Sin|Cos|Tan|Csc|Sec|Cot|Sinh|Cosh|Tanh|Csch|Sech|Coth;
 ExpandTrig=#/. (f:trigPattern)[x_]:>f[Expand[x]]&;
-
-
-(* ::Subsubsection::Closed:: *)
-(*Bryan Adams (not working yet...)*)
-
-
-lyrics={"Here I am","this is me",
-"There's nowhere else on earth", "I'd rather be",
-"Here I am","it's just me and you",
-"Tonight we make our dreams","come true","Oooohhh...",
-"It's a new world""it's a new start",
-"It's alive with the beating of","young hearts",
-"It's a new day","it's a new plan",
-"I've been waiting for you","Here I am","(here I am)","Here we are", "we've just begun",
-"And after all this time", "our time has come","Yeah here we are",
-" still going strong","Right here in the place", "where we belong","oohhhh...",
-"It's a new world"," it's a new start",
-"It's alive with the beating of","young hearts",
-"It's a new day","it's a new plan",
-"I've been waiting for you",
-"HERE I AM",
-"Yeah, here I am",
-"Here I am",
-"(Guitar riff)",
-"Waiting for you!",
-"Here I am","this is me",
-"There's nowhere else on earth", "I'd rather be",
-"Here I am", "it's just me and you",
-"Tonight we make our dreams...","come true",
-"OOOHHHH...",
-"IT'S A NEW WORLD","IT'S A NEW START",
-"IT'S ALIVE WITH THE BEATING OF","YOUNG HEARTS",
-"IT'S A NEW DAY","IT'S A NEW PLAN",
-"I'VE BEEN WAITING FOR YOU",
-"OOOHHHH...",
-"IT'S A NEW WORLD","IT'S A NEW START","(yeeahhh)",
-"IT'S ALIVE WITH THE BEATING OF","YOUNG HEARTS","(young hearts)",
-"IT'S A NEW DAY","IT'S A NEW PLAN",
-"I'VE BEEN WAITING FOR YOU",
-"(waiting, waiting, waiting)",
-"Here I am!",
-"(Uh ... Here I am)",
-"Here I am",
-"(Uh ... Here I am)",
-"Oh Right next to you",
-"(Uh ... Here I am)",
-"And suddenly the world is all brand new",
-"Here I am",
-"(Oh Oh oh oh)",
-"Here I am",
-"(Oh Oh oh oh)",
-"I'm gonna stay",
-"(I'm gonna stay)",
-"(Oh Oh oh oh)",
-"Now there's nothing standing in our way",
-"Oh Here I am",
-"(here I am)",
-"(music fades)",
-"Here I am","this is me!"
-};
-
-
-$BryanAdamsCounter=0
-BryanAdams[]:=Module[{aux},
-Echo[lyrics[[Mod[$BryanAdamsCounter,Length[lyrics]]+1]],$BryanAdamsCounter+1];
-$BryanAdamsCounter=$BryanAdamsCounter+1;
-]
-
-
-(*$BryanAdamsCounter=0
-BryanAdams[True]:=Module[{aux},
-$PreRead=Function[expr,Echo["test"];If[Last[#]&@@expr===";",Echo[ToString[$Line]<>"---"<>lyrics[[Mod[$BryanAdamsCounter,85]+1]]];$BryanAdamsCounter++];expr];
-]
-BryanAdams[False]:=$PreRead=.;*)
-
-
-(*testBryan[]:=Module[{},
-aa
-]*)
-
-
-(*testBryan[]:=Module[{aux},
-Message;
-]*)
 
 
 (* ::Subsection:: *)
