@@ -105,7 +105,7 @@ rstar*)
 Begin["`Private`"]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Loading dependencies*)
 
 
@@ -113,7 +113,7 @@ Begin["`Private`"]
 packageDir=DirectoryName[$InputFileName]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*MST Coefficients*)
 
 
@@ -124,7 +124,7 @@ packageDir=DirectoryName[$InputFileName]
 Options[KerrMSTSeries]={"Plot"->False}
 
 
-KerrMSTSeries[ss_Integer,ll_Integer,mm:(_Integer|_Symbol),ExpOrderReq_,OptionsPattern[]]:=Module[{s=-Abs[ss],pos=Positive[ss],ExpOrder=ExpOrderReq,ExpOrderSaved=ExpOrderOrig,l=ll,m=mm,\[CapitalDelta]\[Nu]pC,\[CapitalDelta]\[Nu]p2C,\[CapitalDelta]\[Nu]p3C,\[CapitalDelta]\[Nu]p4C,\[CapitalDelta]\[Nu]p5C,\[CapitalDelta]\[Nu]p6C,\[CapitalDelta]\[Nu]pcq,\[Alpha]C,\[Beta]C,\[Gamma]C,\[CapitalDelta]\[Alpha]\[Beta]C,\[Kappa]Simplify,aLeadingBehaviour,acSolved,acqSolved,aShift,eqShift,StructureGrid,AngExpOrder,\[CapitalDelta]E,\[CapitalDelta]EC,ProgressGrid,FinalProgressGrid,aMST,ac,acq,eqnlist,\[CapitalDelta]\[Nu]p,\[CapitalDelta]\[Nu]pc,EqC,\[CapitalDelta]EqC,EqCL,\[CapitalDelta]EqCL,\[CapitalDelta]EqCTable,Solveac,Solve\[CapitalDelta]\[Nu],i,j,k,n,p,flip,\[Nu]MST,MST},
+KerrMSTSeries[ss_Integer,ll_Integer,mm:(_Integer|_Symbol),ExpOrderReq_,OptionsPattern[]]:=Module[{s=-Abs[ss],pos=Positive[ss],ExpOrder=ExpOrderReq,ExpOrderSaved=ExpOrderOrig,l=ll,m=mm,Integer0Q,PrintCLSolveac,\[CapitalDelta]\[Nu]pC,\[CapitalDelta]\[Nu]p2C,\[CapitalDelta]\[Nu]p3C,\[CapitalDelta]\[Nu]p4C,\[CapitalDelta]\[Nu]p5C,\[CapitalDelta]\[Nu]p6C,\[CapitalDelta]\[Nu]pcq,\[Alpha]C,\[Beta]C,\[Gamma]C,\[CapitalDelta]\[Alpha]\[Beta]C,\[Kappa]Simplify,aLeadingBehaviour,acSolved,acqSolved,aShift,eqShift,StructureGrid,AngExpOrder,\[CapitalDelta]E,\[CapitalDelta]EC,ProgressGrid,FinalProgressGrid,aMST,ac,acq,eqnlist,\[CapitalDelta]\[Nu]p,\[CapitalDelta]\[Nu]pc,EqC,\[CapitalDelta]EqC,EqCL,\[CapitalDelta]EqCL,\[CapitalDelta]EqCTable,Solveac,Solve\[CapitalDelta]\[Nu],i,j,k,n,p,flip,\[Nu]MST,MST},
 
 If[pos,ExpOrder+=2];  (* This is a kludge that needs to be fixed - the issue is that the s-> -s transform has factors \[Epsilon]^-2 for negative s *)
 ClearAll[\[CapitalDelta]\[Nu]p2C];
@@ -497,11 +497,11 @@ MST=Append[MST,Table[a[n]->aMST[n]+If[n==0,0,O[\[Epsilon]]^(ExpOrder+1)],{n,-Exp
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Adrian's code for MST coefficients generic s *)
 
 
-KerrMSTSeries[ss_Symbol,ll_Symbol,mm_Symbol,ExpOrder_Integer,ExpOrderOrig_Integer:0,OptionsPattern[]]:=Module[{s=ss,l=ll,m=mm,\[CapitalDelta]\[Nu]pC,\[CapitalDelta]\[Nu]p2C,\[CapitalDelta]\[Nu]p3C,\[CapitalDelta]\[Nu]p4C,\[CapitalDelta]\[Nu]p5C,\[CapitalDelta]\[Nu]p6C,\[CapitalDelta]\[Nu]pcq,\[Alpha]C,\[Beta]C,\[Gamma]C,\[CapitalDelta]\[Alpha]\[Beta]C,\[Kappa]Simplify,aLeadingBehaviour,acSolved,acqSolved,aShift,eqShift,StructureGrid,AngExpOrder,\[CapitalDelta]E,\[CapitalDelta]EC,ProgressGrid,aMST,aMSTsaved,ac,acq,eqnlist,\[CapitalDelta]\[Nu]p,\[CapitalDelta]\[Nu]pc,EqC,\[CapitalDelta]EqC,EqCL,\[CapitalDelta]EqCL,\[CapitalDelta]EqCTable,Solveac,Solve\[CapitalDelta]\[Nu],i,j,k,n,p,\[Nu]MST,MST},
+KerrMSTSeries[ss_Symbol,ll_Symbol,mm_Symbol,ExpOrder_Integer,ExpOrderOrig_Integer:0,OptionsPattern[]]:=Module[{s=ss,l=ll,FracSimp,shift,m=mm,\[CapitalDelta]\[Nu]pC,\[CapitalDelta]\[Nu]p2C,\[CapitalDelta]\[Nu]p3C,\[CapitalDelta]\[Nu]p4C,\[CapitalDelta]\[Nu]p5C,\[CapitalDelta]\[Nu]p6C,\[CapitalDelta]\[Nu]pcq,\[Alpha]C,\[Beta]C,\[Gamma]C,\[CapitalDelta]\[Alpha]\[Beta]C,\[Kappa]Simplify,aLeadingBehaviour,acSolved,acqSolved,aShift,eqShift,verbose,start,StructureGrid,AngExpOrder,\[CapitalDelta]E,\[CapitalDelta]EC,ProgressGrid,aMST,aMSTsaved,ac,acq,eqnlist,\[CapitalDelta]\[Nu]p,\[CapitalDelta]\[Nu]pc,EqC,\[CapitalDelta]EqC,EqCL,\[CapitalDelta]EqCL,\[CapitalDelta]EqCTable,Solveac,Solve\[CapitalDelta]\[Nu],i,j,k,n,p,\[Nu]MST,MST},
 
 
 ClearAll[\[CapitalDelta]\[Nu]p2C];
@@ -663,14 +663,14 @@ start=SessionTime[];
 Do[
 Do[If[p>=n,Solveac[n,p,EqCL[n+1,-n+p-1],0];
 If[verbose,Print[n,"\t",ac[n,p]]]];
-Put[ac[n,p],"ac["<>ToString[n]<>","<>ToString[p]<>"]"],{n,ExpOrder,1,-1}]; 
-Do[If[p>=n,Solveac[-n,p,EqCL[-n+1,-n+p-1],0];If[verbose,Print[-n,"\t",ac[-n,p]]]];Put[ac[-n,p],"ac["<>ToString[-n]<>","<>ToString[p]<>"]"],{n,1ExpOrder,1,-1}];
+(*Put[ac[n,p],"ac["<>ToString[n]<>","<>ToString[p]<>"]"]*),{n,ExpOrder,1,-1}]; 
+Do[If[p>=n,Solveac[-n,p,EqCL[-n+1,-n+p-1],0];If[verbose,Print[-n,"\t",ac[-n,p]]]];(*Put[ac[-n,p],"ac["<>ToString[-n]<>","<>ToString[p]<>"]"]*),{n,1ExpOrder,1,-1}];
 Solve\[CapitalDelta]\[Nu][p-2,p-3];
-PutAppend[ToString[p]<>" done; time elapsed "<>ToString[SessionTime[]-start]<>"; Memory used "<>ToString[MemoryInUse[]],"progress.wl"];
+(*PutAppend[ToString[p]<>" done; time elapsed "<>ToString[SessionTime[]-start]<>"; Memory used "<>ToString[MemoryInUse[]],"progress.wl"];*)
 \[Nu]MST=l+Sum[\[CapitalDelta]\[Nu]pC[i] \[Epsilon]^(i+2),{i,0,ExpOrder-2}]+O[\[Epsilon]]^(ExpOrder+1);
 MST=Association[{\[Nu]->\[Nu]MST}];
 MST=Append[MST,Table[a[i]->aMST[i]+If[i==0,0,O[\[Epsilon]]^(ExpOrder+1)],{i,-ExpOrder,ExpOrder}]];
-If[p==ExpOrder,Put[MST,"MSTs"<>ToString[s]<>"genlmO"<>ToString[ExpOrder]<>".wl"]];
+If[p==ExpOrder,Identity(*Put[MST,"MSTs"<>ToString[s]<>"genlmO"<>ToString[ExpOrder]<>".wl"]*)];
 Print["done ",p],
 {p,ExpOrderOrig+1,ExpOrder}];
 
@@ -681,7 +681,7 @@ MST
 
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Interface*)
 
 
@@ -804,7 +804,7 @@ aux
 ]
 
 
-MSTCoefficientsInternalFreq[\[ScriptS]_Integer,\[ScriptL]Var_Symbol,\[ScriptM]Var_,aKerr_,order\[CurlyEpsilon]_Integer,OptionsPattern[]]/;order\[CurlyEpsilon]>13:=Module[{aux,repls,keys,values},
+MSTCoefficientsInternalFreq[\[ScriptS]_Integer,\[ScriptL]Var_Symbol,\[ScriptM]Var_,aKerr_,order\[CurlyEpsilon]_Integer,OptionsPattern[]]/;order\[CurlyEpsilon]>13:=Module[{aux,ret,repls,keys,values},
 repls=Block[{Print},KerrMSTSeries[\[ScriptS],\[ScriptL]Var,\[ScriptM]Var,Max[order\[CurlyEpsilon]-1,2]]];
 repls=Append[repls,{a[-order\[CurlyEpsilon]-1]->O[\[Epsilon]]^order\[CurlyEpsilon],a[-order\[CurlyEpsilon]]->O[\[Epsilon]]^order\[CurlyEpsilon]}];
 repls[a[0]]=repls[a[0]](1+O[\[Epsilon]]^order\[CurlyEpsilon]);
@@ -880,7 +880,7 @@ aux
 ]*)
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Tools*)
 
 
@@ -916,7 +916,7 @@ Kerr\[CapitalDelta][a_,r_]:=\[CapitalDelta][a,1,r];
 (*]*)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Post Newtonian Scalings*)
 
 
@@ -1585,11 +1585,11 @@ Message;
 ]*)
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Point particle source*)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Interface*)
 
 
@@ -1615,7 +1615,7 @@ aux
 ]
 
 
-Options[TeukolskyPointParticleSourceRepls]={"Form"->"Default","InactiveHaromonics"->False};
+Options[TeukolskyPointParticleSourceRepls]={"Form"->"Default","InactiveHarmonics"->False};
 
 
 TeukolskyPointParticleSourceRepls[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,a_,r0Var_,opt:OptionsPattern[]]:=Module[{aux,eccentricity,inclination,\[CapitalOmega],c\[Delta],c\[Delta]p,c\[Delta]pp,repls,r0},
@@ -1646,7 +1646,7 @@ aux
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*\[ScriptS] = -2*)
 
 
@@ -2945,7 +2945,7 @@ TeukolskyAmplitudePN[sol_,opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[Script
 ]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Constructing Rc*)
 
 
@@ -3183,16 +3183,16 @@ ret
 
 
 (* ::Subsubsection:: *)
-(*Teukolsky-Starobinsky identities*)
+(*Teukolsky-Starobinsky identities (depricated)*)
 
 
-\[ScriptCapitalL]\[Dagger][n_][x_]:=D[x,\[Theta]]-\[ScriptM] Csc[\[Theta]]x+n Cot[\[Theta]]x;
+(*\[ScriptCapitalL]\[Dagger][n_][x_]:=D[x,\[Theta]]-\[ScriptM] Csc[\[Theta]]x+n Cot[\[Theta]]x;
 \[ScriptCapitalL][n_][x_]:=D[x,\[Theta]]+\[ScriptM] Csc[\[Theta]]x+n Cot[\[Theta]]x;
 \[ScriptCapitalD][n_][x_]:=D[x,r]-( I((r^2+\[ScriptA]^2)\[Omega]-\[ScriptM] \[ScriptA]))/\[CapitalDelta][\[ScriptA],1,r] x+2n (r-M)/\[CapitalDelta][\[ScriptA],1,r];
-\[ScriptCapitalD]\[Dagger][n_][x_]:=D[x,r]+(I ((r^2+\[ScriptA]^2)\[Omega]-\[ScriptM] \[ScriptA]))/\[CapitalDelta][\[ScriptA],1,r] x+2n (r-M)/\[CapitalDelta][\[ScriptA],1,r];
+\[ScriptCapitalD]\[Dagger][n_][x_]:=D[x,r]+(I ((r^2+\[ScriptA]^2)\[Omega]-\[ScriptM] \[ScriptA]))/\[CapitalDelta][\[ScriptA],1,r] x+2n (r-M)/\[CapitalDelta][\[ScriptA],1,r];*)
 
 
-RPN["In",opt:OptionsPattern[]][2,\[ScriptL]_,\[ScriptM]Var_,aVar_,order\[Eta]_]:=Block[{aux,\[ScriptA]=aVar,a=aVar,m=\[ScriptM]Var,\[ScriptM]=\[ScriptM]Var},
+(*RPN["In",opt:OptionsPattern[]][2,\[ScriptL]_,\[ScriptM]Var_,aVar_,order\[Eta]_]:=Block[{aux,\[ScriptA]=aVar,a=aVar,m=\[ScriptM]Var,\[ScriptM]=\[ScriptM]Var},
 aux=RPN["In",opt][-2,\[ScriptL],\[ScriptM],a,order\[Eta]];
 aux=\[ScriptCapitalD][0]@\[ScriptCapitalD][0]@\[ScriptCapitalD][0]@\[ScriptCapitalD][0]@aux;
 aux//Simplify//PNScalings[#,{{\[Omega],3},{r,-2}},\[Eta]]&//Simplify//SeriesTake[#,order\[Eta]]&]
@@ -3209,10 +3209,10 @@ aux//Simplify//PNScalings[#,{{\[Omega],3},{r,-2}},\[Eta]]&//Simplify//SeriesTake
 RPN["Up",opt:OptionsPattern[]][1,\[ScriptL]_,\[ScriptM]_,a_,order\[Eta]_]:=Block[{aux,\[ScriptA]=a},
 aux=RPN["Up",opt][-1,\[ScriptL],\[ScriptM],a,order\[Eta]+1];
 aux=\[ScriptCapitalD][0]@\[ScriptCapitalD][0][aux];
-aux//Simplify//redo\[Eta]Repls//Simplify//SeriesTake[#,order\[Eta]]&]
+aux//Simplify//redo\[Eta]Repls//Simplify//SeriesTake[#,order\[Eta]]&]*)
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Checking input is correct*)
 
 
@@ -3237,11 +3237,11 @@ If[!MatchQ[order,_Integer],Message[TeukolskyRadialFunctionPN::paramorder,order];
 ]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*TeukolskyRadialPN*)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Icons*)
 
 
@@ -3267,7 +3267,7 @@ icons = <|
 |>;
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Getting Rin and Rup seperately (used for infinty flux)*)
 
 
@@ -3307,7 +3307,7 @@ ret
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Getting internal association*)
 
 
@@ -3412,7 +3412,7 @@ ret
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*TeukolskyRadialPN*)
 
 
@@ -3489,11 +3489,11 @@ TeukolskyRadialFunctionPN /:
 ];
 
 
-TeukolskyRadialFunctionPN[\[ScriptS]_, \[ScriptL]_, \[ScriptM]_, a_, \[Omega]_,{varPN_,order_},sol_String,opt:OptionsPattern[]]:=Module[{aux,assoc,ret},
+(*TeukolskyRadialFunctionPN[\[ScriptS]_, \[ScriptL]_, \[ScriptM]_, a_, \[Omega]_,{varPN_,order_},sol_String,opt:OptionsPattern[]]:=Module[{aux,assoc,ret},
 assoc=RadialAssociation[sol,opt][\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{varPN,order}];
 ret=TeukolskyRadialFunctionPN[\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{varPN,order},assoc];
 ret
-]
+]*)
 
 
 (* ::Subsubsection:: *)
@@ -3522,7 +3522,7 @@ Derivative[n_Integer][trf_TeukolskyRadialFunctionPN][r_]:=(*trf[[6,1]]^(2 n)*) D
 Keys[trfpn_TeukolskyRadialFunctionPN] ^:= DeleteElements[Join[Keys[trfpn[[-1]]], {}], {"RadialFunction","AmplitudesBool"}];
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*TeukolskyPointParticleModePN*)
 
 
@@ -3613,7 +3613,7 @@ Btrans=If[!OptionValue["\[ScriptCapitalI]Only"],BAmplitude["Trans","Normalizatio
 Ctrans=CAmplitude["Trans","Normalization"->OptionValue["Normalization"],"FreqRep"->True,"Simplify"->OptionValue["Simplify"]][\[ScriptS],\[ScriptL],\[ScriptM],aVar,Ceiling[order/3]];
 {Btrans,Ctrans}={Btrans,Ctrans}//InactiveSeriesPrefactor//SeriesExpand[#,E^__]&//SeriesCollect[#,\[Omega]]&//ReplaceAll[\[Omega]->\[Omega]\[Gamma]]//Activate[#,Times]&//ChangeSeriesParameter[#,varPN^3]&//SeriesTake[#,order]&;
 {cInU,cUpU}={Normal[Btrans] ChooseSide[cIn,r<r0Var],Normal[Ctrans] ChooseSide[cUp,r>r0Var]};
-{ccUpU[order],ccInU[order]}=Assuming[{r0Var>0},{cUpU,cInU}//ExpandLog];
+(*{ccUpU[order],ccInU[order]}=Assuming[{r0Var>0},{cUpU,cInU}//ExpandLog];*)
 {cInU,cUpU}={cInU,cUpU}//SeriesCollect[#,r0Var]&//ExpandGamma[#,\[ScriptL]+1]&//ExpandPolyGamma[#,\[ScriptL]+1]&;
 If[OptionValue["Simplify"]&&NumericQ[\[ScriptL]]&&!NumericQ[\[ScriptM]],{cInU,cUpU}={cInU,cUpU}//SeriesCollect[#,{SpinWeightedSphericalHarmonicY[__],Derivative[__][SpinWeightedSphericalHarmonicY][__],Inactive[SpinWeightedSpheroidalHarmonicS][__],Derivative[__][Inactive[SpinWeightedSpheroidalHarmonicS]][__]},(Simplify[#,{aVar>=0,r0Var>0,varPN>0}]&)]&];
 If[OptionValue["Simplify"]&&NumericQ[\[ScriptL]]&&NumericQ[\[ScriptM]],{cInU,cUpU}=Assuming[{r0Var>0,1>aVar>=0},{cInU,cUpU}//ExpandLog//ReplaceAll[PolyGamma[a_?IntegerQ,b_?IntegerQ]:>FunctionExpand[PolyGamma[a,b]]]//SeriesCollect[#,{r0Var,Log[__],Zeta[_]},Simplify]&]];
@@ -3772,7 +3772,7 @@ EnergyFlux[mode_TeukolskyModePN] :=
   Z = mode["Amplitudes"];
 
   If[\[Omega] == 0, Return[<| "\[ScriptCapitalI]" -> 0, "\[ScriptCapitalH]" -> 0 |>]];
-  ReflectGammas=#/.{Gamma[x_]/;(Quiet[Simplify[-I Sign[Select[x//If[NumericQ[\[ScriptS]],Identity,ReplaceAll[\[ScriptS]->1]]//If[NumericQ[\[ScriptL]],Identity,ReplaceAll[\[ScriptL]->1]],(!IntegerQ[#]&)]],{1>a>0,1>\[Kappa]>0,\[ScriptM]>0}]]==-1):>(\[Pi] Csc[\[Pi] x])/Gamma[1-x],PolyGamma[n_,x_]/;(Quiet[Simplify[-I Sign[Select[x//If[NumericQ[\[ScriptS]],Identity,ReplaceAll[\[ScriptS]->1]]//If[NumericQ[\[ScriptL]],Identity,ReplaceAll[\[ScriptL]->1]],(!IntegerQ[#]&)]],{1>\[Kappa]>0,1>a>0,\[ScriptM]>0}]]==-1):>-\[Pi]^(n+1) Derivative[n][Cot][\[Pi] x]+(-1)^n PolyGamma[n,1-x]}&;
+  ReflectGammas=#/.{Gamma[x_]/;(Quiet[Simplify[-I Sign[Select[x//If[NumericQ[s],Identity,ReplaceAll[s->1]]//If[NumericQ[l],Identity,ReplaceAll[l->1]],(!IntegerQ[#]&)]],{1>a>0,1>\[Kappa]>0,m>0}]]==-1):>(\[Pi] Csc[\[Pi] x])/Gamma[1-x],PolyGamma[n_,x_]/;(Quiet[Simplify[-I Sign[Select[x//If[NumericQ[s],Identity,ReplaceAll[s->1]]//If[NumericQ[l],Identity,ReplaceAll[l->1]],(!IntegerQ[#]&)]],{1>\[Kappa]>0,1>a>0,m>0}]]==-1):>-\[Pi]^(n+1) Derivative[n][Cot][\[Pi] x]+(-1)^n PolyGamma[n,1-x]}&;
 
   rh = M + Sqrt[M^2-a^2];
   \[CapitalOmega]h = a/(2 M rh);
