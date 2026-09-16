@@ -49,7 +49,7 @@ SeriesTake::usage="SeriesTake[series, n] takes the first n terms of series"
 SeriesMap::usage="SeriesMap[function,series] maps f onto the coefficients of series"
 SeriesMinOrder::usage="SeriesMinOrder[series] gives the leading order of series"
 SeriesMaxOrder::usage="SeriesMaxOrder[series] gives the first suppressed order of series"
-SeriesLength::usage="SeriesLenght[series] gives the number of terms in series"
+SeriesLength::usage="SeriesLength[series] gives the number of terms in series"
 SeriesCollect::usage="SeriesCollect[expr, var, func] works like Collect but applied to each order individually. Crucially, unlike Collect it keeps the SeriesData structure."
 SeriesExpand::usage="SeriesExpand[expr] works like Expand but applied to each order individually."
 SeriesTerms::usage="SeriesTerms[series, {x, x0, n}] works exactly like Series, with the difference that n gives the desired number of terms instead of a maximum order"
@@ -163,7 +163,6 @@ DropZeroSeries=Teukolsky`PN`Private`DropZeroSeries
 SeriesPlusSimplify=Teukolsky`PN`Private`SeriesPlusSimplify
 SeriesCoefficientList=Teukolsky`PN`Private`SeriesCoefficientList
 InactiveSeriesPrefactor=Teukolsky`PN`Private`InactiveSeriesPrefactor
-InactiveSeriesPrefactor
 
 
 (* ::Subsection:: *)
@@ -251,7 +250,7 @@ SetAttributes[{ExpandLog, ExpandGamma,ExpandPolyGamma,PochhammerToGamma,GammaToP
 SetAttributes[{TeukolskyPointParticleSource}, {Protected, ReadProtected}];
 
 
-SetAttributes[{Paint,CowboyConjugate}, {Protected, ReadProtected}];
+SetAttributes[{Paint,CowboyConjugate,ChooseSide}, {Protected, ReadProtected}];
 
 
 SetAttributes[{AngularTeukolskyEquation,RadialTeukolskyEquation,RadialTeukolskyEquationPN}, {Protected, ReadProtected}];
