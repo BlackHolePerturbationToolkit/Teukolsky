@@ -113,7 +113,7 @@ Begin["`Private`"]
 packageDir=DirectoryName[$InputFileName]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*MST Coefficients*)
 
 
@@ -497,11 +497,11 @@ MST=Append[MST,Table[a[n]->aMST[n]+If[n==0,0,O[\[Epsilon]]^(ExpOrder+1)],{n,-Exp
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Adrian's code for MST coefficients generic s *)
 
 
-KerrMSTSeries[ss_Symbol,ll_Symbol,mm_Symbol,ExpOrder_Integer,ExpOrderOrig_Integer:0,OptionsPattern[]]:=Module[{s=ss,l=ll,FracSimp,shift,m=mm,\[CapitalDelta]\[Nu]pC,\[CapitalDelta]\[Nu]p2C,\[CapitalDelta]\[Nu]p3C,\[CapitalDelta]\[Nu]p4C,\[CapitalDelta]\[Nu]p5C,\[CapitalDelta]\[Nu]p6C,\[CapitalDelta]\[Nu]pcq,\[Alpha]C,\[Beta]C,\[Gamma]C,\[CapitalDelta]\[Alpha]\[Beta]C,\[Kappa]Simplify,aLeadingBehaviour,acSolved,acqSolved,aShift,eqShift,verbose,start,StructureGrid,AngExpOrder,\[CapitalDelta]E,\[CapitalDelta]EC,ProgressGrid,aMST,aMSTsaved,ac,acq,eqnlist,\[CapitalDelta]\[Nu]p,\[CapitalDelta]\[Nu]pc,EqC,\[CapitalDelta]EqC,EqCL,\[CapitalDelta]EqCL,\[CapitalDelta]EqCTable,Solveac,Solve\[CapitalDelta]\[Nu],i,j,k,n,p,\[Nu]MST,MST},
+KerrMSTSeries[ss_,ll_,mm_,ExpOrder_Integer,ExpOrderOrig_Integer:0,OptionsPattern[]]:=Module[{s=ss,l=ll,FracSimp,shift,m=mm,\[CapitalDelta]\[Nu]pC,\[CapitalDelta]\[Nu]p2C,\[CapitalDelta]\[Nu]p3C,\[CapitalDelta]\[Nu]p4C,\[CapitalDelta]\[Nu]p5C,\[CapitalDelta]\[Nu]p6C,\[CapitalDelta]\[Nu]pcq,\[Alpha]C,\[Beta]C,\[Gamma]C,\[CapitalDelta]\[Alpha]\[Beta]C,\[Kappa]Simplify,aLeadingBehaviour,acSolved,acqSolved,aShift,eqShift,verbose,start,StructureGrid,AngExpOrder,\[CapitalDelta]E,\[CapitalDelta]EC,ProgressGrid,aMST,aMSTsaved,ac,acq,eqnlist,\[CapitalDelta]\[Nu]p,\[CapitalDelta]\[Nu]pc,EqC,\[CapitalDelta]EqC,EqCL,\[CapitalDelta]EqCL,\[CapitalDelta]EqCTable,Solveac,Solve\[CapitalDelta]\[Nu],i,j,k,n,p,\[Nu]MST,MST},
 
 
 ClearAll[\[CapitalDelta]\[Nu]p2C];
