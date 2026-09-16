@@ -105,7 +105,7 @@ rstar*)
 Begin["`Private`"]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Loading dependencies*)
 
 
@@ -2020,7 +2020,7 @@ Derivative[n_][\[Theta]][arg_]:=Derivative[n-1][\[Delta]][arg];
 \[Delta]''[\[Eta]^-2 a_]:=\[Eta]^2 \[Delta]''[a];*)
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Amplitudes*)
 
 
@@ -2776,7 +2776,7 @@ aux
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Phase shift*)
 
 
@@ -2791,7 +2791,7 @@ aux
 CTeukolskyStarobinsky[s:(1|-1),\[ScriptL]_,m_,a_,\[Omega]_,{\[Gamma]_,order_},P_:1]:=Module[{aux,D,\[ScriptW],\[Lambda],\[Lambda]Chs},
 \[ScriptW]=\[Omega] \[Gamma];
 \[Lambda]=SpinWeightedSpheroidalEigenvalue[s,\[ScriptL],m,a \[ScriptW] ]//Series[#,{\[Gamma],0,order}]&;
-\[Lambda]Cs=\[Lambda]+s^2+s;
+\[Lambda]Chs=\[Lambda]+s^2+s;
 aux=(\[Lambda]Chs)^2+ 4 a \[ScriptW](m-a \[ScriptW]);
 aux
 ]
@@ -3237,7 +3237,7 @@ If[!MatchQ[order,_Integer],Message[TeukolskyRadialFunctionPN::paramorder,order];
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*TeukolskyRadialPN*)
 
 
