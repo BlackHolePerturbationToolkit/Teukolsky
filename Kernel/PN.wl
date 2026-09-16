@@ -880,7 +880,7 @@ aux
 ]*)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Tools*)
 
 
@@ -1501,7 +1501,7 @@ trigPattern=Sin|Cos|Tan|Csc|Sec|Cot|Sinh|Cosh|Tanh|Csch|Sech|Coth;
 ExpandTrig=#/. (f:trigPattern)[x_]:>f[Expand[x]]&;
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Point particle source*)
 
 
@@ -2772,6 +2772,10 @@ If[OptionValue["Simplify"],aux1=aux1//ExpandGamma//ExpandPolyGamma//SeriesCollec
 ret=aux1;
 ret
 ]
+
+
+phaseShift[1, \[ScriptL]_, \[ScriptM]_, a_, order\[Eta]_, opt : OptionsPattern[]] :=phaseShift[-1, \[ScriptL], \[ScriptM], a, order\[Eta], opt]
+phaseShift[2, \[ScriptL]_, \[ScriptM]_, a_, order\[Eta]_, opt : OptionsPattern[]] :=phaseShift[-2, \[ScriptL], \[ScriptM], a, order\[Eta], opt]
 
 
 (* ::Subsubsection::Closed:: *)
