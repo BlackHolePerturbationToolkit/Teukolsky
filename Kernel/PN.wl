@@ -3307,7 +3307,7 @@ ret
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Getting internal association*)
 
 
@@ -3412,7 +3412,7 @@ ret
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*TeukolskyRadialPN*)
 
 
@@ -3471,7 +3471,7 @@ TeukolskyRadialFunctionPN /:
 			}],
 			Row[{
              BoxForm`SummaryItem[{"Boundary Condition: ", assoc["BoundaryCondition"]}],"  ",
-             BoxForm`SummaryItem[{"Normalization: ",assoc["Normalization"]}]
+             BoxForm`SummaryItem[{"Normalization: ",assoc["Options"]["Normalization"]}]
              }]};           
   extended = {
     BoxForm`SummaryItem[{"Min order: ",assoc["SeriesMinOrder"]}],
