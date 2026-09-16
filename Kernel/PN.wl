@@ -111,6 +111,7 @@ Begin["`Private`"]
 
 (*<<BlackHoleAnalysis`SeriesTools`*)
 packageDir=DirectoryName[$InputFileName]
+$TeukolskyDataDirectory = PacletObject["Teukolsky"]["AssetLocation", "Data"];
 
 
 (* ::Subsection:: *)
@@ -735,7 +736,7 @@ ret
 
 
 MSTCoefficientsInternalFreq[\[ScriptS]_Symbol,\[ScriptL]_,\[ScriptM]_,aKerr_,order\[CurlyEpsilon]_Integer,OptionsPattern[]]/;order\[CurlyEpsilon]<=7:=Module[{aux,repls,keys,FixContext,values,ret},
-aux=Import[ParentDirectory[packageDir]<>"/Data/MSTCoefficients_generic_s_generic_l.wl"];
+aux=Import[$TeukolskyDataDirectory<>"/MSTCoefficients_generic_s_generic_l.wl"];
 FixContext=(#/.s_Symbol/;Context[s]===$Context:>Symbol["Teukolsky`PN`Private`"<>SymbolName[s]]&);
 keys=aux//Keys//FixContext;
 values=aux//Values//FixContext;
@@ -792,7 +793,7 @@ ret
 
 
 MSTCoefficientsInternalFreq[\[ScriptS]_Integer,\[ScriptL]Var_Symbol,\[ScriptM]Var_,aKerr_,order\[CurlyEpsilon]_Integer,OptionsPattern[]]/;order\[CurlyEpsilon]<=13:=Module[{aux,keys,values,FixContext},
-aux=Import[ParentDirectory[packageDir]<>"/Data/MSTCoefficients_s"<>ToString[\[ScriptS]]<>"_generic_l.wl"];
+aux=Import[$TeukolskyDataDirectory<>"/MSTCoefficients_s"<>ToString[\[ScriptS]]<>"_generic_l.wl"];
 FixContext=(#/.s_Symbol/;Context[s]===$Context:>Symbol["Teukolsky`PN`Private`"<>SymbolName[s]]&);
 keys=aux//Keys//FixContext;
 values=aux//Values//FixContext;

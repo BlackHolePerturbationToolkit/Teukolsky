@@ -23,6 +23,9 @@ Paclet[
       {
         "Guides/Teukolsky"
       }
+    },
+    {
+    "Asset", "Root" -> ".", "Assets" -> {{"Data", "Data"}}
     }
   }
 ]
