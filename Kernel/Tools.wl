@@ -19,42 +19,26 @@ BeginPackage["Teukolsky`PN`Tools`",{"Teukolsky`","Teukolsky`PN`"}]
 (*Unprotecting*)
 
 
-ClearAttributes[{\[Nu]MST, aMST,MSTCoefficients}, {Protected, ReadProtected}];
+ClearAttributes[{SeriesTake,SeriesMap,SeriesCoefficientList,SeriesMinOrder,SeriesMaxOrder,SeriesLength,SeriesCollect,SeriesExpand,SeriesTerms,IgnoreSeriesParameter,ChangeSeriesParameter,PowerCounting,StraightenSeries,SeriesPlusSimplify,DropZeroSeries,InactiveSeriesPrefactor}, {Protected, ReadProtected}];
 
 
-ClearAttributes[{SeriesTake, SeriesMinOrder,SeriesMaxOrder,SeriesLength,SeriesCollect,SeriesTerms,IgnoreExpansionParameter,ChangeSeriesParameter,PowerCounting}, {Protected, ReadProtected}];
+ClearAttributes[{Scalings, RemovePowerCounting}, {Protected, ReadProtected}];
 
 
-ClearAttributes[{PNScalings, RemovePN}, {Protected, ReadProtected}];
+ClearAttributes[{ExpandLog, ExpandGamma,ExpandPolyGamma,PochhammerToGamma,GammaToPochhammer,ExpandDiracDelta,CollectDerivatives}, {Protected, ReadProtected}];
 
 
-ClearAttributes[{ExpandLog, ExpandGamma,ExpandPolyGamma,PochhammerToGamma,GammaToPochhammer,ExpandDiracDelta,ExpandSpheroidals,CollectDerivatives,Paint}, {Protected, ReadProtected}];
+ClearAttributes[{TeukolskyPointParticleSource}, {Protected, ReadProtected}];
 
 
-ClearAttributes[{TeukolskyAmplitudePN, InvariantWronskian,TeukolskyPointParticleSource,TeukolskyEquation}, {Protected, ReadProtected}];
+ClearAttributes[{Paint,CowboyConjugate,ChooseSide}, {Protected, ReadProtected}];
+
+
+ClearAttributes[{AngularTeukolskyEquation,RadialTeukolskyEquation,RadialTeukolskyEquationPN}, {Protected, ReadProtected}];
 
 
 (* ::Section:: *)
 (*Public*)
-
-
-(* ::Subsection::Closed:: *)
-(*MST Coefficients*)
-
-
-\[Nu]MST::usage="\[Nu]MST is representative of the \[Nu] coefficient in the MST solutions"
-aMST::usage="aMST[\!\(\*
-StyleBox[\"n\",\nFontSlant->\"Italic\"]\)] is the \!\(\*SuperscriptBox[
-StyleBox[\"n\",\nFontSlant->\"Italic\"], \(th\)]\) MST coefficient";
-MSTCoefficients::usage="MSTCoefficients[\[ScriptS],\[ScriptL],\[ScriptM],a,order\[Eta]] gives the PN expanded MST coefficients aMST[n] for a given {\[ScriptS],\[ScriptL],\[ScriptM]} mode up to \[Eta]^order\[Eta]."
-(*KerrMSTSeries::usage="KerrMSTSeries[\!\(\*
-StyleBox[\"\[ScriptS]\",\nFontSlant->\"Italic\"]\),\!\(\*
-StyleBox[\"\[ScriptL]\",\nFontSlant->\"Italic\"]\),\!\(\*
-StyleBox[\"\[ScriptM]\",\nFontSlant->\"Italic\"]\),\!\(\*
-StyleBox[\"order\[Epsilon]\",\nFontSlant->\"Italic\"]\)] gives the PN expanded MST coefficients a[n] for a given {\!\(\*
-StyleBox[\"\[ScriptS]\",\nFontSlant->\"Italic\"]\), \!\(\*
-StyleBox[\"\[ScriptL]\",\nFontSlant->\"Italic\"]\), \!\(\*
-StyleBox[\"\[ScriptM]\",\nFontSlant->\"Italic\"]\)} mode up to \!\(\*SuperscriptBox[\(\[Epsilon]\), \(order\[Epsilon]\)]\). Where the relation to \[Eta] is given by \[Epsilon]=2 \[Omega] \!\(\*SuperscriptBox[\(\[Eta]\), \(3\)]\)."*)
 
 
 (* ::Subsection:: *)
@@ -62,23 +46,30 @@ StyleBox[\"\[ScriptM]\",\nFontSlant->\"Italic\"]\)} mode up to \!\(\*Superscript
 
 
 SeriesTake::usage="SeriesTake[series, n] takes the first n terms of series"
+SeriesMap::usage="SeriesMap[function,series] maps f onto the coefficients of series"
 SeriesMinOrder::usage="SeriesMinOrder[series] gives the leading order of series"
-SeriesMaxOrder::usage="SeriesMaxOrder[series] gives the first surpressed order of series"
-SeriesLength::usage="SeriesLenght[series] gives the number of terms in series"
+SeriesMaxOrder::usage="SeriesMaxOrder[series] gives the first suppressed order of series"
+SeriesLength::usage="SeriesLength[series] gives the number of terms in series"
 SeriesCollect::usage="SeriesCollect[expr, var, func] works like Collect but applied to each order individually. Crucially, unlike Collect it keeps the SeriesData structure."
+SeriesExpand::usage="SeriesExpand[expr] works like Expand but applied to each order individually."
 SeriesTerms::usage="SeriesTerms[series, {x, x0, n}] works exactly like Series, with the difference that n gives the desired number of terms instead of a maximum order"
-IgnoreExpansionParameter::usage="IgnoreExpansionParameter[series,x] sets all occurences of the expansion parameter in the series coefficients to x. If no value is entered x defaults to 1."
+IgnoreSeriesParameter::usage="IgnoreSeriesParameter[series,x] sets all occurences of the expansion parameter in the series coefficients to x. If no value is entered x defaults to 1."
 ChangeSeriesParameter::usage="ChangeSeriesParameter[series,expr] changes the expansion parameter in series to be expr." 
-PowerCounting::usage="PowerCounting[series,symbol] replaces the expansion parameter in series with symbol. Unlike ChangeParameter it keeps the original expansion parameter as a constant in each coefficient."
+PowerCounting::usage="PowerCounting[series,symbol] replaces the expansion parameter in series with symbol. Unlike ChangeSeriesParameter it keeps the original expansion parameter as a constant in each coefficient."
+StraightenSeries::usage="StraightenSeries[expr] straightens out SeriesData objects with redundant denominator arguments, i.e., it removes counting in powers of roots, if all respective coefficients are zero."
+DropZeroSeries::usage="DropZeroSeries sets the 0 Series O[x\!\(\*SuperscriptBox[\(]\), \(n\)]\) to 0 without Normaling the entire expressions."
+SeriesPlusSimplify::usage="SeriesPlusSimplify[expr,assumptions] simplifies sums of SeriesData objects under assumptions."
+SeriesCoefficientList::usage="SeriesCoefficientList[series] returns the Series coefficients as a list."
+InactiveSeriesPrefactor::usage="InactiveSeriesPrefactor[series] pulls out the leading order of a series."
 
 
 (* ::Subsection:: *)
 (*Tools for PN Scalings*)
 
 
-Scalings::usage="Scalings[params,var][expr] applies the given powercounting scalings to the expression. E.g. Scalings[{{\[Omega],3,r,-2},\[Eta]][\[Omega] r]"
-PNScalings::usage="Same as Scalings but with different input. Just here to not break my older code but you should use Scalings instead"
-RemovePN::usage="PNScalings[expr,var] takes the Normal[] and sets var to 1"
+Scalings::usage="Scalings[expr,params,var] applies the given scalings params with power counting parameter var to expr."
+(*PNScalings::usage="Same as Scalings but with different input. Just here to not break my older code but you should use Scalings instead"*)
+RemovePowerCounting::usage="RemovePowerCounting[expr,var] takes the Normal[] and sets var to 1"
 (*Zero::usage="Zero[expr,vars] sets all vars in expr to 0"
 One::usage="One[expr,vars] sets all vars in expr to 1"*)
 
@@ -87,11 +78,11 @@ One::usage="One[expr,vars] sets all vars in expr to 1"*)
 (*Tools for Logs, Gammas, and PolyGammas*)
 
 
-ExpandLog::usage="ExpandLog[expr] replaces all Logs in expr with a PowerExpanded version"
+ExpandLog::usage="ExpandLog[expr,assumptions] expands all logaritms in expr under assumptions. Crucially unlike PowerExpand it does not make unprompted assumptions."
 ExpandGamma::usage="ExpandGamma[expr] factors out all Integer facors out of the Gammas in expr. E.g. Gamma[x+1]->x Gamma[x]"
 ExpandPolyGamma::usage="ExpandPolyGamma[expr] factors out all Integer facors out of the PolyGammas in expr. E.g. PolyGamma[x+1]->\!\(\*FractionBox[\(1\), \(x\)]\) PolyGamma[x]"
 PochhammerToGamma::usage="PochhammerToGamma[expr] replaces all Pochhammer in expr with the respecive Gamma."
-GammaToPochhammer::usage="PochhammerToGamma[expr,n] replaces all Gamma in expr that contain n with the respective Pochhammer[__,n]"
+GammaToPochhammer::usage="GammaToPochhammer[expr,n] replaces all Gamma in expr that contain n with the respective Pochhammer[__,n]"
 
 
 
@@ -106,7 +97,18 @@ ExpandDiracDelta::usage="ExpandDiracDelta[expr,r] applies identities for Dirac d
 (*Tools  for SpinWeightedSpheroidalHarmonics *)
 
 
-ExpandSpheroidals::usage="ExpandSpheroidal[expr,{param,order}] returns a all SpinWeightedSpheroidalHarmonicS in expr have been Series expanded around param->0 to order."
+(*ExpandSpheroidals::usage="ExpandSpheroidal[expr,{param,order}] returns a all SpinWeightedSpheroidalHarmonicS in expr have been Series expanded around param->0 to order."*)
+
+
+(* ::Subsection:: *)
+(*Teukolsky Equation*)
+
+
+AngularTeukolskyEquation::usage="AngularTeukolskyEquation[s,l,m,\[Gamma],\[Theta],\[Phi]] returns the angular Teukolsky equation equation. It is solved by the spin weighted spheroidal harmonics"
+
+
+RadialTeukolskyEquation::usage="RadialTeukolskyEquation[\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],R[r]] gives the radial Teukolsky equation."
+RadialTeukolskyEquationPN::usage="RadialTeukolskyEquationPN[\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],R[r],{\[Eta],order}] gives the PN expanded radial Teukolsky equation."
 
 
 (* ::Subsection:: *)
@@ -115,28 +117,9 @@ ExpandSpheroidals::usage="ExpandSpheroidal[expr,{param,order}] returns a all Spi
 
 CollectDerivatives::usage="CollectDerivatives[expr,f] works exactly like Collect[] but also collects for derivatives of f."
 Paint::usage="Paint[expr,var] paints all occurences of var in expr Red."
-
-
-(* ::Subsection:: *)
-(*Amplitudes*)
-
-
-TeukolskyAmplitudePN::usage="TeukolskyAmplitudePN[\"sol\"][\[ScriptS], \[ScriptL], \[ScriptM], a, \[Omega], {\[Eta], n}] gives the desired PN expanded amplitude. Options for sol are as follows: 
-\"A+\": Sasaki Tagoshi Eq.(157), 
-\"A-\": ST Eq.(158), 
-\"Btrans\": ST Eq.(167), 
-\"Binc\": ST Eq.(168) divided by \!\(\*SubscriptBox[\(\[ScriptCapitalK]\), \(\[Nu]\)]\), 
-\"Ctrans\": Eq.(170) ST, 
-\"\[ScriptCapitalK]\": , 
-\"\[ScriptCapitalK]\[Nu]\": , 
-\"\[ScriptCapitalK]-\[Nu]-1\": "
-
-
-(* ::Subsection:: *)
-(*Wronskian*)
-
-
-InvariantWronskian::usage="InvariantWronskian[\[ScriptS], \[ScriptL], \[ScriptM], a, \[Omega], {\[Eta], n}] gives the invariant Wronskian."
+CowboyConjugate::usage="\"Shoot first, ask questions later\". CowboyConjugate[expr] performs the complex conjugate by assuming everything but \[ImaginaryI] is real."
+(*ChangeContext::usage="ChangeContext[expr,context1,context2] is a debugging tool that allows to change the context of all symbols in expr"*)
+ChooseSide::usage="ChooseSide[expr,assumptions] Simplifies all HeavisideTheta and DiracDelta according to assumptions."
 
 
 (* ::Subsection:: *)
@@ -146,13 +129,6 @@ InvariantWronskian::usage="InvariantWronskian[\[ScriptS], \[ScriptL], \[ScriptM]
 TeukolskyPointParticleSource::usage="TeukolskyPointParticleSource[\[ScriptS],\[ScriptL],\[ScriptM],orbit][r] gives an analytical expression for the Teukolsky point particle source for a given {\[ScriptS],\[ScriptL],\[ScriptM]} mode. orbit needs to be a KerrGeoOrbit object "
 
 
-(* ::Subsection:: *)
-(*Teukolsky Equation*)
-
-
-TeukolskyEquation::usage="TeukolskyEquation[\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],{\[Eta],order},R[r]] gives the Teukolsky equation with for a given {\[ScriptS],\[ScriptL],\[ScriptM]} mode with included \[Eta] scalings. The {\[Eta],order} argument can be left out for a general expression."
-
-
 (* ::Section:: *)
 (*Private*)
 
@@ -160,11 +136,11 @@ TeukolskyEquation::usage="TeukolskyEquation[\[ScriptS],\[ScriptL],\[ScriptM],a,\
 Begin["Private`"]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*MST Coefficients*)
 
 
-MSTCoefficients=Teukolsky`PN`Private`MSTCoefficients
+(*MSTCoefficients=Teukolsky`PN`Private`MSTCoefficients*)
 
 
 (* ::Subsection:: *)
@@ -176,19 +152,26 @@ SeriesMinOrder=Teukolsky`PN`Private`SeriesMinOrder
 SeriesMaxOrder=Teukolsky`PN`Private`SeriesMaxOrder
 SeriesLength=Teukolsky`PN`Private`SeriesLength
 SeriesCollect=Teukolsky`PN`Private`SeriesCollect
+SeriesExpand=Teukolsky`PN`Private`SeriesExpand
 SeriesTerms=Teukolsky`PN`Private`SeriesTerms
-IgnoreExpansionParameter=Teukolsky`PN`Private`IgnoreExpansionParameter
+IgnoreSeriesParameter=Teukolsky`PN`Private`IgnoreExpansionParameter
 ChangeSeriesParameter=Teukolsky`PN`Private`ChangeSeriesParameter
 PowerCounting=Teukolsky`PN`Private`PowerCounting
+StraightenSeries=Teukolsky`PN`Private`StraightenSeries
+SeriesMap=Teukolsky`PN`Private`SeriesMap
+DropZeroSeries=Teukolsky`PN`Private`DropZeroSeries
+SeriesPlusSimplify=Teukolsky`PN`Private`SeriesPlusSimplify
+SeriesCoefficientList=Teukolsky`PN`Private`SeriesCoefficientList
+InactiveSeriesPrefactor=Teukolsky`PN`Private`InactiveSeriesPrefactor
 
 
 (* ::Subsection:: *)
 (*Tools for PN Scalings*)
 
 
-PNScalings=Teukolsky`PN`Private`PNScalings
+(*PNScalings=Teukolsky`PN`Private`PNScalings*)
 Scalings=Teukolsky`PN`Private`Scalings
-RemovePN=Teukolsky`PN`Private`RemovePN
+RemovePowerCounting=Teukolsky`PN`Private`RemovePowerCounting
 (*Zero=Teukolsky`PN`Private`Zero
 One=Teukolsky`PN`Private`One*)
 
@@ -215,7 +198,7 @@ ExpandDiracDelta=Teukolsky`PN`Private`ExpandDiracDelta
 (*Tools  for SpinWeightedSpheroidalHarmonics *)
 
 
-ExpandSpheroidals=Teukolsky`PN`Private`ExpandSpheroidals
+(*ExpandSpheroidals=Teukolsky`PN`Private`ExpandSpheroidals*)
 
 
 (* ::Subsection:: *)
@@ -224,20 +207,9 @@ ExpandSpheroidals=Teukolsky`PN`Private`ExpandSpheroidals
 
 CollectDerivatives=Teukolsky`PN`Private`CollectDerivatives
 Paint=Teukolsky`PN`Private`Paint
-
-
-(* ::Subsection::Closed:: *)
-(*Amplitudes*)
-
-
-TeukolskyAmplitudePN=Teukolsky`PN`Private`TeukolskyAmplitudePN
-
-
-(* ::Subsection::Closed:: *)
-(*Wronskian*)
-
-
-InvariantWronskian=Teukolsky`PN`Private`InvariantWronskian
+CowboyConjugate=Teukolsky`PN`Private`CowboyConjugate
+(*ChangeContext=Teukolsky`PN`Private`ChangeContext*)
+ChooseSide=Teukolsky`PN`Private`ChooseSide
 
 
 (* ::Subsection:: *)
@@ -247,11 +219,15 @@ InvariantWronskian=Teukolsky`PN`Private`InvariantWronskian
 TeukolskyPointParticleSource=Teukolsky`PN`Private`TeukolskyPointParticleSource
 
 
-(* ::Subsection::Closed:: *)
-(*TeukolskyEquation*)
+(* ::Subsection:: *)
+(*Teukolsky Equation*)
 
 
-TeukolskyEquation=Teukolsky`PN`Private`TeukolskyEquation
+AngularTeukolskyEquation=Teukolsky`PN`Private`AngularTeukolskyEquation
+
+
+RadialTeukolskyEquation=Teukolsky`PN`Private`RadialTeukolskyEquation
+RadialTeukolskyEquationPN=Teukolsky`PN`Private`RadialTeukolskyEquationPN
 
 
 (* ::Section:: *)
@@ -262,22 +238,22 @@ TeukolskyEquation=Teukolsky`PN`Private`TeukolskyEquation
 (*Protecting*)
 
 
-SetAttributes[{\[Nu]MST, aMST,MSTCoefficients}, {Protected, ReadProtected}];
+SetAttributes[{SeriesTake,SeriesMap,SeriesCoefficientList,SeriesMinOrder,SeriesMaxOrder,SeriesLength,SeriesCollect,SeriesExpand,SeriesTerms,IgnoreSeriesParameter,ChangeSeriesParameter,PowerCounting,StraightenSeries,SeriesPlusSimplify,DropZeroSeries,InactiveSeriesPrefactor}, {Protected, ReadProtected}];
 
 
-SetAttributes[{SeriesTake, SeriesMinOrder,SeriesMaxOrder,SeriesLength,SeriesTerms,IgnoreExpansionParameter,ChangeSeriesParameter,PowerCounting}, {Protected, ReadProtected}];
+SetAttributes[{Scalings, RemovePowerCounting}, {Protected, ReadProtected}];
 
 
-SetAttributes[{SeriesCollect}, {Protected, ReadProtected,Listable}];
+SetAttributes[{ExpandLog, ExpandGamma,ExpandPolyGamma,PochhammerToGamma,GammaToPochhammer,ExpandDiracDelta,CollectDerivatives}, {Protected, ReadProtected}];
 
 
-SetAttributes[{PNScalings, RemovePN}, {Protected, ReadProtected}];
+SetAttributes[{TeukolskyPointParticleSource}, {Protected, ReadProtected}];
 
 
-SetAttributes[{ExpandLog, ExpandGamma,ExpandPolyGamma,PochhammerToGamma,GammaToPochhammer,ExpandDiracDelta,ExpandSpheroidals,CollectDerivatives,Paint}, {Protected, ReadProtected}];
+SetAttributes[{Paint,CowboyConjugate,ChooseSide}, {Protected, ReadProtected}];
 
 
-SetAttributes[{TeukolskyAmplitudePN, InvariantWronskian,TeukolskyPointParticleSource,TeukolskyEquation}, {Protected, ReadProtected}];
+SetAttributes[{AngularTeukolskyEquation,RadialTeukolskyEquation,RadialTeukolskyEquationPN}, {Protected, ReadProtected}];
 
 
 (* ::Subsection:: *)
