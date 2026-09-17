@@ -4,7 +4,7 @@
 (*SetOptions[EvaluationNotebook[],StyleDefinitions->$UserBaseDirectory<>"/SystemFiles/FrontEnd/StyleSheets/maTHEMEatica.nb"]*)
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Beginning Package*)
 
 
@@ -98,7 +98,7 @@ pIn
 rstar*)
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Private*)
 
 
@@ -682,7 +682,7 @@ MST
 
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Interface*)
 
 
@@ -882,7 +882,7 @@ aux
 ]*)
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Tools*)
 
 
@@ -1464,7 +1464,7 @@ ExpandDiracDelta[expr_Plus,x_]:=(ExpandDiracDelta[#,x]&/@expr);
 ExpandDiracDelta[expr_,x_]:=expr;
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Misc*)
 
 
@@ -1938,7 +1938,7 @@ Derivative[n_][\[Theta]][arg_]:=Derivative[n-1][\[Delta]][arg];
 \[Delta]''[\[Eta]^-2 a_]:=\[Eta]^2 \[Delta]''[a];*)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Amplitudes*)
 
 
@@ -3159,7 +3159,7 @@ If[!MatchQ[order,_Integer],Message[TeukolskyRadialFunctionPN::paramorder,order];
 ]
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*TeukolskyRadialPN*)
 
 
@@ -3189,7 +3189,7 @@ icons = <|
 |>;
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Getting Rin and Rup seperately (used for infinty flux)*)
 
 
@@ -3448,7 +3448,7 @@ Keys[trfpn_TeukolskyRadialFunctionPN] ^:= DeleteElements[Join[Keys[trfpn[[-1]]],
 (*TeukolskyPointParticleModePN*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Given point particle Source*)
 
 
@@ -3740,7 +3740,7 @@ EnergyFlux[mode_TeukolskyModePN] :=
 AngularMomentumFlux[mode_TeukolskyModePN] := If[!(mode["\[Omega]"]===0),EnergyFlux[mode] mode["m"]/mode["\[Omega]"], <| "\[ScriptCapitalI]" -> 0, "\[ScriptCapitalH]" -> 0 |>];
 
 
-(* ::Section:: *)
+(* ::Section::Closed:: *)
 (*Ending Package*)
 
 
