@@ -824,6 +824,7 @@ Options[MSTCoefficientsPN]={"FreqRep"->True,"Plot"->False}
 
 
 MSTCoefficientsPN[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,aKerr_,\[Omega]Var_,{expVar_,order_Integer},OptionsPattern[]]:=Module[{aux,auxOrder,keys,values},
+If[MatchQ[\[ScriptL],_Symbol],Message[MSTCoefficientsPN::warn,Max[order-1,2],\[ScriptL]]];
 auxOrder=If[OptionValue["FreqRep"],order,Ceiling[order,3]/3];
 aux=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],aKerr,auxOrder,"Plot"->OptionValue["Plot"]];
 keys=aux//Keys//ReplaceAll[#,{\[Nu]MST->Symbol["\[Nu]MST"],aMST[n_]:>Symbol["aMST"][n]}]&;
@@ -2693,7 +2694,7 @@ aux
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Phase shift*)
 
 
@@ -2779,7 +2780,7 @@ phaseShift[1, \[ScriptL]_, \[ScriptM]_, a_, order\[Eta]_, opt : OptionsPattern[]
 phaseShift[2, \[ScriptL]_, \[ScriptM]_, a_, order\[Eta]_, opt : OptionsPattern[]] :=phaseShift[-2, \[ScriptL], \[ScriptM], a, order\[Eta], opt]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Interface*)
 
 
@@ -2866,7 +2867,7 @@ TeukolskyAmplitudePN[sol_,opt:OptionsPattern[]][\[ScriptS]_,\[ScriptL]_,\[Script
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Constructing Rc*)
 
 
@@ -3133,7 +3134,7 @@ aux=\[ScriptCapitalD][0]@\[ScriptCapitalD][0][aux];
 aux//Simplify//redo\[Eta]Repls//Simplify//SeriesTake[#,order\[Eta]]&]*)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Checking input is correct*)
 
 
@@ -3158,11 +3159,11 @@ If[!MatchQ[order,_Integer],Message[TeukolskyRadialFunctionPN::paramorder,order];
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*TeukolskyRadialPN*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Icons*)
 
 
@@ -3188,7 +3189,7 @@ icons = <|
 |>;
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Getting Rin and Rup seperately (used for infinty flux)*)
 
 
