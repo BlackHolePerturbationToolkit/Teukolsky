@@ -98,7 +98,7 @@ pIn
 rstar*)
 
 
-(* ::Section::Closed:: *)
+(* ::Section:: *)
 (*Private*)
 
 
@@ -1464,7 +1464,7 @@ ExpandDiracDelta[expr_Plus,x_]:=(ExpandDiracDelta[#,x]&/@expr);
 ExpandDiracDelta[expr_,x_]:=expr;
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Misc*)
 
 
@@ -1938,11 +1938,11 @@ Derivative[n_][\[Theta]][arg_]:=Derivative[n-1][\[Delta]][arg];
 \[Delta]''[\[Eta]^-2 a_]:=\[Eta]^2 \[Delta]''[a];*)
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Amplitudes*)
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*A Amplitudes*)
 
 
@@ -1959,7 +1959,7 @@ repls=MSTCoefficientsInternalFreq[\[ScriptS],\[ScriptL],\[ScriptM],a,Max[order\[
 \[Tau]=(-a \[ScriptM]+\[CurlyEpsilon])/\[Kappa];
 nMax=order-1;
 nMin=-(order+1);
-coeff=(E^(1/2 (-\[Pi]) \[CurlyEpsilon]) E^(1/2 \[Pi] I (\[Nu]MST+1+\[ScriptS])) 2^(-1+\[ScriptS]-I \[CurlyEpsilon]) Gamma[\[Nu]MST+1-\[ScriptS]+I \[CurlyEpsilon]])/Gamma[\[Nu]MST+1+\[ScriptS]-I \[CurlyEpsilon]]/.repls//SeriesTake[#,order\[CurlyEpsilon]]&//IgnoreExpansionParameter;
+coeff=(E^(1/2 (-\[Pi]) \[CurlyEpsilon]) E^(1/2 \[Pi] I (\[Nu]MST+1-\[ScriptS])) 2^(-1+\[ScriptS]-I \[CurlyEpsilon]) Gamma[\[Nu]MST+1-\[ScriptS]+I \[CurlyEpsilon]])/Gamma[\[Nu]MST+1+\[ScriptS]-I \[CurlyEpsilon]]/.repls//SeriesTake[#,order\[CurlyEpsilon]]&//IgnoreExpansionParameter;
 sum=\!\(
 \*UnderoverscriptBox[\(\[Sum]\), \(n = nMin\), \(nMax\)]\(aMST[n]\)\)/.repls//SeriesTake[#,order\[CurlyEpsilon]]&//IgnoreExpansionParameter;
 aux=sum coeff;
