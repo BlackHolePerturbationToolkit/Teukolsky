@@ -2710,7 +2710,7 @@ CTeukolskyStarobinsky[s:(1|-1),\[ScriptL]_,m_,a_,\[Omega]_,{\[Gamma]_,order_},P_
 \[ScriptW]=\[Omega] \[Gamma];
 \[Lambda]=SpinWeightedSpheroidalEigenvalue[s,\[ScriptL],m,a \[ScriptW] ]//Series[#,{\[Gamma],0,order}]&;
 \[Lambda]Chs=\[Lambda]+s^2+s;
-aux=(\[Lambda]Chs)^2+ 4 a \[ScriptW](m-a \[ScriptW]);
+aux=Sqrt[(\[Lambda]Chs)^2+ 4 a \[ScriptW](m-a \[ScriptW])];
 aux
 ]
 CTeukolskyStarobinsky[0,\[ScriptL]_,m_,a_,\[Omega]_,{\[Gamma]_,order_},P_:1]:=1;
