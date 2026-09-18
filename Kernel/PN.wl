@@ -1938,7 +1938,7 @@ Derivative[n_][\[Theta]][arg_]:=Derivative[n-1][\[Delta]][arg];
 \[Delta]''[\[Eta]^-2 a_]:=\[Eta]^2 \[Delta]''[a];*)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Amplitudes*)
 
 
@@ -3497,7 +3497,7 @@ ret
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Circular orbit *)
 
 
@@ -3562,7 +3562,7 @@ ret
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*TeukolskyModePN*)
 
 
@@ -3598,7 +3598,7 @@ TeukolskyModePN /:
 ];
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*TeukolskyPointParticleModePN*)
 
 
@@ -3639,7 +3639,7 @@ TeukolskyPointParticleModePN[\[ScriptS],\[ScriptL],\[ScriptM],a,\[Omega],aux,{va
 ]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Accessing functions and keys*)
 
 
@@ -3682,7 +3682,7 @@ Derivative[n_Integer][tppm_TeukolskyModePN][r_Symbol]:=(*tppm[[6,1]]^(2 n)*) Der
 
 
 EnergyFlux[mode_TeukolskyModePN] :=
- Module[{M = 1, s, l, m, a, \[Omega], \[Lambda], Z, rh, \[CapitalOmega]h, \[Kappa], \[Epsilon],r0, AbsCSq, \[Alpha], p, FluxInf,ReflectGammas, FluxHor,absZ,PNvar,order\[Eta]},
+ Module[{M = 1, s, l, m, a, \[Omega], \[Lambda], Z, rh, \[CapitalOmega]h, \[Epsilon],r0, AbsCSq, k,\[Alpha], p, FluxInf,ReflectGammas, FluxHor,absZ,PNvar,order\[Eta]},
   a = mode["a"];
   s = mode["s"];
   l = mode["l"];
@@ -3694,11 +3694,11 @@ EnergyFlux[mode_TeukolskyModePN] :=
   Z = mode["Amplitudes"];
 
   If[\[Omega] == 0, Return[<| "\[ScriptCapitalI]" -> 0, "\[ScriptCapitalH]" -> 0 |>]];
-  ReflectGammas=#/.{Gamma[x_]/;(Quiet[Simplify[-I Sign[Select[x//If[NumericQ[s],Identity,ReplaceAll[s->1]]//If[NumericQ[l],Identity,ReplaceAll[l->1]],(!IntegerQ[#]&)]],{1>a>0,1>\[Kappa]>0,m>0}]]==-1):>(\[Pi] Csc[\[Pi] x])/Gamma[1-x],PolyGamma[n_,x_]/;(Quiet[Simplify[-I Sign[Select[x//If[NumericQ[s],Identity,ReplaceAll[s->1]]//If[NumericQ[l],Identity,ReplaceAll[l->1]],(!IntegerQ[#]&)]],{1>\[Kappa]>0,1>a>0,m>0}]]==-1):>-\[Pi]^(n+1) Derivative[n][Cot][\[Pi] x]+(-1)^n PolyGamma[n,1-x]}&;
+  ReflectGammas=#/.{Gamma[x_]/;(Quiet[Simplify[-I Sign[Select[x//If[NumericQ[s],Identity,ReplaceAll[s->1]]//If[NumericQ[l],Identity,ReplaceAll[l->1]],(!IntegerQ[#]&)]],{1>a>0,m>0}]]==-1):>(\[Pi] Csc[\[Pi] x])/Gamma[1-x],PolyGamma[n_,x_]/;(Quiet[Simplify[-I Sign[Select[x//If[NumericQ[s],Identity,ReplaceAll[s->1]]//If[NumericQ[l],Identity,ReplaceAll[l->1]],(!IntegerQ[#]&)]],{1>a>0,m>0}]]==-1):>-\[Pi]^(n+1) Derivative[n][Cot][\[Pi] x]+(-1)^n PolyGamma[n,1-x]}&;
 
   rh = M + Sqrt[M^2-a^2];
   \[CapitalOmega]h = a/(2 M rh);
-  \[Kappa] = \[Omega] - m \[CapitalOmega]h;
+  k = \[Omega] - m \[CapitalOmega]h;
   \[Epsilon] = Sqrt[M^2-a^2]/(4 M rh);  
 	absZ["\[ScriptCapitalI]"]=Z["\[ScriptCapitalI]"]CowboyConjugate[ExpandLog[Z["\[ScriptCapitalI]"],{Inactive[KerrGeoFrequencies][a, r0, 0, 1]["\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"]>0,r0>1,1>a>=0}]];
   absZ["\[ScriptCapitalH]"]=Z["\[ScriptCapitalH]"]CowboyConjugate[ExpandLog[Z["\[ScriptCapitalH]"],{Inactive[KerrGeoFrequencies][a, r0, 0, 1]["\!\(\*SubscriptBox[\(\[CapitalOmega]\), \(\[Phi]\)]\)"]>0,r0>1,1>a>=0}]];
@@ -3717,18 +3717,18 @@ EnergyFlux[mode_TeukolskyModePN] :=
   FluxHor = Switch[s,
 			-2,
 			 AbsCSq = ((\[Lambda]+2)^2 + 4 a m \[Omega] - 4a^2 \[Omega]^2)(\[Lambda]^2+36 m a \[Omega] - 36 a^2 \[Omega]^2) + (2\[Lambda]+3)(96 a^2 \[Omega]^2 - 48 m a \[Omega]) + 144 \[Omega]^2 (M^2-a^2);
-              \[Alpha] = (256(2M rh)^5 \[Kappa](\[Kappa]^2+4\[Epsilon]^2)(\[Kappa]^2+16\[Epsilon]^2)\[Omega]^3)/AbsCSq;
+              \[Alpha] = (256(2M rh)^5 k(k^2+4\[Epsilon]^2)(k^2+16\[Epsilon]^2)\[Omega]^3)/AbsCSq;
              \[Alpha] absZ["\[ScriptCapitalH]"]/(4 \[Pi] \[Omega]^2),
 			-1,
 			  p = \[Lambda]^2 + 4*a*\[Omega]*(m - a*\[Omega]);
-			  2 \[Omega] absZ["\[ScriptCapitalH]"] (2 M rh \[Kappa]) 4 ((2 M rh \[Kappa])^2+(M^2-a^2))/ (p \[Pi]),
+			  2 \[Omega] absZ["\[ScriptCapitalH]"] (2 M rh k) 4 ((2 M rh k)^2+(M^2-a^2))/ (p \[Pi]),
 			0,
 			  (* The rh^2 factor vs arXiv:1003.1860 Eq. (55) is needed as \[Psi] = r R*)
 			  1/(2 \[Pi] rh) \[Omega](\[Omega]-m \[CapitalOmega]h) Z["\[ScriptCapitalH]"]CowboyConjugate[Z["\[ScriptCapitalH]"]]*rh^2,
 			 1,
-			 2 (\[Omega] absZ["\[ScriptCapitalH]"])/(32 \[Pi] \[Kappa] rh),
+			 2 (\[Omega] absZ["\[ScriptCapitalH]"])/(32 \[Pi] k rh),
 			 2,
-			  (\[Omega] absZ["\[ScriptCapitalH]"])/(512 \[Pi] rh^3 \[Kappa] (\[Kappa]^2+4 \[Epsilon]^2))
+			  (\[Omega] absZ["\[ScriptCapitalH]"])/(512 \[Pi] rh^3 k (k^2+4 \[Epsilon]^2))
 			];
 	If[mode["Options"]["\[ScriptCapitalI]Only"],FluxHor=Missing["Not Computed"]];
 	{FluxInf,FluxHor}={FluxInf,FluxHor}//StraightenSeries//ReflectGammas//ExpandLog[#,r0>0]&//ExpandPolyGamma[#,If[NumericQ[l],l+1,0]]&;
