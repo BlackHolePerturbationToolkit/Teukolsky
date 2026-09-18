@@ -114,7 +114,7 @@ packageDir=DirectoryName[$InputFileName]
 $TeukolskyDataDirectory = PacletObject["Teukolsky"]["AssetLocation", "Data"];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*MST Coefficients*)
 
 
@@ -882,7 +882,7 @@ aux
 ]*)
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*Tools*)
 
 
@@ -1695,7 +1695,7 @@ aux
 ]]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*\[ScriptS] = 0*)
 
 
@@ -1721,7 +1721,7 @@ ret
 ]]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*s = +2*)
 
 
@@ -1831,7 +1831,7 @@ teukolsky[\[ScriptS]_,\[ScriptL]_] := Collect[equation[\[ScriptS], \[ScriptL], 0
 teukolsky[\[ScriptS]_,\[ScriptL]_,\[ScriptM]_,order\[Eta]_] := Collect[equation[\[ScriptS], \[ScriptL], \[ScriptM], \[Omega], \[ScriptA], 1, r,order\[Eta]]/.eigenValue->\[Lambda],Derivative[__][R][__],Simplify];
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Radial New *)
 
 
@@ -1938,11 +1938,11 @@ Derivative[n_][\[Theta]][arg_]:=Derivative[n-1][\[Delta]][arg];
 \[Delta]''[\[Eta]^-2 a_]:=\[Eta]^2 \[Delta]''[a];*)
 
 
-(* ::Subsection::Closed:: *)
+(* ::Subsection:: *)
 (*Amplitudes*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*A Amplitudes*)
 
 
@@ -2694,7 +2694,7 @@ aux
 ]
 
 
-(* ::Subsubsection::Closed:: *)
+(* ::Subsubsection:: *)
 (*Phase shift*)
 
 
@@ -2710,7 +2710,7 @@ CTeukolskyStarobinsky[s:(1|-1),\[ScriptL]_,m_,a_,\[Omega]_,{\[Gamma]_,order_},P_
 \[ScriptW]=\[Omega] \[Gamma];
 \[Lambda]=SpinWeightedSpheroidalEigenvalue[s,\[ScriptL],m,a \[ScriptW] ]//Series[#,{\[Gamma],0,order}]&;
 \[Lambda]Chs=\[Lambda]+s^2+s;
-aux=(\[Lambda]Chs)^2+ 4 a \[ScriptW](m-a \[ScriptW]);
+aux=Sqrt[(\[Lambda]Chs)^2+ 4 a \[ScriptW](m-a \[ScriptW])];
 aux
 ]
 CTeukolskyStarobinsky[0,\[ScriptL]_,m_,a_,\[Omega]_,{\[Gamma]_,order_},P_:1]:=1;
@@ -2780,7 +2780,7 @@ phaseShift[1, \[ScriptL]_, \[ScriptM]_, a_, order\[Eta]_, opt : OptionsPattern[]
 phaseShift[2, \[ScriptL]_, \[ScriptM]_, a_, order\[Eta]_, opt : OptionsPattern[]] :=phaseShift[-2, \[ScriptL], \[ScriptM], a, order\[Eta], opt]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Interface*)
 
 
@@ -3104,7 +3104,7 @@ ret
 (*Positive spins *)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Teukolsky-Starobinsky identities (depricated)*)
 
 
@@ -3159,7 +3159,7 @@ If[!MatchQ[order,_Integer],Message[TeukolskyRadialFunctionPN::paramorder,order];
 ]
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*TeukolskyRadialPN*)
 
 
@@ -3418,7 +3418,7 @@ ret
 ]*)
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Accessing functions and keys*)
 
 
@@ -3444,7 +3444,7 @@ Derivative[n_Integer][trf_TeukolskyRadialFunctionPN][r_]:=(*trf[[6,1]]^(2 n)*) D
 Keys[trfpn_TeukolskyRadialFunctionPN] ^:= DeleteElements[Join[Keys[trfpn[[-1]]], {}], {"RadialFunction","AmplitudesBool"}];
 
 
-(* ::Subsection:: *)
+(* ::Subsection::Closed:: *)
 (*TeukolskyPointParticleModePN*)
 
 
@@ -3677,7 +3677,7 @@ Keys[trfpn_TeukolskyModePN]^:= DeleteElements[Join[Keys[trfpn[[-1]]], {"Fluxes",
 Derivative[n_Integer][tppm_TeukolskyModePN][r_Symbol]:=(*tppm[[6,1]]^(2 n)*) Derivative[n][tppm[[-1]]["RadialFunction"]][r]
 
 
-(* ::Subsubsection:: *)
+(* ::Subsubsection::Closed:: *)
 (*Fluxes*)
 
 
