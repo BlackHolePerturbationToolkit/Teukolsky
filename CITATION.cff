@@ -76,4 +76,4 @@ abstract: >-
   A Mathematica package for computing solutions to the
   Teukolsky equation.
 license: MIT
-version: 1.2.0
+version: 1.2.1
