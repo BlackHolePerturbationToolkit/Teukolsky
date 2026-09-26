@@ -503,7 +503,7 @@ SetAttributes[MSTRadialIn, {NumericFunction}];
 (*Radial function*)
 
 
-MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}][r_?NumericQ] :=
+mstRadialInSeries[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}][r_?NumericQ] :=
  Module[{\[Kappa], \[Tau], rp, x, resUp, nUp, resDown, nDown, term, prefac},
  Block[{H2F1},
  Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], fn},
@@ -544,7 +544,7 @@ MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_
 (*First derivative*)
 
 
-Derivative[1][MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}]][r_?NumericQ] :=
+Derivative[1][mstRadialInSeries[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}]][r_?NumericQ] :=
  Module[{\[Kappa], \[Tau], rp, x, dxdr, prefac, dprefac, resUp, nUp, resDown, nDown, term},
  Block[{H2F1, dH2F1},
  Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], fn},
@@ -613,7 +613,7 @@ SetAttributes[MSTRadialUp, {NumericFunction}];
 (*Radial function*)
 
 
-MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}][r_?NumericQ] :=
+mstRadialUpSeries[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}][r_?NumericQ] :=
  Module[{\[Kappa], \[Tau], \[Epsilon]p, rm, z, zm, zhat, resUp, nUp, resDown, nDown, term, prefac},
  Block[{HU},
  Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], fn},
@@ -656,7 +656,7 @@ MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_
 (*First derivative*)
 
 
-Derivative[1][MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}]][r_?NumericQ] :=
+Derivative[1][mstRadialUpSeries[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}]][r_?NumericQ] :=
  Module[{\[Kappa], \[Tau], \[Epsilon]p, rm, z, zm, zhat, dzhatdr, prefac, dprefac, resUp, nUp, resDown, nDown, term},
  Block[{HU, dHU},
  Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], fn},
@@ -708,6 +708,63 @@ Derivative[1][MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu
 
   (resUp+resDown)
 ]]];
+
+
+(* ::Section::Closed:: *)
+(*Evaluation with precision padding*)
+
+
+(* ::Text:: *)
+(*The MST series lose digits to cancellation: the "Up" (Coulomb) series lose an amount that grows with omega,*)
+(*the hypergeometric "In" series additionally about 0.8 omega (r - r+) digits. The loss is arithmetic, not a*)
+(*sensitivity to the inputs, so it is recovered by summing the series with the inputs padded to a higher working*)
+(*precision. The deficit is measured from the tracked precision of a first evaluation (for machine-precision*)
+(*input the first evaluation is done in arbitrary precision a few digits above machine precision) and the series*)
+(*are re-summed with the inputs padded by the deficit; the result is returned at the precision of the input.*)
+
+
+mstPaddedEvaluation[core_, {s_, l_, m_, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_}, {wp_, prec_, acc_}, deriv_Integer, r_] :=
+ Module[{target, p, res, deficit, tries = 0, eval},
+  If[wp === MachinePrecision,
+    target = $MachinePrecision; p = $MachinePrecision + 4;,
+    target = wp; p = wp;
+  ];
+  eval[pp_] := Module[{params = SetPrecision[{q, \[Epsilon], \[Nu], \[Lambda], norm}, pp], rr = SetPrecision[r, pp], f, precgoal},
+    precgoal = If[pp > target, pp - 2, prec];
+    f = core[s, l, m, Sequence @@ params, {pp, precgoal, acc}, deriv];
+    f[rr]
+  ];
+  res = eval[p];
+  While[NumericQ[res] && res != 0 && (deficit = target - Precision[res]) > 1 && tries < 3,
+    p += Ceiling[deficit] + 3;
+    res = eval[p];
+    tries++;
+  ];
+  Which[
+    !NumericQ[res], res,
+    wp === MachinePrecision, N[res],
+    Precision[res] > target, SetPrecision[res, target],
+    True, res
+  ]
+];
+
+(* cores taking a derivative order, wrapping the series definitions above *)
+mstRadialInSeriesCore[s_, l_, m_, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}, 0][r_] := mstRadialInSeries[s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm, {wp, prec, acc}][r];
+mstRadialInSeriesCore[s_, l_, m_, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}, 1][r_] := mstRadialInSeries[s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm, {wp, prec, acc}]'[r];
+mstRadialUpSeriesCore[s_, l_, m_, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}, 0][r_] := mstRadialUpSeries[s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm, {wp, prec, acc}][r];
+mstRadialUpSeriesCore[s_, l_, m_, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}, 1][r_] := mstRadialUpSeries[s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm, {wp, prec, acc}]'[r];
+
+MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}][r_?NumericQ] :=
+ mstPaddedEvaluation[mstRadialInSeriesCore, {s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm}, {wp, prec, acc}, 0, r];
+
+Derivative[1][MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}]][r_?NumericQ] :=
+ mstPaddedEvaluation[mstRadialInSeriesCore, {s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm}, {wp, prec, acc}, 1, r];
+
+MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}][r_?NumericQ] :=
+ mstPaddedEvaluation[mstRadialUpSeriesCore, {s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm}, {wp, prec, acc}, 0, r];
+
+Derivative[1][MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}]][r_?NumericQ] :=
+ mstPaddedEvaluation[mstRadialUpSeriesCore, {s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm}, {wp, prec, acc}, 1, r];
 
 
 (* ::Section::Closed:: *)
