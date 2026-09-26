@@ -465,7 +465,14 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
   (* Options associated with precision and accuracy *)
   {wp, prec, acc} = OptionValue[{WorkingPrecision, PrecisionGoal, AccuracyGoal}];
   If[wp === Automatic, wp = Precision[{a, \[Omega]}]];
-  If[prec === Automatic, prec = wp / 2];
+  (* The MST series are truncated when the terms fall below 10^-prec relative to the sum; the
+     default of wp/2 limited the MST solutions to ~8 digits at machine precision (and to ~16 digits
+     with 32-digit input), so for MST the goal is two digits below the working precision.  The
+     numerical-integration method keeps wp/2: its boundary data are MST solutions at large radius,
+     which at machine precision become unreliable when summed to tighter goals.  Method -> Automatic
+     resolves to MST except at machine precision, where the goals for each method are set below. *)
+  If[prec === Automatic,
+    prec = If[MatchQ[OptionValue[Method], "MST" | {"MST", ___}] || (OptionValue[Method] === Automatic && wp =!= MachinePrecision), wp - 2, wp / 2]];
   If[acc === Automatic, acc = Infinity];
   If[Precision[a] < wp, Message[TeukolskyRadial::precw, "a", a, wp]];
   If[Precision[\[Omega]] < wp, Message[TeukolskyRadial::precw, "\[Omega]", \[Omega], wp]];

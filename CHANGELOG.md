@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+ - Improved accuracy of the radial functions and of the source integrals:
+   - The default PrecisionGoal for the MST method (including Method -> Automatic at arbitrary precision) is now WorkingPrecision - 2 (previously WorkingPrecision / 2, which limited machine-precision MST solutions to ~8 digits and 32-digit solutions to ~16 digits).
+
+
 ## [1.1.1] - 2025-06-26
 
 ### Fixed
