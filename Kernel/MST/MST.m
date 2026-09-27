@@ -780,8 +780,18 @@ mstRadialPlusSeries[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[
 
 
 (* Coefficients {c+, c-} of R_in = c+ R_+^nu + c- R_-^nu (ST Eqs. (152), (155)-(158), (165), (166)) *)
+$inConnectionCache = <||>;   (* bounded cache of the connection coefficients, keyed by the parameters *)
+
 inConnectionCoefficients[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_] :=
- inConnectionCoefficients[s, l, m, q, \[Epsilon], \[Nu], \[Lambda]] =
+ Module[{key = {s, l, m, q, \[Epsilon], \[Nu], \[Lambda]}, res},
+  res = Lookup[$inConnectionCache, Key[key], None];
+  If[res =!= None, Return[res]];
+  res = inConnectionCoefficientsCompute[s, l, m, q, \[Epsilon], \[Nu], \[Lambda]];
+  If[Length[$inConnectionCache] >= 50, $inConnectionCache = <||>];
+  $inConnectionCache[key] = res
+ ];
+
+inConnectionCoefficientsCompute[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_] :=
  Module[{\[Kappa], \[Tau], K1, K2},
  Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], fn},
   \[Kappa] = Sqrt[1 - q^2];
