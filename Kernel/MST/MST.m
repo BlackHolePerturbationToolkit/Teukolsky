@@ -802,6 +802,45 @@ mstRadialInCoulomb[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[L
 
 
 (* ::Section::Closed:: *)
+(*Radial "In" solution at large radius: hypergeometric series in 1/(1-x)*)
+
+
+(* ::Text:: *)
+(*Sasaki & Tagoshi Eqs. (137) and (138): R_in = R_0^nu + R_0^{-nu-1}, with R_0^nu a series of hypergeometric*)
+(*functions of argument 1/(1-x) = eps kappa/zhat, which tends to zero at large radius, so that this*)
+(*representation converges best where the series in x (Eq. (120)) is worst. Same normalisation as Eq. (116).*)
+
+
+mstRadialInLargeRadiusSeries[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}, deriv_Integer][r_?NumericQ] :=
+ Module[{\[Kappa], \[Tau], \[Epsilon]p, rp, x, xx, R0, res},
+ Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], fn},
+  \[Kappa] = Sqrt[1 - q^2];
+  \[Tau] = (\[Epsilon] - m q)/\[Kappa];
+  \[Epsilon]p = 1/2 (\[Tau] + \[Epsilon]);
+  rp = 1 + \[Kappa];
+  x = (rp - r)/(2 \[Kappa]);
+  (* R_0^nu of ST Eq. (138), or its r-derivative, as a function of the symbolic xx (dx/dr = -1/(2 kappa)) *)
+  R0[nu_] := Module[{pref, coef, g, term, resUp, resDown, nUp, nDown},
+    pref = E^(I \[Epsilon] \[Kappa] xx) (-xx)^(-s - I \[Epsilon]p) (1 - xx)^(I \[Epsilon]p + nu);
+    coef[n_] := Gamma[1 - s - I \[Epsilon] - I \[Tau]] Gamma[2 n + 2 nu + 1]/(Gamma[n + nu + 1 - I \[Tau]] Gamma[n + nu + 1 - s - I \[Epsilon]]) fn[q, \[Epsilon], \[Kappa], \[Tau], nu, \[Lambda], s, m, n];
+    g[n_] := (1 - xx)^n Hypergeometric2F1[-n - nu - I \[Tau], -n - nu - s - I \[Epsilon], -2 n - 2 nu, 1/(1 - xx)];
+    If[deriv == 0,
+      term[n_] := term[n] = coef[n] (pref g[n] /. xx -> x);,
+      term[n_] := term[n] = coef[n] (-1/(2 \[Kappa])) (D[pref g[n], xx] /. xx -> x);
+    ];
+    resUp = resDown = 0;
+    nUp = 0;
+    While[resUp != (resUp += term[nUp]) && (Abs[term[nUp]] > 10^-acc + Abs[resUp] 10^-prec), nUp++];
+    nDown = -1;
+    While[resDown != (resDown += term[nDown]) && (Abs[term[nDown]] > 10^-acc + Abs[resDown] 10^-prec), nDown--];
+    Clear[term];
+    resUp + resDown
+  ];
+  (R0[\[Nu]] + R0[-1 - \[Nu]])/norm
+]];
+
+
+(* ::Section::Closed:: *)
 (*Evaluation with precision padding*)
 
 
@@ -815,10 +854,15 @@ mstRadialInCoulomb[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[L
 
 
 $MSTRepresentationThreshold = 2;
+(* representation of the "In" solution beyond the threshold: "Coulomb" (ST Eq. (166), series of Coulomb wave
+   functions) or "Hypergeometric" (ST Eq. (138), series of hypergeometric functions in 1/(1-x)) *)
+$MSTInLargeRadiusRepresentation = "Coulomb";
 $masterFunction = MST`$MasterFunction;   (* captured at load time; MST`$MasterFunction is only set while the package loads *)
 
 mstInRepresentation[q_, \[Epsilon]_, r_] :=
- If[$masterFunction === "Teukolsky" && Abs[\[Epsilon]] (r - (1 + Sqrt[1 - q^2]))/2 > $MSTRepresentationThreshold, "Coulomb", "Series"];
+ If[$masterFunction === "Teukolsky" && Abs[\[Epsilon]] (r - (1 + Sqrt[1 - q^2]))/2 > $MSTRepresentationThreshold, $MSTInLargeRadiusRepresentation, "Series"];
+
+mstInCore[rep_] := Switch[rep, "Coulomb", mstRadialInCoulomb, "Hypergeometric", mstRadialInLargeRadiusSeries, _, mstRadialInSeriesCore];
 
 mstPaddedEvaluation[core_, {s_, l_, m_, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_}, {wp_, prec_, acc_}, deriv_Integer, r_] :=
  Module[{target, p, res, deficit, tries = 0, eval},
@@ -852,10 +896,10 @@ mstRadialUpSeriesCore[s_, l_, m_, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {w
 mstRadialUpSeriesCore[s_, l_, m_, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}, 1][r_] := mstRadialUpSeries[s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm, {wp, prec, acc}]'[r];
 
 MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}][r_?NumericQ] :=
- mstPaddedEvaluation[If[mstInRepresentation[q, \[Epsilon], r] === "Coulomb", mstRadialInCoulomb, mstRadialInSeriesCore], {s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm}, {wp, prec, acc}, 0, r];
+ mstPaddedEvaluation[mstInCore[mstInRepresentation[q, \[Epsilon], r]], {s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm}, {wp, prec, acc}, 0, r];
 
 Derivative[1][MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}]][r_?NumericQ] :=
- mstPaddedEvaluation[If[mstInRepresentation[q, \[Epsilon], r] === "Coulomb", mstRadialInCoulomb, mstRadialInSeriesCore], {s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm}, {wp, prec, acc}, 1, r];
+ mstPaddedEvaluation[mstInCore[mstInRepresentation[q, \[Epsilon], r]], {s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm}, {wp, prec, acc}, 1, r];
 
 MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}][r_?NumericQ] :=
  mstPaddedEvaluation[mstRadialUpSeriesCore, {s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm}, {wp, prec, acc}, 0, r];
