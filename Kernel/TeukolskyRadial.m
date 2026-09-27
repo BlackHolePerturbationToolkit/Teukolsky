@@ -116,7 +116,7 @@ rs[r_,a_]:=r+2/(rp[a,1]-rm[a,1]) (rp[a,1] Log[(r-rp[a,1])/2]-rm[a,1] Log[(r-rm[a
 
 
 Options[TeukolskyRadialNumericalIntegration] = Join[
-  {"Domain" -> All},
+  {"Domain" -> All, "BoundaryData" -> None},
   FilterRules[Options[NDSolve], Except[WorkingPrecision|AccuracyGoal|PrecisionGoal]]];
 
 
@@ -163,7 +163,7 @@ TeukolskyRadialNumericalIntegration[s_Integer, l_Integer, m_Integer, a_, \[Omega
   ];
   
   (* Solution functions for the specified boundary conditions *)
-  ndsolveopts = Sequence@@FilterRules[{opts}, Options[NDSolve]];
+  ndsolveopts = Sequence@@Join[FilterRules[{opts}, Options[NDSolve]], If[OptionValue["BoundaryData"] =!= None, {"BoundaryData" -> OptionValue["BoundaryData"]}, {}]];
   solFuncs =
    <|"In" :> Teukolsky`NumericalIntegration`Private`psi[s, \[Lambda], l, m, a, \[Omega], "In", norms, \[Nu], WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> acc, ndsolveopts],
      "Up" :> Teukolsky`NumericalIntegration`Private`psi[s, \[Lambda], l, m, a, \[Omega], "Up", norms, \[Nu], WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> acc, ndsolveopts]|>;
