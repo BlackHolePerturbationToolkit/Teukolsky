@@ -258,6 +258,36 @@ fn[q_, \[Epsilon]_, \[Kappa]_, \[Tau]_, \[Nu]_, \[Lambda]_, s_, m_, nf_] :=
 
 
 (* ::Section::Closed:: *)
+(*Coefficients of the Coulomb-series representation*)
+
+
+(* ::Text:: *)
+(*Sasaki & Tagoshi Eqs. (157), (158) and (165) (with r = 0), for the Teukolsky master function. Shared by*)
+(*the asymptotic amplitudes and by the large-radius representation of the "In" solution. They must be called*)
+(*within an Internal`InheritedBlock[{alpha, beta, gamma, fn}, ...] so that the memoised coefficients stay local.*)
+
+
+(* sum term[n] from n0 in direction dir until the sum stops changing *)
+sumUntil[term_, n0_, dir_] := Module[{res = 0, k = n0}, While[res != (res += term[k]), k += dir]; res];
+
+(* K_nu, ST Eq. (165) with r = 0, CO (3.32) *)
+KCoefficient[s_Integer, m_Integer, q_, \[Epsilon]_, \[Kappa]_, \[Tau]_, \[Nu]_, \[Lambda]_] :=
+ Module[{\[Epsilon]p = 1/2 (\[Tau] + \[Epsilon])},
+  ((2^-\[Nu]) (E^(I \[Epsilon] \[Kappa])) ((\[Epsilon] \[Kappa])^(s - \[Nu])) Gamma[1 - s - 2 I \[Epsilon]p] Gamma[2 + 2 \[Nu]])/(Gamma[1 - s + I \[Epsilon] + \[Nu]] Gamma[1 + s + I \[Epsilon] + \[Nu]] Gamma[1 + \[Nu] + I \[Tau]]) *
+   sumUntil[((-1)^# Gamma[1 + # + s + I \[Epsilon] + \[Nu]] Gamma[1 + # + 2 \[Nu]] Gamma[1 + # + \[Nu] + I \[Tau]])/(#! Gamma[1 + # - s - I \[Epsilon] + \[Nu]] Gamma[1 + # + \[Nu] - I \[Tau]]) fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, #] &, 0, 1] /
+   sumUntil[(((-1)^#) Pochhammer[1 + s - I \[Epsilon] + \[Nu], #])/((-#)! Pochhammer[1 - s + I \[Epsilon] + \[Nu], #] Pochhammer[2 + 2 \[Nu], #]) fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, #] &, 0, -1]
+ ];
+
+(* A_+^nu, ST Eq. (157), CO (3.38) and (3.41) *)
+AplusCoefficient[s_Integer, m_Integer, q_, \[Epsilon]_, \[Kappa]_, \[Tau]_, \[Nu]_, \[Lambda]_] :=
+ prefacAplus[s, \[Epsilon], \[Tau], \[Kappa], \[Nu]] (sumUntil[fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, #] &, 0, 1] + sumUntil[fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, #] &, -1, -1]);
+
+(* A_-^nu, ST Eq. (158), CO (3.19) *)
+AminusCoefficient[s_Integer, m_Integer, q_, \[Epsilon]_, \[Kappa]_, \[Tau]_, \[Nu]_, \[Lambda]_] :=
+ 2^(-s - 1 + I \[Epsilon]) E^(-\[Pi] \[Epsilon] / 2 - I \[Pi] (\[Nu]+1+s) / 2) (sumUntil[(-1)^# Pochhammer[\[Nu] + 1 + s - I \[Epsilon], #]/Pochhammer[\[Nu] + 1 - s + I \[Epsilon], #] fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, #] &, 0, 1] + sumUntil[(-1)^# Pochhammer[\[Nu] + 1 + s - I \[Epsilon], #]/Pochhammer[\[Nu] + 1 - s + I \[Epsilon], #] fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, #] &, -1, -1]);
+
+
+(* ::Section::Closed:: *)
 (*Asymptotic amplitudes*)
 
 
@@ -356,7 +386,7 @@ Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_,
 
 "Teukolsky",
 Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, {wp_, prec_, acc_}] :=
- Module[{\[Kappa], \[Tau], \[Epsilon]p, \[Omega], K\[Nu], K\[Nu]1, K\[Nu]2, Aminus, Aplus, D1, D12, D2, D22, InTrans, UpTrans, InInc, UpInc, InRef, UpRef, n, fSumUp, fSumDown, fSumK\[Nu]1Up, fSumK\[Nu]1Down, fSumK\[Nu]2Up, fSumK\[Nu]2Down, fSumAminusUp, fSumAminusDown, fSumD1Up, fSumD1Down, fSumD12Up, fSumD12Down, termf, termK\[Nu]1Up, termK\[Nu]1Down, termK\[Nu]2Up, termK\[Nu]2Down, termAminus, termD1, termD12},
+ Module[{\[Kappa], \[Tau], \[Epsilon]p, \[Omega], K\[Nu], K\[Nu]1, K\[Nu]2, Aminus, Aplus, D1, D12, D2, D22, InTrans, UpTrans, InInc, UpInc, InRef, UpRef, n, fSumUp, fSumDown, fSumD1Up, fSumD1Down, fSumD12Up, fSumD12Down, termf, termD1, termD12},
  Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], fn},
   \[Kappa] = Sqrt[1 - q^2];
   \[Tau] = (\[Epsilon] - m q)/\[Kappa];
@@ -389,36 +419,7 @@ Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_,
   n = -1;
   While[fSumDown != (fSumDown += termf[n]), n--];
 
-  (* Sums appearing in ST Eq. (165) with r=0. We evaluate these with 1: \[Nu] and 2:-\[Nu]-1 *)
-  termK\[Nu]1Up[n_] := termK\[Nu]1Up[n] = ((-1)^n Gamma[1 + n + s + I \[Epsilon] + \[Nu]] Gamma[1 + n + 2 \[Nu]] Gamma[1 + n + \[Nu] + I \[Tau]])/(n! Gamma[1 + n - s - I \[Epsilon] + \[Nu]] Gamma[1 + n + \[Nu] - I \[Tau]]) fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n];
-  termK\[Nu]1Down[n_] := termK\[Nu]1Down[n] = (((-1)^n) Pochhammer[1 + s - I \[Epsilon] + \[Nu], n])/((-n)! Pochhammer[1 - s + I \[Epsilon] + \[Nu], n] Pochhammer[2 + 2 \[Nu], n]) fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n];
-  fSumK\[Nu]1Up = fSumK\[Nu]1Down = 0;
 
-  n = 0;
-  While[fSumK\[Nu]1Up != (fSumK\[Nu]1Up += termK\[Nu]1Up[n]), n++];
-
-  n = 0;
-  While[fSumK\[Nu]1Down != (fSumK\[Nu]1Down += termK\[Nu]1Down[n]), n--];
-
-  termK\[Nu]2Up[n_] := termK\[Nu]2Up[n] = ((-1)^n Gamma[1 + n + s + I \[Epsilon] + (-1-\[Nu])] Gamma[1 + n + 2 (-1-\[Nu])] Gamma[1 + n + (-1-\[Nu]) + I \[Tau]])/(n! Gamma[1 + n - s - I \[Epsilon] + (-1-\[Nu])] Gamma[1 + n + (-1-\[Nu]) - I \[Tau]]) fn[q, \[Epsilon], \[Kappa], \[Tau], (-1-\[Nu]), \[Lambda], s, m, n];
-  termK\[Nu]2Down[n_] := termK\[Nu]2Down[n] = (((-1)^n) Pochhammer[1 + s - I \[Epsilon] + (-1-\[Nu]), n])/((-n)! Pochhammer[1 - s + I \[Epsilon] + (-1-\[Nu]), n] Pochhammer[2 + 2 (-1-\[Nu]), n]) fn[q, \[Epsilon], \[Kappa], \[Tau], (-1-\[Nu]), \[Lambda], s, m, n];
-  fSumK\[Nu]2Up = fSumK\[Nu]2Down = 0;
-
-  n = 0;
-  While[fSumK\[Nu]2Up != (fSumK\[Nu]2Up += termK\[Nu]2Up[n]), n++];
-
-  n = 0;
-  While[fSumK\[Nu]2Down != (fSumK\[Nu]2Down += termK\[Nu]2Down[n]), n--];
-
-  (* Sum appearing in ST (158), CO (3.19) *)
-  termAminus[n_] := termAminus[n] = (-1)^n Pochhammer[\[Nu] + 1 + s - I \[Epsilon], n]/Pochhammer[\[Nu] + 1 - s + I \[Epsilon], n] fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n];
-  fSumAminusUp = fSumAminusDown = 0;
-
-  n = 0;
-  While[fSumAminusUp != (fSumAminusUp += termAminus[n]), n++];
-
-  n = -1;
-  While[fSumAminusDown != (fSumAminusDown += termAminus[n]), n--];
 
   (* Sums appearing in "up" incidence coefficient *)
   termD1[n_] := termD1[n] = (Gamma[1+\[Nu]+n+s+I \[Epsilon]] Gamma[1+\[Nu]+n+I \[Tau]])/(Gamma[1+\[Nu]+n-s-I \[Epsilon]] Gamma[1+\[Nu]+n-I \[Tau]]) fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n];
@@ -443,14 +444,14 @@ Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_,
   InTrans = prefacInTrans[s, \[Epsilon], \[Tau], \[Kappa]] (fSumUp+fSumDown);
 
   (* A-: ST (158), CO (3.19) *)
-  Aminus = 2^(-s - 1 + I \[Epsilon]) E^(-\[Pi] \[Epsilon] / 2 - I \[Pi] (\[Nu]+1+s) / 2) (fSumAminusUp+fSumAminusDown);
+  Aminus = AminusCoefficient[s, m, q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda]];
 
   (* Up Transmission coefficient: Ctrans in ST (170), CO (3.20) *)
   UpTrans = prefacUpTrans[s, \[Epsilon], \[Tau], \[Kappa]] Aminus;
 
-  (* K\[Nu]: ST (165), CO (3.32) *)
-  K\[Nu]1 = ((2^-\[Nu]) (E^(I \[Epsilon] \[Kappa])) ((\[Epsilon] \[Kappa])^(s - \[Nu])) Gamma[1 - s - 2 I \[Epsilon]p] Gamma[2 + 2 \[Nu]])/(Gamma[1 - s + I \[Epsilon] + \[Nu]] Gamma[1 + s + I \[Epsilon] + \[Nu]] Gamma[1 + \[Nu] + I \[Tau]]) fSumK\[Nu]1Up / fSumK\[Nu]1Down;
-  K\[Nu]2 = ((2^-(-1-\[Nu])) (E^(I \[Epsilon] \[Kappa])) ((\[Epsilon] \[Kappa])^(s - (-1-\[Nu]))) Gamma[1 - s - 2 I \[Epsilon]p] Gamma[2 + 2 (-1-\[Nu])])/(Gamma[1 - s + I \[Epsilon] + (-1-\[Nu])] Gamma[1 + s + I \[Epsilon] + (-1-\[Nu])] Gamma[1 + (-1-\[Nu]) + I \[Tau]]) fSumK\[Nu]2Up / fSumK\[Nu]2Down;
+  (* K\[Nu]: ST (165), CO (3.32), for \[Nu] and for -\[Nu]-1 *)
+  K\[Nu]1 = KCoefficient[s, m, q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda]];
+  K\[Nu]2 = KCoefficient[s, m, q, \[Epsilon], \[Kappa], \[Tau], -1 - \[Nu], \[Lambda]];
 
   (* In reflection coefficient: Bref in ST (169), CO (3.37) *)
   InRef = UpTrans (K\[Nu]1 + I E^(I \[Pi] \[Nu]) K\[Nu]2);
@@ -463,7 +464,7 @@ Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_,
   UpRef = Exp[-\[Pi] \[Epsilon]-I \[Pi] s]/Sin[2\[Pi] \[Nu]] ((Exp[-I \[Pi] \[Nu]]Sin[\[Pi](\[Nu]-s+I \[Epsilon])])/K\[Nu]1 D2-I Sin[\[Pi](\[Nu]+s-I \[Epsilon])]/K\[Nu]2 D22);
 
   (* A+: ST (157), CO (3.38) and (3.41) *)
-  Aplus = prefacAplus[s, \[Epsilon], \[Tau], \[Kappa], \[Nu]] (fSumUp+fSumDown);
+  Aplus = AplusCoefficient[s, m, q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda]];
 
   (* In incidence coefficient: Binc from ST (168), CO (3.36) and (3.39) *)
   InInc = prefacInInc[s, \[Epsilon], \[Tau], \[Kappa], \[Nu], K\[Nu]1, K\[Nu]2] Aplus;
@@ -476,7 +477,7 @@ Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_,
   UpInc = Exp[-\[Pi] \[Epsilon]-I \[Pi] s]/Sin[2\[Pi] \[Nu]] ((Exp[-I \[Pi] \[Nu]]Sin[\[Pi](\[Nu]-s+I \[Epsilon])])/K\[Nu]1 D1-I Sin[\[Pi](\[Nu]+s-I \[Epsilon])]/K\[Nu]2 D12);
 
   (* Clear local symbols with DownValues to avoid memory leaks *)
-  Clear[termf, termK\[Nu]1Up, termK\[Nu]1Down, termK\[Nu]2Up, termK\[Nu]2Down, termAminus, termD1, termD12];
+  Clear[termf, termD1, termD12];
 
   (* Return results as an Association *)
   <| "In" -> <| "Incidence" -> InInc, "Transmission" -> InTrans, "Reflection" -> InRef|>,
@@ -711,6 +712,96 @@ Derivative[1][mstRadialUpSeries[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_
 
 
 (* ::Section::Closed:: *)
+(*Radial "In" solution at large radius: series of Coulomb wave functions*)
+
+
+(* ::Text:: *)
+(*At large omega (r - r+) the hypergeometric series for the "In" solution suffers catastrophic cancellation*)
+(*(roughly 0.8 omega (r - r+) digits are lost), whereas the series of Coulomb wave functions do not degrade*)
+(*with radius. Sasaki & Tagoshi Eq. (166) gives R_in = K_nu R_C^nu + K_{-nu-1} R_C^{-nu-1}, and by their*)
+(*Eq. (152) R_C^nu = R_+^nu + R_-^nu, with R_-^nu the outgoing series of Tricomi functions used for the "Up"*)
+(*solution (Eqs. (153), (159)) and R_+^nu its incoming partner. Since R_+^{-nu-1} and R_+^nu are both purely*)
+(*incoming at infinity they are proportional, with ratio A_+^{-nu-1}/A_+^nu (Eqs. (155), (157)), and likewise*)
+(*for R_-, so that R_in = [K_nu + K_{-nu-1} A_+^{-nu-1}/A_+^nu] R_+^nu + [K_nu + K_{-nu-1} A_-^{-nu-1}/A_-^nu] R_-^nu.*)
+(*Only available for the Teukolsky master function.*)
+
+
+(* R_+^nu of ST Eq. (153) and its r-derivative, up to an overall sign: the series of Tricomi functions
+   U(n+nu+1-s+i eps, 2n+2nu+2, +2i zhat), obtained from the "Up" series (U(n+nu+1+s-i eps, 2n+2nu+2, -2i zhat),
+   with its recurrences) by the substitution (s, eps, zhat) -> (-s, -eps, -zhat), times the factors relating
+   the two (DLMF 33.2.7: R_+ is built on the Coulomb function H^-, R_- on H^+). *)
+mstRadialPlusSeries[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, {wp_, prec_, acc_}, deriv_Integer][r_?NumericQ] :=
+ Module[{\[Kappa], \[Tau], rm, zhat, \[Eta], Q, dQ, zz, G, term, resUp, resDown, nUp, nDown},
+ Block[{HU, dHU},
+ Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], fn},
+  \[Kappa] = Sqrt[1 - q^2];
+  \[Tau] = (\[Epsilon] - m q)/\[Kappa];
+  rm = 1 - \[Kappa];
+  zhat = \[Epsilon] (r - rm)/2;
+  \[Eta] = -I s - \[Epsilon];
+  (* n-independent prefactor: prefacUp times the factors relating the H^- series to the H^+ series;
+     equal to minus the prefactor of ST Eq. (153) *)
+  Q = prefacUp[s, \[Epsilon], \[Kappa], \[Tau], \[Nu], zz] Exp[-2 I (zz - \[Eta] Log[2 zz] - \[Nu] \[Pi]/2)] (-2 I zz)^(-\[Nu] - 1 - s + I \[Epsilon]) (2 I zz)^(\[Nu] + 1 - s + I \[Epsilon]);
+  If[deriv == 1, dQ = D[Q, zz] /. zz -> zhat];
+  Q = Q /. zz -> zhat;
+  G[n_] := Gamma[n + \[Nu] + 1 - s + I \[Epsilon]]/Gamma[n + \[Nu] + 1 + s - I \[Epsilon]];
+
+  (* (2 i zhat)^n U(n+nu+1-s+i eps, 2n+2nu+2, 2 i zhat) via the "Up" recurrences with flipped signs *)
+  HU[n : (0 | 1)] := HU[n] = HUExact[n, -s, \[Nu], -\[Epsilon], -zhat];
+  HU[n_Integer] := HU[n] =
+   Module[{t1, t2, res},
+    {t1, t2} = If[n > 0, HUUp[n, -s, \[Nu], -\[Epsilon], -zhat], HUDown[n, -s, \[Nu], -\[Epsilon], -zhat]];
+    res = t1 + t2;
+    If[Max[Abs[{t1, t2}/res]] > 2., res = HUExact[n, -s, \[Nu], -\[Epsilon], -zhat]];
+    res
+  ];
+  (* derivative with respect to the recurrences' own argument, -zhat (the zhat derivative is its negative) *)
+  dHU[n : (0 | 1)] := dHU[n] = dHUExact[n, -s, \[Nu], -\[Epsilon], -zhat];
+  dHU[n_Integer] := dHU[n] =
+   Module[{t1, t2, t3, res},
+    {t1, t2, t3} = If[n > 0, dHUUp[n, -s, \[Nu], -\[Epsilon], -zhat], dHUDown[n, -s, \[Nu], -\[Epsilon], -zhat]];
+    res = t1 + t2 + t3;
+    If[Max[Abs[{t1, t2, t3}/res]] > 2., res = dHUExact[n, -s, \[Nu], -\[Epsilon], -zhat]];
+    res
+  ];
+
+  If[deriv == 0,
+    term[n_] := term[n] = (-1)^n fUp[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n] G[n] Q HU[n];,
+    term[n_] := term[n] = (-1)^n fUp[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, n] G[n] (dQ HU[n] - Q dHU[n]) \[Epsilon]/2;
+  ];
+  resUp = resDown = 0;
+  nUp = 0;
+  While[resUp != (resUp += term[nUp]) && (Abs[term[nUp]] > 10^-acc + Abs[resUp] 10^-prec), nUp++];
+  nDown = -1;
+  While[resDown != (resDown += term[nDown]) && (Abs[term[nDown]] > 10^-acc + Abs[resDown] 10^-prec), nDown--];
+  Clear[term];
+  -(resUp + resDown)
+]]];
+
+
+(* Coefficients {c+, c-} of R_in = c+ R_+^nu + c- R_-^nu (ST Eqs. (152), (155)-(158), (165), (166)) *)
+inConnectionCoefficients[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_] :=
+ inConnectionCoefficients[s, l, m, q, \[Epsilon], \[Nu], \[Lambda]] =
+ Module[{\[Kappa], \[Tau], K1, K2},
+ Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], fn},
+  \[Kappa] = Sqrt[1 - q^2];
+  \[Tau] = (\[Epsilon] - m q)/\[Kappa];
+  K1 = KCoefficient[s, m, q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda]];
+  K2 = KCoefficient[s, m, q, \[Epsilon], \[Kappa], \[Tau], -1 - \[Nu], \[Lambda]];
+  {K1 + K2 AplusCoefficient[s, m, q, \[Epsilon], \[Kappa], \[Tau], -1 - \[Nu], \[Lambda]]/AplusCoefficient[s, m, q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda]],
+   K1 + K2 AminusCoefficient[s, m, q, \[Epsilon], \[Kappa], \[Tau], -1 - \[Nu], \[Lambda]]/AminusCoefficient[s, m, q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda]]}
+]];
+
+
+mstRadialInCoulomb[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}, deriv_Integer][r_?NumericQ] :=
+ Module[{cp, cm},
+  {cp, cm} = inConnectionCoefficients[s, l, m, q, \[Epsilon], \[Nu], \[Lambda]];
+  (cp mstRadialPlusSeries[s, l, m, q, \[Epsilon], \[Nu], \[Lambda], {wp, prec, acc}, deriv][r]
+   + cm If[deriv == 0, mstRadialUpSeries[s, l, m, q, \[Epsilon], \[Nu], \[Lambda], 1, {wp, prec, acc}][r], mstRadialUpSeries[s, l, m, q, \[Epsilon], \[Nu], \[Lambda], 1, {wp, prec, acc}]'[r]])/norm
+ ];
+
+
+(* ::Section::Closed:: *)
 (*Evaluation with precision padding*)
 
 
@@ -722,6 +813,12 @@ Derivative[1][mstRadialUpSeries[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_
 (*input the first evaluation is done in arbitrary precision a few digits above machine precision) and the series*)
 (*are re-summed with the inputs padded by the deficit; the result is returned at the precision of the input.*)
 
+
+$MSTRepresentationThreshold = 2;
+$masterFunction = MST`$MasterFunction;   (* captured at load time; MST`$MasterFunction is only set while the package loads *)
+
+mstInRepresentation[q_, \[Epsilon]_, r_] :=
+ If[$masterFunction === "Teukolsky" && Abs[\[Epsilon]] (r - (1 + Sqrt[1 - q^2]))/2 > $MSTRepresentationThreshold, "Coulomb", "Series"];
 
 mstPaddedEvaluation[core_, {s_, l_, m_, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_}, {wp_, prec_, acc_}, deriv_Integer, r_] :=
  Module[{target, p, res, deficit, tries = 0, eval},
@@ -755,10 +852,10 @@ mstRadialUpSeriesCore[s_, l_, m_, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {w
 mstRadialUpSeriesCore[s_, l_, m_, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}, 1][r_] := mstRadialUpSeries[s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm, {wp, prec, acc}]'[r];
 
 MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}][r_?NumericQ] :=
- mstPaddedEvaluation[mstRadialInSeriesCore, {s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm}, {wp, prec, acc}, 0, r];
+ mstPaddedEvaluation[If[mstInRepresentation[q, \[Epsilon], r] === "Coulomb", mstRadialInCoulomb, mstRadialInSeriesCore], {s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm}, {wp, prec, acc}, 0, r];
 
 Derivative[1][MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}]][r_?NumericQ] :=
- mstPaddedEvaluation[mstRadialInSeriesCore, {s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm}, {wp, prec, acc}, 1, r];
+ mstPaddedEvaluation[If[mstInRepresentation[q, \[Epsilon], r] === "Coulomb", mstRadialInCoulomb, mstRadialInSeriesCore], {s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm}, {wp, prec, acc}, 1, r];
 
 MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}][r_?NumericQ] :=
  mstPaddedEvaluation[mstRadialUpSeriesCore, {s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm}, {wp, prec, acc}, 0, r];
