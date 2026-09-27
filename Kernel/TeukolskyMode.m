@@ -125,10 +125,9 @@ TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer
     Module[{eps=2/10^Floor[Precision[{p,e}]]}, rmin = (1-eps)rmin; rmax = (1+eps)rmax];
     If[\[Omega] != 0,
       (* Interpolating solutions over the radial range of the orbit.  The integration starts from the
-         values of the global solutions at the edges of the range, with precision and accuracy goals two digits below the working
-         precision, so that the accuracy of the global solutions is retained (the standard boundary data
-         with the default goals of half the working precision lose about half of the digits).  The
-         global solutions are only used when their domains cover the range of the orbit. *)
+         values of the global solutions at the edges of the range, with precision and accuracy goals two
+         digits below the working precision, so that the accuracy of the global solutions is retained.
+         The global solutions are only used when their domains cover the range of the orbit. *)
       Module[{wp = Precision[{a, \[Omega]}], covers},
         covers[bc_] := Module[{dom = R[bc]["Domain"]}, dom === All || (ListQ[dom] && dom[[1]] <= rmin && rmax <= dom[[2]])];
         If[covers["In"] && covers["Up"],
