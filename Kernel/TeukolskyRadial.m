@@ -70,7 +70,31 @@ Begin["`Private`"];
 
 
 rp[a_,M_] := M+Sqrt[M^2-a^2];
+
 rm[a_,M_] := M-Sqrt[M^2-a^2];
+
+(* Evaluate f[p] (a computation with its inputs set to precision p) with p padded until the result has the
+   precision of the input: the MST quantities (renormalized angular momentum, asymptotic amplitudes, radial
+   functions) lose digits to cancellation in their series, which is recovered by working at a higher
+   precision. For machine-precision input the computation is done in arbitrary precision. *)
+paddedComputation[f_, wp_] :=
+ Module[{target, p, res, deficit, tries = 0, minprec},
+  minprec[x_] := Module[{nums},
+    nums[y_] := If[AssociationQ[y], Flatten[nums /@ Values[y]], If[ListQ[y], Flatten[nums /@ y], {y}]];
+    Min[Precision /@ Select[nums[x], NumericQ[#] && # != 0 &]]];
+  If[wp === MachinePrecision,
+    target = $MachinePrecision; p = 2 $MachinePrecision;,
+    target = wp; p = wp;
+  ];
+  res = f[p];
+  While[(deficit = target - minprec[res]) > 1 && tries < 3,
+    p += Ceiling[deficit] + 3;
+    res = f[p];
+    tries++;
+  ];
+  If[wp === MachinePrecision, N[res], SetPrecision[res, target]]
+];
+
 
 
 (* ::Subsection::Closed:: *)
@@ -554,10 +578,7 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
   NumericQ[OptionValue["RenormalizedAngularMomentum"]],
     \[Nu] = OptionValue["RenormalizedAngularMomentum"];,
   True,
-    If[wp === MachinePrecision,
-      \[Nu] = N[RenormalizedAngularMomentum[s, l, m, SetPrecision[a, 2 $MachinePrecision], SetPrecision[\[Omega], 2 $MachinePrecision], SetPrecision[\[Lambda], 2 $MachinePrecision], Method -> (OptionValue["RenormalizedAngularMomentum"] /. (Automatic|True) -> "Monodromy")]];,
-      \[Nu] = RenormalizedAngularMomentum[s, l, m, a, \[Omega], \[Lambda], Method -> (OptionValue["RenormalizedAngularMomentum"] /. (Automatic|True) -> "Monodromy")];
-    ];
+    \[Nu] = paddedComputation[RenormalizedAngularMomentum[s, l, m, SetPrecision[a, #], SetPrecision[\[Omega], #], SetPrecision[\[Lambda], #], Method -> (OptionValue["RenormalizedAngularMomentum"] /. (Automatic|True) -> "Monodromy")] &, wp];
   ];
 
   (* Compute the asymptotic amplitudes *)
@@ -571,10 +592,7 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
       Message[TeukolskyRadial::opti, {"Amplitudes" -> OptionValue["Amplitudes"], "RenormalizedAngularMomentum" -> OptionValue["RenormalizedAngularMomentum"]}];
       Return[$Failed];
     ];
-    If[wp === MachinePrecision,
-      norms = N[Teukolsky`MST`MST`Private`Amplitudes[s, l, m, SetPrecision[a, 2 $MachinePrecision], SetPrecision[2\[Omega], 2 $MachinePrecision], SetPrecision[\[Nu], 2 $MachinePrecision], SetPrecision[\[Lambda], 2 $MachinePrecision], {2 $MachinePrecision, prec, acc}]];,
-      norms = Teukolsky`MST`MST`Private`Amplitudes[s, l, m, a, 2\[Omega], \[Nu], \[Lambda], {wp, prec, acc}];
-    ];,
+    norms = paddedComputation[Teukolsky`MST`MST`Private`Amplitudes[s, l, m, SetPrecision[a, #], SetPrecision[2\[Omega], #], SetPrecision[\[Nu], #], SetPrecision[\[Lambda], #], {#, Max[prec, # - 2], acc}] &, wp];,
   True,
     Message[TeukolskyRadial::optx, "Amplitudes" -> OptionValue["Amplitudes"]];
     Return[$Failed];
