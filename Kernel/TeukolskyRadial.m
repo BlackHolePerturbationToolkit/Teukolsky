@@ -230,6 +230,39 @@ TeukolskyRadialSasakiNakamura[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, \[
 Options[TeukolskyRadialMST] = {};
 
 
+(* Machine-precision Automatic method: the MST solutions with a tight precision goal are accurate to
+   close to machine precision for moderate frequencies but fail, without warning, when omega M is of
+   order one (the series then suffer catastrophic cancellation); numerical integration is uniformly
+   good to ~1e-5 - 1e-9.  The accuracy of a pair of solutions is estimated from the Wronskian, which
+   must equal 2 i omega B^inc C^trans (with the amplitudes computed at doubled precision) and be
+   independent of r; the MST solutions are accepted when their estimate is below 10^-9, otherwise both
+   methods are computed and the one with the smaller estimate is returned. *)
+TeukolskyRadial::acc = "The estimated relative accuracy of the radial functions is only `1`; use a higher WorkingPrecision for better accuracy.";
+
+radialAccuracyEstimate[R_Association, s_Integer, a_, \[Omega]_] :=
+ Module[{rp1 = rp[a, 1], W, Wexact, w1, w2},
+  W[r_] := (r^2 - 2 r + a^2)^(s + 1) (R["In"][r] R["Up"]'[r] - R["Up"][r] R["In"]'[r]);
+  Wexact = 2 I \[Omega] R["In"]["Amplitudes"]["Incidence"] R["Up"]["Amplitudes"]["Transmission"];
+  {w1, w2} = Quiet[{W[2. rp1], W[10. rp1]}];
+  If[!(NumericQ[w1] && NumericQ[w2] && NumericQ[Wexact]) || w2 == 0 || Wexact == 0, Return[Infinity]];
+  Max[Abs[w1/Wexact - 1], Abs[w2/Wexact - 1], Abs[w1/w2 - 1]]
+ ];
+
+TeukolskyRadialAutomaticMachinePrecision[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, \[Lambda]_, \[Nu]_, BCs_, norms_, {wp_, prec_, acc_}, opts:OptionsPattern[]] :=
+ Module[{both = {"In", "Up"}, R1, R2, e1, e2, select},
+  select[R_] := If[ListQ[BCs], KeyTake[R, BCs], R[BCs]];
+  R1 = Quiet[TeukolskyRadialMST[s, l, m, a, \[Omega], \[Lambda], \[Nu], both, norms, {wp, $MachinePrecision - 2, acc}]];
+  e1 = radialAccuracyEstimate[R1, s, a, \[Omega]];
+  If[e1 <= 10^-9, Return[select[R1]]];
+  R2 = TeukolskyRadialNumericalIntegration[s, l, m, a, \[Omega], \[Lambda], \[Nu], both, norms, {wp, prec, acc}, opts];
+  e2 = radialAccuracyEstimate[R2, s, a, \[Omega]];
+  If[Min[e1, e2] > 10^-6, Message[TeukolskyRadial::acc, N[Min[e1, e2], 2]]];
+  select[If[e1 < e2, R1, R2]]
+ ];
+
+Options[TeukolskyRadialAutomaticMachinePrecision] = Options[TeukolskyRadialNumericalIntegration];
+
+
 TeukolskyRadialMST[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, \[Lambda]_, \[Nu]_, BCs_, norms_, {wp_, prec_, acc_}, opts:OptionsPattern[]] :=
  Module[{amps, solFuncs, TRF},
   (* Function to construct a TeukolskyRadialFunction *)
@@ -481,7 +514,7 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
   Switch[OptionValue[Method],
     Automatic,
       If[wp === MachinePrecision,
-         TRF = TeukolskyRadialNumericalIntegration,
+         TRF = TeukolskyRadialAutomaticMachinePrecision,
          TRF = TeukolskyRadialMST],
     "MST" | {"MST", OptionsPattern[TeukolskyRadialMST]},
       TRF = TeukolskyRadialMST,

@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
  - Improved accuracy of the radial functions and of the source integrals:
    - The default PrecisionGoal for the MST method (including Method -> Automatic at arbitrary precision) is now WorkingPrecision - 2 (previously WorkingPrecision / 2, which limited machine-precision MST solutions to ~8 digits and 32-digit solutions to ~16 digits).
+   - With Method -> Automatic at machine precision, TeukolskyRadial now tries the MST method first and checks the Wronskian of the In/Up pair against 2 I omega B^inc C^trans; the numerical-integration method is used only when the MST solutions fail this check (typically omega M >~ 0.5). The new TeukolskyRadial::acc message reports a poor accuracy estimate.
 
 
 ## [1.1.1] - 2025-06-26
