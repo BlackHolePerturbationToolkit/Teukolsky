@@ -53,6 +53,7 @@ TeukolskyRadial::hc = "Method HeunC is only supported with Mathematica version 1
 TeukolskyRadial::hcopt = "Option `1` not supported for HeunC method.";
 TeukolskyRadialFunction::dmval = "Radius `1` lies outside the computational domain.";
 TeukolskyRadial::opti = "Options in set `1` are incompatible.";
+TeukolskyRadial::exact = "Exact arguments a=`1`, \[Omega]=`2` require a WorkingPrecision; specify one, or apply N or SetPrecision to the arguments.";
 TeukolskyRadial::superradiant = "\[Omega] = m \[CapitalOmega]_H is the superradiant bound frequency: the asymptotic amplitudes are the limit from neighbouring frequencies and the amplitudes `1`, which diverge there, are Indeterminate.";
 
 
@@ -540,6 +541,18 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
 
 (* ::Subsubsection::Closed:: *)
 (*Non-static modes*)
+
+
+(* Exact arguments are evaluated at the WorkingPrecision, which must then be given: silently returning
+   unevaluated let symbolic expressions propagate through calling code. *)
+TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPattern[]] /; AllTrue[{a, \[Omega]}, NumericQ] && \[Omega] != 0 && !(InexactNumberQ[a] || InexactNumberQ[\[Omega]]) :=
+ Module[{wp = OptionValue[WorkingPrecision]},
+  If[wp === Automatic,
+    Message[TeukolskyRadial::exact, a, \[Omega]];
+    Return[$Failed];
+  ];
+  TeukolskyRadial[s, l, m, SetPrecision[a, wp], SetPrecision[\[Omega], wp], opts]
+ ];
 
 
 TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPattern[]] /; AllTrue[{a, \[Omega]}, NumericQ] && (InexactNumberQ[a] || InexactNumberQ[\[Omega]]) :=
