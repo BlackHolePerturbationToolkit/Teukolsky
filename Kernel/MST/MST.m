@@ -393,13 +393,17 @@ Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_,
   \[Epsilon]p = 1/2 (\[Tau] + \[Epsilon]);
   \[Omega] = \[Epsilon] / 2;
 
-  (* At the horizon frequency (\[Epsilon]p=0) the amplitudes are not well-defined since
-     we have a totally reflecting mode and the transmission amplitude goes to zero,
-     but we are have by convention normalised to unit transmission amplitude. Perhaps a
-     suitable limit can be taken, but for now we simply return Indeterminate. *)
+  (* At the superradiant bound frequency omega = m Omega_H (\[Epsilon]p = 0) the two horizon solutions
+     Delta^-s Exp[+-i k r_*] coincide and the formulae below are singular (1/Sin[2 Pi I \[Epsilon]p] and
+     Gamma[1 - s - 2 I \[Epsilon]p] factors). The transmitted flux vanishes there but the transmission
+     amplitudes do not: they and, for s <= 0, the "In" amplitudes have finite limits, whereas the "Up"
+     horizon coefficients diverge (for s >= 1 so do the "In" amplitudes, the hypergeometric series having
+     c = 1 - s - 2 I \[Epsilon]p at a pole). Those limits are taken by the caller from neighbouring
+     frequencies (see TeukolskyRadial); here every amplitude is returned as Indeterminate, so that a
+     radial function is never silently normalised by a transmission amplitude of 1. *)
   If[\[Epsilon]p == 0,
-    Return[<| "In" -> <| "Incidence" -> Indeterminate, "Transmission" -> SetPrecision[1,wp], "Reflection" -> Indeterminate|>,
-              "Up" -> <| "Incidence" -> Indeterminate, "Transmission" -> SetPrecision[1,wp], "Reflection" -> Indeterminate|>|>];
+    Return[<| "In" -> <| "Incidence" -> Indeterminate, "Transmission" -> Indeterminate, "Reflection" -> Indeterminate|>,
+              "Up" -> <| "Incidence" -> Indeterminate, "Transmission" -> Indeterminate, "Reflection" -> Indeterminate|>|>];
   ];
 
   (* All of the formulae are taken from Sasaki & Tagoshi, Living Rev. Relativity 6:6 (ST)
