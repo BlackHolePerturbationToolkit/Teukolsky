@@ -19,3 +19,19 @@ VerificationTest[
   30.,
   TestID -> "N applied to RenormalizedAngularMomentum with exact arguments"
 ]
+
+(* Derivatives through R[r, n] *)
+VerificationTest[
+  R = TeukolskyRadial[-2, 2, 2, 0.6, 0.3]["In"];
+  {R[10., 0] - R[10.], R[10., 1] - R'[10.], R[10., 2] - R''[10.]},
+  {0., 0., 0.},
+  TestID -> "R[r, n] gives the n-th derivative"
+]
+
+(* Options of TeukolskyRadial given inside Method *)
+VerificationTest[
+  TeukolskyRadial[-2, 2, 2, 0.6, 0.3, Method -> {"MST", "RenormalizedAngularMomentum" -> 1.8}]["In"]["Method"],
+  {"MST"},
+  {TeukolskyRadial::topopt},
+  TestID -> "Options of TeukolskyRadial inside Method are reported as misplaced"
+]

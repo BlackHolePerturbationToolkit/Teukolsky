@@ -53,6 +53,7 @@ TeukolskyRadial::hc = "Method HeunC is only supported with Mathematica version 1
 TeukolskyRadial::hcopt = "Option `1` not supported for HeunC method.";
 TeukolskyRadialFunction::dmval = "Radius `1` lies outside the computational domain.";
 TeukolskyRadial::opti = "Options in set `1` are incompatible.";
+TeukolskyRadial::topopt = "`1` are options of TeukolskyRadial, not of Method `2`; specify them outside Method.";
 TeukolskyRadial::exact = "Exact arguments a=`1`, \[Omega]=`2` require a WorkingPrecision; specify one, or apply N or SetPrecision to the arguments.";
 TeukolskyRadial::superradiant = "\[Omega] = m \[CapitalOmega]_H is the superradiant bound frequency: the asymptotic amplitudes are the limit from neighbouring frequencies and the amplitudes `1`, which diverge there, are Indeterminate.";
 
@@ -604,9 +605,18 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
       Return[$Failed];
   ];
 
-  (* Check only supported sub-options have been specified *)  
-  If[subopts =!= (subopts = FilterRules[subopts, Options[TRF]]),
-    Message[TeukolskyRadial::optx, Method -> OptionValue[Method]];
+  (* Check only supported sub-options have been specified; options of TeukolskyRadial itself
+     (e.g. "Eigenvalue", "RenormalizedAngularMomentum") are reported as being in the wrong place *)
+  Module[{unknown = Complement[subopts, FilterRules[subopts, Options[TRF]]]},
+    If[unknown =!= {},
+      With[{misplaced = Select[unknown, MemberQ[Keys[Options[TeukolskyRadial]], First[#]] &]},
+        If[misplaced =!= {},
+          Message[TeukolskyRadial::topopt, Keys[misplaced], First[OptionValue[Method]]],
+          Message[TeukolskyRadial::optx, Method -> OptionValue[Method]]
+        ]
+      ]
+    ];
+    subopts = FilterRules[subopts, Options[TRF]];
   ];
 
   (* Eigenvalue *)
@@ -749,6 +759,11 @@ TeukolskyRadialFunction[s_, l_, m_, a_, \[Omega]_, assoc_][r:(_?NumericQ|{_?Nume
   ];
   Quiet[assoc["RadialFunction"][r], InterpolatingFunction::dmval]
  ];
+
+
+(* R[r, n] is the n-th derivative *)
+TeukolskyRadialFunction[s_, l_, m_, a_, \[Omega]_, assoc_][r:(_?NumericQ|{_?NumericQ..}), n_Integer?NonNegative] :=
+  Derivative[n][TeukolskyRadialFunction[s, l, m, a, \[Omega], assoc]][r];
 
 
 Derivative[n:1][TeukolskyRadialFunction[s_, l_, m_, a_, \[Omega]_, assoc_]][r:(_?NumericQ|{_?NumericQ..})] :=

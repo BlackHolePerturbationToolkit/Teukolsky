@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
  - Public symbols (TeukolskyRadial, TeukolskyRadialFunction, TeukolskyMode, TeukolskyPointParticleMode, RenormalizedAngularMomentum) now live in the Teukolsky` context rather than in sub-contexts, so that packages depending on Teukolsky` (BeginPackage["X`", {"Teukolsky`"}]) see them instead of silently creating private symbols of the same name.
 
 ### Changed
+ - R[r, n] on a TeukolskyRadialFunction gives the n-th derivative (the same as Derivative[n][R][r]).
+ - Options of TeukolskyRadial given inside Method (e.g. Method -> {"MST", "RenormalizedAngularMomentum" -> nu}) are reported by the new TeukolskyRadial::topopt message as being in the wrong place.
  - Improved accuracy of the radial functions and of the source integrals:
    - The default PrecisionGoal is now WorkingPrecision - 2 for all methods (previously WorkingPrecision / 2, which limited machine-precision solutions to ~8 digits and 32-digit solutions to ~16 digits).
    - With Method -> Automatic at machine precision, TeukolskyRadial now returns numerically integrated solutions with goals of WorkingPrecision - 2 whose boundary data are precision-padded MST solutions (near the horizon for "In", one unit beyond the outermost requested radius for "Up", cached between evaluations), accurate to ~1e-11 - 1e-15 and cheap to evaluate on many radii; the accuracy of the pair is checked through the Wronskian, which must equal 2 I omega B^inc C^trans, and the new TeukolskyRadial::acc message reports a poor estimate.
