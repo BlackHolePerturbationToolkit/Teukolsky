@@ -53,6 +53,7 @@ TeukolskyRadial::hc = "Method HeunC is only supported with Mathematica version 1
 TeukolskyRadial::hcopt = "Option `1` not supported for HeunC method.";
 TeukolskyRadialFunction::dmval = "Radius `1` lies outside the computational domain.";
 TeukolskyRadial::opti = "Options in set `1` are incompatible.";
+TeukolskyRadial::superradiant = "\[Omega] = m \[CapitalOmega]_H is the superradiant bound frequency: the asymptotic amplitudes are the limit from neighbouring frequencies and the amplitudes `1`, which diverge there, are Indeterminate.";
 
 
 (* ::Subsection::Closed:: *)
@@ -95,6 +96,44 @@ paddedComputation[f_, wp_] :=
   ];
   If[wp === MachinePrecision, N[res], SetPrecision[res, target]]
 ];
+
+
+(* The superradiant bound frequency omega = m Omega_H, where epsilon_+ = (epsilon + tau)/2 = 0 and the MST
+   amplitude formulae are singular (the horizon solutions Delta^-s Exp[+-i k r_*] coincide, k = omega - m Omega_H).
+   Frequencies within 10^(3 - wp) of it, relative, are treated as being at it: closer than that the
+   formulae have lost all their digits. *)
+superradiantQ[m_, a_, \[Omega]_, wp_] :=
+ Module[{k = \[Omega] - m a/(2 rp[a, 1])},
+  Abs[k] <= If[wp === MachinePrecision, 10^-13, 10^(3 - wp)] Abs[\[Omega]]
+ ];
+
+(* Unscaled MST amplitudes at the superradiant bound frequency: the limit from the neighbouring
+   frequencies omega (1 +- h) and omega (1 +- 2 h), with the eigenvalue and the renormalized angular
+   momentum recomputed there, combined by Richardson extrapolation (error O(h^4), h = 10^(-wp/5)). The
+   transmission amplitudes and, for s <= 0, the "In" amplitudes have finite limits; the "Up" horizon
+   coefficients (the reflection, and for s = 0 also the incidence) diverge like 1/k, as do the "In"
+   amplitudes for s >= 1, for which no unit-transmission "In" solution exists at this frequency. A
+   divergent amplitude is recognised from the antisymmetric part of its neighbouring values, which is
+   O(h) relative for a regular one and O(1/h) for a pole, and returned as Indeterminate. *)
+superradiantAmplitudes[s_, l_, m_, a_, \[Omega]_, {wp_, prec_, acc_}, \[Nu]method_] :=
+ Module[{h, amps, ampsAt, limit, keys = {"Incidence", "Transmission", "Reflection"}, divergent},
+  h = If[wp === MachinePrecision, 10^-3, 10^-Floor[wp/5]];
+  ampsAt[\[Delta]_] := Module[{\[Omega]1 = \[Omega] (1 + \[Delta]), \[Lambda]1, \[Nu]1},
+    \[Lambda]1 = SpinWeightedSpheroidalEigenvalue[s, l, m, a \[Omega]1];
+    \[Nu]1 = paddedComputation[RenormalizedAngularMomentum[s, l, m, SetPrecision[a, #], SetPrecision[\[Omega]1, #], SetPrecision[\[Lambda]1, #], Method -> \[Nu]method] &, wp];
+    paddedComputation[Teukolsky`MST`MST`Private`Amplitudes[s, l, m, SetPrecision[a, #], SetPrecision[2 \[Omega]1, #], SetPrecision[\[Nu]1, #], SetPrecision[\[Lambda]1, #], {#, Max[prec, # - 2], acc}] &, wp]
+  ];
+  amps = ampsAt /@ {h, -h, 2 h, -2 h};
+  limit[{p1_, m1_, p2_, m2_}] :=
+    If[!AllTrue[{p1, m1, p2, m2}, NumericQ] || Abs[p1 - m1] > Sqrt[h] Abs[p1 + m1],
+      Indeterminate,
+      With[{res = (4 (p1 + m1)/2 - (p2 + m2)/2)/3}, If[wp === MachinePrecision, res, SetPrecision[res, Min[Precision[res], Floor[4 wp/5]]]]]
+    ];
+  amps = Association @@ Table[bc -> Association @@ Table[key -> limit[#[bc][key] & /@ amps], {key, keys}], {bc, {"In", "Up"}}];
+  divergent = Flatten[Table[If[amps[bc][key] === Indeterminate, {bc, key}, Nothing], {bc, {"In", "Up"}}, {key, keys}], 1];
+  Message[TeukolskyRadial::superradiant, divergent];
+  amps
+ ];
 
 
 
@@ -588,7 +627,10 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
       Message[TeukolskyRadial::opti, {"Amplitudes" -> OptionValue["Amplitudes"], "RenormalizedAngularMomentum" -> OptionValue["RenormalizedAngularMomentum"]}];
       Return[$Failed];
     ];
-    norms = paddedComputation[Teukolsky`MST`MST`Private`Amplitudes[s, l, m, SetPrecision[a, #], SetPrecision[2\[Omega], #], SetPrecision[\[Nu], #], SetPrecision[\[Lambda], #], {#, Max[prec, # - 2], acc}] &, wp];,
+    If[superradiantQ[m, a, \[Omega], wp],
+      norms = superradiantAmplitudes[s, l, m, a, \[Omega], {wp, prec, acc}, OptionValue["RenormalizedAngularMomentum"] /. (Automatic|True) -> "Monodromy"];,
+      norms = paddedComputation[Teukolsky`MST`MST`Private`Amplitudes[s, l, m, SetPrecision[a, #], SetPrecision[2\[Omega], #], SetPrecision[\[Nu], #], SetPrecision[\[Lambda], #], {#, Max[prec, # - 2], acc}] &, wp];
+    ];,
   True,
     Message[TeukolskyRadial::optx, "Amplitudes" -> OptionValue["Amplitudes"]];
     Return[$Failed];

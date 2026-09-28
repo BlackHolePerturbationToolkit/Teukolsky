@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
+ - At the superradiant bound frequency omega = m Omega_H the radial functions were silently mis-normalised (the unscaled transmission amplitude was taken to be 1). The asymptotic amplitudes there are now obtained as the limit from neighbouring frequencies; the ones that genuinely diverge (the "Up" horizon coefficients, and for s >= 1 the "In" amplitudes) are Indeterminate and the new TeukolskyRadial::superradiant message lists them. Frequency grids commensurate with Omega_H hit this point (a = 3/5 gives Omega_H = 1/6).
  - Public symbols (TeukolskyRadial, TeukolskyRadialFunction, TeukolskyMode, TeukolskyPointParticleMode, RenormalizedAngularMomentum) now live in the Teukolsky` context rather than in sub-contexts, so that packages depending on Teukolsky` (BeginPackage["X`", {"Teukolsky`"}]) see them instead of silently creating private symbols of the same name.
 
 ### Changed
