@@ -215,8 +215,10 @@ RenormalizedAngularMomentum[s_Integer, l_Integer, m_Integer, a_?NumericQ, \[Omeg
 RenormalizedAngularMomentum[s_Integer, l_Integer, m_Integer, a_?NumericQ, \[Omega]_?NumericQ, opts:OptionsPattern[RenormalizedAngularMomentum]] :=
   RenormalizedAngularMomentum[s, l, m, a, \[Omega], SpinWeightedSpheroidalEigenvalue[s, l, m, a \[Omega]], opts];
 
-RenormalizedAngularMomentum /: N[RenormalizedAngularMomentum[s_Integer, l_Integer, m_Integer, a_?NumericQ, \[Omega]_?NumericQ, \[Lambda]_?NumericQ], Nopts:OptionsPattern[N]] :=
-  RenormalizedAngularMomentum[s, l, m, N[a, Nopts], N[\[Omega], Nopts], N[\[Lambda], Nopts]];
+(* With exact arguments the five-argument form rewrites itself in terms of the (unevaluated, exact)
+   spheroidal eigenvalue, so N must accept a non-numeric eigenvalue and apply itself to it. *)
+N[RenormalizedAngularMomentum[s_Integer, l_Integer, m_Integer, a_?NumericQ, \[Omega]_?NumericQ, \[Lambda]_, opts:OptionsPattern[RenormalizedAngularMomentum]], p_:MachinePrecision] ^:=
+  RenormalizedAngularMomentum[s, l, m, N[a, p], N[\[Omega], p], N[\[Lambda], p], opts];
 
 SetAttributes[RenormalizedAngularMomentum, {Protected, ReadProtected}];
 
