@@ -8,7 +8,7 @@
 (*Create Package*)
 
 
-BeginPackage[MST`$MasterFunction<>"`MST`MST`"];
+BeginPackage[MST`$MasterFunction<>"`MST`MST`", {MST`$MasterFunction<>"`"}];
 
 Begin["`Private`"];
 

@@ -1,7 +1,7 @@
 (* ::Package:: *)
 
 BeginPackage[MST`$MasterFunction<>"`MST`RenormalizedAngularMomentum`",
-  {"SpinWeightedSpheroidalHarmonics`"}
+  {MST`$MasterFunction<>"`", "SpinWeightedSpheroidalHarmonics`"}
 ];
 
 ClearAttributes[RenormalizedAngularMomentum, {Protected, ReadProtected}];
