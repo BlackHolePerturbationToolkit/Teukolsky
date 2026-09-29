@@ -256,9 +256,18 @@ teukolskyStarobinskyFlipSymbolic[s_Integer?Positive] := teukolskyStarobinskyFlip
   {{ts\[Lambda], tsa, tsm, ts\[Omega], tsr}, {Coefficient[expr, tsR[tsr]], Coefficient[expr, tsR'[tsr]]}}
  ]];
 
+(* The Teukolsky-Starobinsky map (f R+ + g R+')/C of a spin s+ solution R+ (given as a pure function), with the
+   derivative (f' R+ + (f + g') R+' + g R+'')/C in which R+'' comes from the radial equation of spin s+ and
+   eigenvalue lambda+ *)
+tsMappedFunction[f_, g_, df_, dg_, C_, Rp_, sp_, \[Lambda]p_, a_, m_, \[Omega]_][r_?NumericQ] := (f[r] Rp[r] + g[r] Rp'[r])/C;
+tsMappedFunction[f_, g_, df_, dg_, C_, Rp_, sp_, \[Lambda]p_, a_, m_, \[Omega]_][r:{__?NumericQ}] := Map[tsMappedFunction[f, g, df, dg, C, Rp, sp, \[Lambda]p, a, m, \[Omega]], r];
+Derivative[1][tsMappedFunction[f_, g_, df_, dg_, C_, Rp_, sp_, \[Lambda]p_, a_, m_, \[Omega]_]][r_?NumericQ] :=
+ With[{R = Rp[r], dR = Rp'[r]},
+  (df[r] R + (f[r] + dg[r]) dR + g[r] (-(-\[Lambda]p + 2 I r sp 2 \[Omega] + (-2 I (-1 + r) sp (-a m + (a^2 + r^2) \[Omega]) + (-a m + (a^2 + r^2) \[Omega])^2)/(a^2 - 2 r + r^2)) R - (-2 + 2 r) (1 + sp) dR)/(a^2 - 2 r + r^2))/C];
+Derivative[1][tsMappedFunction[f_, g_, df_, dg_, C_, Rp_, sp_, \[Lambda]p_, a_, m_, \[Omega]_]][r:{__?NumericQ}] := Map[Derivative[1][tsMappedFunction[f, g, df, dg, C, Rp, sp, \[Lambda]p, a, m, \[Omega]]], r];
+
 (* A radial function assembled from two pieces: fp (the Teukolsky-Starobinsky map of the flipped-spin
-   integration) for r >= rc and fm (the integration at the original spin below rc) for r < rc; used for both
-   the "Up" and the "In" solutions of negative spin *)
+   integration) for r >= rc and fm (the integration at the original spin below rc) for r < rc *)
 flippedFunction[fp_, fm_, rc_][r_?NumericQ] := If[r >= rc, fp[r], fm[r]];
 flippedFunction[fp_, fm_, rc_][r:{__?NumericQ}] := Map[flippedFunction[fp, fm, rc], r];
 Derivative[1][flippedFunction[fp_, fm_, rc_]][r_?NumericQ] := If[r >= rc, fp'[r], fm'[r]];
@@ -289,8 +298,11 @@ TeukolskyRadialNumericalIntegration[s_Integer, l_Integer, m_Integer, a_, \[Omega
          map loses about -2 s Log10[Delta] digits close to the horizon. *)
       {ft, gt} = teukolskyStarobinskyFlip[sInt, \[Lambda] + 2 s, a, m, \[Omega], r];
       rc = rp[a, 1] + 1;
-      fPlus = With[{Rp = r^-1 \[CapitalDelta][r,a]^-sInt Exp[bcdir I \[Omega] rs[r,a]] Exp[I m \[Phi]Reg[r,a]] solutionFunction[r], C = (2 I \[Omega])^(-2 s)},
-        Function @@ {r, (ft Rp + gt D[Rp, r])/C}];
+      (* the map of the spin -s solution R+ (a pure function of r whose derivative involves only psi', which the
+         integrators give accurately); its derivative needs R+'', which is taken from the radial equation rather
+         than from the interpolating function, whose second derivative would cost two digits *)
+      fPlus = With[{RpFun = Function @@ {r, r^-1 \[CapitalDelta][r,a]^-sInt Exp[bcdir I \[Omega] rs[r,a]] Exp[I m \[Phi]Reg[r,a]] solutionFunction[r]}, C = (2 I \[Omega])^(-2 s)},
+        tsMappedFunction[Function @@ {r, ft}, Function @@ {r, gt}, Function @@ {r, D[ft, r]}, Function @@ {r, D[gt, r]}, C, RpFun, sInt, \[Lambda] + 2 s, a, m, \[Omega]]];
       If[domain =!= All && rc <= First[solutionFunction["Domain"]][[1]],
         fPlus,
         {Rc, dRc} = {fPlus[rc], fPlus'[rc]};
