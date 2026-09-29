@@ -112,7 +112,7 @@ TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer
 
   domain = OptionValue["Domain"];
   If[MatchQ[domain, {_?NumericQ, _?NumericQ}],
-    If[\[Omega] == 0, Message[TeukolskyPointParticleMode::sout, "Domain"]; Return[$Failed]];
+    If[\[Omega] == 0, Message[TeukolskyPointParticleMode::sopt, "Domain"]; Return[$Failed]];
     R = Ruser = TeukolskyRadial[s, l, m, a, \[Omega], Method ->
       {"NumericalIntegration", "Domain"-> {"In" -> domain, "Up" -> domain}}];
   ,
