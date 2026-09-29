@@ -8,7 +8,8 @@ ClearAttributes[RenormalizedAngularMomentum, {Protected, ReadProtected}];
 
 RenormalizedAngularMomentum::usage =
  "RenormalizedAngularMomentum[s, l, m, a, \[Omega], \[Lambda]] gives the renormalized angular momentum \[Nu].\n" <>
- "RenormalizedAngularMomentum[s, l, m, a, \[Omega]] gives the renormalized angular momentum \[Nu].";
+ "RenormalizedAngularMomentum[s, l, m, a, \[Omega]] gives the renormalized angular momentum \[Nu].\n" <>
+ "Of the equivalent values \[PlusMinus]\[Nu] + k, the one returned is continuous with \[Nu] = l at \[Omega] = 0 (l - ArcCos[Cos[2\[Pi]\[Nu]]]/(2\[Pi])), for real and complex \[Omega].";
 
 (* Messages *)
 RenormalizedAngularMomentum::precision = "Method \"Monodromy\" currently only works reliably with arbitrary precision input parameters.";
@@ -176,9 +177,13 @@ nearestRepresentative[\[Nu]_, \[Nu]0_] :=
     Cos2\[Pi]\[Nu][nmax] = N[Cos2\[Pi]\[Nu][nmax], Max[\[Nu]precision[Cos2\[Pi]\[Nu][nmax], q, \[Epsilon], \[Kappa], \[Tau], s, \[Lambda], m],0]];
   ];
 
+  (* The representative of nu (the class {+-nu + k}): the one continuous with nu = l + O(epsilon^2) at
+     small frequency, l - ArcCos[Cos[2 Pi nu]]/(2 Pi), for real and complex frequencies alike (the principal
+     value ArcCos[...]/(2 Pi), returned before for complex frequencies, is near 0 at small frequency, where
+     Pochhammer[2 nu + 2, n] in the K_nu sums of the amplitudes has an exact pole). *)
   Which[
     Im[\[Omega]] != 0,
-      ArcCos[Cos2\[Pi]\[Nu][nmax]]/(2\[Pi]),
+      l - ArcCos[Cos2\[Pi]\[Nu][nmax]]/(2\[Pi]),
     Re[Cos2\[Pi]\[Nu][nmax]]<-1, 
       1/2-Im[ArcCos[Re[Cos2\[Pi]\[Nu][nmax]]]/(2\[Pi])]I,
     -1<=Re[Cos2\[Pi]\[Nu][nmax]]<=1,
