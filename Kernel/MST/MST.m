@@ -942,6 +942,15 @@ nearestRepresentative[\[Nu]_, \[Nu]0_] :=
 $lastPaddingLoss = 0;
 $lastPaddingPrecision = 0;
 
+(* Extra working precision for a mode {s, l, m, q, epsilon}, set by the master package when an independent
+   consistency check (the Wronskian) shows that the padded evaluations are wrong although their tracked
+   precision looks fine: for some modes the recurrence for the MST coefficients passes through a region
+   where its two solutions are hard to separate, and below a certain working precision it silently yields
+   the wrong one, which no precision tracking reveals. *)
+$modePadding = <||>;
+modePadding[s_, l_, m_, q_, \[Epsilon]_] := Lookup[$modePadding, Key[{s, l, m, q, \[Epsilon]}], 0];
+setModePadding[s_, l_, m_, q_, \[Epsilon]_, extra_] := (If[Length[$modePadding] >= 50, $modePadding = <||>]; $modePadding[{s, l, m, q, \[Epsilon]}] = extra);
+
 mstPaddedEvaluation[core_, {s_, l_, m_, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_}, {wp_, prec_, acc_}, deriv_Integer, r_, maxTries_:4, p0_:Automatic] :=
  Module[{target, p, res, deficit, tries = 0, eval, numericQ},
   numericQ[x_] := NumericQ[x] && x != 0;
@@ -949,6 +958,7 @@ mstPaddedEvaluation[core_, {s_, l_, m_, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, nor
     target = $MachinePrecision; p = $MachinePrecision + 4;,
     target = wp; p = wp;
   ];
+  p += modePadding[s, l, m, q, \[Epsilon]];
   If[NumericQ[p0], p = Max[p, p0]];
   p = Ceiling[p];   (* an integer, so that 10^-prec below stays exact (10^-318. would underflow) *)
   eval[pp_] := Module[{params = SetPrecision[{q, \[Epsilon], norm}, pp], \[Lambda]p, \[Nu]p, rr = SetPrecision[r, pp], f, precgoal},
