@@ -741,8 +741,10 @@ Derivative[1][mstRadialUpSeries[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_
    U(n+nu+1-s+i eps, 2n+2nu+2, +2i zhat), obtained from the "Up" series (U(n+nu+1+s-i eps, 2n+2nu+2, -2i zhat),
    with its recurrences) by the substitution (s, eps, zhat) -> (-s, -eps, -zhat), times the factors relating
    the two (DLMF 33.2.7: R_+ is built on the Coulomb function H^-, R_- on H^+). *)
+(* zz is the formal variable of the prefactor, differentiated symbolically below; a package symbol rather
+   than a Module local, which a message issued during the evaluation could keep alive as a leaked symbol *)
 mstRadialPlusSeries[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, {wp_, prec_, acc_}, deriv_Integer][r_?NumericQ] :=
- Module[{\[Kappa], \[Tau], rm, zhat, \[Eta], Q, dQ, zz, G, term, resUp, resDown, nUp, nDown},
+ Module[{\[Kappa], \[Tau], rm, zhat, \[Eta], Q, dQ, G, term, resUp, resDown, nUp, nDown},
  Block[{HU, dHU},
  Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], fn},
   \[Kappa] = Sqrt[1 - q^2];
