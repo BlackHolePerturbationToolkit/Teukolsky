@@ -67,3 +67,17 @@ VerificationTest[
   {True, True, True},
   TestID -> "Second derivatives of the series-started solutions"
 ]
+
+(* The "In" solution of negative spin at large radius: at omega = 2 the reflection is 1e-10 of the incidence, so
+   the outward integration at spin -2 loses digits like r^4 (1e-8 at r = 50); beyond the radius where the large-r
+   series converge (about 20 here) the solution is now Binc R_ingoing + Bref R_up from the series and the MST
+   amplitudes *)
+VerificationTest[
+  Module[{R, Rref},
+    R = TeukolskyRadial[-2, 2, 2, 0.6, 2.];
+    Rref = TeukolskyRadial[-2, 2, 2, N[3/5, 32], N[2, 32], Method -> "MST"];
+    Table[Abs[R["In"][N[r]]/Rref["In"][N[r, 32]] - 1] < 10^-12 && Abs[R["In"]'[N[r]]/Rref["In"]'[N[r, 32]] - 1] < 10^-12, {r, {5/2, 6, 50, 100, 300}}]
+  ],
+  {True, True, True, True, True},
+  TestID -> "In solution of spin -2 at omega = 2 up to r = 300"
+]

@@ -93,6 +93,11 @@ psi[s_, \[Lambda]_, l_, m_, a_, \[Omega]_, bc_, amps_, \[Nu]_, ndsolveopts___][A
  Module[{psiBC, dpsidrBC, rBC, rMin, rMax, H, bdata = Lookup[{ndsolveopts}, "BoundaryData", None]},
     If[bc === "In", H = -1];
     If[bc === "Up", H = +1];
+    (* "In" of negative spin with series boundary data: the outward integration from the horizon loses digits at
+       large radius when the reflection is small, so beyond the radius where the large-r series converge the
+       solution is Binc R_ingoing + Bref R_up from the series and the MST amplitudes (see inSeriesSolutionBuild) *)
+    If[bc === "In" && s < 0 && Lookup[{ndsolveopts}, "BoundaryMethod", "MST"] === "Series" && !(AssociationQ[bdata] && KeyExistsQ[bdata, "In"]),
+      With[{sol = inSeriesSolutionBuild[s, \[Lambda], l, m, a, \[Omega], amps, \[Nu], ndsolveopts]}, If[sol =!= $Failed, Return[sol]]]];
     (* Without explicit boundary data, the "Up" solution on the full domain is integrated inwards from the
        MST solution at the outermost radius requested in each evaluation (integrating in from a large fixed
        radius loses several digits, whereas the MST "Up" series is accurate at any radius beyond r+ + 1) *)
@@ -300,6 +305,78 @@ upBoundarySeries[s_, \[Lambda]_, m_, a_, \[Omega]_, rmin_] :=
     r *= 5/4];
   $Failed
  ];
+
+(* The ingoing asymptotic series in the "In" variable (H = -1): psi = r^(2s) Sum e_n r^-n with e_0 = 1, which is
+   R -> e^{-i omega r*}/r, summed like the "Up" series; the coefficient of r^(2s+8-j) gives e_{j-1}, the two
+   top powers vanish identically for this exponent. Returns {psi, psi', relative size of the smallest term, t}. *)
+inSeriesAt[s_, \[Lambda]_, m_, a_, \[Omega]_, r_] :=
+ Module[{p, pp, A, \[Rho] = 2 s, t, psi, dpsi, best, coef, rest, tj, j, n},
+  p = hpsPolys[s, \[Lambda], m, a, \[Omega], -1];
+  pp[i_, k_] := If[0 <= k <= 8, p[[i + 1, k + 1]], 0];
+  A[j_, n_] := pp[0, 8 - j + n] + (\[Rho] - n) pp[1, 8 - j + n + 1] + (\[Rho] - n) (\[Rho] - n - 1) pp[2, 8 - j + n + 2];
+  t = {1.}; psi = 1.; dpsi = \[Rho]/r; best = Infinity;
+  Do[
+    coef = A[j, j - 1];
+    rest = Sum[t[[n + 1]] r^(n - (j - 1)) A[j, n], {n, Max[0, j - 10], j - 2}];
+    tj = -rest/coef;
+    If[Abs[tj] > best, Break[]];
+    AppendTo[t, tj]; best = Abs[tj];
+    psi += tj; dpsi += (\[Rho] - (j - 1)) tj/r;
+    If[Abs[tj] < 10^-17 Abs[psi], Break[]],
+    {j, 2, 600}];
+  (* dpsi accumulated (rho - n) t_n / r, so the derivative of r^rho Sum t_n is dpsi r^rho *)
+  {psi r^\[Rho], dpsi r^\[Rho], If[Abs[psi] > 10^-6 Max[Abs[t]], best/Abs[psi], Infinity], t}
+ ];
+
+tortoise[r_, a_] := With[{\[Kappa] = Sqrt[1 - a^2]}, r + ((1 + \[Kappa]) Log[(r - 1 - \[Kappa])/2] - (1 - \[Kappa]) Log[(r - 1 + \[Kappa])/2])/\[Kappa]];
+
+(* "In" data {psi, psi', r} in the H = -1 variable at the smallest radius r >= rmin where both large-r series
+   converge to 1e-15: psi_in = Binc psi_ingoing + Bref e^{2 i omega r*} psi_up, with the amplitudes relative to
+   unit transmission. Also returns the two scaled coefficient lists. *)
+inLargeRadiusData[s_, \[Lambda]_, m_, a_, \[Omega]_, Binc_, Bref_, rmin_] :=
+ Module[{r = N[Max[rmin, 2 rp[a, 1]]], ing, up, ph, dph, psi, dpsi},
+  While[r < 10.^7,
+    ing = inSeriesAt[s, \[Lambda], m, a, \[Omega], r]; up = upSeriesAt[s, \[Lambda], m, a, \[Omega], r];
+    If[ing[[3]] <= 10.^-15 && up[[3]] <= 10.^-15,
+      ph = Exp[2 I \[Omega] tortoise[r, a]]; dph = 2 I \[Omega] (r^2 + a^2)/(r^2 - 2 r + a^2) ph;
+      psi = Binc ing[[1]] + Bref ph up[[1]]; dpsi = Binc ing[[2]] + Bref (dph up[[1]] + ph up[[2]]);
+      Return[{psi, dpsi, r, ing[[4]], up[[4]]}, Module]];
+    r *= 5/4];
+  $Failed
+ ];
+
+(* The "In" solution of negative spin on the full domain: the outward integration from the horizon series below
+   the radius rb where the large-r series converge (on demand, as before), and Binc R_ingoing + Bref R_up from
+   the series beyond it. Both directions of integration are unstable somewhere for this solution: outwards,
+   once omega r >> 1, roundoff in the outgoing solution grows like r^(-2s) relative to the incident part; inwards,
+   the solution singular at the horizon grows like a high power of 1/r wherever omega r << 1, so the far-zone
+   series cannot be integrated in to the horizon either, and the join is made at rb. The amplitudes are needed;
+   without them ("Amplitudes" -> False) $Failed, and the outward integration is used throughout. *)
+inSeriesSolutionBuild[s_, \[Lambda]_, l_, m_, a_, \[Omega]_, amps_, \[Nu]_, ndsolveopts___] :=
+ Module[{Binc, Bref, res, rb, tIng, tUp, lower, psiBC, dpsidrBC, rBC},
+  If[!(AssociationQ[amps] && AssociationQ[amps["In"]] && AllTrue[Lookup[amps["In"], {"Incidence", "Reflection", "Transmission"}, Indeterminate], NumericQ]), Return[$Failed]];
+  Binc = amps["In"]["Incidence"]/amps["In"]["Transmission"]; Bref = amps["In"]["Reflection"]/amps["In"]["Transmission"];
+  res = inLargeRadiusData[s, \[Lambda], m, a, \[Omega], Binc, Bref, rp[a, 1] + 2];
+  If[res === $Failed, Return[$Failed]];
+  rb = res[[3]]; {tIng, tUp} = res[[4 ;; 5]];
+  {psiBC, dpsidrBC, rBC} = boundaryData[s, \[Lambda], l, m, a, \[Omega], "In", amps, \[Nu], {Automatic, Automatic}, ndsolveopts];
+  lower = AllIntegrator[s, \[Lambda], m, a, \[Omega], psiBC, dpsidrBC, rBC, -1, ndsolveOptions[ndsolveopts]];
+  inSeriesSolution[s, a, \[Omega], Binc, Bref, tIng, tUp, rb, lower]
+ ];
+
+inSeriesSolution[s_, a_, \[Omega]_, Binc_, Bref_, tIng_, tUp_, rb_, lower_][r_?NumericQ] :=
+  If[r >= rb,
+    Binc r^(2 s) Sum[tIng[[n + 1]] (rb/r)^n, {n, 0, Length[tIng] - 1}] + Bref Exp[2 I \[Omega] tortoise[r, a]] Sum[tUp[[n + 1]] (rb/r)^n, {n, 0, Length[tUp] - 1}],
+    lower[r]];
+inSeriesSolution[s_, a_, \[Omega]_, Binc_, Bref_, tIng_, tUp_, rb_, lower_][r:{__?NumericQ}] := Map[inSeriesSolution[s, a, \[Omega], Binc, Bref, tIng, tUp, rb, lower], r];
+Derivative[1][inSeriesSolution[s_, a_, \[Omega]_, Binc_, Bref_, tIng_, tUp_, rb_, lower_]][r_?NumericQ] :=
+  If[r >= rb,
+    With[{ing = Sum[tIng[[n + 1]] (rb/r)^n, {n, 0, Length[tIng] - 1}], ding = Sum[-n tIng[[n + 1]] (rb/r)^n/r, {n, 0, Length[tIng] - 1}],
+          up = Sum[tUp[[n + 1]] (rb/r)^n, {n, 0, Length[tUp] - 1}], dup = Sum[-n tUp[[n + 1]] (rb/r)^n/r, {n, 0, Length[tUp] - 1}], ph = Exp[2 I \[Omega] tortoise[r, a]]},
+      Binc (2 s r^(2 s - 1) ing + r^(2 s) ding) + Bref ph (2 I \[Omega] (r^2 + a^2)/(r^2 - 2 r + a^2) up + dup)],
+    lower'[r]];
+Derivative[1][inSeriesSolution[s_, a_, \[Omega]_, Binc_, Bref_, tIng_, tUp_, rb_, lower_]][r:{__?NumericQ}] := Map[Derivative[1][inSeriesSolution[s, a, \[Omega], Binc, Bref, tIng, tUp, rb, lower]], r];
+
 
 (* The "Up" solution on the full domain from the large-r series: the series itself beyond its radius rb, an
    interpolating function of a single inward integration between rc = r+ + 1 and rb, and, below rc, integration

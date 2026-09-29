@@ -257,11 +257,12 @@ teukolskyStarobinskyFlipSymbolic[s_Integer?Positive] := teukolskyStarobinskyFlip
  ]];
 
 (* A radial function assembled from two pieces: fp (the Teukolsky-Starobinsky map of the flipped-spin
-   integration) for r >= rc and fm (the integration at the original spin below rc) for r < rc *)
-flippedUpFunction[fp_, fm_, rc_][r_?NumericQ] := If[r >= rc, fp[r], fm[r]];
-flippedUpFunction[fp_, fm_, rc_][r:{__?NumericQ}] := Map[flippedUpFunction[fp, fm, rc], r];
-Derivative[1][flippedUpFunction[fp_, fm_, rc_]][r_?NumericQ] := If[r >= rc, fp'[r], fm'[r]];
-Derivative[1][flippedUpFunction[fp_, fm_, rc_]][r:{__?NumericQ}] := Map[Derivative[1][flippedUpFunction[fp, fm, rc]], r];
+   integration) for r >= rc and fm (the integration at the original spin below rc) for r < rc; used for both
+   the "Up" and the "In" solutions of negative spin *)
+flippedFunction[fp_, fm_, rc_][r_?NumericQ] := If[r >= rc, fp[r], fm[r]];
+flippedFunction[fp_, fm_, rc_][r:{__?NumericQ}] := Map[flippedFunction[fp, fm, rc], r];
+Derivative[1][flippedFunction[fp_, fm_, rc_]][r_?NumericQ] := If[r >= rc, fp'[r], fm'[r]];
+Derivative[1][flippedFunction[fp_, fm_, rc_]][r:{__?NumericQ}] := Map[Derivative[1][flippedFunction[fp, fm, rc]], r];
 
 (* {f, g} for the given parameters, as expressions in the symbol r *)
 teukolskyStarobinskyFlip[s_Integer?Positive, \[Lambda]_, a_, m_, \[Omega]_, r_] :=
@@ -287,9 +288,9 @@ TeukolskyRadialNumericalIntegration[s_Integer, l_Integer, m_Integer, a_, \[Omega
          equation is integrated inwards from the mapped data at rc (stable over that short range), since the
          map loses about -2 s Log10[Delta] digits close to the horizon. *)
       {ft, gt} = teukolskyStarobinskyFlip[sInt, \[Lambda] + 2 s, a, m, \[Omega], r];
+      rc = rp[a, 1] + 1;
       fPlus = With[{Rp = r^-1 \[CapitalDelta][r,a]^-sInt Exp[bcdir I \[Omega] rs[r,a]] Exp[I m \[Phi]Reg[r,a]] solutionFunction[r], C = (2 I \[Omega])^(-2 s)},
         Function @@ {r, (ft Rp + gt D[Rp, r])/C}];
-      rc = rp[a, 1] + 1;
       If[domain =!= All && rc <= First[solutionFunction["Domain"]][[1]],
         fPlus,
         {Rc, dRc} = {fPlus[rc], fPlus'[rc]};
@@ -299,7 +300,7 @@ TeukolskyRadialNumericalIntegration[s_Integer, l_Integer, m_Integer, a_, \[Omega
           Teukolsky`NumericalIntegration`Private`AllIntegrator[s, \[Lambda], m, a, \[Omega], \[Psi]c, d\[Psi]c, rc, 1, goals],
           Teukolsky`NumericalIntegration`Private`Integrator[s, \[Lambda], m, a, \[Omega], \[Psi]c, d\[Psi]c, rc, First[solutionFunction["Domain"]][[1]], rc, 1, goals]];
         fMinus = Evaluate[#^-1 \[CapitalDelta][#,a]^-s Exp[bcdir I \[Omega] rs[#,a]] Exp[I m \[Phi]Reg[#,a]] lower[#]]&;
-        flippedUpFunction[fPlus, fMinus, rc]]];
+        flippedFunction[fPlus, fMinus, rc]]];
     TeukolskyRadialFunction[s, l, m, a, \[Omega],
      Association["s" -> s, "l" -> l, "m" -> m, "a" -> a, "\[Omega]" -> \[Omega], "Eigenvalue" -> \[Lambda], "RenormalizedAngularMomentum" -> \[Nu],
       "Method" -> {"NumericalIntegration", ndsolveopts},
