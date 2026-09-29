@@ -132,13 +132,22 @@ Switch[MST`$MasterFunction,
 (*All recurrence relations for the hypergeometric functions below can be derived from equations provided by DLMF*)
 
 
+(* ::Text:: *)
+(*The hypergeometric functions of the "In" series are the regularised ones, 2F1(a, b; c; x)/Gamma(c), which are entire in c.*)
+(*The "In" solution and its unscaled asymptotic amplitudes are therefore those of Sasaki & Tagoshi divided by Gamma(c),*)
+(*c = 1 - s - 2 I epsilon_+, and stay finite at the degeneracies 2 I epsilon_+ = n >= 1 - s, where c is a non-positive*)
+(*integer and the unregularised series has a pole. There the regularised series is the solution of larger exponent*)
+(*at the horizon, whose transmission amplitude vanishes. The recurrences below are linear and homogeneous in the*)
+(*hypergeometric functions, so they hold unchanged for the regularised ones.*)
+
+
 (* ::Subsection::Closed:: *)
 (*Hypergeometric2F1*)
 
 
 H2F1Exact[n_, s_, \[Nu]_, \[Tau]_, \[Epsilon]_, x_] :=
  Module[{a = aF[s, \[Nu], \[Tau], \[Epsilon]], b = bF[s, \[Nu], \[Tau], \[Epsilon]], c = cF[s, \[Nu], \[Tau], \[Epsilon]]},
-  Hypergeometric2F1[n + a, b-n, c, x]
+  Hypergeometric2F1Regularized[n + a, b-n, c, x]
 ];
 
 H2F1Up[n_, s_, \[Nu]_, \[Tau]_, \[Epsilon]_, x_] :=
@@ -153,7 +162,7 @@ H2F1Down[n_, s_, \[Nu]_, \[Tau]_, \[Epsilon]_, x_] :=
 
 dH2F1Exact[n_, s_, \[Nu]_, \[Tau]_, \[Epsilon]_, x_] :=
  Module[{a = aF[s, \[Nu], \[Tau], \[Epsilon]], b = bF[s, \[Nu], \[Tau], \[Epsilon]], c = cF[s, \[Nu], \[Tau], \[Epsilon]]},
-  (n+a)(-n+b)/c Hypergeometric2F1[n + a + 1, -n + b + 1, c + 1, x]
+  (n+a)(-n+b) Hypergeometric2F1Regularized[n + a + 1, -n + b + 1, c + 1, x]
 ];
 
 dH2F1Up[n_, s_, \[Nu]_, \[Tau]_, \[Epsilon]_, x_] :=
@@ -270,10 +279,11 @@ fn[q_, \[Epsilon]_, \[Kappa]_, \[Tau]_, \[Nu]_, \[Lambda]_, s_, m_, nf_] :=
 (* sum term[n] from n0 in direction dir until the sum stops changing *)
 sumUntil[term_, n0_, dir_] := Module[{res = 0, k = n0}, While[res != (res += term[k]), k += dir]; res];
 
-(* K_nu, ST Eq. (165) with r = 0, CO (3.32) *)
+(* K_nu / Gamma(1 - s - 2 I epsilon_+), ST Eq. (165) with r = 0, CO (3.32): the connection coefficient of the
+   regularised "In" series (see the note on the hypergeometric functions), finite at 2 I epsilon_+ = n >= 1 - s *)
 KCoefficient[s_Integer, m_Integer, q_, \[Epsilon]_, \[Kappa]_, \[Tau]_, \[Nu]_, \[Lambda]_] :=
- Module[{\[Epsilon]p = 1/2 (\[Tau] + \[Epsilon])},
-  ((2^-\[Nu]) (E^(I \[Epsilon] \[Kappa])) ((\[Epsilon] \[Kappa])^(s - \[Nu])) Gamma[1 - s - 2 I \[Epsilon]p] Gamma[2 + 2 \[Nu]])/(Gamma[1 - s + I \[Epsilon] + \[Nu]] Gamma[1 + s + I \[Epsilon] + \[Nu]] Gamma[1 + \[Nu] + I \[Tau]]) *
+ Module[{},
+  ((2^-\[Nu]) (E^(I \[Epsilon] \[Kappa])) ((\[Epsilon] \[Kappa])^(s - \[Nu])) Gamma[2 + 2 \[Nu]])/(Gamma[1 - s + I \[Epsilon] + \[Nu]] Gamma[1 + s + I \[Epsilon] + \[Nu]] Gamma[1 + \[Nu] + I \[Tau]]) *
    sumUntil[((-1)^# Gamma[1 + # + s + I \[Epsilon] + \[Nu]] Gamma[1 + # + 2 \[Nu]] Gamma[1 + # + \[Nu] + I \[Tau]])/(#! Gamma[1 + # - s - I \[Epsilon] + \[Nu]] Gamma[1 + # + \[Nu] - I \[Tau]]) fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, #] &, 0, 1] /
    sumUntil[(((-1)^#) Pochhammer[1 + s - I \[Epsilon] + \[Nu], #])/((-#)! Pochhammer[1 - s + I \[Epsilon] + \[Nu], #] Pochhammer[2 + 2 \[Nu], #]) fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, #] &, 0, -1]
  ];
@@ -349,8 +359,9 @@ Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_,
   n = -1;
   While[fSumAminusDown != (fSumAminusDown += termAminus[n]), n--];
 
-  (* In transmission coefficient: Btrans in ST (167) and CO (3.12) *)
-  InTrans = prefacInTrans[s, \[Epsilon], \[Tau], \[Kappa]] (fSumUp+fSumDown);
+  (* In transmission coefficient: Btrans in ST (167) and CO (3.12), divided by Gamma[c] = Gamma[1 - 2 I \[Epsilon]]
+     like the "In" series (see the note on the hypergeometric functions) *)
+  InTrans = prefacInTrans[s, \[Epsilon], \[Tau], \[Kappa]] (fSumUp+fSumDown) / Gamma[1 - 2 I \[Epsilon]];
 
   (* A-: ST (158), CO (3.19) *)
   Aminus = 2^(-s - 1 + I \[Epsilon]) E^(-\[Pi] \[Epsilon] / 2 - I \[Pi] (\[Nu]+1+s) / 2) (fSumAminusUp+fSumAminusDown);
@@ -362,14 +373,14 @@ Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_,
   K\[Nu]1 = ((2^-\[Nu])( E^(I \[Epsilon])) \[Epsilon]^(-1-\[Nu]) Gamma[1-s-2 I \[Epsilon]] Gamma[1+s-I \[Epsilon]+\[Nu]])/(Gamma[-I \[Epsilon]-\[Nu]] Gamma[1+I \[Epsilon]+\[Nu]] Gamma[1-s+I \[Epsilon]+\[Nu]]) fSumK\[Nu]1Up / fSumK\[Nu]1Down;
   K\[Nu]2 = ((2^-(-1-\[Nu]))( E^(I \[Epsilon])) \[Epsilon]^(-1-(-1-\[Nu])) Gamma[1-s-2 I \[Epsilon]] Gamma[1+s-I \[Epsilon]+(-1-\[Nu])])/(Gamma[-I \[Epsilon]-(-1-\[Nu])] Gamma[1+I \[Epsilon]+(-1-\[Nu])] Gamma[1-s+I \[Epsilon]+(-1-\[Nu])]) fSumK\[Nu]2Up / fSumK\[Nu]2Down;
 
-  (* In reflection coefficient: Bref in ST (169), CO (3.37) *)
-  InRef = (Gamma[1-2 I \[Epsilon]] Gamma[-I \[Epsilon]-\[Nu]] Gamma[1-I \[Epsilon]+\[Nu]])/(Gamma[1-s-2 I \[Epsilon]] Gamma[s-I \[Epsilon]-\[Nu]] Gamma[1+s-I \[Epsilon]+\[Nu]]) UpTrans (K\[Nu]1 + I E^(I \[Pi] \[Nu]) K\[Nu]2);
+  (* In reflection coefficient: Bref in ST (169), CO (3.37), divided by Gamma[c] = Gamma[1-2 I \[Epsilon]] like the "In" series *)
+  InRef = (Gamma[-I \[Epsilon]-\[Nu]] Gamma[1-I \[Epsilon]+\[Nu]])/(Gamma[1-s-2 I \[Epsilon]] Gamma[s-I \[Epsilon]-\[Nu]] Gamma[1+s-I \[Epsilon]+\[Nu]]) UpTrans (K\[Nu]1 + I E^(I \[Pi] \[Nu]) K\[Nu]2);
 
   (* A+: ST (157), CO (3.38) and (3.41) *)
   Aplus = prefacAplus[s, \[Epsilon], \[Tau], \[Kappa], \[Nu]] (fSumUp+fSumDown);
 
-  (* In incidence coefficient: Binc from ST (168), CO (3.36) and (3.39) *)
-  InInc = (Gamma[1-2 I \[Epsilon]] Gamma[-I \[Epsilon]-\[Nu]] Gamma[1-I \[Epsilon]+\[Nu]])/(Gamma[1-s-2 I \[Epsilon]] Gamma[s-I \[Epsilon]-\[Nu]] Gamma[1+s-I \[Epsilon]+\[Nu]]) prefacInInc[s, \[Epsilon], \[Tau], \[Kappa], \[Nu], K\[Nu]1, K\[Nu]2] Aplus;
+  (* In incidence coefficient: Binc from ST (168), CO (3.36) and (3.39), divided by Gamma[c] = Gamma[1-2 I \[Epsilon]] *)
+  InInc = (Gamma[-I \[Epsilon]-\[Nu]] Gamma[1-I \[Epsilon]+\[Nu]])/(Gamma[1-s-2 I \[Epsilon]] Gamma[s-I \[Epsilon]-\[Nu]] Gamma[1+s-I \[Epsilon]+\[Nu]]) prefacInInc[s, \[Epsilon], \[Tau], \[Kappa], \[Nu], K\[Nu]1, K\[Nu]2] Aplus;
 
   (* Compute Up incidence and reflection coefficients from other coefficients. The incidence follows
      from the Wronskian at the two ends (any frequency); the reflection uses the conjugation symmetry of
@@ -402,15 +413,15 @@ Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_,
 
   (* At the superradiant bound frequency omega = m Omega_H (\[Epsilon]p = 0, k = 0) the horizon basis
      Exp[i k r_*], Delta^-s Exp[-i k r_*] is resonant: the two solutions coincide for s = 0 and their Frobenius
-     exponents at r_+ differ by the integer s otherwise, so the formulae below are singular
-     (1/Sin[2 Pi I \[Epsilon]p] and Gamma[1 - s - 2 I \[Epsilon]p] factors). The "Up" solution and, for s <= 0, the "In"
-     solution have finite limits when normalised to unit transmission; only their coefficients along the
-     horizon basis function of larger exponent (both for s = 0) diverge like 1/k, because a finite
-     solution expanded in a degenerating basis does. For s >= 1 the "In" solution is the smaller-exponent
-     member of that basis and has no unit-transmission limit at all (its hypergeometric functions have
-     c = 1 - s - 2 I \[Epsilon]p at a pole); TeukolskyRadial refuses it. The finite limits are taken by the
-     caller from neighbouring frequencies (see TeukolskyRadial); here every amplitude is returned as
-     Indeterminate, so that a radial function is never silently left unnormalised. *)
+     exponents at r_+ differ by the integer s otherwise, so the "Up" horizon coefficients below are singular
+     (1/Sin[2 Pi I \[Epsilon]p] factors). The "Up" solution and, for s <= 0, the "In" solution have finite limits when
+     normalised to unit transmission; only their coefficients along the horizon basis function of larger
+     exponent (both for s = 0) diverge like 1/k, because a finite solution expanded in a degenerating basis
+     does. For s >= 1 the unit-transmission "In" solution has no limit; the regularised "In" solution and its
+     amplitudes computed here are finite (the transmission vanishing), and TeukolskyRadial normalises it to
+     unit incidence. The limits are taken by the caller from neighbouring frequencies (see TeukolskyRadial);
+     here every amplitude is returned as Indeterminate, so that a radial function is never silently left
+     unnormalised. *)
   If[\[Epsilon]p == 0,
     Return[<| "In" -> <| "Incidence" -> Indeterminate, "Transmission" -> Indeterminate, "Reflection" -> Indeterminate|>,
               "Up" -> <| "Incidence" -> Indeterminate, "Transmission" -> Indeterminate, "Reflection" -> Indeterminate|>|>];
@@ -454,8 +465,9 @@ Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_,
   n = -1;
   While[fSumD12Down != (fSumD12Down += termD12[n]), n--];
   
-  (* In transmission coefficient: Btrans in ST (167) and CO (3.12) *)
-  InTrans = prefacInTrans[s, \[Epsilon], \[Tau], \[Kappa]] (fSumUp+fSumDown);
+  (* In transmission coefficient: Btrans in ST (167) and CO (3.12), divided by Gamma[c] like the "In" series
+     (see the note on the hypergeometric functions); it vanishes at 2 I \[Epsilon]p = n >= 1 - s *)
+  InTrans = prefacInTrans[s, \[Epsilon], \[Tau], \[Kappa]] (fSumUp+fSumDown) / Gamma[1 - s - 2 I \[Epsilon]p];
 
   (* A-: ST (158), CO (3.19) *)
   Aminus = AminusCoefficient[s, m, q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda]];
@@ -463,31 +475,33 @@ Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_,
   (* Up Transmission coefficient: Ctrans in ST (170), CO (3.20) *)
   UpTrans = prefacUpTrans[s, \[Epsilon], \[Tau], \[Kappa]] Aminus;
 
-  (* K\[Nu]: ST (165), CO (3.32), for \[Nu] and for -\[Nu]-1 *)
+  (* K\[Nu]/Gamma[c]: ST (165), CO (3.32), for \[Nu] and for -\[Nu]-1, with the factor Gamma[c] = Gamma[1 - s - 2 I \[Epsilon]p]
+     removed. The "In" amplitudes built from them are then divided by Gamma[c] like the "In" series; the "Up"
+     horizon coefficients, in which K\[Nu] appears in the denominator, are corrected below. *)
   K\[Nu]1 = KCoefficient[s, m, q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda]];
   K\[Nu]2 = KCoefficient[s, m, q, \[Epsilon], \[Kappa], \[Tau], -1 - \[Nu], \[Lambda]];
 
-  (* In reflection coefficient: Bref in ST (169), CO (3.37) *)
+  (* In reflection coefficient: Bref in ST (169), CO (3.37), divided by Gamma[c] *)
   InRef = UpTrans (K\[Nu]1 + I E^(I \[Pi] \[Nu]) K\[Nu]2);
 
   (* D2 *)
   D2 = -Exp[(I \[Kappa] (\[Epsilon]+\[Tau]) (1+\[Kappa]+2 Log[\[Kappa]]))/(2 (1+\[Kappa]))] (2\[Kappa])^(2 s) ( Sin[\[Pi] (\[Nu]-I \[Epsilon])] Sin[\[Pi] (\[Nu]-I \[Tau])])/(Sin[2 \[Pi] \[Nu]] Sin[\[Pi] I (\[Epsilon]+\[Tau])]) (fSumUp+fSumDown);
   D22 = -Exp[(I \[Kappa] (\[Epsilon]+\[Tau]) (1+\[Kappa]+2 Log[\[Kappa]]))/(2 (1+\[Kappa]))] (2\[Kappa])^(2 s) ( Sin[\[Pi] ((-1-\[Nu])-I \[Epsilon])] Sin[\[Pi] ((-1-\[Nu])-I \[Tau])])/(Sin[2 \[Pi] (-1-\[Nu])] Sin[\[Pi] I (\[Epsilon]+\[Tau])]) (fSumUp+fSumDown);
 
-  (* Up reflection coefficient *)
-  UpRef = Exp[-\[Pi] \[Epsilon]-I \[Pi] s]/Sin[2\[Pi] \[Nu]] ((Exp[-I \[Pi] \[Nu]]Sin[\[Pi](\[Nu]-s+I \[Epsilon])])/K\[Nu]1 D2-I Sin[\[Pi](\[Nu]+s-I \[Epsilon])]/K\[Nu]2 D22);
+  (* Up reflection coefficient; 1/K\[Nu] = (1/Gamma[c]) / (K\[Nu]/Gamma[c]) *)
+  UpRef = Exp[-\[Pi] \[Epsilon]-I \[Pi] s]/(Sin[2\[Pi] \[Nu]] Gamma[1 - s - 2 I \[Epsilon]p]) ((Exp[-I \[Pi] \[Nu]]Sin[\[Pi](\[Nu]-s+I \[Epsilon])])/K\[Nu]1 D2-I Sin[\[Pi](\[Nu]+s-I \[Epsilon])]/K\[Nu]2 D22);
 
   (* A+: ST (157), CO (3.38) and (3.41) *)
   Aplus = AplusCoefficient[s, m, q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda]];
 
-  (* In incidence coefficient: Binc from ST (168), CO (3.36) and (3.39) *)
+  (* In incidence coefficient: Binc from ST (168), CO (3.36) and (3.39), divided by Gamma[c] *)
   InInc = prefacInInc[s, \[Epsilon], \[Tau], \[Kappa], \[Nu], K\[Nu]1, K\[Nu]2] Aplus;
 
-  (* D1 *)
-  D1 = Exp[-((I \[Kappa] (\[Epsilon]+\[Tau]) (1+\[Kappa]+2 Log[\[Kappa]]))/(2 (1+\[Kappa])))] ( Sin[\[Pi] (\[Nu]+I \[Epsilon])] Sin[\[Pi] (\[Nu]+I \[Tau])] Gamma[1-s-I (\[Epsilon]+\[Tau])])/(Sin[2 \[Pi] \[Nu]] Sin[\[Pi] I (\[Epsilon]+\[Tau])]  Gamma[1+s+I \[Epsilon]+I \[Tau]]) (fSumD1Up+fSumD1Down);
-  D12 = Exp[-((I \[Kappa] (\[Epsilon]+\[Tau]) (1+\[Kappa]+2 Log[\[Kappa]]))/(2 (1+\[Kappa])))] ( Sin[\[Pi] ((-1-\[Nu])+I \[Epsilon])] Sin[\[Pi] ((-1-\[Nu])+I \[Tau])] Gamma[1-s-I (\[Epsilon]+\[Tau])])/(Sin[2 \[Pi] (-1-\[Nu])] Sin[\[Pi] I (\[Epsilon]+\[Tau])]  Gamma[1+s+I \[Epsilon]+I \[Tau]]) (fSumD12Up+fSumD12Down);
+  (* D1/Gamma[c]: the factor Gamma[1-s-I (\[Epsilon]+\[Tau])] of D1 cancels against the 1/K\[Nu] in the "Up" incidence *)
+  D1 = Exp[-((I \[Kappa] (\[Epsilon]+\[Tau]) (1+\[Kappa]+2 Log[\[Kappa]]))/(2 (1+\[Kappa])))] ( Sin[\[Pi] (\[Nu]+I \[Epsilon])] Sin[\[Pi] (\[Nu]+I \[Tau])])/(Sin[2 \[Pi] \[Nu]] Sin[\[Pi] I (\[Epsilon]+\[Tau])]  Gamma[1+s+I \[Epsilon]+I \[Tau]]) (fSumD1Up+fSumD1Down);
+  D12 = Exp[-((I \[Kappa] (\[Epsilon]+\[Tau]) (1+\[Kappa]+2 Log[\[Kappa]]))/(2 (1+\[Kappa])))] ( Sin[\[Pi] ((-1-\[Nu])+I \[Epsilon])] Sin[\[Pi] ((-1-\[Nu])+I \[Tau])])/(Sin[2 \[Pi] (-1-\[Nu])] Sin[\[Pi] I (\[Epsilon]+\[Tau])]  Gamma[1+s+I \[Epsilon]+I \[Tau]]) (fSumD12Up+fSumD12Down);
 
-  (* Up incidence coefficient *)
+  (* Up incidence coefficient; (D1/Gamma[c]) / (K\[Nu]/Gamma[c]) = D1/K\[Nu] *)
   UpInc = Exp[-\[Pi] \[Epsilon]-I \[Pi] s]/Sin[2\[Pi] \[Nu]] ((Exp[-I \[Pi] \[Nu]]Sin[\[Pi](\[Nu]-s+I \[Epsilon])])/K\[Nu]1 D1-I Sin[\[Pi](\[Nu]+s-I \[Epsilon])]/K\[Nu]2 D12);
 
   (* Clear local symbols with DownValues to avoid memory leaks *)
@@ -770,7 +784,8 @@ mstRadialInCoulomb[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[L
 (* ::Text:: *)
 (*Sasaki & Tagoshi Eqs. (137) and (138): R_in = R_0^nu + R_0^{-nu-1}, with R_0^nu a series of hypergeometric*)
 (*functions of argument 1/(1-x) = eps kappa/zhat, which tends to zero at large radius, so that this*)
-(*representation converges best where the series in x (Eq. (120)) is worst. Same normalisation as Eq. (116).*)
+(*representation converges best where the series in x (Eq. (120)) is worst. Same normalisation as the series in x,*)
+(*i.e. Eq. (116) divided by Gamma[1 - s - 2 I epsilon_+] (see the note on the hypergeometric functions).*)
 
 
 mstRadialInLargeRadiusSeries[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}, deriv_][r_?NumericQ] :=
@@ -784,7 +799,7 @@ mstRadialInLargeRadiusSeries[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \
   (* R_0^nu of ST Eq. (138), or its r-derivative, as a function of the symbolic xx (dx/dr = -1/(2 kappa)) *)
   R0[nu_] := Module[{pref, coef, g, term, res},
     pref = E^(I \[Epsilon] \[Kappa] xx) (-xx)^(-s - I \[Epsilon]p) (1 - xx)^(I \[Epsilon]p + nu);
-    coef[n_] := Gamma[1 - s - I \[Epsilon] - I \[Tau]] Gamma[2 n + 2 nu + 1]/(Gamma[n + nu + 1 - I \[Tau]] Gamma[n + nu + 1 - s - I \[Epsilon]]) fn[q, \[Epsilon], \[Kappa], \[Tau], nu, \[Lambda], s, m, n];
+    coef[n_] := Gamma[2 n + 2 nu + 1]/(Gamma[n + nu + 1 - I \[Tau]] Gamma[n + nu + 1 - s - I \[Epsilon]]) fn[q, \[Epsilon], \[Kappa], \[Tau], nu, \[Lambda], s, m, n];
     g[n_] := (1 - xx)^n Hypergeometric2F1[-n - nu - I \[Tau], -n - nu - s - I \[Epsilon], -2 n - 2 nu, 1/(1 - xx)];
     Switch[deriv,
       0,   term[n_] := term[n] = coef[n] (pref g[n] /. xx -> x);,
