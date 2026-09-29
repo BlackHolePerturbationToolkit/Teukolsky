@@ -977,6 +977,31 @@ mstPaddedEvaluation[core_, {s_, l_, m_, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, nor
   ]
 ];
 
+(* "In" solution: the representation is chosen by the radius (mstInRepresentation), except that a
+   representation which loses many more digits than the hypergeometric series would (a mode deep under
+   its potential barrier, where the Coulomb-type solutions are exponentially larger than the "In"
+   solution) is abandoned for the series: the loss of the first evaluation of a mode is measured and
+   cached, and compared with the roughly 0.8 omega (r - r+) digits that the series loses. *)
+$inRepresentationCache = <||>;
+
+mstRadialInEvaluate[params:{s_, l_, m_, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_}, goals_, deriv_Integer, r_] :=
+ Module[{rep = mstInRepresentation[q, \[Epsilon], r], key = {s, l, m, q, \[Epsilon], \[Nu], \[Lambda]}, seriesLoss, cached, res},
+  If[rep === "Series", Return[mstPaddedEvaluation[mstRadialInSeriesCore, params, goals, deriv, r]]];
+  seriesLoss = 0.8 Abs[\[Epsilon]] (r - (1 + Sqrt[1 - q^2]))/2 + 8;
+  cached = Lookup[$inRepresentationCache, Key[key], None];
+  If[cached =!= None && cached > seriesLoss, Return[mstPaddedEvaluation[mstRadialInSeriesCore, params, goals, deriv, r]]];
+  If[cached =!= None, Return[mstPaddedEvaluation[mstInCore[rep], params, goals, deriv, r]]];
+  (* first evaluation of this mode: a single pass, to measure the loss *)
+  res = mstPaddedEvaluation[mstInCore[rep], params, goals, deriv, r, 1];
+  If[Length[$inRepresentationCache] >= 50, $inRepresentationCache = <||>];
+  $inRepresentationCache[key] = $lastPaddingLoss;
+  If[$lastPaddingLoss > seriesLoss, Return[mstPaddedEvaluation[mstRadialInSeriesCore, params, goals, deriv, r]]];
+  If[!NumericQ[res] || Precision[res] < If[goals[[1]] === MachinePrecision, $MachinePrecision, goals[[1]]] - 1,
+    res = mstPaddedEvaluation[mstInCore[rep], params, goals, deriv, r, 4, $lastPaddingPrecision + Ceiling[$lastPaddingLoss] + 3];
+  ];
+  res
+ ];
+
 (* cores taking a derivative order, wrapping the series definitions above *)
 mstRadialInSeriesCore[s_, l_, m_, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}, 0][r_] := mstRadialInSeries[s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm, {wp, prec, acc}][r];
 mstRadialInSeriesCore[s_, l_, m_, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}, 1][r_] := mstRadialInSeries[s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm, {wp, prec, acc}]'[r];
@@ -984,10 +1009,10 @@ mstRadialUpSeriesCore[s_, l_, m_, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {w
 mstRadialUpSeriesCore[s_, l_, m_, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}, 1][r_] := mstRadialUpSeries[s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm, {wp, prec, acc}]'[r];
 
 MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}][r_?NumericQ] :=
- mstPaddedEvaluation[mstInCore[mstInRepresentation[q, \[Epsilon], r]], {s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm}, {wp, prec, acc}, 0, r];
+ mstRadialInEvaluate[{s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm}, {wp, prec, acc}, 0, r];
 
 Derivative[1][MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}]][r_?NumericQ] :=
- mstPaddedEvaluation[mstInCore[mstInRepresentation[q, \[Epsilon], r]], {s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm}, {wp, prec, acc}, 1, r];
+ mstRadialInEvaluate[{s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm}, {wp, prec, acc}, 1, r];
 
 MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}][r_?NumericQ] :=
  mstPaddedEvaluation[mstRadialUpSeriesCore, {s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm}, {wp, prec, acc}, 0, r];
