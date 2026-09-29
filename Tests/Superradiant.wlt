@@ -38,20 +38,34 @@ VerificationTest[
 ]
 
 (* For s >= 1 the "In" solution is the smaller-exponent member of the resonant horizon basis and has no
-   unit-transmission limit at the bound frequency: refused rather than evaluated (which used to hang) *)
+   unit-transmission limit at the bound frequency; its transmission amplitude vanishes and it is normalised to
+   unit incidence: the limit of the unit-incidence "In" solution of the neighbours *)
 VerificationTest[
-  TeukolskyRadial[2, 3, 3, N[3/5, 30], N[1/2, 30]],
-  $Failed,
-  {TeukolskyRadial::insing},
-  TestID -> "In solution refused at the superradiant bound frequency, s = 2"
+  R = Quiet[TeukolskyRadial[2, 3, 3, N[3/5, 30], N[1/2, 30]], {TeukolskyRadial::superradiant, TeukolskyRadial::innorm}];
+  Rp = TeukolskyRadial[2, 3, 3, N[3/5, 30], N[1/2 + 10^-7, 30]];
+  Rm = TeukolskyRadial[2, 3, 3, N[3/5, 30], N[1/2 - 10^-7, 30]];
+  {Abs[R["In"]["Amplitudes"]["Incidence"] - 1] < 10^-25, R["In"]["Amplitudes"]["Transmission"],
+   Abs[R["In"][N[6, 30]]/((Rp["In"][N[6, 30]]/Rp["In"]["Amplitudes"]["Incidence"] + Rm["In"][N[6, 30]]/Rm["In"]["Amplitudes"]["Incidence"])/2) - 1] < 10^-8,
+   Abs[R["In"]'[N[6, 30]]/((Rp["In"]'[N[6, 30]]/Rp["In"]["Amplitudes"]["Incidence"] + Rm["In"]'[N[6, 30]]/Rm["In"]["Amplitudes"]["Incidence"])/2) - 1] < 10^-8,
+   Abs[R["Up"][N[6, 30]]/((Rp["Up"][N[6, 30]] + Rm["Up"][N[6, 30]])/2) - 1] < 10^-8,
+   NumericQ[R["Up"]["Amplitudes"]["Reflection"]], R["Up"]["Amplitudes"]["Incidence"]},
+  {True, 0, True, True, True, True, Indeterminate},
+  TestID -> "In solution normalised to unit incidence at the superradiant bound frequency, s = 2"
 ]
 
 VerificationTest[
-  R = Quiet[TeukolskyRadial[2, 3, 3, N[3/5, 30], N[1/2, 30], "BoundaryConditions" -> "Up"]];
-  Rp = TeukolskyRadial[2, 3, 3, N[3/5, 30], N[1/2 + 10^-7, 30]];
-  Rm = TeukolskyRadial[2, 3, 3, N[3/5, 30], N[1/2 - 10^-7, 30]];
-  {Abs[R[N[6, 30]]/((Rp["Up"][N[6, 30]] + Rm["Up"][N[6, 30]])/2) - 1] < 10^-8,
-   NumericQ[R["Amplitudes"]["Reflection"]], R["Amplitudes"]["Incidence"]},
-  {True, True, Indeterminate},
-  TestID -> "Up solution at the superradiant bound frequency, s = 2"
+  TeukolskyRadial[2, 3, 3, N[3/5, 30], N[1/2, 30]],
+  _Association,
+  {TeukolskyRadial::superradiant, TeukolskyRadial::innorm},
+  SameTest -> MatchQ,
+  TestID -> "Messages at the superradiant bound frequency, s = 2"
+]
+
+(* The Wronskian identity W = 2 I omega B^inc C^trans holds in the unit-incidence normalisation *)
+VerificationTest[
+  R = Quiet[TeukolskyRadial[1, 3, 3, N[3/5, 30], N[1/2, 30]]];
+  W = With[{r = N[6, 30]}, (r^2 - 2 r + 9/25)^2 (R["In"][r] R["Up"]'[r] - R["In"]'[r] R["Up"][r])];
+  Abs[W/(2 I 1/2 R["In"]["Amplitudes"]["Incidence"] R["Up"]["Amplitudes"]["Transmission"]) - 1] < 10^-20,
+  True,
+  TestID -> "Wronskian at the superradiant bound frequency, s = 1"
 ]

@@ -21,12 +21,28 @@ VerificationTest[
 ]
 
 (* 2 I epsilon_+ an integer: for a = 3/5, m = 0 that is 4.5 sigma. With n = 2 I epsilon_+ >= 1 - s the
-   hypergeometric series cannot represent the "In" solution *)
+   transmission amplitude of the "In" solution vanishes and it is normalised to unit incidence: the limit of
+   the unit-incidence "In" solution of the neighbours *)
+(* omega = -2 I is also a degeneracy of the monodromy method (2 I epsilon = 8), reported again when the padded
+   evaluations of the radial functions recompute nu, so its message is quietened throughout *)
 VerificationTest[
-  TeukolskyRadial[0, 2, 0, SetPrecision[3/5, 40], SetPrecision[-2 I, 40]],
-  $Failed,
-  {TeukolskyRadial::insing},
-  TestID -> "In solution not representable at 2 I epsilon_+ = 9, s = 0"
+  Quiet[Module[{R, Rp, r = N[6, 40]},
+    R = Quiet[TeukolskyRadial[0, 2, 0, SetPrecision[3/5, 40], SetPrecision[-2 I, 40]], {TeukolskyRadial::degenerate, TeukolskyRadial::innorm}];
+    Rp = TeukolskyRadial[0, 2, 0, SetPrecision[3/5, 40], SetPrecision[-2 I (1 + 10^-8), 40]];
+    {Abs[R["In"]["Amplitudes"]["Incidence"] - 1] < 10^-30, R["In"]["Amplitudes"]["Transmission"],
+     Abs[R["In"][r]/(Rp["In"][r]/Rp["In"]["Amplitudes"]["Incidence"]) - 1] < 10^-6,
+     Abs[R["In"]["Amplitudes"]["Reflection"]/(Rp["In"]["Amplitudes"]["Reflection"]/Rp["In"]["Amplitudes"]["Incidence"]) - 1] < 10^-6}
+  ], RenormalizedAngularMomentum::degenerate],
+  {True, 0, True, True},
+  TestID -> "In solution normalised to unit incidence at 2 I epsilon_+ = 9, s = 0"
+]
+
+VerificationTest[
+  Quiet[TeukolskyRadial[0, 2, 0, SetPrecision[3/5, 40], SetPrecision[-2 I, 40]], RenormalizedAngularMomentum::degenerate],
+  _Association,
+  {TeukolskyRadial::degenerate, TeukolskyRadial::innorm},
+  SameTest -> MatchQ,
+  TestID -> "Messages at 2 I epsilon_+ = 9, s = 0"
 ]
 
 (* n = 2 < 1 - s for s = -2: the amplitudes are the limit from neighbouring frequencies and the functions are fine *)

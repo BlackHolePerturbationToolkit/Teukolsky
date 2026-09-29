@@ -57,7 +57,7 @@ TeukolskyRadial::topopt = "`1` are options of TeukolskyRadial, not of Method `2`
 TeukolskyRadial::exact = "Exact arguments a=`1`, \[Omega]=`2` require a WorkingPrecision; specify one, or apply N or SetPrecision to the arguments.";
 TeukolskyRadial::superradiant = "\[Omega] = m \[CapitalOmega]_H is the superradiant bound frequency: the asymptotic amplitudes are the limit from neighbouring frequencies and the amplitudes `1`, which diverge there, are Indeterminate.";
 TeukolskyRadial::degenerate = "2 I \[Epsilon]_+ = `1` is an integer at \[Omega] = `2`, where the MST formulae are singular: the asymptotic amplitudes are the limit from neighbouring frequencies and the amplitudes `3`, which diverge there, are Indeterminate.";
-TeukolskyRadial::insing = "2 I \[Epsilon]_+ = `1` is an integer at \[Omega] = `2` (0 at the superradiant bound frequency \[Omega] = m \[CapitalOmega]_H), where the MST series cannot represent the \"In\" solution (its hypergeometric functions have c = 1 - s - 2 I \[Epsilon]_+ at a pole).";
+TeukolskyRadial::innorm = "The transmission amplitude of the \"In\" solution vanishes at \[Omega] = `1` (2 I \[Epsilon]_+ = `2` >= 1 - s); it is normalised to unit incidence instead of unit transmission.";
 
 
 (* ::Subsection::Closed:: *)
@@ -155,9 +155,11 @@ mstAmplitudes[s_, l_, m_, a_, \[Omega]_, \[Lambda]_, \[Nu]_, p_, prec_, acc_] :=
    superradiant bound frequency omega = m Omega_H, where the horizon basis Exp[i k r_*], Delta^-s Exp[-i k r_*]
    is resonant (coincident for s = 0, Frobenius exponents differing by the integer s otherwise); on the
    imaginary axis every n does. The amplitude formulae have poles there (Gamma[1 - s - 2 I epsilon_+]
-   and 1/Sin[2 Pi I epsilon_+]), and for n >= 1 - s the hypergeometric series of the "In" solution has its
-   c parameter, 1 - s - 2 I epsilon_+, at a pole and cannot represent that solution at all. Returns n, or
-   None. Frequencies within 10^(3 - wp) of a degeneracy, relative, are treated as being at it: closer
+   and 1/Sin[2 Pi I epsilon_+]), and for n >= 1 - s the hypergeometric functions of the "In" series have their
+   c parameter, 1 - s - 2 I epsilon_+, at a non-positive integer: the unit-transmission "In" solution has no
+   limit there, and the regularised series of the MST package gives the horizon solution of larger exponent,
+   whose transmission amplitude vanishes, so that the "In" solution is normalised to unit incidence instead
+   (see normalisationKey). Returns n, or None. Frequencies within 10^(3 - wp) of a degeneracy, relative, are treated as being at it: closer
    than that the formulae have lost all their digits. *)
 epsilonPlusDegeneracy[s_, m_, a_, \[Omega]_, wp_] :=
  Module[{\[Kappa] = Sqrt[1 - a^2], \[Epsilon] = 2 \[Omega], \[Tau], x, n, tol},
@@ -175,11 +177,12 @@ epsilonPlusDegeneracy[s_, m_, a_, \[Omega]_, wp_] :=
    amplitudes have finite limits for s <= 0, and the "Up" coefficient along the horizon basis function of
    larger exponent diverges like 1/k (the "Reflection", along Delta^-s Exp[-i k r_*], for s <= 0, the
    "Incidence", along Exp[i k r_*], for s >= 0, both for s = 0), as the coefficients of any finite solution
-   expanded in a degenerating basis do. For s >= 1 the "In" amplitudes diverge as well: the "In" solution is
-   then the smaller-exponent member of the resonant basis and has no unit-transmission limit, so
-   TeukolskyRadial refuses it (::insing) before reaching this function. A divergent amplitude is
-   recognised from the antisymmetric part of its neighbouring values, which is O(h) relative for a
-   regular one and O(1/h) for a pole, and returned as Indeterminate. *)
+   expanded in a degenerating basis do. For s >= 1 the unit-transmission "In" solution has no limit: the
+   MST package's regularised "In" amplitudes (divided by Gamma[1 - s - 2 I epsilon_+]) have finite incidence
+   and reflection limits and a transmission amplitude that vanishes like k, and the solution is normalised
+   to unit incidence. A divergent amplitude is recognised from the antisymmetric part of its neighbouring
+   values, which is O(h) relative for a regular one and O(1/h) for a pole, and returned as Indeterminate;
+   a vanishing one is antisymmetric too but smaller at h than at 2 h, and is returned as 0. *)
 superradiantAmplitudes[s_, l_, m_, a_, \[Omega]_, {wp_, prec_, acc_}, \[Nu]method_] :=
  Module[{h, amps, ampsAt, limit, keys = {"Incidence", "Transmission", "Reflection"}, divergent},
   (* the neighbours lose about Log10[1/h] digits to the nearby pole, which their padded evaluation
@@ -193,15 +196,21 @@ superradiantAmplitudes[s_, l_, m_, a_, \[Omega]_, {wp_, prec_, acc_}, \[Nu]metho
   amps = ampsAt /@ {h, -h, 2 h, -2 h};
   limit[{p1_, m1_, p2_, m2_}] :=
     If[!AllTrue[{p1, m1, p2, m2}, NumericQ] || Abs[p1 - m1] > Sqrt[h] Abs[p1 + m1],
-      Indeterminate,
+      If[AllTrue[{p1, m1, p2, m2}, NumericQ] && Abs[p1] < Abs[p2], 0, Indeterminate],
       With[{res = (4 (p1 + m1)/2 - (p2 + m2)/2)/3}, If[wp === MachinePrecision, res, SetPrecision[res, Min[Precision[res], wp]]]]
     ];
   amps = Association @@ Table[bc -> Association @@ Table[key -> limit[#[bc][key] & /@ amps], {key, keys}], {bc, {"In", "Up"}}];
   divergent = Flatten[Table[If[amps[bc][key] === Indeterminate, {bc, key}, Nothing], {bc, {"In", "Up"}}, {key, keys}], 1];
   With[{n = epsilonPlusDegeneracy[s, m, a, \[Omega], wp]},
-    If[n === 0, Message[TeukolskyRadial::superradiant, divergent], Message[TeukolskyRadial::degenerate, n, \[Omega], divergent]]];
+    If[n === 0, Message[TeukolskyRadial::superradiant, divergent], Message[TeukolskyRadial::degenerate, n, \[Omega], divergent]];
+    If[normalisationKey[amps["In"]] === "Incidence", Message[TeukolskyRadial::innorm, \[Omega], n]]];
   amps
  ];
+
+(* The amplitude a solution is normalised to: unit transmission, except for an "In" solution whose
+   transmission amplitude vanishes (the degeneracies 2 I epsilon_+ = n >= 1 - s, see epsilonPlusDegeneracy),
+   which is normalised to unit incidence. *)
+normalisationKey[ns_Association] := If[NumericQ[ns["Transmission"]] && ns["Transmission"] == 0, "Incidence", "Transmission"];
 
 
 
@@ -238,8 +247,8 @@ TeukolskyRadialNumericalIntegration[s_Integer, l_Integer, m_Integer, a_, \[Omega
    Module[{solutionFunction, bcdir, amp},
     solutionFunction = sf[domain];
     bcdir = bc /. {"In" -> -1, "Up" -> +1};
-    (*  Rescale amplitudes to give unit transmission coefficient. *)
-    amp = ns/ns[["Transmission"]];
+    (*  Rescale amplitudes to give unit transmission coefficient (unit incidence where the transmission vanishes). *)
+    amp = ns/ns[[normalisationKey[ns]]];
     TeukolskyRadialFunction[s, l, m, a, \[Omega],
      Association["s" -> s, "l" -> l, "m" -> m, "a" -> a, "\[Omega]" -> \[Omega], "Eigenvalue" -> \[Lambda], "RenormalizedAngularMomentum" -> \[Nu],
       "Method" -> {"NumericalIntegration", ndsolveopts},
@@ -306,8 +315,8 @@ TeukolskyRadialSasakiNakamura[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, \[
    Module[{solutionFunction, amp},
     If[sf === $Failed, Return[$Failed]];
     solutionFunction = sf[domain];
-    (*  Rescale amplitudes to give unit transmission coefficient. *)
-    amp = ns/ns[["Transmission"]];
+    (*  Rescale amplitudes to give unit transmission coefficient (unit incidence where the transmission vanishes). *)
+    amp = ns/ns[[normalisationKey[ns]]];
     TeukolskyRadialFunction[s, l, m, a, \[Omega],
      Association["s" -> s, "l" -> l, "m" -> m, "a" -> a, "\[Omega]" -> \[Omega], "Eigenvalue" -> \[Lambda], "RenormalizedAngularMomentum" -> \[Nu],
       "Method" -> {"SasakiNakamura", ndsolveopts},
@@ -397,8 +406,8 @@ TeukolskyRadialMST[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, \[Lambda]_, \
  Module[{amps, solFuncs, TRF},
   (* Function to construct a TeukolskyRadialFunction *)
   TRF[bc_, ns_, sf_] := Module[{amp},
-    (*  Rescale amplitudes to give unit transmission coefficient. *)
-    amp = ns/ns[["Transmission"]];
+    (*  Rescale amplitudes to give unit transmission coefficient (unit incidence where the transmission vanishes). *)
+    amp = ns/ns[[normalisationKey[ns]]];
     TeukolskyRadialFunction[s, l, m, a, \[Omega],
      Association["s" -> s, "l" -> l, "m" -> m, "a" -> a, "\[Omega]" -> \[Omega], "Eigenvalue" -> \[Lambda], "RenormalizedAngularMomentum" -> \[Nu],
       "Method" -> {"MST"},
@@ -410,7 +419,7 @@ TeukolskyRadialMST[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, \[Lambda]_, \
 
   (* Solution functions for the specified boundary conditions *)
   solFuncs =
-    <|"In" :> Teukolsky`MST`MST`Private`MSTRadialIn[s,l,m,a,2\[Omega],\[Nu],\[Lambda],norms["In", "Transmission"], {wp, prec, acc}],
+    <|"In" :> Teukolsky`MST`MST`Private`MSTRadialIn[s,l,m,a,2\[Omega],\[Nu],\[Lambda],norms["In", normalisationKey[norms["In"]]], {wp, prec, acc}],
       "Up" :> Teukolsky`MST`MST`Private`MSTRadialUp[s,l,m,a,2\[Omega],\[Nu],\[Lambda],norms["Up", "Transmission"], {wp, prec, acc}]|>;
   solFuncs = Lookup[solFuncs, BCs];
 
@@ -441,8 +450,8 @@ TeukolskyRadialHeunC[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, \[Lambda]_,
 
   (* Function to construct a TeukolskyRadialFunction *)
   TRF[bc_, ns_, sf_] := Module[{amp},
-    (*  Rescale amplitudes to give unit transmission coefficient. *)
-    amp = ns/ns[["Transmission"]];
+    (*  Rescale amplitudes to give unit transmission coefficient (unit incidence where the transmission vanishes). *)
+    amp = ns/ns[[normalisationKey[ns]]];
     If[sf === $Failed, $Failed,
       TeukolskyRadialFunction[s, l, m, a, \[Omega],
         Association["s" -> s, "l" -> l, "m" -> m, "a" -> a, "\[Omega]" -> \[Omega], "Eigenvalue" -> \[Lambda], "RenormalizedAngularMomentum" -> \[Nu],
@@ -737,17 +746,6 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
     ];
 
     TRF[s, l, m, a, \[Omega], \[Lambda], \[Nu], bcs, norms, {wp, prec, acc}, Sequence@@subopts]
-  ];
-
-  (* At a degeneracy with 2 I epsilon_+ = n >= 1 - s the MST series cannot represent the "In" solution;
-     n = 0 is the superradiant bound frequency, where this is the case for s >= 1 (the "In" solution is
-     then the smaller-exponent member of the resonant horizon basis and has no unit-transmission
-     limit; evaluating its series at c = 1 - s used to hang in the precision-padding retries). *)
-  With[{n = epsilonPlusDegeneracy[s, m, a, \[Omega], wp]},
-    If[IntegerQ[n] && n >= 1 - s && MemberQ[Flatten[{BCs}], "In"],
-      Message[TeukolskyRadial::insing, n, \[Omega]];
-      Return[$Failed];
-    ];
   ];
 
   (* Call the chosen implementation, checking the MST solutions through their Wronskian and, when the
