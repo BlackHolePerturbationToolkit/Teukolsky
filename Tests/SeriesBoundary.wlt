@@ -81,3 +81,15 @@ VerificationTest[
   {True, True, True, True, True},
   TestID -> "In solution of spin -2 at omega = 2 up to r = 300"
 ]
+
+(* Schwarzschild: the first coefficient of the ingoing series vanishes exactly and must not be taken as convergence *)
+VerificationTest[
+  Module[{R, Rref},
+    R = TeukolskyRadial[-2, 2, 2, 0., 1.];
+    Rref = TeukolskyRadial[-2, 2, 2, 0, N[1, 32], Method -> "MST"];
+    (* r = 20 is just inside the join radius, where the outward integration has lost two digits *)
+    Table[Abs[R["In"][N[r]]/Rref["In"][N[r, 32]] - 1] < 10^-11, {r, {6, 20, 50, 100}}]
+  ],
+  {True, True, True, True},
+  TestID -> "In solution of spin -2 at a = 0, omega = 1, up to r = 100"
+]

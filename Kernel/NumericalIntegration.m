@@ -278,19 +278,22 @@ inBoundarySeries[s_, \[Lambda]_, m_, a_, \[Omega]_] :=
    term is below 1e-15 relative (the radius is raised by factors of 5/4 until it is). The coefficient of
    r^(8-j) of the equation gives c_{j-1} from c_0..c_{j-2}. *)
 upSeriesAt[s_, \[Lambda]_, m_, a_, \[Omega]_, r_] :=
- Module[{p, pp, t, psi, dpsi, best, coef, rest, tj, j, n},
+ Module[{p, pp, t, psi, dpsi, best, coef, rest, tj, j, n, small},
   (* returns {psi, psi', relative size of the smallest term, the scaled coefficients t_n = c_n r^-n} *)
   p = hpsPolys[s, \[Lambda], m, a, \[Omega], 1];
   pp[i_, k_] := If[0 <= k <= 8, p[[i + 1, k + 1]], 0];
-  t = {1.}; psi = 1.; dpsi = 0.; best = Infinity;
+  t = {1.}; psi = 1.; dpsi = 0.; best = Infinity; small = 0;
   Do[
     coef = pp[0, 7] - (j - 1) pp[1, 8];
     rest = Sum[t[[n + 1]] r^(n - (j - 1)) (pp[0, 8 - j + n] - n pp[1, 8 - j + n + 1] + n (n + 1) pp[2, 8 - j + n + 2]), {n, Max[0, j - 10], j - 2}];
     tj = -rest/coef;
-    If[Abs[tj] > best, Break[]];
+    (* a coefficient that vanishes exactly (c_1 at a = 0, say) is neither the smallest term nor convergence *)
+    If[Abs[tj] == 0, AppendTo[t, tj]; Continue[]];
+    If[Abs[tj] > best, Break[]];   (* past the smallest term: stop *)
     AppendTo[t, tj]; best = Abs[tj];
     psi += tj; dpsi += -(j - 1) tj/r;
-    If[Abs[tj] < 10^-17 Abs[psi], Break[]],
+    small = If[Abs[tj] < 10^-17 Abs[psi], small + 1, 0];
+    If[small >= 2, Break[]],
     {j, 2, 600}];
   (* a vanishing partial sum (1 - 4/r at r = 4 for a = 0, say) means the series has not converged there *)
   {psi, dpsi, If[Abs[psi] > 10^-6 Max[Abs[t]], best/Abs[psi], Infinity], t}
@@ -310,19 +313,21 @@ upBoundarySeries[s_, \[Lambda]_, m_, a_, \[Omega]_, rmin_] :=
    R -> e^{-i omega r*}/r, summed like the "Up" series; the coefficient of r^(2s+8-j) gives e_{j-1}, the two
    top powers vanish identically for this exponent. Returns {psi, psi', relative size of the smallest term, t}. *)
 inSeriesAt[s_, \[Lambda]_, m_, a_, \[Omega]_, r_] :=
- Module[{p, pp, A, \[Rho] = 2 s, t, psi, dpsi, best, coef, rest, tj, j, n},
+ Module[{p, pp, A, \[Rho] = 2 s, t, psi, dpsi, best, coef, rest, tj, j, n, small},
   p = hpsPolys[s, \[Lambda], m, a, \[Omega], -1];
   pp[i_, k_] := If[0 <= k <= 8, p[[i + 1, k + 1]], 0];
   A[j_, n_] := pp[0, 8 - j + n] + (\[Rho] - n) pp[1, 8 - j + n + 1] + (\[Rho] - n) (\[Rho] - n - 1) pp[2, 8 - j + n + 2];
-  t = {1.}; psi = 1.; dpsi = \[Rho]/r; best = Infinity;
+  t = {1.}; psi = 1.; dpsi = \[Rho]/r; best = Infinity; small = 0;
   Do[
     coef = A[j, j - 1];
     rest = Sum[t[[n + 1]] r^(n - (j - 1)) A[j, n], {n, Max[0, j - 10], j - 2}];
     tj = -rest/coef;
+    If[Abs[tj] == 0, AppendTo[t, tj]; Continue[]];
     If[Abs[tj] > best, Break[]];
     AppendTo[t, tj]; best = Abs[tj];
     psi += tj; dpsi += (\[Rho] - (j - 1)) tj/r;
-    If[Abs[tj] < 10^-17 Abs[psi], Break[]],
+    small = If[Abs[tj] < 10^-17 Abs[psi], small + 1, 0];
+    If[small >= 2, Break[]],
     {j, 2, 600}];
   (* dpsi accumulated (rho - n) t_n / r, so the derivative of r^rho Sum t_n is dpsi r^rho *)
   {psi r^\[Rho], dpsi r^\[Rho], If[Abs[psi] > 10^-6 Max[Abs[t]], best/Abs[psi], Infinity], t}
@@ -368,14 +373,25 @@ inSeriesSolution[s_, a_, \[Omega]_, Binc_, Bref_, tIng_, tUp_, rb_, lower_][r_?N
   If[r >= rb,
     Binc r^(2 s) Sum[tIng[[n + 1]] (rb/r)^n, {n, 0, Length[tIng] - 1}] + Bref Exp[2 I \[Omega] tortoise[r, a]] Sum[tUp[[n + 1]] (rb/r)^n, {n, 0, Length[tUp] - 1}],
     lower[r]];
-inSeriesSolution[s_, a_, \[Omega]_, Binc_, Bref_, tIng_, tUp_, rb_, lower_][r:{__?NumericQ}] := Map[inSeriesSolution[s, a, \[Omega], Binc, Bref, tIng, tUp, rb, lower], r];
+(* lists: the radii below rb go to the integrator in one call (one integration), the others to the series *)
+inSeriesSolution[s_, a_, \[Omega]_, Binc_, Bref_, tIng_, tUp_, rb_, lower_][r:{__?NumericQ}] :=
+  splitEvaluate[inSeriesSolution[s, a, \[Omega], Binc, Bref, tIng, tUp, rb, lower], lower, rb, r];
 Derivative[1][inSeriesSolution[s_, a_, \[Omega]_, Binc_, Bref_, tIng_, tUp_, rb_, lower_]][r_?NumericQ] :=
   If[r >= rb,
     With[{ing = Sum[tIng[[n + 1]] (rb/r)^n, {n, 0, Length[tIng] - 1}], ding = Sum[-n tIng[[n + 1]] (rb/r)^n/r, {n, 0, Length[tIng] - 1}],
           up = Sum[tUp[[n + 1]] (rb/r)^n, {n, 0, Length[tUp] - 1}], dup = Sum[-n tUp[[n + 1]] (rb/r)^n/r, {n, 0, Length[tUp] - 1}], ph = Exp[2 I \[Omega] tortoise[r, a]]},
       Binc (2 s r^(2 s - 1) ing + r^(2 s) ding) + Bref ph (2 I \[Omega] (r^2 + a^2)/(r^2 - 2 r + a^2) up + dup)],
     lower'[r]];
-Derivative[1][inSeriesSolution[s_, a_, \[Omega]_, Binc_, Bref_, tIng_, tUp_, rb_, lower_]][r:{__?NumericQ}] := Map[Derivative[1][inSeriesSolution[s, a, \[Omega], Binc, Bref, tIng, tUp, rb, lower]], r];
+Derivative[1][inSeriesSolution[s_, a_, \[Omega]_, Binc_, Bref_, tIng_, tUp_, rb_, lower_]][r:{__?NumericQ}] :=
+  splitEvaluate[Derivative[1][inSeriesSolution[s, a, \[Omega], Binc, Bref, tIng, tUp, rb, lower]], Derivative[1][lower], rb, r];
+
+(* f on a list of radii: those below rsplit evaluated by g in a single call, the others by f one at a time *)
+splitEvaluate[f_, g_, rsplit_, r_List] :=
+ Module[{low = Flatten[Position[r, x_ /; x < rsplit, {1}]], res = ConstantArray[0, Length[r]]},
+  If[low =!= {}, res[[low]] = g[r[[low]]]];
+  res[[Complement[Range[Length[r]], low]]] = f /@ r[[Complement[Range[Length[r]], low]]];
+  res
+ ];
 
 
 (* The "Up" solution on the full domain from the large-r series: the series itself beyond its radius rb, an
@@ -395,10 +411,10 @@ upSeriesSolutionBuild[s_, \[Lambda]_, m_, a_, \[Omega]_, ndsolveopts___] :=
 
 upSeriesSolution[t_, rb_, rc_, interp_, lower_][r_?NumericQ] :=
   Which[r >= rb, Sum[t[[n + 1]] (rb/r)^n, {n, 0, Length[t] - 1}], r >= rc, interp[r], True, lower[r]];
-upSeriesSolution[t_, rb_, rc_, interp_, lower_][r:{__?NumericQ}] := Map[upSeriesSolution[t, rb, rc, interp, lower], r];
+upSeriesSolution[t_, rb_, rc_, interp_, lower_][r:{__?NumericQ}] := splitEvaluate[upSeriesSolution[t, rb, rc, interp, lower], lower, rc, r];
 Derivative[k_Integer?Positive][upSeriesSolution[t_, rb_, rc_, interp_, lower_]][r_?NumericQ] :=
   Which[r >= rb, Sum[t[[n + 1]] (-1)^k Pochhammer[n, k] (rb/r)^n r^-k, {n, 0, Length[t] - 1}], r >= rc, Derivative[k][interp][r], True, Derivative[k][lower][r]];
-Derivative[k_Integer?Positive][upSeriesSolution[t_, rb_, rc_, interp_, lower_]][r:{__?NumericQ}] := Map[Derivative[k][upSeriesSolution[t, rb, rc, interp, lower]], r];
+Derivative[k_Integer?Positive][upSeriesSolution[t_, rb_, rc_, interp_, lower_]][r:{__?NumericQ}] := splitEvaluate[Derivative[k][upSeriesSolution[t, rb, rc, interp, lower]], Derivative[k][lower], rc, r];
 
 
 (* ::Section::Closed:: *)
