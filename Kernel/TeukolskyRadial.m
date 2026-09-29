@@ -735,7 +735,12 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
   (* Decide which implementation to use *)
   Switch[OptionValue[Method],
     Automatic,
-      If[wp === MachinePrecision,
+      (* At a complex frequency the numerical integration is ill-conditioned at machine precision: the two
+         solutions differ by Exp[2 I omega r*], of modulus Exp[2 |Im omega| r*], so the "In" solution is
+         exponentially subdominant outwards and the "Up" solution inwards, and any error in the boundary data is
+         amplified by Exp[2 |Im omega| (range of tortoise coordinate)] (1e-15 to 1e-5.5 over 40 in r at Im omega = -1/5). The MST
+         series do not integrate and keep 1e-13 there, so they are the default for complex frequencies. *)
+      If[wp === MachinePrecision && Im[\[Omega]] == 0,
          TRF = TeukolskyRadialAutomaticMachinePrecision,
          TRF = TeukolskyRadialMST],
     "MST" | {"MST", OptionsPattern[TeukolskyRadialMST]},

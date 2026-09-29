@@ -27,10 +27,27 @@ VerificationTest[
   TestID -> "Series boundary data at a = 99/100 (the horizon series is evaluated at r+ + kappa)"
 ]
 
+(* At a complex frequency the integration in either direction amplifies boundary errors by Exp[2 |Im omega| (range of
+   tortoise coordinate)], so the machine-precision default is MST there; the integration is still available explicitly *)
 VerificationTest[
-  seriesErr[-2, 2, 2, 3/5, 1/2 - I/5, {3, 6, 20}] < 10^-10,
-  True,
-  TestID -> "Series boundary data at a complex frequency"
+  Module[{R, Rref},
+    R = TeukolskyRadial[-2, 2, 2, 0.6, 0.5 - 0.2 I];
+    Rref = TeukolskyRadial[-2, 2, 2, N[3/5, 32], N[1/2 - I/5, 32], Method -> "MST"];
+    {R["In"]["Method"], Max[Table[Abs[R[bc][N[r]]/Rref[bc][N[r, 32]] - 1], {bc, {"In", "Up"}}, {r, {3, 6, 20}}]] < 10^-11}
+  ],
+  {{"MST"}, True},
+  TestID -> "Machine-precision default at a complex frequency is MST"
+]
+
+VerificationTest[
+  Module[{R, Rref},
+    R = TeukolskyRadial[0, 2, 1, 0.7, 0.3 - 0.2 I, Method -> "NumericalIntegration"];
+    Rref = TeukolskyRadial[0, 2, 1, N[7/10, 32], N[3/10 - I/5, 32], Method -> "MST"];
+    (* the inward "Up" integration from the series radius (r = 47) loses about Exp[0.4 (47 - r)] *)
+    {Abs[R["In"][6.]/Rref["In"][N[6, 32]] - 1] < 10^-12, Abs[R["Up"][30.]/Rref["Up"][N[30, 32]] - 1] < 10^-10, Abs[R["Up"][4.]/Rref["Up"][N[4, 32]] - 1] < 10^-4}
+  ],
+  {True, True, True},
+  TestID -> "Series boundary data at a complex frequency, explicit numerical integration"
 ]
 
 (* the default method reports itself, and MST boundary data remain available *)
