@@ -145,8 +145,16 @@ Switch[MST`$MasterFunction,
 (*Hypergeometric2F1*)
 
 
+(* At a degeneracy 2 I epsilon_+ = n >= 1 - s the parameter c is a non-positive integer up to the rounding of
+   the inexact inputs, e.g. -1 + 6 10^-58 I with two digits of precision at 60-digit working precision.
+   The regularised functions are entire in c, so such a c is taken to be the integer itself: Mathematica
+   evaluates them stably for an exact integer c (and for a genuinely small offset carrying full precision)
+   but returns Indeterminate for an offset that is zero to working precision, in particular for c + 1 in the
+   derivative. *)
+cSnapped[c_] := With[{n = Round[Re[c]]}, If[n <= 0 && Abs[c - n] <= 10^(3 - Precision[c]), n, c]];
+
 H2F1Exact[n_, s_, \[Nu]_, \[Tau]_, \[Epsilon]_, x_] :=
- Module[{a = aF[s, \[Nu], \[Tau], \[Epsilon]], b = bF[s, \[Nu], \[Tau], \[Epsilon]], c = cF[s, \[Nu], \[Tau], \[Epsilon]]},
+ Module[{a = aF[s, \[Nu], \[Tau], \[Epsilon]], b = bF[s, \[Nu], \[Tau], \[Epsilon]], c = cSnapped[cF[s, \[Nu], \[Tau], \[Epsilon]]]},
   Hypergeometric2F1Regularized[n + a, b-n, c, x]
 ];
 
@@ -161,7 +169,7 @@ H2F1Down[n_, s_, \[Nu]_, \[Tau]_, \[Epsilon]_, x_] :=
 ];
 
 dH2F1Exact[n_, s_, \[Nu]_, \[Tau]_, \[Epsilon]_, x_] :=
- Module[{a = aF[s, \[Nu], \[Tau], \[Epsilon]], b = bF[s, \[Nu], \[Tau], \[Epsilon]], c = cF[s, \[Nu], \[Tau], \[Epsilon]]},
+ Module[{a = aF[s, \[Nu], \[Tau], \[Epsilon]], b = bF[s, \[Nu], \[Tau], \[Epsilon]], c = cSnapped[cF[s, \[Nu], \[Tau], \[Epsilon]]]},
   (n+a)(-n+b) Hypergeometric2F1Regularized[n + a + 1, -n + b + 1, c + 1, x]
 ];
 
@@ -535,10 +543,15 @@ SetAttributes[MSTRadialIn, {NumericFunction}];
 (* Sum term[n] from n0 in direction dir until the partial sum stops changing or the term falls below the
    goals; term[n] is a number, or a list {value, derivative} for a combined evaluation, in which case every
    component must have converged. *)
+(* A non-numeric term (Indeterminate, ComplexInfinity) ends the summation with Indeterminate, which the
+   padded evaluation then retries or reports; the convergence test below would never be met by it and the
+   loop would not terminate. *)
 sumSeries[term_, n0_, dir_, prec_, acc_] :=
  Module[{res = 0, old, t, n = n0},
   While[True,
-    t = term[n]; old = res; res = old + t;
+    t = term[n];
+    If[!AllTrue[Flatten[{t}], NumericQ], Return[Indeterminate]];
+    old = res; res = old + t;
     If[!(Or @@ Thread[Flatten[{res}] != Flatten[{old}]] && Or @@ Thread[Abs[Flatten[{t}]] > 10^-acc + Abs[Flatten[{res}]] 10^-prec]), Break[]];
     n += dir;
   ];
