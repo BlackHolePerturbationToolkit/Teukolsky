@@ -132,9 +132,12 @@ mstWronskianError[R_Association, s_Integer, a_, \[Omega]_, wp_] :=
   r = 2 rp[a, 1];
   Wexact = 2 I \[Omega] R["In"]["Amplitudes"]["Incidence"] R["Up"]["Amplitudes"]["Transmission"];
   If[!NumericQ[Wexact] || Wexact == 0, Return[0]];
-  W = Quiet[Module[{i, di, u, du}, {i, di} = R["In"][r, {0, 1}]; {u, du} = R["Up"][r, {0, 1}]; (r^2 - 2 r + a^2)^(s + 1) (i du - di u)]];
+  {W, scale} = Quiet[Module[{i, di, u, du}, {i, di} = R["In"][r, {0, 1}]; {u, du} = R["Up"][r, {0, 1}]; (r^2 - 2 r + a^2)^(s + 1) {i du - di u, Abs[i du] + Abs[di u]}]];
   If[!NumericQ[W], Return[Infinity]];
-  Abs[W/Wexact - 1]
+  (* relative to the larger of the exact Wronskian and the size of its two terms: at a complex frequency
+     the terms are of order Exp[2 |Im omega| r*] times W and the identity can only hold to that
+     cancellation, which is not an error of the solutions *)
+  Abs[W - Wexact]/Max[Abs[Wexact], scale]
  ];
 
 
@@ -846,10 +849,11 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
      result. The failure it guards against, the coefficient recurrence yielding its wrong solution, needs a
      deep bump in the coefficients, which shows as padding of 100 digits and more, whereas ordinary modes
      need 10-20 digits at 32 digits of working precision and none at machine precision. *)
-  (* For a complex frequency the identity is violated by an amount that grows like |omega|^5 (1e-25 at
-     |omega| = 1e-5, 1e-6 at 0.3, O(1) at 1.7 on the imaginary axis, independent of the working precision),
-     which points at the amplitude formulae rather than at the evaluation, so the check is not applied there. *)
-  check = MatchQ[OptionValue["WronskianCheck"], True|Automatic] && TRF === TeukolskyRadialMST && MatchQ[OptionValue["Amplitudes"], Automatic|True] && Im[\[Omega]] == 0;
+  (* The check used to be skipped at complex frequencies, where the identity appeared to be violated by an
+     amount growing like |omega|^5 on the imaginary axis; that was the "Up" solution evaluated on the wrong
+     side of a branch cut (see hypergeometricU in the MST package), and the identity now holds there to
+     the working precision, within the cancellation between its two terms (mstWronskianError). *)
+  check = MatchQ[OptionValue["WronskianCheck"], True|Automatic] && TRF === TeukolskyRadialMST && MatchQ[OptionValue["Amplitudes"], Automatic|True];
   extra = Teukolsky`MST`MST`Private`modePadding[s, l, m, a, 2 \[Omega]];
   If[!check, Return[compute[extra, BCs]]];
   {ampPadding, ampRetried} = {0, False};
