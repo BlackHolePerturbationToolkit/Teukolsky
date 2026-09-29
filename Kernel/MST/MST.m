@@ -878,8 +878,10 @@ With[{sym = $radialFunctionSymbol},
   sym::prec = "The MST series for the `1` radial function at r = `2` could only be evaluated to a precision of `3` (`4` requested).";
 ];
 
+(* The large-radius representations were derived and validated for real frequencies; for a complex
+   frequency the hypergeometric series is used at every radius. *)
 mstInRepresentation[q_, \[Epsilon]_, r_] :=
- If[$masterFunction === "Teukolsky" && Abs[\[Epsilon]] (r - (1 + Sqrt[1 - q^2]))/2 > $MSTRepresentationThreshold, $MSTInLargeRadiusRepresentation, "Series"];
+ If[$masterFunction === "Teukolsky" && Im[\[Epsilon]] == 0 && Abs[\[Epsilon]] (r - (1 + Sqrt[1 - q^2]))/2 > $MSTRepresentationThreshold, $MSTInLargeRadiusRepresentation, "Series"];
 
 mstInCore[rep_] := Switch[rep, "Coulomb", mstRadialInCoulomb, "Hypergeometric", mstRadialInLargeRadiusSeries, _, mstRadialInSeriesCore];
 
