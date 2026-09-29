@@ -69,3 +69,16 @@ VerificationTest[
   True,
   TestID -> "Wronskian at the superradiant bound frequency, s = 1"
 ]
+
+(* The derivative of the "In" solution at a radius where the hypergeometric series is used with padded
+   precision: the padded epsilon_+ is a numerically-zero offset and c + 1 of the derivative's hypergeometric
+   functions must be taken as the exact integer (this used to hang) *)
+VerificationTest[
+  R = Quiet[TeukolskyRadial[2, 6, 6, N[3/5, 32], N[1, 32]]];
+  Rp = TeukolskyRadial[2, 6, 6, N[3/5, 32], N[1 + 10^-8, 32]];
+  Rm = TeukolskyRadial[2, 6, 6, N[3/5, 32], N[1 - 10^-8, 32]];
+  d = TimeConstrained[R["In"]'[N[10, 32]], 120, $Failed];
+  {NumericQ[d], Abs[d/((Rp["In"]'[N[10, 32]]/Rp["In"]["Amplitudes"]["Incidence"] + Rm["In"]'[N[10, 32]]/Rm["In"]["Amplitudes"]["Incidence"])/2) - 1] < 10^-8},
+  {True, True},
+  TestID -> "In derivative at the superradiant bound frequency with padded series, s = 2, l = m = 6"
+]
