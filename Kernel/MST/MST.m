@@ -188,9 +188,29 @@ dH2F1Down[n_, s_, \[Nu]_, \[Tau]_, \[Epsilon]_, x_] :=
 (*HypergeometricU*)
 
 
+(* The Coulomb-type series are derived for Re epsilon > 0, where the argument c = -2 I zhat of the
+   confluent hypergeometric functions has -Pi < Arg[c] < 0. At a purely imaginary frequency with
+   Im epsilon < 0 the argument is negative real, on the branch cut of HypergeometricU, and the value
+   continuous with Re epsilon > 0 is the limit from below the cut, whereas Mathematica's principal value
+   is the limit from above. We evaluate U just below the cut, with an imaginary part far below the
+   precision goal (raising the precision of the argument so that the shift is representable): the
+   connection formula for the two sides of the cut (DLMF 13.2.12) suffers from cancellation between its
+   terms and loses up to fifteen digits at machine precision for |Im a| of a few. Frequencies with
+   Re epsilon < 0 are handled by the conjugation symmetry (see MSTRadialIn), so the negative real axis
+   is the only part of the cut that is reached. *)
+hypergeometricU[a_, b_, c_] /; Im[c] == 0 && Re[c] < 0 :=
+  With[{p = Precision[{a, b, c}]},
+    Which[
+      p === MachinePrecision, HypergeometricU[a, b, c - I 10^-26 Abs[c]],
+      p === Infinity, HypergeometricU[a, b, c - I 10^-60 Abs[c]],
+      (* the arguments are evaluated at their lowest common precision, so all three are raised, and the
+         result is set back to that precision *)
+      True, SetPrecision[HypergeometricU[SetPrecision[a, p + 20], SetPrecision[b, p + 20], SetPrecision[c, p + 20] - I 10^(-Floor[p] - 10) Abs[c]], p]]];
+hypergeometricU[a_, b_, c_] := HypergeometricU[a, b, c];
+
 HUExact[n_, s_, \[Nu]_, \[Epsilon]_, zhat_] :=
  Module[{a = aU[s, \[Nu], \[Tau], \[Epsilon]], b = 2 \[Nu] + 2, c = -2 I zhat},
-  (c)^n HypergeometricU[n+a,2n+b,c]
+  (c)^n hypergeometricU[n+a,2n+b,c]
 ];
 
 HUUp[n_, s_, \[Nu]_, \[Epsilon]_, zhat_] :=
@@ -205,7 +225,7 @@ HUDown[n_, s_, \[Nu]_, \[Epsilon]_, zhat_] :=
 
 dHUExact[n_, s_, \[Nu]_, \[Epsilon]_, zhat_] :=
  Module[{a = aU[s, \[Nu], \[Tau], \[Epsilon]], b = 2 \[Nu] + 2, c = -2 I zhat},
-  (-2 I) (c^(-1+n) n HypergeometricU[a+n,b+2 n,c]-c^n (a+n) HypergeometricU[1+a+n,1+b+2 n,c])
+  (-2 I) (c^(-1+n) n hypergeometricU[a+n,b+2 n,c]-c^n (a+n) hypergeometricU[1+a+n,1+b+2 n,c])
 ];
 
 dHUUp[n_, s_, \[Nu]_, \[Epsilon]_, zhat_] :=
@@ -308,6 +328,11 @@ AminusCoefficient[s_Integer, m_Integer, q_, \[Epsilon]_, \[Kappa]_, \[Tau]_, \[N
 (* ::Section::Closed:: *)
 (*Asymptotic amplitudes*)
 
+
+(* Re epsilon < 0: the conjugate partner's amplitudes, conjugated (see MSTRadialIn; the powers of epsilon in
+   the amplitude formulae are on the wrong side of their cuts there) *)
+Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, {wp_, prec_, acc_}] /; Re[\[Epsilon]] < 0 :=
+  Map[Conjugate, Amplitudes[s, l, -m, q, -Conjugate[\[Epsilon]], Conjugate[\[Nu]], Conjugate[\[Lambda]], {wp, prec, acc}], {2}];
 
 Switch[MST`$MasterFunction,
 "ReggeWheeler",
@@ -724,6 +749,10 @@ mstRadialPlusSeries[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[
   (* n-independent prefactor: prefacUp times the factors relating the H^- series to the H^+ series;
      equal to minus the prefactor of ST Eq. (153) *)
   Q = prefacUp[s, \[Epsilon], \[Kappa], \[Tau], \[Nu], zz] Exp[-2 I (zz - \[Eta] Log[2 zz] - \[Nu] \[Pi]/2)] (-2 I zz)^(-\[Nu] - 1 - s + I \[Epsilon]) (2 I zz)^(\[Nu] + 1 - s + I \[Epsilon]);
+  (* at a purely imaginary frequency -2 I zhat is negative real and the power (-2 I zz)^(...) must be taken
+     on the side of its cut continuous with Re epsilon > 0, i.e. with Arg = -Pi rather than the principal +Pi
+     (see hypergeometricU) *)
+  If[Re[zhat] == 0 && Im[zhat] < 0, Q = Q Exp[-2 Pi I (-\[Nu] - 1 - s + I \[Epsilon])]];
   If[deriv =!= 0, dQ = D[Q, zz] /. zz -> zhat];
   Q = Q /. zz -> zhat;
   G[n_] := Gamma[n + \[Nu] + 1 - s + I \[Epsilon]]/Gamma[n + \[Nu] + 1 + s - I \[Epsilon]];
@@ -852,10 +881,10 @@ With[{sym = $radialFunctionSymbol},
   sym::upref = "The \"Up\" reflection amplitude is only available for real frequencies (\[Omega] = `1` given) and is Indeterminate.";
 ];
 
-(* The large-radius representations were derived and validated for real frequencies; for a complex
-   frequency the hypergeometric series is used at every radius. *)
+(* The Coulomb-type representation is valid at complex frequencies too, now that its series are taken
+   on the right side of their branch cuts (see hypergeometricU and the conjugation rules of MSTRadialIn). *)
 mstInRepresentation[q_, \[Epsilon]_, r_] :=
- If[$masterFunction === "Teukolsky" && Im[\[Epsilon]] == 0 && Abs[\[Epsilon]] (r - (1 + Sqrt[1 - q^2]))/2 > $MSTRepresentationThreshold, $MSTInLargeRadiusRepresentation, "Series"];
+ If[$masterFunction === "Teukolsky" && Abs[\[Epsilon]] (r - (1 + Sqrt[1 - q^2]))/2 > $MSTRepresentationThreshold, $MSTInLargeRadiusRepresentation, "Series"];
 
 mstInCore[rep_] := Switch[rep, "Coulomb", mstRadialInCoulomb, "Hypergeometric", mstRadialInLargeRadiusSeries, _, mstRadialInSeriesCore];
 
@@ -989,6 +1018,23 @@ mstRadialInEvaluate[params:{s_, l_, m_, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, nor
   ];
   res
  ];
+
+(* Frequencies with Re epsilon < 0: the radial equation and its boundary conditions are invariant under
+   complex conjugation combined with (m, epsilon) -> (-m, -Conjugate[epsilon]), which maps the solutions
+   normalised to unit transmission onto each other, so R[m, epsilon] = Conjugate[R[-m, -Conjugate[epsilon]]]
+   with conjugate eigenvalue, nu and amplitudes. The Coulomb-type series and the amplitude formulae are
+   derived for Re epsilon > 0 (their powers and logarithms of zhat and epsilon cross branch cuts otherwise,
+   which gave "Up" solutions violating this symmetry by O(1) for Re omega < 0), so every evaluation with
+   Re epsilon < 0 is mapped to its partner. *)
+conjugateRules[f_Symbol] := (
+  f[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}][r_?NumericQ] /; Re[\[Epsilon]] < 0 :=
+    Conjugate[f[s, l, -m, q, -Conjugate[\[Epsilon]], Conjugate[\[Nu]], Conjugate[\[Lambda]], Conjugate[norm], {wp, prec, acc}][r]];
+  Derivative[1][f[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}]][r_?NumericQ] /; Re[\[Epsilon]] < 0 :=
+    Conjugate[Derivative[1][f[s, l, -m, q, -Conjugate[\[Epsilon]], Conjugate[\[Nu]], Conjugate[\[Lambda]], Conjugate[norm], {wp, prec, acc}]][r]];
+  f[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}][r_?NumericQ, {0, 1}] /; Re[\[Epsilon]] < 0 :=
+    Conjugate[f[s, l, -m, q, -Conjugate[\[Epsilon]], Conjugate[\[Nu]], Conjugate[\[Lambda]], Conjugate[norm], {wp, prec, acc}][r, {0, 1}]];
+);
+conjugateRules /@ {MSTRadialIn, MSTRadialUp};
 
 (* cores taking a derivative order, wrapping the series definitions above *)
 (* Public evaluation: value, first derivative, or both from one summation (f[r, {0, 1}]) *)
