@@ -233,31 +233,96 @@ rs[r_,a_]:=r+2/(rp[a,1]-rm[a,1]) (rp[a,1] Log[(r-rp[a,1])/2]-rm[a,1] Log[(r-rm[a
 
 
 Options[TeukolskyRadialNumericalIntegration] = Join[
-  {"Domain" -> All, "BoundaryData" -> None},
+  {"Domain" -> All, "BoundaryData" -> None, "BoundaryMethod" -> Automatic},
   FilterRules[Options[NDSolve], Except[WorkingPrecision|AccuracyGoal|PrecisionGoal]]];
 
 
 domainQ[domain_] := MatchQ[domain, {_?NumericQ, _?NumericQ} | (_?NumericQ) | All];
 
 
+(* The Teukolsky-Starobinsky map from spin +s (s > 0) to spin -s, Delta^s (D0^dagger)^(2s) Delta^s with
+   D0^dagger = d/dr + I K/Delta, K = (r^2 + a^2) omega - a m, reduced with the radial equation of spin +s and
+   eigenvalue lambda (of that spin) to {f, g} with R_{-s} proportional to f R_{+s} + g R_{+s}'. For the "Up"
+   solutions normalised to unit transmission the constant of proportionality is (2 I omega)^(2s). Derived
+   symbolically once per spin. *)
+teukolskyStarobinskyFlipSymbolic[s_Integer?Positive] := teukolskyStarobinskyFlipSymbolic[s] =
+ Block[{tsR, tsr, ts\[Lambda], tsa, tsm, ts\[Omega]},   (* fixed private symbols, so that the memoised result holds no Module-generated ones *)
+ Module[{K, \[CapitalDelta], Ddag, expr, rules},
+  K = (tsr^2 + tsa^2) ts\[Omega] - tsa tsm; \[CapitalDelta] = tsr^2 - 2 tsr + tsa^2;
+  Ddag[e_] := D[e, tsr] + I K/\[CapitalDelta] e;
+  expr = \[CapitalDelta]^s Nest[Ddag, \[CapitalDelta]^s tsR[tsr], 2 s];
+  rules = {Derivative[n_][tsR][tsr] :> D[(-(-ts\[Lambda] + 2 I tsr s 2 ts\[Omega] + (-2 I (-1 + tsr) s (-tsa tsm + (tsa^2 + tsr^2) ts\[Omega]) + (-tsa tsm + (tsa^2 + tsr^2) ts\[Omega])^2)/(tsa^2 - 2 tsr + tsr^2)) tsR[tsr] - (-2 + 2 tsr) (1 + s) tsR'[tsr])/(tsa^2 - 2 tsr + tsr^2), {tsr, n - 2}] /; n >= 2};
+  expr = Collect[expr //. rules, {tsR[tsr], tsR'[tsr]}, Together];
+  {{ts\[Lambda], tsa, tsm, ts\[Omega], tsr}, {Coefficient[expr, tsR[tsr]], Coefficient[expr, tsR'[tsr]]}}
+ ]];
+
+(* A radial function assembled from two pieces: fp (the Teukolsky-Starobinsky map of the flipped-spin
+   integration) for r >= rc and fm (the integration at the original spin below rc) for r < rc *)
+flippedUpFunction[fp_, fm_, rc_][r_?NumericQ] := If[r >= rc, fp[r], fm[r]];
+flippedUpFunction[fp_, fm_, rc_][r:{__?NumericQ}] := Map[flippedUpFunction[fp, fm, rc], r];
+Derivative[1][flippedUpFunction[fp_, fm_, rc_]][r_?NumericQ] := If[r >= rc, fp'[r], fm'[r]];
+Derivative[1][flippedUpFunction[fp_, fm_, rc_]][r:{__?NumericQ}] := Map[Derivative[1][flippedUpFunction[fp, fm, rc]], r];
+
+(* {f, g} for the given parameters, as expressions in the symbol r *)
+teukolskyStarobinskyFlip[s_Integer?Positive, \[Lambda]_, a_, m_, \[Omega]_, r_] :=
+  teukolskyStarobinskyFlipSymbolic[s][[2]] /. Thread[teukolskyStarobinskyFlipSymbolic[s][[1]] -> {\[Lambda], a, m, \[Omega], r}];
+
+
 TeukolskyRadialNumericalIntegration[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, \[Lambda]_, \[Nu]_, BCs_, norms_, {wp_, prec_, acc_}, opts:OptionsPattern[]] :=
- Module[{TRF, amps, ndsolveopts, solFuncs, domains},
-  (* Function to construct a single TeukolskyRadialFunction *)
+ Module[{TRF, amps, ndsolveopts, psiopts, solFuncs, domains, Uptmp, Intmp, bmethod, flipUp, bdata},
+  (* Function to construct a single TeukolskyRadialFunction. For the "Up" solution of negative spin integrated at
+     the flipped spin (see below), the radial function of spin s is the Teukolsky-Starobinsky map of the
+     integrated one, divided by the constant (2 I omega)^(-2 s) that keeps unit transmission. *)
   TRF[bc_, ns_, sf_, domain_,  ndsolveopts___] :=
-   Module[{solutionFunction, bcdir, amp},
+   Module[{solutionFunction, bcdir, amp, sInt, radialFunction, ft, gt, r, fPlus, fMinus, rc, Rc, dRc, \[Psi]c, d\[Psi]c, lower, goals},
     solutionFunction = sf[domain];
     bcdir = bc /. {"In" -> -1, "Up" -> +1};
+    sInt = If[bc === "Up" && flipUp, -s, s];
     (*  Rescale amplitudes to give unit transmission coefficient (unit incidence where the transmission vanishes). *)
     amp = ns/ns[[normalisationKey[ns]]];
+    radialFunction = If[sInt === s,
+      Evaluate[#^-1 \[CapitalDelta][#,a]^-s Exp[bcdir I \[Omega] rs[#,a]] Exp[I m \[Phi]Reg[#,a]] solutionFunction[#]]&,
+      (* Spin -s from the integrated spin +s: the Teukolsky-Starobinsky map beyond rc = r+ + 1, where the map's
+         cancellation of the dominant Delta^s part of the spin +s solution costs nothing; below rc the spin s
+         equation is integrated inwards from the mapped data at rc (stable over that short range), since the
+         map loses about -2 s Log10[Delta] digits close to the horizon. *)
+      {ft, gt} = teukolskyStarobinskyFlip[sInt, \[Lambda] + 2 s, a, m, \[Omega], r];
+      fPlus = With[{Rp = r^-1 \[CapitalDelta][r,a]^-sInt Exp[bcdir I \[Omega] rs[r,a]] Exp[I m \[Phi]Reg[r,a]] solutionFunction[r], C = (2 I \[Omega])^(-2 s)},
+        Function @@ {r, (ft Rp + gt D[Rp, r])/C}];
+      rc = rp[a, 1] + 1;
+      If[domain =!= All && rc <= First[solutionFunction["Domain"]][[1]],
+        fPlus,
+        {Rc, dRc} = {fPlus[rc], fPlus'[rc]};
+        {\[Psi]c, d\[Psi]c, rc} = Teukolsky`NumericalIntegration`Private`TeukolskyUpBCFromValues[s, m, a, \[Omega], rc, Rc, dRc];
+        goals = Sequence[WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> acc, Teukolsky`NumericalIntegration`Private`ndsolveOptions[ndsolveopts]];
+        lower = If[domain === All,
+          Teukolsky`NumericalIntegration`Private`AllIntegrator[s, \[Lambda], m, a, \[Omega], \[Psi]c, d\[Psi]c, rc, 1, goals],
+          Teukolsky`NumericalIntegration`Private`Integrator[s, \[Lambda], m, a, \[Omega], \[Psi]c, d\[Psi]c, rc, First[solutionFunction["Domain"]][[1]], rc, 1, goals]];
+        fMinus = Evaluate[#^-1 \[CapitalDelta][#,a]^-s Exp[bcdir I \[Omega] rs[#,a]] Exp[I m \[Phi]Reg[#,a]] lower[#]]&;
+        flippedUpFunction[fPlus, fMinus, rc]]];
     TeukolskyRadialFunction[s, l, m, a, \[Omega],
      Association["s" -> s, "l" -> l, "m" -> m, "a" -> a, "\[Omega]" -> \[Omega], "Eigenvalue" -> \[Lambda], "RenormalizedAngularMomentum" -> \[Nu],
       "Method" -> {"NumericalIntegration", ndsolveopts},
       "BoundaryConditions" -> bc, "Amplitudes" -> amp, "UnscaledAmplitudes" -> ns,
       "Domain" -> If[domain === All, {rp[a, 1], \[Infinity]}, First[solutionFunction["Domain"]]],
-      "RadialFunction" -> (Evaluate[#^-1 \[CapitalDelta][#,a]^-s Exp[bcdir I \[Omega] rs[#,a]] Exp[I m \[Phi]Reg[#,a]] solutionFunction[#]]&)
+      "RadialFunction" -> radialFunction
      ]
     ]
    ];
+
+  (* Boundary data: series solutions of the integrator's equation at machine precision, precision-padded MST
+     evaluations otherwise (see NumericalIntegration.m). The large-r series is evaluated where it converges, up
+     to about 18/omega, and integrating the "Up" solution inwards from there is unstable for s < 0 (the ingoing
+     solution grows like r^(-2s) relative to it: four digits lost per decade of radius for s = -2), so the "Up"
+     solution of negative spin is integrated at the flipped spin -s, with eigenvalue lambda + 2 s, and mapped
+     back with the Teukolsky-Starobinsky identity, for which that direction is stable. *)
+  bmethod = OptionValue["BoundaryMethod"] /. Automatic -> If[wp === MachinePrecision, "Series", "MST"];
+  If[!MatchQ[bmethod, "Series" | "MST"],
+    Message[TeukolskyRadial::optx, "BoundaryMethod" -> OptionValue["BoundaryMethod"]];
+    Return[$Failed];
+  ];
+  bdata = OptionValue["BoundaryData"];
+  flipUp = bmethod === "Series" && s < 0 && !(AssociationQ[bdata] && KeyExistsQ[bdata, "Up"]);
 
   (* Domain over which the numerical solution can be evaluated *)
   domains = OptionValue["Domain"];
@@ -280,10 +345,17 @@ TeukolskyRadialNumericalIntegration[s_Integer, l_Integer, m_Integer, a_, \[Omega
   ];
   
   (* Solution functions for the specified boundary conditions *)
-  ndsolveopts = Sequence@@Join[FilterRules[{opts}, Options[NDSolve]], If[OptionValue["BoundaryData"] =!= None, {"BoundaryData" -> OptionValue["BoundaryData"]}, {}]];
+  ndsolveopts = Sequence@@Join[FilterRules[{opts}, Options[NDSolve]], If[bdata =!= None, {"BoundaryData" -> bdata}, {}], If[OptionValue["BoundaryMethod"] =!= Automatic, {"BoundaryMethod" -> bmethod}, {}]];
+  (* the boundary method actually used is passed to the integrators; the reported "Method" lists only the options given *)
+  psiopts = Sequence[ndsolveopts, "BoundaryMethod" -> bmethod];
+  Uptmp = If[flipUp,
+    Teukolsky`NumericalIntegration`Private`psi[-s, \[Lambda] + 2 s, l, m, a, \[Omega], "Up", norms, \[Nu], WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> acc, psiopts],
+    Teukolsky`NumericalIntegration`Private`psi[s, \[Lambda], l, m, a, \[Omega], "Up", norms, \[Nu], WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> acc, psiopts]];
+  Intmp = Teukolsky`NumericalIntegration`Private`psi[s, \[Lambda], l, m, a, \[Omega], "In", norms, \[Nu], WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> acc, psiopts];
   solFuncs =
-   <|"In" :> Teukolsky`NumericalIntegration`Private`psi[s, \[Lambda], l, m, a, \[Omega], "In", norms, \[Nu], WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> acc, ndsolveopts],
-     "Up" :> Teukolsky`NumericalIntegration`Private`psi[s, \[Lambda], l, m, a, \[Omega], "Up", norms, \[Nu], WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> acc, ndsolveopts]|>;
+   <|"Up" :> Uptmp,
+     "In" :> Intmp
+	 |>;
   solFuncs = Lookup[solFuncs, BCs];
 
   (* Select normalisation coefficients for the specified boundary conditions *)
