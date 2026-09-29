@@ -87,7 +87,7 @@ rm[a_,M_] := M-Sqrt[M^2-a^2];
    input precision after the retries is reported. *)
 TeukolskyRadial::prec = "`1` could only be computed to a precision of `2` (`3` requested).";
 
-paddedComputation[f_, wp_, name_:"The result"] :=
+paddedComputation[f_, wp_, name_:"The result", extra_:0] :=
  Module[{target, p, res, deficit, tries = 0, minprec, numericQ},
   minprec[x_] := Module[{nums},
     nums[y_] := If[AssociationQ[y], Flatten[nums /@ Values[y]], If[ListQ[y], Flatten[nums /@ y], {y}]];
@@ -99,6 +99,7 @@ paddedComputation[f_, wp_, name_:"The result"] :=
     target = $MachinePrecision; p = 2 $MachinePrecision;,
     target = wp; p = wp;
   ];
+  p = Ceiling[p + extra];   (* an integer working precision; wp may be a real from Precision[...] *)
   (* a precision-zero intermediate at too low a working precision is retried, not reported *)
   res = Quiet[f[p], {Power::infy, Infinity::indet, Divide::infy}];
   While[tries < 4 && (!numericQ[res] || (deficit = target - minprec[res]) > 1),
@@ -111,6 +112,24 @@ paddedComputation[f_, wp_, name_:"The result"] :=
   ];
   If[wp === MachinePrecision, N[res], SetPrecision[res, target]]
 ];
+
+
+(* Relative error of the Wronskian of an "In"/"Up" pair of MST solutions against its value from the
+   asymptotic amplitudes, Delta^(s+1) (R_in R_up' - R_in' R_up) = 2 I omega B^inc C^trans, at one radius. An
+   independent check of the whole MST construction: for some modes (e.g. l = 36, m = 2, omega = 3 at
+   a = 3/5) the recurrence for the MST coefficients silently yields the wrong solution below a certain
+   working precision, with nothing in the tracked precision to show it, and this check catches it. The
+   check is skipped (0 returned) when the amplitudes are not numeric, e.g. at the superradiant bound
+   frequency for s >= 1. *)
+mstWronskianError[R_Association, s_Integer, a_, \[Omega]_, wp_] :=
+ Module[{r, W, Wexact},
+  r = 2 rp[a, 1];
+  Wexact = 2 I \[Omega] R["In"]["Amplitudes"]["Incidence"] R["Up"]["Amplitudes"]["Transmission"];
+  If[!NumericQ[Wexact] || Wexact == 0, Return[0]];
+  W = Quiet[(r^2 - 2 r + a^2)^(s + 1) (R["In"][r] R["Up"]'[r] - R["In"]'[r] R["Up"][r])];
+  If[!NumericQ[W], Return[Infinity]];
+  Abs[W/Wexact - 1]
+ ];
 
 
 (* The unscaled MST amplitudes at working precision p, with the eigenvalue and the renormalized angular
@@ -523,7 +542,8 @@ Options[TeukolskyRadial] = {
   "Eigenvalue" -> Automatic,
   WorkingPrecision -> Automatic,
   PrecisionGoal -> Automatic,
-  AccuracyGoal -> Automatic
+  AccuracyGoal -> Automatic,
+  "WronskianCheck" -> True
 };
 
 
@@ -593,7 +613,7 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
 
 
 TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPattern[]] /; AllTrue[{a, \[Omega]}, NumericQ] && (InexactNumberQ[a] || InexactNumberQ[\[Omega]]) :=
- Module[{TRF, subopts, BCs, norms, \[Nu], \[Lambda], wp, prec, acc},
+ Module[{TRF, subopts, BCs, norms, \[Nu], \[Lambda], wp, prec, acc, compute, check, extra, wpn, tol, res, e, k},
   (* Extract suboptions from Method to be passed on. *)
   If[ListQ[OptionValue[Method]],
     subopts = Rest[OptionValue[Method]];,
@@ -665,39 +685,46 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
     \[Lambda] = SpinWeightedSpheroidalEigenvalue[s, l, m, a \[Omega]];
   ];
 
+  (* The renormalized angular momentum, the asymptotic amplitudes and the radial functions, computed with
+     extra working precision beyond the padding of the individual evaluations when the Wronskian check
+     below has found that necessary for this mode (see mstWronskianError). *)
+  compute[extra_, bcs_] := Module[{},
   (* Renormalized angular momentum *)
-  Which[
-  OptionValue["RenormalizedAngularMomentum"] === False,
-    \[Nu] = Indeterminate;,
-  NumericQ[OptionValue["RenormalizedAngularMomentum"]],
-    \[Nu] = OptionValue["RenormalizedAngularMomentum"];,
-  True,
-    \[Nu] = paddedComputation[RenormalizedAngularMomentum[s, l, m, SetPrecision[a, #], SetPrecision[\[Omega], #], SetPrecision[\[Lambda], #], Method -> (OptionValue["RenormalizedAngularMomentum"] /. (Automatic|True) -> "Monodromy")] &, wp, "The renormalized angular momentum"];
-  ];
+    Which[
+    OptionValue["RenormalizedAngularMomentum"] === False,
+      \[Nu] = Indeterminate;,
+    NumericQ[OptionValue["RenormalizedAngularMomentum"]],
+      \[Nu] = OptionValue["RenormalizedAngularMomentum"];,
+    True,
+      \[Nu] = paddedComputation[RenormalizedAngularMomentum[s, l, m, SetPrecision[a, #], SetPrecision[\[Omega], #], SetPrecision[\[Lambda], #], Method -> (OptionValue["RenormalizedAngularMomentum"] /. (Automatic|True) -> "Monodromy")] &, wp, "The renormalized angular momentum", extra];
+    ];
 
-  (* Compute the asymptotic amplitudes *)
-  Which[
-  OptionValue["Amplitudes"] === False,
-    norms = <|"In" -> <|"Transmission" -> 1|>, "Up" -> <|"Transmission" -> 1|>|>;,
-  MatchQ[OptionValue["Amplitudes"], <|"In"-><|___|>, "Up" -> <|___|>|>],
-    norms = OptionValue["Amplitudes"];,
-  MatchQ[OptionValue["Amplitudes"], Automatic|True],
-    If[OptionValue["RenormalizedAngularMomentum"] === False,
-      Message[TeukolskyRadial::opti, {"Amplitudes" -> OptionValue["Amplitudes"], "RenormalizedAngularMomentum" -> OptionValue["RenormalizedAngularMomentum"]}];
+    (* Compute the asymptotic amplitudes *)
+    Which[
+    OptionValue["Amplitudes"] === False,
+      norms = <|"In" -> <|"Transmission" -> 1|>, "Up" -> <|"Transmission" -> 1|>|>;,
+    MatchQ[OptionValue["Amplitudes"], <|"In"-><|___|>, "Up" -> <|___|>|>],
+      norms = OptionValue["Amplitudes"];,
+    MatchQ[OptionValue["Amplitudes"], Automatic|True],
+      If[OptionValue["RenormalizedAngularMomentum"] === False,
+        Message[TeukolskyRadial::opti, {"Amplitudes" -> OptionValue["Amplitudes"], "RenormalizedAngularMomentum" -> OptionValue["RenormalizedAngularMomentum"]}];
+        Return[$Failed];
+      ];
+      If[epsilonPlusDegeneracy[s, m, a, \[Omega], wp] =!= None,
+        norms = superradiantAmplitudes[s, l, m, a, \[Omega], {wp, prec, acc}, OptionValue["RenormalizedAngularMomentum"] /. (Automatic|True) -> "Monodromy"];,
+        (* the eigenvalue and nu refined to the padded precision of the amplitudes are kept for the radial
+           functions, which are evaluated at a similar padded precision *)
+        {$refinedEigenvalue, $refinedNu} = {\[Lambda], \[Nu]};
+        norms = paddedComputation[mstAmplitudes[s, l, m, a, \[Omega], \[Lambda], \[Nu], #, prec, acc] &, wp, "The asymptotic amplitudes", extra];
+        If[NumericQ[$refinedNu] && Precision[$refinedNu] > Precision[\[Nu]], \[Nu] = $refinedNu];
+        If[NumericQ[$refinedEigenvalue] && Precision[$refinedEigenvalue] > Precision[\[Lambda]], \[Lambda] = $refinedEigenvalue];
+      ];,
+    True,
+      Message[TeukolskyRadial::optx, "Amplitudes" -> OptionValue["Amplitudes"]];
       Return[$Failed];
     ];
-    If[epsilonPlusDegeneracy[s, m, a, \[Omega], wp] =!= None,
-      norms = superradiantAmplitudes[s, l, m, a, \[Omega], {wp, prec, acc}, OptionValue["RenormalizedAngularMomentum"] /. (Automatic|True) -> "Monodromy"];,
-      (* the eigenvalue and nu refined to the padded precision of the amplitudes are kept for the radial
-         functions, which are evaluated at a similar padded precision *)
-      {$refinedEigenvalue, $refinedNu} = {\[Lambda], \[Nu]};
-      norms = paddedComputation[mstAmplitudes[s, l, m, a, \[Omega], \[Lambda], \[Nu], #, prec, acc] &, wp, "The asymptotic amplitudes"];
-      If[NumericQ[$refinedNu] && Precision[$refinedNu] > Precision[\[Nu]], \[Nu] = $refinedNu];
-      If[NumericQ[$refinedEigenvalue] && Precision[$refinedEigenvalue] > Precision[\[Lambda]], \[Lambda] = $refinedEigenvalue];
-    ];,
-  True,
-    Message[TeukolskyRadial::optx, "Amplitudes" -> OptionValue["Amplitudes"]];
-    Return[$Failed];
+
+    TRF[s, l, m, a, \[Omega], \[Lambda], \[Nu], bcs, norms, {wp, prec, acc}, Sequence@@subopts]
   ];
 
   (* At a degeneracy with 2 I epsilon_+ >= 1 - s the MST series cannot represent the "In" solution *)
@@ -708,8 +735,29 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
     ];
   ];
 
-  (* Call the chosen implementation *)
-  TRF[s, l, m, a, \[Omega], \[Lambda], \[Nu], BCs, norms, {wp, prec, acc}, Sequence@@subopts]
+  (* Call the chosen implementation, checking the MST solutions through their Wronskian and, when the
+     check fails, recomputing everything with the working precision raised by wp and then 3 wp *)
+  (* For a complex frequency the identity is violated by an amount that grows like |omega|^5 (1e-25 at
+     |omega| = 1e-5, 1e-6 at 0.3, O(1) at 1.7 on the imaginary axis, independent of the working precision),
+     which points at the amplitude formulae rather than at the evaluation, so the check is not applied there. *)
+  check = TrueQ[OptionValue["WronskianCheck"]] && TRF === TeukolskyRadialMST && MatchQ[OptionValue["Amplitudes"], Automatic|True] && Im[\[Omega]] == 0;
+  extra = Teukolsky`MST`MST`Private`modePadding[s, l, m, a, 2 \[Omega]];
+  If[!check, Return[compute[extra, BCs]]];
+  wpn = If[wp === MachinePrecision, $MachinePrecision, wp];
+  tol = 10^(4 - wpn);
+  res = compute[extra, {"In", "Up"}];
+  If[res === $Failed, Return[$Failed]];
+  e = mstWronskianError[res, s, a, \[Omega], wp];
+  k = If[epsilonPlusDegeneracy[s, m, a, \[Omega], wp] === None, 0, 2];
+  While[e > tol && k < 2,
+    k++;
+    Teukolsky`MST`MST`Private`setModePadding[s, l, m, a, 2 \[Omega], extra + wpn (2^k - 1)];
+    res = compute[extra + wpn (2^k - 1), {"In", "Up"}];
+    If[res === $Failed, Return[$Failed]];
+    e = mstWronskianError[res, s, a, \[Omega], wp];
+  ];
+  If[e > tol, Message[TeukolskyRadial::acc, N[e, 2]]];
+  If[ListQ[BCs], KeyTake[res, BCs], res[BCs]]
 ];
 
 
