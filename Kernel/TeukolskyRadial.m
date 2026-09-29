@@ -274,7 +274,7 @@ TeukolskyRadialNumericalIntegration[s_Integer, l_Integer, m_Integer, a_, \[Omega
      the flipped spin (see below), the radial function of spin s is the Teukolsky-Starobinsky map of the
      integrated one, divided by the constant (2 I omega)^(-2 s) that keeps unit transmission. *)
   TRF[bc_, ns_, sf_, domain_,  ndsolveopts___] :=
-   Module[{solutionFunction, bcdir, amp, sInt, radialFunction, ft, gt, r, fPlus, fMinus, rc, Rc, dRc, \[Psi]c, d\[Psi]c, lower, goals},
+   Module[{solutionFunction, bcdir, amp, sInt, radialFunction, ft, gt, r = flipR, fPlus, fMinus, rc, Rc, dRc, \[Psi]c, d\[Psi]c, lower, goals},   (* flipR: a fixed private symbol as the variable of the pure functions built below, so that no Module-generated symbol is kept alive by them *)
     solutionFunction = sf[domain];
     bcdir = bc /. {"In" -> -1, "Up" -> +1};
     sInt = If[bc === "Up" && flipUp, -s, s];
