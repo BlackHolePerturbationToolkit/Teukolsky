@@ -23,8 +23,8 @@ VerificationTest[
 (* Derivatives through R[r, n] *)
 VerificationTest[
   R = TeukolskyRadial[-2, 2, 2, 0.6, 0.3]["In"];
-  {R[10., 0] - R[10.], R[10., 1] - R'[10.], R[10., 2] - R''[10.]},
-  {0., 0., 0.},
+  Max[Abs[{R[10., 0] - R[10.], R[10., 1] - R'[10.], R[10., 2] - R''[10.]}]] == 0,
+  True,
   TestID -> "R[r, n] gives the n-th derivative"
 ]
 

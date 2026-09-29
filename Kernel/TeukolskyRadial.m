@@ -80,24 +80,47 @@ rm[a_,M_] := M-Sqrt[M^2-a^2];
 (* Evaluate f[p] (a computation with its inputs set to precision p) with p padded until the result has the
    precision of the input: the MST quantities (renormalized angular momentum, asymptotic amplitudes, radial
    functions) lose digits to cancellation in their series, which is recovered by working at a higher
-   precision. For machine-precision input the computation is done in arbitrary precision. *)
-paddedComputation[f_, wp_] :=
- Module[{target, p, res, deficit, tries = 0, minprec},
+   precision. A non-numeric result (a precision-zero intermediate) is retried at twice the precision. For
+   machine-precision input the computation is done in arbitrary precision. A result still short of the
+   input precision after the retries is reported. *)
+TeukolskyRadial::prec = "`1` could only be computed to a precision of `2` (`3` requested).";
+
+paddedComputation[f_, wp_, name_:"The result"] :=
+ Module[{target, p, res, deficit, tries = 0, minprec, numericQ},
   minprec[x_] := Module[{nums},
     nums[y_] := If[AssociationQ[y], Flatten[nums /@ Values[y]], If[ListQ[y], Flatten[nums /@ y], {y}]];
     Min[Precision /@ Select[nums[x], NumericQ[#] && # != 0 &]]];
+  numericQ[x_] := Module[{nums},
+    nums[y_] := If[AssociationQ[y], Flatten[nums /@ Values[y]], If[ListQ[y], Flatten[nums /@ y], {y}]];
+    AllTrue[nums[x], NumericQ]];
   If[wp === MachinePrecision,
     target = $MachinePrecision; p = 2 $MachinePrecision;,
     target = wp; p = wp;
   ];
-  res = f[p];
-  While[(deficit = target - minprec[res]) > 1 && tries < 3,
-    p += Ceiling[deficit] + 3;
-    res = f[p];
+  (* a precision-zero intermediate at too low a working precision is retried, not reported *)
+  res = Quiet[f[p], {Power::infy, Infinity::indet, Divide::infy}];
+  While[tries < 4 && (!numericQ[res] || (deficit = target - minprec[res]) > 1),
+    p = If[numericQ[res], p + Ceiling[deficit] + 3, 2 p];
+    res = Quiet[f[p], {Power::infy, Infinity::indet, Divide::infy}];
     tries++;
+  ];
+  If[!numericQ[res] || minprec[res] < target - 1,
+    Message[TeukolskyRadial::prec, name, If[numericQ[res], minprec[res], res], target];
   ];
   If[wp === MachinePrecision, N[res], SetPrecision[res, target]]
 ];
+
+
+(* The unscaled MST amplitudes at working precision p, with the eigenvalue and the renormalized angular
+   momentum refined to p digits (the series amplify an error in nu by roughly the number of digits they
+   lose to cancellation, so nu must carry the padded precision, not merely be set to it). The refined
+   values are recorded in $refinedEigenvalue and $refinedNu. *)
+mstAmplitudes[s_, l_, m_, a_, \[Omega]_, \[Lambda]_, \[Nu]_, p_, prec_, acc_] :=
+ Module[{\[Lambda]p, \[Nu]p},
+  {\[Lambda]p, \[Nu]p} = Teukolsky`MST`MST`Private`refinedParameters[s, l, m, a, 2 \[Omega], \[Lambda], \[Nu], p];
+  {$refinedEigenvalue, $refinedNu} = {\[Lambda]p, \[Nu]p};
+  Teukolsky`MST`MST`Private`Amplitudes[s, l, m, SetPrecision[a, p], SetPrecision[2 \[Omega], p], \[Nu]p, \[Lambda]p, {p, Max[prec, p - 2], acc}]
+ ];
 
 
 (* The superradiant bound frequency omega = m Omega_H, where epsilon_+ = (epsilon + tau)/2 = 0 and the MST
@@ -122,8 +145,8 @@ superradiantAmplitudes[s_, l_, m_, a_, \[Omega]_, {wp_, prec_, acc_}, \[Nu]metho
   h = If[wp === MachinePrecision, 10^-3, 10^-Floor[wp/5]];
   ampsAt[\[Delta]_] := Module[{\[Omega]1 = \[Omega] (1 + \[Delta]), \[Lambda]1, \[Nu]1},
     \[Lambda]1 = SpinWeightedSpheroidalEigenvalue[s, l, m, a \[Omega]1];
-    \[Nu]1 = paddedComputation[RenormalizedAngularMomentum[s, l, m, SetPrecision[a, #], SetPrecision[\[Omega]1, #], SetPrecision[\[Lambda]1, #], Method -> \[Nu]method] &, wp];
-    paddedComputation[Teukolsky`MST`MST`Private`Amplitudes[s, l, m, SetPrecision[a, #], SetPrecision[2 \[Omega]1, #], SetPrecision[\[Nu]1, #], SetPrecision[\[Lambda]1, #], {#, Max[prec, # - 2], acc}] &, wp]
+    \[Nu]1 = paddedComputation[RenormalizedAngularMomentum[s, l, m, SetPrecision[a, #], SetPrecision[\[Omega]1, #], SetPrecision[\[Lambda]1, #], Method -> \[Nu]method] &, wp, "The renormalized angular momentum"];
+    paddedComputation[mstAmplitudes[s, l, m, a, \[Omega]1, \[Lambda]1, \[Nu]1, #, prec, acc] &, wp, "The asymptotic amplitudes"]
   ];
   amps = ampsAt /@ {h, -h, 2 h, -2 h};
   limit[{p1_, m1_, p2_, m2_}] :=
@@ -636,7 +659,7 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
   NumericQ[OptionValue["RenormalizedAngularMomentum"]],
     \[Nu] = OptionValue["RenormalizedAngularMomentum"];,
   True,
-    \[Nu] = paddedComputation[RenormalizedAngularMomentum[s, l, m, SetPrecision[a, #], SetPrecision[\[Omega], #], SetPrecision[\[Lambda], #], Method -> (OptionValue["RenormalizedAngularMomentum"] /. (Automatic|True) -> "Monodromy")] &, wp];
+    \[Nu] = paddedComputation[RenormalizedAngularMomentum[s, l, m, SetPrecision[a, #], SetPrecision[\[Omega], #], SetPrecision[\[Lambda], #], Method -> (OptionValue["RenormalizedAngularMomentum"] /. (Automatic|True) -> "Monodromy")] &, wp, "The renormalized angular momentum"];
   ];
 
   (* Compute the asymptotic amplitudes *)
@@ -652,7 +675,12 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
     ];
     If[superradiantQ[m, a, \[Omega], wp],
       norms = superradiantAmplitudes[s, l, m, a, \[Omega], {wp, prec, acc}, OptionValue["RenormalizedAngularMomentum"] /. (Automatic|True) -> "Monodromy"];,
-      norms = paddedComputation[Teukolsky`MST`MST`Private`Amplitudes[s, l, m, SetPrecision[a, #], SetPrecision[2\[Omega], #], SetPrecision[\[Nu], #], SetPrecision[\[Lambda], #], {#, Max[prec, # - 2], acc}] &, wp];
+      (* the eigenvalue and nu refined to the padded precision of the amplitudes are kept for the radial
+         functions, which are evaluated at a similar padded precision *)
+      {$refinedEigenvalue, $refinedNu} = {\[Lambda], \[Nu]};
+      norms = paddedComputation[mstAmplitudes[s, l, m, a, \[Omega], \[Lambda], \[Nu], #, prec, acc] &, wp, "The asymptotic amplitudes"];
+      If[NumericQ[$refinedNu] && Precision[$refinedNu] > Precision[\[Nu]], \[Nu] = $refinedNu];
+      If[NumericQ[$refinedEigenvalue] && Precision[$refinedEigenvalue] > Precision[\[Lambda]], \[Lambda] = $refinedEigenvalue];
     ];,
   True,
     Message[TeukolskyRadial::optx, "Amplitudes" -> OptionValue["Amplitudes"]];

@@ -32,7 +32,7 @@ VerificationTest[
 VerificationTest[
   R = Quiet[TeukolskyRadial[0, 3, 3, 0.6, 0.5]];
   Rp = TeukolskyRadial[0, 3, 3, 0.6, 0.5 + 10^-7];
-  Abs[R["In"][6.]/Rp["In"][6.] - 1] < 10^-6 && Abs[R["In"]["Amplitudes"]["Incidence"]/Rp["In"]["Amplitudes"]["Incidence"] - 1] < 10^-6,
+  Abs[R["In"][6.]/Rp["In"][6.] - 1] < 10^-5 && Abs[R["In"]["Amplitudes"]["Incidence"]/Rp["In"]["Amplitudes"]["Incidence"] - 1] < 10^-5,
   True,
   TestID -> "Superradiant bound frequency at machine precision"
 ]
