@@ -132,7 +132,7 @@ mstWronskianError[R_Association, s_Integer, a_, \[Omega]_, wp_] :=
   r = 2 rp[a, 1];
   Wexact = 2 I \[Omega] R["In"]["Amplitudes"]["Incidence"] R["Up"]["Amplitudes"]["Transmission"];
   If[!NumericQ[Wexact] || Wexact == 0, Return[0]];
-  W = Quiet[(r^2 - 2 r + a^2)^(s + 1) (R["In"][r] R["Up"]'[r] - R["In"]'[r] R["Up"][r])];
+  W = Quiet[Module[{i, di, u, du}, {i, di} = R["In"][r, {0, 1}]; {u, du} = R["Up"][r, {0, 1}]; (r^2 - 2 r + a^2)^(s + 1) (i du - di u)]];
   If[!NumericQ[W], Return[Infinity]];
   Abs[W/Wexact - 1]
  ];
@@ -744,7 +744,8 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
 
   (* Call the chosen implementation, checking the MST solutions through their Wronskian and, when the
      check fails, recomputing everything with the working precision raised by wp and then 3 wp. With
-     "WronskianCheck" -> Automatic the check (four MST evaluations) runs only when there is a risk
+     "WronskianCheck" -> Automatic the check (two summations of the MST series, for the value and
+     derivative of each solution at one radius) runs only when there is a risk
      indicator: the amplitudes needed more than 40 digits of padding, or a retry after a non-numeric
      result. The failure it guards against, the coefficient recurrence yielding its wrong solution, needs a
      deep bump in the coefficients, which shows as padding of 100 digits and more, whereas ordinary modes
@@ -873,9 +874,27 @@ TeukolskyRadialFunction[s_, l_, m_, a_, \[Omega]_, assoc_][r:(_?NumericQ|{_?Nume
  ];
 
 
-(* R[r, n] is the n-th derivative *)
+(* R[r, n] is the n-th derivative; R[r, {0, 1}] the value and the first derivative, which for an MST
+   solution come from a single summation of the series (the coefficients and the hypergeometric
+   functions are shared), at about half the cost of the two separate evaluations *)
 TeukolskyRadialFunction[s_, l_, m_, a_, \[Omega]_, assoc_][r:(_?NumericQ|{_?NumericQ..}), n_Integer?NonNegative] :=
   Derivative[n][TeukolskyRadialFunction[s, l, m, a, \[Omega], assoc]][r];
+
+TeukolskyRadialFunction[s_, l_, m_, a_, \[Omega]_, assoc_][r_?NumericQ, {0, 1}] :=
+ Module[{rmin, rmax, f = assoc["RadialFunction"]},
+  {rmin, rmax} = assoc["Domain"];
+  If[outsideDomainQ[r, rmin, rmax],
+    Message[TeukolskyRadialFunction::dmval, r];
+    Return[Indeterminate];
+  ];
+  If[MatchQ[f, _Teukolsky`MST`MST`Private`MSTRadialIn | _Teukolsky`MST`MST`Private`MSTRadialUp],
+    f[r, {0, 1}],
+    Quiet[{f[r], f'[r]}, InterpolatingFunction::dmval]
+  ]
+ ];
+
+TeukolskyRadialFunction[s_, l_, m_, a_, \[Omega]_, assoc_][r:(_?NumericQ|{_?NumericQ..}), ns:{_Integer?NonNegative..}] :=
+  TeukolskyRadialFunction[s, l, m, a, \[Omega], assoc][r, #] & /@ ns;
 
 
 Derivative[n:1][TeukolskyRadialFunction[s_, l_, m_, a_, \[Omega]_, assoc_]][r:(_?NumericQ|{_?NumericQ..})] :=

@@ -35,3 +35,20 @@ VerificationTest[
   {TeukolskyRadial::topopt},
   TestID -> "Options of TeukolskyRadial inside Method are reported as misplaced"
 ]
+
+(* Value and derivative from one summation *)
+VerificationTest[
+  Module[{R = TeukolskyRadial[-2, 2, 2, N[6/10, 32], N[3/10, 32], Method -> "MST"], r = N[20, 32]},
+    Max[Abs[Join[R["In"][r, {0, 1}]/{R["In"][r], R["In"]'[r]}, R["Up"][r, {0, 1}]/{R["Up"][r], R["Up"]'[r]}] - 1]] < 10^-29
+  ],
+  True,
+  TestID -> "R[r, {0, 1}] agrees with the separate MST evaluations"
+]
+
+VerificationTest[
+  Module[{R = TeukolskyRadial[-2, 2, 2, 0.6, 0.3]["In"]},
+    R[10., {0, 1}] == {R[10.], R'[10.]} && R[10., {0, 1, 2}] == {R[10.], R'[10.], R''[10.]}
+  ],
+  True,
+  TestID -> "R[r, {0, 1}] and R[r, list of orders] for a numerically integrated solution"
+]

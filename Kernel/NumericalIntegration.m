@@ -176,8 +176,7 @@ TeukolskyInBC[s_Integer, \[Lambda]_, l_Integer, m_Integer, a_, \[Omega]_, amps_,
  Module[{R, res, dres, r, Rr, dRr},
         R = Teukolsky`TeukolskyRadial[s, l, m, a, \[Omega], "BoundaryConditions" -> "In", "Amplitudes" -> amps, "Eigenvalue" -> \[Lambda], "RenormalizedAngularMomentum" -> \[Nu], Method -> "MST", WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> Infinity];
         r = inBoundaryRadius[a, rmin];
-  	  Rr = R[r];
-		dRr = R'[r];
+		{Rr, dRr} = R[r, {0, 1}];
 		TeukolskyInBCFromValues[s, m, a, \[Omega], r, Rr, dRr]
 	];
 
@@ -193,8 +192,7 @@ TeukolskyUpBC[s_Integer, \[Lambda]_, l_Integer, m_Integer, a_, \[Omega]_, amps_,
  Module[{R, res, dres, r, Rr, dRr},
 		r = upBoundaryRadius[a, rmax];
         R = Teukolsky`TeukolskyRadial[s, l, m, a, \[Omega], "BoundaryConditions" -> "Up", "Amplitudes" -> amps, "Eigenvalue" -> \[Lambda], "RenormalizedAngularMomentum" -> \[Nu], Method -> "MST", WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> Infinity];
-  	  Rr = R[r];
-		dRr = R'[r];
+		{Rr, dRr} = R[r, {0, 1}];
 		TeukolskyUpBCFromValues[s, m, a, \[Omega], r, Rr, dRr]
 	];
 

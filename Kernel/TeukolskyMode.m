@@ -133,7 +133,7 @@ TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer
         covers[bc_] := Module[{dom = R[bc]["Domain"]}, dom === All || (ListQ[dom] && dom[[1]] <= rmin && rmax <= dom[[2]])];
         If[covers["In"] && covers["Up"],
           R = TeukolskyRadial[s, l, m, a, \[Omega], Method->{"NumericalIntegration","Domain"-> {"In"->{rmin,rmax}, "Up"->{rmin,rmax}},
-              "BoundaryData" -> <|"In" -> {R["In"][rmin], R["In"]'[rmin], rmin}, "Up" -> {R["Up"][rmax], R["Up"]'[rmax], rmax}|>},
+              "BoundaryData" -> <|"In" -> Append[R["In"][rmin, {0, 1}], rmin], "Up" -> Append[R["Up"][rmax, {0, 1}], rmax]|>},
             PrecisionGoal -> wp - 2, AccuracyGoal -> wp - 2,
             "Amplitudes" -> <|"In"-> R["In"]["UnscaledAmplitudes"], "Up"-> R["Up"]["UnscaledAmplitudes"]|>,
             "RenormalizedAngularMomentum"-> R["In"]["RenormalizedAngularMomentum"], "Eigenvalue" -> R["In"]["Eigenvalue"]];,
