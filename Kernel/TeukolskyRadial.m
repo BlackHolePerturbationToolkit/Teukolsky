@@ -57,7 +57,7 @@ TeukolskyRadial::topopt = "`1` are options of TeukolskyRadial, not of Method `2`
 TeukolskyRadial::exact = "Exact arguments a=`1`, \[Omega]=`2` require a WorkingPrecision; specify one, or apply N or SetPrecision to the arguments.";
 TeukolskyRadial::superradiant = "\[Omega] = m \[CapitalOmega]_H is the superradiant bound frequency: the asymptotic amplitudes are the limit from neighbouring frequencies and the amplitudes `1`, which diverge there, are Indeterminate.";
 TeukolskyRadial::degenerate = "2 I \[Epsilon]_+ = `1` is an integer at \[Omega] = `2`, where the MST formulae are singular: the asymptotic amplitudes are the limit from neighbouring frequencies and the amplitudes `3`, which diverge there, are Indeterminate.";
-TeukolskyRadial::insing = "2 I \[Epsilon]_+ = `1` is an integer at \[Omega] = `2`, where the MST series cannot represent the \"In\" solution (its hypergeometric functions have c = 1 - s - 2 I \[Epsilon]_+ at a pole).";
+TeukolskyRadial::insing = "2 I \[Epsilon]_+ = `1` is an integer at \[Omega] = `2` (0 at the superradiant bound frequency \[Omega] = m \[CapitalOmega]_H), where the MST series cannot represent the \"In\" solution (its hypergeometric functions have c = 1 - s - 2 I \[Epsilon]_+ at a pole).";
 
 
 (* ::Subsection::Closed:: *)
@@ -739,9 +739,12 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
     TRF[s, l, m, a, \[Omega], \[Lambda], \[Nu], bcs, norms, {wp, prec, acc}, Sequence@@subopts]
   ];
 
-  (* At a degeneracy with 2 I epsilon_+ >= 1 - s the MST series cannot represent the "In" solution *)
+  (* At a degeneracy with 2 I epsilon_+ = n >= 1 - s the MST series cannot represent the "In" solution;
+     n = 0 is the superradiant bound frequency, where this is the case for s >= 1 (the "In" solution is
+     then the smaller-exponent member of the resonant horizon basis and has no unit-transmission
+     limit; evaluating its series at c = 1 - s used to hang in the precision-padding retries). *)
   With[{n = epsilonPlusDegeneracy[s, m, a, \[Omega], wp]},
-    If[IntegerQ[n] && n != 0 && n >= 1 - s && MemberQ[Flatten[{BCs}], "In"],
+    If[IntegerQ[n] && n >= 1 - s && MemberQ[Flatten[{BCs}], "In"],
       Message[TeukolskyRadial::insing, n, \[Omega]];
       Return[$Failed];
     ];

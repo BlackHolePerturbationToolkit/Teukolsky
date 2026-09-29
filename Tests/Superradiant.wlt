@@ -36,3 +36,22 @@ VerificationTest[
   True,
   TestID -> "Superradiant bound frequency at machine precision"
 ]
+
+(* For s >= 1 the "In" solution is the smaller-exponent member of the resonant horizon basis and has no
+   unit-transmission limit at the bound frequency: refused rather than evaluated (which used to hang) *)
+VerificationTest[
+  TeukolskyRadial[2, 3, 3, N[3/5, 30], N[1/2, 30]],
+  $Failed,
+  {TeukolskyRadial::insing},
+  TestID -> "In solution refused at the superradiant bound frequency, s = 2"
+]
+
+VerificationTest[
+  R = Quiet[TeukolskyRadial[2, 3, 3, N[3/5, 30], N[1/2, 30], "BoundaryConditions" -> "Up"]];
+  Rp = TeukolskyRadial[2, 3, 3, N[3/5, 30], N[1/2 + 10^-7, 30]];
+  Rm = TeukolskyRadial[2, 3, 3, N[3/5, 30], N[1/2 - 10^-7, 30]];
+  {Abs[R[N[6, 30]]/((Rp["Up"][N[6, 30]] + Rm["Up"][N[6, 30]])/2) - 1] < 10^-8,
+   NumericQ[R["Amplitudes"]["Reflection"]], R["Amplitudes"]["Incidence"]},
+  {True, True, Indeterminate},
+  TestID -> "Up solution at the superradiant bound frequency, s = 2"
+]
