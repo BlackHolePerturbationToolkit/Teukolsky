@@ -400,14 +400,17 @@ Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_,
   \[Epsilon]p = 1/2 (\[Tau] + \[Epsilon]);
   \[Omega] = \[Epsilon] / 2;
 
-  (* At the superradiant bound frequency omega = m Omega_H (\[Epsilon]p = 0) the two horizon solutions
-     Delta^-s Exp[+-i k r_*] coincide and the formulae below are singular (1/Sin[2 Pi I \[Epsilon]p] and
-     Gamma[1 - s - 2 I \[Epsilon]p] factors). The transmitted flux vanishes there but the transmission
-     amplitudes do not: they and, for s <= 0, the "In" amplitudes have finite limits, whereas the "Up"
-     horizon coefficients diverge (for s >= 1 so do the "In" amplitudes, the hypergeometric series having
-     c = 1 - s - 2 I \[Epsilon]p at a pole). Those limits are taken by the caller from neighbouring
-     frequencies (see TeukolskyRadial); here every amplitude is returned as Indeterminate, so that a
-     radial function is never silently normalised by a transmission amplitude of 1. *)
+  (* At the superradiant bound frequency omega = m Omega_H (\[Epsilon]p = 0, k = 0) the horizon basis
+     Exp[i k r_*], Delta^-s Exp[-i k r_*] is resonant: the two solutions coincide for s = 0 and their Frobenius
+     exponents at r_+ differ by the integer s otherwise, so the formulae below are singular
+     (1/Sin[2 Pi I \[Epsilon]p] and Gamma[1 - s - 2 I \[Epsilon]p] factors). The "Up" solution and, for s <= 0, the "In"
+     solution have finite limits when normalised to unit transmission; only their coefficients along the
+     horizon basis function of larger exponent (both for s = 0) diverge like 1/k, because a finite
+     solution expanded in a degenerating basis does. For s >= 1 the "In" solution is the smaller-exponent
+     member of that basis and has no unit-transmission limit at all (its hypergeometric functions have
+     c = 1 - s - 2 I \[Epsilon]p at a pole); TeukolskyRadial refuses it. The finite limits are taken by the
+     caller from neighbouring frequencies (see TeukolskyRadial); here every amplitude is returned as
+     Indeterminate, so that a radial function is never silently left unnormalised. *)
   If[\[Epsilon]p == 0,
     Return[<| "In" -> <| "Incidence" -> Indeterminate, "Transmission" -> Indeterminate, "Reflection" -> Indeterminate|>,
               "Up" -> <| "Incidence" -> Indeterminate, "Transmission" -> Indeterminate, "Reflection" -> Indeterminate|>|>];
