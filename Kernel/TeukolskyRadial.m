@@ -87,8 +87,11 @@ rm[a_,M_] := M-Sqrt[M^2-a^2];
    input precision after the retries is reported. *)
 TeukolskyRadial::prec = "`1` could only be computed to a precision of `2` (`3` requested).";
 
+$lastPaddingDigits = 0;        (* digits of padding the last paddedComputation added beyond its first pass *)
+$lastPaddingRetried = False;   (* whether it had to retry after a non-numeric result *)
+
 paddedComputation[f_, wp_, name_:"The result", extra_:0] :=
- Module[{target, p, res, deficit, tries = 0, minprec, numericQ},
+ Module[{target, p, p0, res, deficit, tries = 0, minprec, numericQ, retried = False},
   minprec[x_] := Module[{nums},
     nums[y_] := If[AssociationQ[y], Flatten[nums /@ Values[y]], If[ListQ[y], Flatten[nums /@ y], {y}]];
     Min[Precision /@ Select[nums[x], NumericQ[#] && # != 0 &]]];
@@ -99,14 +102,17 @@ paddedComputation[f_, wp_, name_:"The result", extra_:0] :=
     target = $MachinePrecision; p = 2 $MachinePrecision;,
     target = wp; p = wp;
   ];
-  p = Ceiling[p + extra];   (* an integer working precision; wp may be a real from Precision[...] *)
+  p = p0 = Ceiling[p + extra];   (* an integer working precision; wp may be a real from Precision[...] *)
   (* a precision-zero intermediate at too low a working precision is retried, not reported *)
   res = Quiet[f[p], {Power::infy, Infinity::indet, Divide::infy}];
   While[tries < 4 && (!numericQ[res] || (deficit = target - minprec[res]) > 1),
+    If[!numericQ[res], retried = True];
     p = If[numericQ[res], p + Ceiling[deficit] + 3, 2 p];
     res = Quiet[f[p], {Power::infy, Infinity::indet, Divide::infy}];
     tries++;
   ];
+  $lastPaddingDigits = p - p0;
+  $lastPaddingRetried = retried;
   If[!numericQ[res] || minprec[res] < target - 1,
     Message[TeukolskyRadial::prec, name, If[numericQ[res], minprec[res], res], target];
   ];
@@ -543,7 +549,7 @@ Options[TeukolskyRadial] = {
   WorkingPrecision -> Automatic,
   PrecisionGoal -> Automatic,
   AccuracyGoal -> Automatic,
-  "WronskianCheck" -> True
+  "WronskianCheck" -> Automatic
 };
 
 
@@ -613,7 +619,7 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
 
 
 TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPattern[]] /; AllTrue[{a, \[Omega]}, NumericQ] && (InexactNumberQ[a] || InexactNumberQ[\[Omega]]) :=
- Module[{TRF, subopts, BCs, norms, \[Nu], \[Lambda], wp, prec, acc, compute, check, extra, wpn, tol, res, e, k},
+ Module[{TRF, subopts, BCs, norms, \[Nu], \[Lambda], wp, prec, acc, compute, check, extra, wpn, tol, res, e, k, ampPadding, ampRetried},
   (* Extract suboptions from Method to be passed on. *)
   If[ListQ[OptionValue[Method]],
     subopts = Rest[OptionValue[Method]];,
@@ -716,6 +722,7 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
            functions, which are evaluated at a similar padded precision *)
         {$refinedEigenvalue, $refinedNu} = {\[Lambda], \[Nu]};
         norms = paddedComputation[mstAmplitudes[s, l, m, a, \[Omega], \[Lambda], \[Nu], #, prec, acc] &, wp, "The asymptotic amplitudes", extra];
+        {ampPadding, ampRetried} = {$lastPaddingDigits, $lastPaddingRetried};
         If[NumericQ[$refinedNu] && Precision[$refinedNu] > Precision[\[Nu]], \[Nu] = $refinedNu];
         If[NumericQ[$refinedEigenvalue] && Precision[$refinedEigenvalue] > Precision[\[Lambda]], \[Lambda] = $refinedEigenvalue];
       ];,
@@ -736,17 +743,25 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
   ];
 
   (* Call the chosen implementation, checking the MST solutions through their Wronskian and, when the
-     check fails, recomputing everything with the working precision raised by wp and then 3 wp *)
+     check fails, recomputing everything with the working precision raised by wp and then 3 wp. With
+     "WronskianCheck" -> Automatic the check (four MST evaluations) runs only when there is a risk
+     indicator: the amplitudes needed more than 40 digits of padding, or a retry after a non-numeric
+     result. The failure it guards against, the coefficient recurrence yielding its wrong solution, needs a
+     deep bump in the coefficients, which shows as padding of 100 digits and more, whereas ordinary modes
+     need 10-20 digits at 32 digits of working precision and none at machine precision. *)
   (* For a complex frequency the identity is violated by an amount that grows like |omega|^5 (1e-25 at
      |omega| = 1e-5, 1e-6 at 0.3, O(1) at 1.7 on the imaginary axis, independent of the working precision),
      which points at the amplitude formulae rather than at the evaluation, so the check is not applied there. *)
-  check = TrueQ[OptionValue["WronskianCheck"]] && TRF === TeukolskyRadialMST && MatchQ[OptionValue["Amplitudes"], Automatic|True] && Im[\[Omega]] == 0;
+  check = MatchQ[OptionValue["WronskianCheck"], True|Automatic] && TRF === TeukolskyRadialMST && MatchQ[OptionValue["Amplitudes"], Automatic|True] && Im[\[Omega]] == 0;
   extra = Teukolsky`MST`MST`Private`modePadding[s, l, m, a, 2 \[Omega]];
   If[!check, Return[compute[extra, BCs]]];
-  wpn = If[wp === MachinePrecision, $MachinePrecision, wp];
-  tol = 10^(4 - wpn);
+  {ampPadding, ampRetried} = {0, False};
   res = compute[extra, {"In", "Up"}];
   If[res === $Failed, Return[$Failed]];
+  If[OptionValue["WronskianCheck"] === Automatic && !(ampPadding > 40 || ampRetried || extra > 0),
+    Return[If[ListQ[BCs], KeyTake[res, BCs], res[BCs]]]];
+  wpn = If[wp === MachinePrecision, $MachinePrecision, wp];
+  tol = 10^(4 - wpn);
   e = mstWronskianError[res, s, a, \[Omega], wp];
   k = If[epsilonPlusDegeneracy[s, m, a, \[Omega], wp] === None, 0, 2];
   While[e > tol && k < 2,
