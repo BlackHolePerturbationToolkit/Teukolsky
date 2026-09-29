@@ -152,8 +152,9 @@ mstAmplitudes[s_, l_, m_, a_, \[Omega]_, \[Lambda]_, \[Nu]_, p_, prec_, acc_] :=
 
 (* Degeneracies of the MST formulae: 2 I epsilon_+ = n, an integer, where epsilon_+ = (epsilon + tau)/2 =
    2 r+ k/(r+ - r-) with k = omega - m Omega_H. For real omega only n = 0 occurs, the
-   superradiant bound frequency omega = m Omega_H, where the horizon solutions Delta^-s Exp[+-i k r_*] coincide;
-   on the imaginary axis every n does. The amplitude formulae have poles there (Gamma[1 - s - 2 I epsilon_+]
+   superradiant bound frequency omega = m Omega_H, where the horizon basis Exp[i k r_*], Delta^-s Exp[-i k r_*]
+   is resonant (coincident for s = 0, Frobenius exponents differing by the integer s otherwise); on the
+   imaginary axis every n does. The amplitude formulae have poles there (Gamma[1 - s - 2 I epsilon_+]
    and 1/Sin[2 Pi I epsilon_+]), and for n >= 1 - s the hypergeometric series of the "In" solution has its
    c parameter, 1 - s - 2 I epsilon_+, at a pole and cannot represent that solution at all. Returns n, or
    None. Frequencies within 10^(3 - wp) of a degeneracy, relative, are treated as being at it: closer
@@ -169,12 +170,16 @@ epsilonPlusDegeneracy[s_, m_, a_, \[Omega]_, wp_] :=
 
 (* Unscaled MST amplitudes at the superradiant bound frequency: the limit from the neighbouring
    frequencies omega (1 +- h) and omega (1 +- 2 h), with the eigenvalue and the renormalized angular
-   momentum recomputed there, combined by Richardson extrapolation (error O(h^4), h = 10^(-wp/2)). The
-   transmission amplitudes and, for s <= 0, the "In" amplitudes have finite limits; the "Up" horizon
-   coefficients (the reflection, and for s = 0 also the incidence) diverge like 1/k, as do the "In"
-   amplitudes for s >= 1, for which no unit-transmission "In" solution exists at this frequency. A
-   divergent amplitude is recognised from the antisymmetric part of its neighbouring values, which is
-   O(h) relative for a regular one and O(1/h) for a pole, and returned as Indeterminate. *)
+   momentum recomputed there, combined by Richardson extrapolation (error O(h^4), h = 10^(-wp/2)). Only
+   ratios of the unscaled amplitudes are meaningful; relative to the transmission amplitudes, the "In"
+   amplitudes have finite limits for s <= 0, and the "Up" coefficient along the horizon basis function of
+   larger exponent diverges like 1/k (the "Reflection", along Delta^-s Exp[-i k r_*], for s <= 0, the
+   "Incidence", along Exp[i k r_*], for s >= 0, both for s = 0), as the coefficients of any finite solution
+   expanded in a degenerating basis do. For s >= 1 the "In" amplitudes diverge as well: the "In" solution is
+   then the smaller-exponent member of the resonant basis and has no unit-transmission limit, so
+   TeukolskyRadial refuses it (::insing) before reaching this function. A divergent amplitude is
+   recognised from the antisymmetric part of its neighbouring values, which is O(h) relative for a
+   regular one and O(1/h) for a pole, and returned as Indeterminate. *)
 superradiantAmplitudes[s_, l_, m_, a_, \[Omega]_, {wp_, prec_, acc_}, \[Nu]method_] :=
  Module[{h, amps, ampsAt, limit, keys = {"Incidence", "Transmission", "Reflection"}, divergent},
   (* the neighbours lose about Log10[1/h] digits to the nearby pole, which their padded evaluation
