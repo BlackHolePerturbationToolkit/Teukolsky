@@ -8,7 +8,7 @@
 (*Create Package*)
 
 
-BeginPackage[MST`$MasterFunction<>"`MST`MST`", {MST`$MasterFunction<>"`"}];
+BeginPackage[MST`$MasterFunction<>"`MST`MST`", {MST`$MasterFunction<>"`", MST`$MasterFunction<>"`MST`RenormalizedAngularMomentum`", "SpinWeightedSpheroidalHarmonics`"}];
 
 Begin["`Private`"];
 
@@ -872,28 +872,102 @@ $MSTRepresentationThreshold = 2;
    functions) or "Hypergeometric" (ST Eq. (138), series of hypergeometric functions in 1/(1-x)) *)
 $MSTInLargeRadiusRepresentation = "Coulomb";
 $masterFunction = MST`$MasterFunction;   (* captured at load time; MST`$MasterFunction is only set while the package loads *)
+$radialFunctionSymbol = Symbol[MST`$MasterFunction <> "`" <> MST`$MasterFunction <> "RadialFunction"];   (* carries the messages *)
+
+With[{sym = $radialFunctionSymbol},
+  sym::prec = "The MST series for the `1` radial function at r = `2` could only be evaluated to a precision of `3` (`4` requested).";
+];
 
 mstInRepresentation[q_, \[Epsilon]_, r_] :=
  If[$masterFunction === "Teukolsky" && Abs[\[Epsilon]] (r - (1 + Sqrt[1 - q^2]))/2 > $MSTRepresentationThreshold, $MSTInLargeRadiusRepresentation, "Series"];
 
 mstInCore[rep_] := Switch[rep, "Coulomb", mstRadialInCoulomb, "Hypergeometric", mstRadialInLargeRadiusSeries, _, mstRadialInSeriesCore];
 
-mstPaddedEvaluation[core_, {s_, l_, m_, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_}, {wp_, prec_, acc_}, deriv_Integer, r_] :=
- Module[{target, p, res, deficit, tries = 0, eval},
+(* The eigenvalue and the renormalized angular momentum at the precision pp of a padded evaluation. The MST
+   series amplify an error in nu (or lambda) by roughly the number of digits they lose to cancellation, so
+   padding the digits of a nu known to fewer digits than pp (which SetPrecision would do) gives a wrong
+   result whose tracked precision does not show it. Instead the eigenvalue is recomputed at pp and nu is
+   recomputed from it, padded until it carries pp digits, on the same representative as the given nu. The
+   results are cached per parameter set and precision. For a master function other than Teukolsky the
+   eigenvalue is used as given. *)
+$refinedParameterCache = <||>;
+
+refinedParameters[s_, l_, m_, q_, \[Epsilon]_, \[Lambda]_, \[Nu]_, pp_] :=
+ Module[{key = {s, l, m, q, \[Epsilon], \[Lambda], \[Nu], pp}, \[Lambda]p = \[Lambda], \[Nu]p = \[Nu], res},
+  If[Precision[\[Lambda]] >= pp && Precision[\[Nu]] >= pp, Return[SetPrecision[{\[Lambda], \[Nu]}, pp]]];
+  res = Lookup[$refinedParameterCache, Key[key], None];
+  If[res =!= None, Return[res]];
+  If[$masterFunction === "Teukolsky" && Precision[\[Lambda]] < pp,
+    (* the eigenvalue code compares against a machine-number tolerance, which underflows at a few
+       hundred digits with a harmless General::munfl *)
+    \[Lambda]p = Quiet[SpinWeightedSpheroidalEigenvalue[s, l, m, SetPrecision[q \[Epsilon]/2, pp]], General::munfl];
+  ];
+  If[Precision[\[Nu]] < pp,
+    \[Nu]p = paddedNu[s, l, m, q, \[Epsilon], \[Lambda]p, \[Nu], pp];
+  ];
+  res = SetPrecision[{\[Lambda]p, \[Nu]p}, pp];
+  If[Length[$refinedParameterCache] >= 50, $refinedParameterCache = <||>];
+  $refinedParameterCache[key] = res
+ ];
+
+(* nu to pp digits, from the renormalized angular momentum computed with padded inputs, on the
+   representative (among +-nu + k) of the given nu *)
+paddedNu[s_, l_, m_, q_, \[Epsilon]_, \[Lambda]_, \[Nu]_, pp_] :=
+ Module[{p = pp, res, tries = 0, ramAt},
+  ramAt[p1_] := RenormalizedAngularMomentum[s, l, m, SetPrecision[q, p1], SetPrecision[\[Epsilon]/2, p1], SetPrecision[\[Lambda], p1]];
+  res = ramAt[p];
+  While[tries < 4 && (!NumericQ[res] || Precision[res] < pp - 1),
+    p = If[NumericQ[res], p + Ceiling[pp - Precision[res]] + 3, 2 p];
+    res = ramAt[p];
+    tries++;
+  ];
+  If[!NumericQ[res], Return[\[Nu]]];
+  nearestRepresentative[res, \[Nu]]
+ ];
+
+(* the member of {+-nu + k, k integer} closest to nu0 *)
+nearestRepresentative[\[Nu]_, \[Nu]0_] :=
+ Module[{cands},
+  cands = Flatten[{\[Nu] + Round[Re[\[Nu]0 - \[Nu]]], -\[Nu] + Round[Re[\[Nu]0 + \[Nu]]]}];
+  First[MinimalBy[cands, Abs[# - \[Nu]0] &]]
+ ];
+
+(* Evaluate core (a series definition taking a derivative order) at r with the working precision padded
+   until the result carries the precision of the input. The loss is arithmetic cancellation, so it is
+   measured from the tracked precision of a first evaluation and the series are re-summed with the inputs
+   padded by the deficit; a non-numeric result (a precision-zero intermediate, 1/0) is retried at twice
+   the precision. The eigenvalue and nu are refined to the padded precision (see refinedParameters).
+   $lastPaddingLoss records the digits lost at the last working precision used, $lastPaddingPrecision
+   that precision; maxTries limits the retries and p0 sets the initial working precision. *)
+$lastPaddingLoss = 0;
+$lastPaddingPrecision = 0;
+
+mstPaddedEvaluation[core_, {s_, l_, m_, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_}, {wp_, prec_, acc_}, deriv_Integer, r_, maxTries_:4, p0_:Automatic] :=
+ Module[{target, p, res, deficit, tries = 0, eval, numericQ},
+  numericQ[x_] := NumericQ[x] && x != 0;
   If[wp === MachinePrecision,
     target = $MachinePrecision; p = $MachinePrecision + 4;,
     target = wp; p = wp;
   ];
-  eval[pp_] := Module[{params = SetPrecision[{q, \[Epsilon], \[Nu], \[Lambda], norm}, pp], rr = SetPrecision[r, pp], f, precgoal},
+  If[NumericQ[p0], p = Max[p, p0]];
+  p = Ceiling[p];   (* an integer, so that 10^-prec below stays exact (10^-318. would underflow) *)
+  eval[pp_] := Module[{params = SetPrecision[{q, \[Epsilon], norm}, pp], \[Lambda]p, \[Nu]p, rr = SetPrecision[r, pp], f, precgoal},
+    {\[Lambda]p, \[Nu]p} = refinedParameters[s, l, m, q, \[Epsilon], \[Lambda], \[Nu], pp];
     precgoal = If[pp > target, pp - 2, prec];
-    f = core[s, l, m, Sequence @@ params, {pp, precgoal, acc}, deriv];
-    f[rr]
+    f = core[s, l, m, params[[1]], params[[2]], \[Nu]p, \[Lambda]p, params[[3]], {pp, precgoal, acc}, deriv];
+    (* a precision-zero intermediate at too low a working precision is retried below, not reported *)
+    Quiet[f[rr], {Power::infy, Infinity::indet, Divide::infy}]
   ];
   res = eval[p];
-  While[NumericQ[res] && res != 0 && (deficit = target - Precision[res]) > 1 && tries < 3,
-    p += Ceiling[deficit] + 3;
+  While[tries < maxTries && (!numericQ[res] || (deficit = target - Precision[res]) > 1),
+    p = If[numericQ[res], p + Ceiling[deficit] + 3, 2 p];
     res = eval[p];
     tries++;
+  ];
+  $lastPaddingPrecision = p;
+  $lastPaddingLoss = If[numericQ[res], p - Precision[res], Infinity];
+  If[maxTries > 1 && (!NumericQ[res] || (numericQ[res] && Precision[res] < target - 1)),
+    With[{sym = $radialFunctionSymbol}, Message[sym::prec, If[core === mstRadialUpSeriesCore, "Up", "In"], r, If[NumericQ[res], Precision[res], res], target]];
   ];
   Which[
     !NumericQ[res], res,
