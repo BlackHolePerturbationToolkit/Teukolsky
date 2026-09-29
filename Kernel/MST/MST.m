@@ -371,9 +371,16 @@ Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_,
   (* In incidence coefficient: Binc from ST (168), CO (3.36) and (3.39) *)
   InInc = (Gamma[1-2 I \[Epsilon]] Gamma[-I \[Epsilon]-\[Nu]] Gamma[1-I \[Epsilon]+\[Nu]])/(Gamma[1-s-2 I \[Epsilon]] Gamma[s-I \[Epsilon]-\[Nu]] Gamma[1+s-I \[Epsilon]+\[Nu]]) prefacInInc[s, \[Epsilon], \[Tau], \[Kappa], \[Nu], K\[Nu]1, K\[Nu]2] Aplus;
 
-  (* Compute Up incidence and reflection coefficients from other coefficients *)
+  (* Compute Up incidence and reflection coefficients from other coefficients. The incidence follows
+     from the Wronskian at the two ends (any frequency); the reflection uses the conjugation symmetry of
+     the Regge-Wheeler equation, which holds for real frequencies only, so for a complex frequency it is
+     Indeterminate (with a message) rather than wrong. *)
   UpInc = UpTrans/InTrans InInc;
-  UpRef = -Conjugate[InRef/InTrans] UpTrans;
+  If[Im[\[Epsilon]] == 0,
+    UpRef = -Conjugate[InRef/InTrans] UpTrans;,
+    With[{sym = $radialFunctionSymbol}, Message[sym::upref, \[Epsilon]/2]];
+    UpRef = Indeterminate;
+  ];
 
   (* Clear local symbols with DownValues to avoid memory leaks *)
   Clear[termf, termK\[Nu]1Up, termK\[Nu]1Down, termK\[Nu]2Up, termK\[Nu]2Down, termAminus, termD1, termD12];
@@ -876,6 +883,7 @@ $radialFunctionSymbol = Symbol[MST`$MasterFunction <> "`" <> MST`$MasterFunction
 
 With[{sym = $radialFunctionSymbol},
   sym::prec = "The MST series for the `1` radial function at r = `2` could only be evaluated to a precision of `3` (`4` requested).";
+  sym::upref = "The \"Up\" reflection amplitude is only available for real frequencies (\[Omega] = `1` given) and is Indeterminate.";
 ];
 
 (* The large-radius representations were derived and validated for real frequencies; for a complex
