@@ -14,6 +14,7 @@
 
 BeginPackage["Teukolsky`TeukolskyRadial`",
   {
+  "Teukolsky`",
   "Teukolsky`SasakiNakamura`",
    "Teukolsky`NumericalIntegration`",
    "Teukolsky`MST`RenormalizedAngularMomentum`",

@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+ - Public symbols (TeukolskyRadial, TeukolskyRadialFunction, TeukolskyMode, TeukolskyPointParticleMode, RenormalizedAngularMomentum) now live in the Teukolsky` context rather than in sub-contexts, so that packages depending on Teukolsky` (BeginPackage["X`", {"Teukolsky`"}]) see them instead of silently creating private symbols of the same name.
+
 ### Changed
  - Improved accuracy of the radial functions and of the source integrals:
    - The default PrecisionGoal is now WorkingPrecision - 2 for all methods (previously WorkingPrecision / 2, which limited machine-precision solutions to ~8 digits and 32-digit solutions to ~16 digits).

@@ -13,7 +13,8 @@
 
 
 BeginPackage["Teukolsky`TeukolskyMode`",
-	{"Teukolsky`TeukolskyRadial`",
+	{"Teukolsky`",
+	 "Teukolsky`TeukolskyRadial`",
 	 "Teukolsky`ConvolveSource`",
 	 "KerrGeodesics`",
 	 "KerrGeodesics`KerrGeoOrbit`",

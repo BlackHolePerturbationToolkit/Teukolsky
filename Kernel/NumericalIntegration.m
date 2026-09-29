@@ -12,7 +12,7 @@
 (*Begin Package*)
 
 
-BeginPackage["Teukolsky`NumericalIntegration`"];
+BeginPackage["Teukolsky`NumericalIntegration`", {"Teukolsky`"}];
 
 
 (* ::Subsection::Closed:: *)
@@ -174,7 +174,7 @@ Derivative[n_][AllIntegrator[s_,\[Lambda]_,m_,a_,\[Omega]_,y1BC_,y2BC_,rBC_,H_?N
 
 TeukolskyInBC[s_Integer, \[Lambda]_, l_Integer, m_Integer, a_, \[Omega]_, amps_, \[Nu]_, {wp_, prec_, acc_}, rmin_:Automatic]:=
  Module[{R, res, dres, r, Rr, dRr},
-        R = Teukolsky`TeukolskyRadial`TeukolskyRadial[s, l, m, a, \[Omega], "BoundaryConditions" -> "In", "Amplitudes" -> amps, "Eigenvalue" -> \[Lambda], "RenormalizedAngularMomentum" -> \[Nu], Method -> "MST", WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> Infinity];
+        R = Teukolsky`TeukolskyRadial[s, l, m, a, \[Omega], "BoundaryConditions" -> "In", "Amplitudes" -> amps, "Eigenvalue" -> \[Lambda], "RenormalizedAngularMomentum" -> \[Nu], Method -> "MST", WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> Infinity];
         r = inBoundaryRadius[a, rmin];
   	  Rr = R[r];
 		dRr = R'[r];
@@ -192,7 +192,7 @@ TeukolskyInBCFromValues[s_Integer, m_Integer, a_, \[Omega]_, r_, Rr_, dRr_] :=
 TeukolskyUpBC[s_Integer, \[Lambda]_, l_Integer, m_Integer, a_, \[Omega]_, amps_, \[Nu]_, {wp_, prec_, acc_}, rmax_:Automatic]:=
  Module[{R, res, dres, r, Rr, dRr},
 		r = upBoundaryRadius[a, rmax];
-        R = Teukolsky`TeukolskyRadial`TeukolskyRadial[s, l, m, a, \[Omega], "BoundaryConditions" -> "Up", "Amplitudes" -> amps, "Eigenvalue" -> \[Lambda], "RenormalizedAngularMomentum" -> \[Nu], Method -> "MST", WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> Infinity];
+        R = Teukolsky`TeukolskyRadial[s, l, m, a, \[Omega], "BoundaryConditions" -> "Up", "Amplitudes" -> amps, "Eigenvalue" -> \[Lambda], "RenormalizedAngularMomentum" -> \[Nu], Method -> "MST", WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> Infinity];
   	  Rr = R[r];
 		dRr = R'[r];
 		TeukolskyUpBCFromValues[s, m, a, \[Omega], r, Rr, dRr]

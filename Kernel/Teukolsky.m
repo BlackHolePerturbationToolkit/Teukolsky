@@ -2,6 +2,11 @@
 
 BeginPackage["Teukolsky`"];
 
+(* Public symbols are declared here, in the Teukolsky` context, so that packages depending on this one
+   (BeginPackage["X`", {"Teukolsky`"}]) see them; their usage messages and definitions are attached
+   by the sub-packages loaded below, each of which has Teukolsky` in its list of needed contexts. *)
+{TeukolskyRadial, TeukolskyRadialFunction, TeukolskyMode, TeukolskyPointParticleMode, RenormalizedAngularMomentum};
+
 Begin["`Private`"];
 
 (* Check appropriate versions of dependencies are installed *)
