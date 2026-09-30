@@ -174,6 +174,24 @@ dH2F1Exact[n_, s_, \[Nu]_, \[Tau]_, \[Epsilon]_, x_] :=
   (n+a)(-n+b) Hypergeometric2F1Regularized[n + a + 1, -n + b + 1, c + 1, x]
 ];
 
+(* The second Kummer solution of the same hypergeometric equation, x^(1-c) F(a-c+1, b-c+1; 2-c; x), which
+   carries the outgoing horizon exponent, normalised by Gamma[a-c+1] Gamma[b-c+1]/(Gamma[a] Gamma[b]) so
+   that it satisfies the same contiguous relations in a and b as F(a, b; c; x) itself, and therefore the
+   recurrences H2F1Up and H2F1Down: with the same coefficients as the "In" series it then gives the second
+   solution of the radial equation at the horizon (see mstRadialUpHorizon). *)
+outNormalisation[n_, a_, b_, c_] := Gamma[n + a - c + 1] Gamma[b - n - c + 1]/(Gamma[n + a] Gamma[b - n]);
+
+H2F1OutExact[n_, s_, \[Nu]_, \[Tau]_, \[Epsilon]_, x_] :=
+ Module[{a = aF[s, \[Nu], \[Tau], \[Epsilon]], b = bF[s, \[Nu], \[Tau], \[Epsilon]], c = cF[s, \[Nu], \[Tau], \[Epsilon]]},
+  outNormalisation[n, a, b, c] (-x)^(1 - c) Hypergeometric2F1[n + a - c + 1, b - n - c + 1, 2 - c, x]
+];
+
+dH2F1OutExact[n_, s_, \[Nu]_, \[Tau]_, \[Epsilon]_, x_] :=
+ Module[{a = aF[s, \[Nu], \[Tau], \[Epsilon]], b = bF[s, \[Nu], \[Tau], \[Epsilon]], c = cF[s, \[Nu], \[Tau], \[Epsilon]], ap, bp, cp},
+  {ap, bp, cp} = {n + a - c + 1, b - n - c + 1, 2 - c};
+  outNormalisation[n, a, b, c] (-(1 - c) (-x)^(-c) Hypergeometric2F1[ap, bp, cp, x] + (-x)^(1 - c) ap bp/cp Hypergeometric2F1[ap + 1, bp + 1, cp + 1, x])
+];
+
 dH2F1Up[n_, s_, \[Nu]_, \[Tau]_, \[Epsilon]_, x_] :=
  Module[{a = aF[s, \[Nu], \[Tau], \[Epsilon]], b = bF[s, \[Nu], \[Tau], \[Epsilon]], c = cF[s, \[Nu], \[Tau], \[Epsilon]]},
   1/((1+b-c-n) (-1+a+n)){-(((1-a+b-2 n) (1+b-n) (-1+a-c+n) dH2F1[-2+n])/(3-a+b-2 n) ), 1/(3-a+b-2 n)  (2-a+b-2 n) (-2+2 a-2 b+2 a b+c-a c-b c+4 n-2 a n+2 b n-2 n^2+3 x-4 a x+a^2 x+4 b x-2 a b x+b^2 x-8 n x+4 a n x-4 b n x+4 n^2 x) dH2F1[-1+n],(1-a+b-2 n) (2-a+b-2 n) H2F1[-1+n]}
@@ -592,7 +610,16 @@ sumSeries[term_, n0_, dir_, prec_, acc_] :=
 (* The hypergeometric series for the "In" solution (Sasaki & Tagoshi Eq. (116)) at r: the value (deriv 0),
    the first derivative (deriv 1), or both from a single summation (deriv All), which shares the
    coefficients and the hypergeometric functions between the two. *)
+(* The series of hypergeometric functions about the horizon, built on the regularised F(a, b; c; x) (the
+   "In" solution, exact = H2F1Exact) or on the normalised second Kummer solution (the outgoing horizon
+   solution, exact = H2F1OutExact); both share the coefficients and the recurrences. *)
 mstRadialInSeriesCore[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}, deriv_][r_?NumericQ] :=
+  mstRadialHorizonSeriesCore[H2F1Exact, dH2F1Exact][s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm, {wp, prec, acc}, deriv][r];
+
+mstRadialOutSeriesCore[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}, deriv_][r_?NumericQ] :=
+  mstRadialHorizonSeriesCore[H2F1OutExact, dH2F1OutExact][s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm, {wp, prec, acc}, deriv][r];
+
+mstRadialHorizonSeriesCore[exact_, dexact_][s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}, deriv_][r_?NumericQ] :=
  Module[{\[Kappa], \[Tau], rp, x, dxdr, prefac, dprefac, term, res},
  Block[{H2F1, dH2F1},
  Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], fn},
@@ -602,26 +629,26 @@ mstRadialInSeriesCore[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, 
   x = (rp - r)/(2 \[Kappa]);
   dxdr = - 1/(2\[Kappa]);
 
-  H2F1[n : (0 | 1)] := H2F1[n] = H2F1Exact[n, s, \[Nu], \[Tau], \[Epsilon], x];
+  H2F1[n : (0 | 1)] := H2F1[n] = exact[n, s, \[Nu], \[Tau], \[Epsilon], x];
 
   H2F1[n_Integer] := H2F1[n] =
    Module[{t1, t2, res},
     {t1, t2} = If[n>0, H2F1Up[n, s, \[Nu], \[Tau], \[Epsilon], x], H2F1Down[n, s, \[Nu], \[Tau], \[Epsilon], x]];
     res = t1 + t2;
     If[Max[Abs[{t1, t2}/res]] > 2.,
-      res = H2F1Exact[n, s, \[Nu], \[Tau], \[Epsilon], x];
+      res = exact[n, s, \[Nu], \[Tau], \[Epsilon], x];
     ];
     res
   ];
 
-  dH2F1[n : (0 | 1)] := dH2F1[n] = dH2F1Exact[n, s, \[Nu], \[Tau], \[Epsilon], x];
+  dH2F1[n : (0 | 1)] := dH2F1[n] = dexact[n, s, \[Nu], \[Tau], \[Epsilon], x];
 
   dH2F1[n_Integer] := dH2F1[n] =
    Module[{t1, t2, t3, res},
     {t1, t2, t3} = If[n>0, dH2F1Up[n, s, \[Nu], \[Tau], \[Epsilon], x], dH2F1Down[n, s, \[Nu], \[Tau], \[Epsilon], x]];
     res = t1 + t2 + t3;
     If[Max[Abs[{t1, t2, t3}/res]] > 2.,
-      res = dH2F1Exact[n, s, \[Nu], \[Tau], \[Epsilon], x];
+      res = dexact[n, s, \[Nu], \[Tau], \[Epsilon], x];
     ];
     res
   ];
@@ -720,6 +747,72 @@ mstRadialUpSeries[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[La
 
 Derivative[1][mstRadialUpSeries[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}]][r_?NumericQ] :=
   mstRadialUpSeriesCore[s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm, {wp, prec, acc}, 1][r];
+
+
+(* ::Subsection::Closed:: *)
+(*"Up" solution near the horizon: the horizon basis of hypergeometric series*)
+
+
+(* ::Text:: *)
+(*The Coulomb-type series is an expansion about infinity and converges slowly near the horizon (hundreds of*)
+(*Tricomi functions at r+ + 0.05, thousands at r+ + 0.01, where an evaluation took minutes at 40 digits).*)
+(*There the "Up" solution is written in the horizon basis instead, mirroring the Coulomb-type representation*)
+(*of the "In" solution at large radius: R_up = c1 R_in + c2 R_out, with R_in the regularised "In" series and*)
+(*R_out the series built on the normalised second Kummer solution (mstRadialOutSeriesCore), whose horizon*)
+(*behaviour is (-x)^(I epsilon_+), the outgoing one. The coefficients follow from the horizon amplitudes:*)
+(*c1 = C^ref/B^trans (the unscaled amplitudes of the package, both relative to the same regularised "In"*)
+(*normalisation), and c2 = C^inc Exp[I (epsilon + tau) kappa (1/2 + Log[kappa]/(1 + kappa))]/Sum[a_n g_n],*)
+(*where the phase is that of the "In" transmission prefactor (prefacInTrans without 4^s kappa^(2 s)) and*)
+(*Sum[a_n g_n] is the coefficient of (-x)^(I epsilon_+) in R_out, g_n the normalisation of the second*)
+(*solution (outNormalisation); both were verified against the Coulomb-type series to 33 digits. At the*)
+(*degeneracies 2 I epsilon_+ = n the second Kummer solution has a logarithm and one of C^inc, C^ref is*)
+(*Indeterminate, so the Coulomb-type series is kept there. Only for the Teukolsky master function.*)
+
+
+(* r - r+ below which the "Up" solution uses the horizon basis: at r+ + 1 the two representations cost about
+   the same (0.1 s at 40 digits), at r+ + 0.3 the Coulomb-type series costs ten times more and at r+ + 0.05 two
+   hundred times more, while the horizon series, whose loss grows with the radius like the "In" series', is
+   still at full precision *)
+$MSTUpHorizonThreshold = 1;
+
+mstUpRepresentation[s_, m_, q_, \[Epsilon]_, r_] :=
+ Module[{\[Kappa] = Sqrt[1 - q^2], x, n, p},
+  If[$masterFunction =!= "Teukolsky" || !(r - (1 + \[Kappa]) < $MSTUpHorizonThreshold), Return["Coulomb"]];
+  (* a degeneracy 2 I epsilon_+ = n, within the tolerance the amplitudes snap with *)
+  x = I (\[Epsilon] + (\[Epsilon] - m q)/\[Kappa]); n = Round[Re[x]]; p = Precision[x];
+  If[Abs[x - n] <= 10^(3 - Floor[If[p === MachinePrecision, $MachinePrecision, p]]), "Coulomb", "Horizon"]
+ ];
+
+$upHorizonCache = <||>;   (* bounded cache of {c1, c2}, keyed by the parameters *)
+
+upHorizonCoefficients[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, goals_] :=
+ Module[{key = {s, l, m, q, \[Epsilon], \[Nu], \[Lambda]}, res},
+  res = Lookup[$upHorizonCache, Key[key], None];
+  If[res =!= None, Return[res]];
+  res = upHorizonCoefficientsCompute[s, l, m, q, \[Epsilon], \[Nu], \[Lambda], goals];
+  If[Length[$upHorizonCache] >= 50, $upHorizonCache = <||>];
+  $upHorizonCache[key] = res
+ ];
+
+upHorizonCoefficientsCompute[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, goals_] :=
+ Module[{\[Kappa], \[Tau], a, b, c, amps, sumG},
+ Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], fn},
+  \[Kappa] = Sqrt[1 - q^2];
+  \[Tau] = (\[Epsilon] - m q)/\[Kappa];
+  amps = Amplitudes[s, l, m, q, \[Epsilon], \[Nu], \[Lambda], goals];
+  If[!(AssociationQ[amps] && NumericQ[amps["Up"]["Reflection"]] && NumericQ[amps["Up"]["Incidence"]] && NumericQ[amps["In"]["Transmission"]] && amps["In"]["Transmission"] != 0),
+    Return[$Failed]];
+  {a, b, c} = {aF[s, \[Nu], \[Tau], \[Epsilon]], bF[s, \[Nu], \[Tau], \[Epsilon]], cF[s, \[Nu], \[Tau], \[Epsilon]]};
+  sumG = sumUntil[fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, #] outNormalisation[#, a, b, c] &, 0, 1] + sumUntil[fn[q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda], s, m, #] outNormalisation[#, a, b, c] &, -1, -1];
+  {amps["Up"]["Reflection"]/amps["In"]["Transmission"], amps["Up"]["Incidence"] Exp[I (\[Epsilon] + \[Tau]) \[Kappa] (1/2 + Log[\[Kappa]]/(1 + \[Kappa]))]/sumG}
+ ]];
+
+mstRadialUpHorizon[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}, deriv_][r_?NumericQ] :=
+ Module[{cs = upHorizonCoefficients[s, l, m, q, \[Epsilon], \[Nu], \[Lambda], {wp, prec, acc}]},
+  If[cs === $Failed, Return[Indeterminate]];
+  (cs[[1]] mstRadialInSeriesCore[s, l, m, q, \[Epsilon], \[Nu], \[Lambda], 1, {wp, prec, acc}, deriv][r]
+   + cs[[2]] mstRadialOutSeriesCore[s, l, m, q, \[Epsilon], \[Nu], \[Lambda], 1, {wp, prec, acc}, deriv][r])/norm
+ ];
 
 
 (* ::Section::Closed:: *)
@@ -997,7 +1090,7 @@ mstPaddedEvaluation[core_, {s_, l_, m_, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, nor
   $lastPaddingPrecision = p;
   $lastPaddingLoss = If[numericQ[res], p - Precision[res], Infinity];
   If[maxTries > 1 && (!allNumericQ[res] || (numericQ[res] && Precision[res] < target - 1)),
-    With[{sym = $radialFunctionSymbol}, Message[sym::prec, If[core === mstRadialUpSeriesCore, "Up", "In"], r, If[allNumericQ[res], Precision[res], res], target]];
+    With[{sym = $radialFunctionSymbol}, Message[sym::prec, If[MemberQ[{mstRadialUpSeriesCore, mstRadialUpHorizon}, core], "Up", "In"], r, If[allNumericQ[res], Precision[res], res], target]];
   ];
   Which[
     !allNumericQ[res], res,
@@ -1028,7 +1121,7 @@ seriesLossEstimate[q_, \[Epsilon]_, r_] := 0.8 Abs[\[Epsilon]] (r - (1 + Sqrt[1 
 
 prepaddedEvaluation[core_, params:{s_, l_, m_, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_}, goals:{wp_, prec_, acc_}, deriv_, r_] :=
  Module[{key = {core, s, l, m, q, \[Epsilon], \[Nu], \[Lambda]}, rdep, base, p0, res},
-  rdep = If[core === mstRadialInSeriesCore, seriesLossEstimate[q, \[Epsilon], r], 0];
+  rdep = If[MemberQ[{mstRadialInSeriesCore, mstRadialUpHorizon}, core], seriesLossEstimate[q, \[Epsilon], r], 0];
   base = Lookup[$lossCache, Key[key], None];
   (* four digits of margin: significance arithmetic overstates the precision of the summed series by a
      digit or so, and the margin keeps the result beyond the requested precision as before *)
@@ -1086,14 +1179,24 @@ Derivative[1][MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu
 MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}][r_?NumericQ, {0, 1}] :=
  mstRadialInEvaluate[{s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm}, {wp, prec, acc}, All, r];
 
+(* "Up" solution: the horizon basis near the horizon (mstUpRepresentation), the Coulomb-type series
+   elsewhere and wherever the horizon representation is not available *)
+mstRadialUpEvaluate[params:{s_, l_, m_, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_}, goals_, deriv_, r_] :=
+ Module[{res},
+  If[mstUpRepresentation[s, m, q, \[Epsilon], r] === "Horizon",
+    res = prepaddedEvaluation[mstRadialUpHorizon, params, goals, deriv, r];
+    If[allNumericQ[res], Return[res]]];
+  prepaddedEvaluation[mstRadialUpSeriesCore, params, goals, deriv, r]
+ ];
+
 MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}][r_?NumericQ] :=
- prepaddedEvaluation[mstRadialUpSeriesCore, {s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm}, {wp, prec, acc}, 0, r];
+ mstRadialUpEvaluate[{s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm}, {wp, prec, acc}, 0, r];
 
 Derivative[1][MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}]][r_?NumericQ] :=
- prepaddedEvaluation[mstRadialUpSeriesCore, {s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm}, {wp, prec, acc}, 1, r];
+ mstRadialUpEvaluate[{s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm}, {wp, prec, acc}, 1, r];
 
 MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}][r_?NumericQ, {0, 1}] :=
- prepaddedEvaluation[mstRadialUpSeriesCore, {s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm}, {wp, prec, acc}, All, r];
+ mstRadialUpEvaluate[{s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm}, {wp, prec, acc}, All, r];
 
 
 (* ::Section::Closed:: *)
