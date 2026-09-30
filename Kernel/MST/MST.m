@@ -1061,8 +1061,13 @@ $lastPaddingPrecision = 0;
    where its two solutions are hard to separate, and below a certain working precision it silently yields
    the wrong one, which no precision tracking reveals. *)
 $modePadding = <||>;
-modePadding[s_, l_, m_, q_, \[Epsilon]_] := Lookup[$modePadding, Key[{s, l, m, q, \[Epsilon]}], 0];
-setModePadding[s_, l_, m_, q_, \[Epsilon]_, extra_] := (If[Length[$modePadding] >= 50, $modePadding = <||>]; $modePadding[{s, l, m, q, \[Epsilon]}] = extra);
+(* The padding is keyed by the parameters the series are evaluated with: for Re epsilon < 0 those of the
+   conjugate partner (-m, -Conjugate[epsilon]), to which MSTRadialIn, MSTRadialUp and Amplitudes map such a
+   mode (see conjugateRules), so that a padding set by the Wronskian check of TeukolskyRadial under the
+   original key is seen by the evaluations. *)
+paddingKey[s_, l_, m_, q_, \[Epsilon]_] := If[Re[\[Epsilon]] < 0, {s, l, -m, q, -Conjugate[\[Epsilon]]}, {s, l, m, q, \[Epsilon]}];
+modePadding[s_, l_, m_, q_, \[Epsilon]_] := Lookup[$modePadding, Key[paddingKey[s, l, m, q, \[Epsilon]]], 0];
+setModePadding[s_, l_, m_, q_, \[Epsilon]_, extra_] := (If[Length[$modePadding] >= 50, $modePadding = <||>]; $modePadding[paddingKey[s, l, m, q, \[Epsilon]]] = extra);
 
 allNumericQ[x_] := VectorQ[Flatten[{x}], NumericQ];   (* a number, or a list of numbers ({value, derivative}) *)
 
