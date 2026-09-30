@@ -55,8 +55,8 @@ TeukolskyRadialFunction::dmval = "Radius `1` lies outside the computational doma
 TeukolskyRadial::opti = "Options in set `1` are incompatible.";
 TeukolskyRadial::topopt = "`1` are options of TeukolskyRadial, not of Method `2`; specify them outside Method.";
 TeukolskyRadial::exact = "Exact arguments a=`1`, \[Omega]=`2` require a WorkingPrecision; specify one, or apply N or SetPrecision to the arguments.";
-TeukolskyRadial::superradiant = "\[Omega] = m \[CapitalOmega]_H is the superradiant bound frequency: the asymptotic amplitudes are the limit from neighbouring frequencies and the amplitudes `1`, which diverge there, are Indeterminate.";
-TeukolskyRadial::degenerate = "2 I \[Epsilon]_+ = `1` is an integer at \[Omega] = `2`, where the MST formulae are singular: the asymptotic amplitudes are the limit from neighbouring frequencies and the amplitudes `3`, which diverge there, are Indeterminate.";
+TeukolskyRadial::superradiant = "\[Omega] = m \[CapitalOmega]_H is the superradiant bound frequency: the horizon basis is resonant and the amplitudes `1`, which diverge there, are Indeterminate.";
+TeukolskyRadial::degenerate = "2 I \[Epsilon]_+ = `1` is an integer at \[Omega] = `2`, where the horizon basis is resonant: the amplitudes `3`, which diverge there, are Indeterminate.";
 TeukolskyRadial::innorm = "The transmission amplitude of the \"In\" solution vanishes at \[Omega] = `1` (2 I \[Epsilon]_+ = `2` >= 1 - s); it is normalised to unit incidence instead of unit transmission.";
 
 
@@ -97,7 +97,7 @@ paddedComputation[f_, wp_, name_:"The result", extra_:0] :=
     Min[Precision /@ Select[nums[x], NumericQ[#] && # != 0 &]]];
   numericQ[x_] := Module[{nums},
     nums[y_] := If[AssociationQ[y], Flatten[nums /@ Values[y]], If[ListQ[y], Flatten[nums /@ y], {y}]];
-    AllTrue[nums[x], NumericQ]];
+    AllTrue[nums[x], NumericQ[#] || ($acceptIndeterminate && # === Indeterminate) &]];
   If[wp === MachinePrecision,
     target = $MachinePrecision; p = 2 $MachinePrecision;,
     target = wp; p = wp;
@@ -157,58 +157,35 @@ mstAmplitudes[s_, l_, m_, a_, \[Omega]_, \[Lambda]_, \[Nu]_, p_, prec_, acc_] :=
    2 r+ k/(r+ - r-) with k = omega - m Omega_H. For real omega only n = 0 occurs, the
    superradiant bound frequency omega = m Omega_H, where the horizon basis Exp[i k r_*], Delta^-s Exp[-i k r_*]
    is resonant (coincident for s = 0, Frobenius exponents differing by the integer s otherwise); on the
-   imaginary axis every n does. The amplitude formulae have poles there (Gamma[1 - s - 2 I epsilon_+]
-   and 1/Sin[2 Pi I epsilon_+]), and for n >= 1 - s the hypergeometric functions of the "In" series have their
-   c parameter, 1 - s - 2 I epsilon_+, at a non-positive integer: the unit-transmission "In" solution has no
-   limit there, and the regularised series of the MST package gives the horizon solution of larger exponent,
-   whose transmission amplitude vanishes, so that the "In" solution is normalised to unit incidence instead
-   (see normalisationKey). Returns n, or None. Frequencies within 10^(3 - wp) of a degeneracy, relative, are treated as being at it: closer
-   than that the formulae have lost all their digits. *)
+   imaginary axis every n does. The MST package evaluates the amplitudes there directly, from their
+   pole-free form (see Amplitudes): the "In" amplitudes are finite, with a transmission amplitude that
+   vanishes for n >= 1 - s, where the regularised "In" solution is the horizon solution of larger exponent
+   and is normalised to unit incidence (see normalisationKey); of the "Up" horizon coefficients the one along
+   the basis function that has ceased to be independent diverges and is Indeterminate (the "Reflection",
+   along Delta^-s Exp[-i k r_*], for n < 1 - s, the "Incidence", along Exp[i k r_*], for n > -1 - s, both for
+   -1 - s < n < 1 - s, i.e. at the bound frequency for s = 0). Returns n, or None. Frequencies within
+   10^(3 - wp) of a degeneracy in 2 I epsilon_+ are treated as being at it, the tolerance the MST package
+   snaps with. *)
 epsilonPlusDegeneracy[s_, m_, a_, \[Omega]_, wp_] :=
  Module[{\[Kappa] = Sqrt[1 - a^2], \[Epsilon] = 2 \[Omega], \[Tau], x, n, tol},
   \[Tau] = (\[Epsilon] - m a)/\[Kappa];
   x = I (\[Tau] + \[Epsilon]);   (* 2 I epsilon_+ *)
   n = Round[Re[x]];
-  tol = If[wp === MachinePrecision, 10^-13, 10^(3 - wp)] Abs[\[Omega]];
+  tol = 10^(3 - Floor[If[wp === MachinePrecision, $MachinePrecision, wp]]);
   If[Abs[x - n] <= tol, n, None]
  ];
 
-(* Unscaled MST amplitudes at the superradiant bound frequency: the limit from the neighbouring
-   frequencies omega (1 +- h) and omega (1 +- 2 h), with the eigenvalue and the renormalized angular
-   momentum recomputed there, combined by Richardson extrapolation (error O(h^4), h = 10^(-wp/2)). Only
-   ratios of the unscaled amplitudes are meaningful; relative to the transmission amplitudes, the "In"
-   amplitudes have finite limits for s <= 0, and the "Up" coefficient along the horizon basis function of
-   larger exponent diverges like 1/k (the "Reflection", along Delta^-s Exp[-i k r_*], for s <= 0, the
-   "Incidence", along Exp[i k r_*], for s >= 0, both for s = 0), as the coefficients of any finite solution
-   expanded in a degenerating basis do. For s >= 1 the unit-transmission "In" solution has no limit: the
-   MST package's regularised "In" amplitudes (divided by Gamma[1 - s - 2 I epsilon_+]) have finite incidence
-   and reflection limits and a transmission amplitude that vanishes like k, and the solution is normalised
-   to unit incidence. A divergent amplitude is recognised from the antisymmetric part of its neighbouring
-   values, which is O(h) relative for a regular one and O(1/h) for a pole, and returned as Indeterminate;
-   a vanishing one is antisymmetric too but smaller at h than at 2 h, and is returned as 0. *)
-superradiantAmplitudes[s_, l_, m_, a_, \[Omega]_, {wp_, prec_, acc_}, \[Nu]method_] :=
- Module[{h, amps, ampsAt, limit, keys = {"Incidence", "Transmission", "Reflection"}, divergent},
-  (* the neighbours lose about Log10[1/h] digits to the nearby pole, which their padded evaluation
-     recovers, so h can be small enough for the extrapolation error O(h^4) to be negligible *)
-  h = 10^-Ceiling[If[wp === MachinePrecision, $MachinePrecision, wp]/2];
-  ampsAt[\[Delta]_] := Module[{\[Omega]1 = \[Omega] (1 + \[Delta]), \[Lambda]1, \[Nu]1},
-    \[Lambda]1 = SpinWeightedSpheroidalEigenvalue[s, l, m, a \[Omega]1];
-    \[Nu]1 = paddedComputation[RenormalizedAngularMomentum[s, l, m, SetPrecision[a, #], SetPrecision[\[Omega]1, #], SetPrecision[\[Lambda]1, #], Method -> \[Nu]method] &, wp, "The renormalized angular momentum"];
-    paddedComputation[mstAmplitudes[s, l, m, a, \[Omega]1, \[Lambda]1, \[Nu]1, #, prec, acc] &, wp, "The asymptotic amplitudes"]
-  ];
-  amps = ampsAt /@ {h, -h, 2 h, -2 h};
-  limit[{p1_, m1_, p2_, m2_}] :=
-    If[!AllTrue[{p1, m1, p2, m2}, NumericQ] || Abs[p1 - m1] > Sqrt[h] Abs[p1 + m1],
-      If[AllTrue[{p1, m1, p2, m2}, NumericQ] && Abs[p1] < Abs[p2], 0, Indeterminate],
-      With[{res = (4 (p1 + m1)/2 - (p2 + m2)/2)/3}, If[wp === MachinePrecision, res, SetPrecision[res, Min[Precision[res], wp]]]]
-    ];
-  amps = Association @@ Table[bc -> Association @@ Table[key -> limit[#[bc][key] & /@ amps], {key, keys}], {bc, {"In", "Up"}}];
-  divergent = Flatten[Table[If[amps[bc][key] === Indeterminate, {bc, key}, Nothing], {bc, {"In", "Up"}}, {key, keys}], 1];
-  With[{n = epsilonPlusDegeneracy[s, m, a, \[Omega], wp]},
-    If[n === 0, Message[TeukolskyRadial::superradiant, divergent], Message[TeukolskyRadial::degenerate, n, \[Omega], divergent]];
-    If[normalisationKey[amps["In"]] === "Incidence", Message[TeukolskyRadial::innorm, \[Omega], n]]];
-  amps
+(* Messages at a degeneracy: which amplitudes are Indeterminate, and the normalisation of the "In" solution *)
+degeneracyMessages[n_, \[Omega]_, amps_Association] :=
+ Module[{divergent},
+  divergent = Flatten[Table[If[amps[bc][key] === Indeterminate, {bc, key}, Nothing], {bc, {"In", "Up"}}, {key, {"Incidence", "Transmission", "Reflection"}}], 1];
+  If[n === 0, Message[TeukolskyRadial::superradiant, divergent], Message[TeukolskyRadial::degenerate, n, \[Omega], divergent]];
+  If[normalisationKey[amps["In"]] === "Incidence", Message[TeukolskyRadial::innorm, \[Omega], n]];
  ];
+
+(* Non-numeric entries accepted by paddedComputation: at a degeneracy the divergent amplitudes are
+   Indeterminate by design and must not trigger its retries *)
+$acceptIndeterminate = False;
 
 (* The amplitude a solution is normalised to: unit transmission, except for an "In" solution whose
    transmission amplitude vanishes (the degeneracies 2 I epsilon_+ = n >= 1 - s, see epsilonPlusDegeneracy),
@@ -823,16 +800,17 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
         Message[TeukolskyRadial::opti, {"Amplitudes" -> OptionValue["Amplitudes"], "RenormalizedAngularMomentum" -> OptionValue["RenormalizedAngularMomentum"]}];
         Return[$Failed];
       ];
-      If[epsilonPlusDegeneracy[s, m, a, \[Omega], wp] =!= None,
-        norms = superradiantAmplitudes[s, l, m, a, \[Omega], {wp, prec, acc}, OptionValue["RenormalizedAngularMomentum"] /. (Automatic|True) -> "Monodromy"];,
-        (* the eigenvalue and nu refined to the padded precision of the amplitudes are kept for the radial
-           functions, which are evaluated at a similar padded precision *)
-        {$refinedEigenvalue, $refinedNu} = {\[Lambda], \[Nu]};
-        norms = paddedComputation[mstAmplitudes[s, l, m, a, \[Omega], \[Lambda], \[Nu], #, prec, acc] &, wp, "The asymptotic amplitudes", extra];
-        {ampPadding, ampRetried} = {$lastPaddingDigits, $lastPaddingRetried};
-        If[NumericQ[$refinedNu] && Precision[$refinedNu] > Precision[\[Nu]], \[Nu] = $refinedNu];
-        If[NumericQ[$refinedEigenvalue] && Precision[$refinedEigenvalue] > Precision[\[Lambda]], \[Lambda] = $refinedEigenvalue];
-      ];,
+      (* the eigenvalue and nu refined to the padded precision of the amplitudes are kept for the radial
+         functions, which are evaluated at a similar padded precision *)
+      {$refinedEigenvalue, $refinedNu} = {\[Lambda], \[Nu]};
+      With[{n = epsilonPlusDegeneracy[s, m, a, \[Omega], wp]},
+        norms = Block[{$acceptIndeterminate = n =!= None},
+          paddedComputation[mstAmplitudes[s, l, m, a, \[Omega], \[Lambda], \[Nu], #, prec, acc] &, wp, "The asymptotic amplitudes", extra]];
+        If[n =!= None, degeneracyMessages[n, \[Omega], norms]];
+      ];
+      {ampPadding, ampRetried} = {$lastPaddingDigits, $lastPaddingRetried};
+      If[NumericQ[$refinedNu] && Precision[$refinedNu] > Precision[\[Nu]], \[Nu] = $refinedNu];
+      If[NumericQ[$refinedEigenvalue] && Precision[$refinedEigenvalue] > Precision[\[Lambda]], \[Lambda] = $refinedEigenvalue];,
     True,
       Message[TeukolskyRadial::optx, "Amplitudes" -> OptionValue["Amplitudes"]];
       Return[$Failed];
