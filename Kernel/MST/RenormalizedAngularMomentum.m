@@ -13,7 +13,6 @@ RenormalizedAngularMomentum::usage =
 
 (* Messages *)
 RenormalizedAngularMomentum::precision = "Method \"Monodromy\" currently only works reliably with arbitrary precision input parameters.";
-RenormalizedAngularMomentum::degenerate = "\[Omega] = `1` is a degeneracy of the monodromy method (2 I \[Epsilon] = `2` is an integer); \[Nu] is evaluated from the neighbouring frequencies \[Omega](1 \[PlusMinus] h), h = `3`.";
 RenormalizedAngularMomentum::conv = "The monodromy method did not converge for \[Omega] = `1`.";
 
 Begin["`Private`"];
@@ -89,32 +88,9 @@ Cos2\[Pi]\[Nu]Series[a_, \[Omega]_, s_, l_, m_] :=
    for real frequencies where Cos[2 \[Pi] \[Nu]] is expected to be purely real. *)
 \[Nu]precision[Cos2\[Pi]\[Nu]_, q_, \[Epsilon]_, \[Kappa]_, \[Tau]_, s_, \[Lambda]_, m_] := -RealExponent[Im[Cos2\[Pi]\[Nu]]/Re[Cos2\[Pi]\[Nu]]];
 
-(* The member of {+-nu + k, k integer} closest to nu0 *)
-nearestRepresentative[\[Nu]_, \[Nu]0_] :=
- First[MinimalBy[{\[Nu] + Round[Re[\[Nu]0 - \[Nu]]], -\[Nu] + Round[Re[\[Nu]0 + \[Nu]]]}, Abs[# - \[Nu]0] &]];
-
-(* At 2 I epsilon = n (n a nonzero integer; omega = -I n/(4M)) the monodromy formula degenerates: the
-   Gamma functions of mu1 - mu2 = 2 I epsilon - 2 s have poles and the recurrences never converge (the
-   loop below used to run until the kernel died). nu itself is analytic there, so it is evaluated from
-   the neighbouring frequencies omega (1 +- h) and omega (1 +- 2 h), combined by Richardson extrapolation
-   (error O(h^4)); the neighbours lose about Log10[1/h] digits to the nearby poles, which their precision
-   estimate reflects, so h = 10^(-p/5) for input precision p balances the two. *)
-\[Nu]RCHMonodromy[a_, \[Omega]_, \[Lambda]_, s_, l_, m_, Npmax_] /; With[{x = 4 I \[Omega] - 2 s}, x == Round[Re[x]] && Round[Re[x]] != 2 s] :=
- Module[{p = Precision[{a, \[Omega], \[Lambda]}], h, \[Nu]s},
-  h = 10^-Floor[If[p === MachinePrecision, $MachinePrecision, p]/5];
-  (* too close to the degeneracy the recurrences converge too slowly; then step further away *)
-  While[h < 10^-2 && !AllTrue[\[Nu]s = Quiet[\[Nu]RCHMonodromy[a, \[Omega] (1 + #), \[Lambda], s, l, m, Npmax], RenormalizedAngularMomentum::conv] & /@ {h, -h, 2 h, -2 h}, NumericQ],
-    h = 100 h;
-  ];
-  Message[RenormalizedAngularMomentum::degenerate, \[Omega], Round[Re[4 I \[Omega]]], h];
-  If[!AllTrue[\[Nu]s, NumericQ], Message[RenormalizedAngularMomentum::conv, \[Omega]]; Return[$Failed]];
-  \[Nu]s = nearestRepresentative[#, First[\[Nu]s]] & /@ \[Nu]s;
-  (4 (\[Nu]s[[1]] + \[Nu]s[[2]])/2 - (\[Nu]s[[3]] + \[Nu]s[[4]])/2)/3
- ];
-
 (* Find \[Nu] using monodromy of confluent Heun equation *)
 \[Nu]RCHMonodromy[a_, \[Omega]_, \[Lambda]_, s_, l_, m_, Npmax_] :=
- Module[{q, \[Epsilon], \[Kappa], \[Tau], \[Gamma]CH, \[Delta]CH, \[Epsilon]CH, \[Alpha]CH\[Epsilon]CH, qCH, \[Mu]1C, \[Mu]2C, a1, a2, a1sum, a2sum, Pochhammerp1m2, Pochhammerm1p2, Cos2\[Pi]\[Nu], extend, nmax, precision, \[Nu], iterations = 0},
+ Module[{q, \[Epsilon], \[Kappa], \[Tau], \[Gamma]CH, \[Delta]CH, \[Epsilon]CH, \[Alpha]CH\[Epsilon]CH, qCH, \[Mu]1C, \[Mu]2C, a1, a2, a1sum, a2sum, Cos2\[Pi]\[Nu], extend, nmax, nmin, precision, \[Nu], iterations = 0},
   q = a;
   \[Epsilon] = 2 \[Omega];
   \[Kappa] = Sqrt[1-q^2];
@@ -139,27 +115,29 @@ nearestRepresentative[\[Nu]_, \[Nu]0_] :=
   a2[0] = 1;
   a2[n_] := a2[n] = -((((\[Alpha]CH\[Epsilon]CH+(-2+n)) (\[Alpha]CH\[Epsilon]CH+(-1+n-\[Gamma]CH))\[Epsilon]CH) a2[n-2])/n)+((\[Alpha]CH\[Epsilon]CH^2+(n^2-qCH+\[Gamma]CH+\[Delta]CH-n (1+\[Gamma]CH+\[Delta]CH-\[Epsilon]CH)-\[Epsilon]CH)+\[Alpha]CH\[Epsilon]CH(-1+2 n-\[Gamma]CH-\[Delta]CH+\[Epsilon]CH)) a2[n-1])/n;
 
-  Pochhammerp1m2[0] = 1;
-  Pochhammerp1m2[i_] := Pochhammerp1m2[i] = (-\[Mu]2C+\[Mu]1C+i-1)Pochhammerp1m2[i-1];
-  Pochhammerm1p2[0] = 1;
-  Pochhammerm1p2[i_] := Pochhammerm1p2[i] = (\[Mu]2C-\[Mu]1C+i-1)Pochhammerm1p2[i-1];
-
-  a1sum[n_] := Gamma[-\[Mu]2C+\[Mu]1C] Sum[a1[j]Pochhammerp1m2[n-j], {j, 0, Ceiling[n/2]}]; 
-  a2sum[n_] := Gamma[\[Mu]2C-\[Mu]1C] Sum[(-1)^j a2[j]Pochhammerm1p2[n-j], {j, 0, Ceiling[n/2]}];
+  (* The sums are Gamma[mu1 - mu2] Sum[a1[j] Pochhammer[mu1 - mu2, n - j]] and its mirror image, written
+     with Gamma[mu1 - mu2] Pochhammer[mu1 - mu2, k] = Gamma[mu1 - mu2 + k]: at the degeneracies
+     2 I epsilon = integer (omega = -I n/(4M)) the difference mu1 - mu2 = 2 I epsilon - 2 s is an integer,
+     Gamma[mu1 - mu2] or Gamma[mu2 - mu1] has a pole and the Pochhammer symbol the cancelling zero, so the
+     combined form is finite there, provided n - j + |mu1 - mu2| > 0 for every term (nmax > 2 |mu1 - mu2|,
+     enforced below), and nu is evaluated directly instead of from neighbouring frequencies. *)
+  a1sum[n_] := Sum[a1[j] Gamma[\[Mu]1C-\[Mu]2C+n-j], {j, 0, Ceiling[n/2]}];
+  a2sum[n_] := Sum[(-1)^j a2[j] Gamma[\[Mu]2C-\[Mu]1C+n-j], {j, 0, Ceiling[n/2]}];
+  nmin = 2 Ceiling[Abs[\[Mu]1C-\[Mu]2C]] + 4;
 
   (* Fill the memoised tables up to n in increasing order, so that the recursion depth stays at one
      whatever nmax is (evaluating a1[nmax] directly recursed nmax deep and exceeded $RecursionLimit) *)
-  extend[n_] := Do[a1[i]; a2[i]; Pochhammerp1m2[i]; Pochhammerm1p2[i], {i, 1, n}];
+  extend[n_] := Do[a1[i]; a2[i], {i, 1, n}];
 
   (* Compute \[Nu]. The memoised tables are cleared on every path, including failure. *)
   Cos2\[Pi]\[Nu][nmax_] := Cos2\[Pi]\[Nu][nmax] = (extend[nmax]; Cos[\[Pi](\[Mu]1C-\[Mu]2C)]+(2\[Pi]^2)/(a1sum[nmax] a2sum[nmax]) (-1)^(nmax-1) a1[nmax]a2[nmax]);
   \[Nu] = Catch[
   If[IntegerQ[Npmax],
-    nmax = Npmax;
+    nmax = Max[Npmax, nmin];
     If[Precision[Cos2\[Pi]\[Nu][nmax]] == 0, Throw[$Failed, \[Nu]RCHMonodromy]];
   ,
     (* FIXME: we should be able to predict nmax based on the convergence for large nmax and the loss of precision in a1 and a2 *)
-    nmax = 2 Ceiling[E^ProductLog[Precision[{a, \[Omega], \[Lambda]}] Log[100]]];
+    nmax = Max[2 Ceiling[E^ProductLog[Precision[{a, \[Omega], \[Lambda]}] Log[100]]], nmin];
     If[Precision[Cos2\[Pi]\[Nu][nmax]] == 0, Throw[$Failed, \[Nu]RCHMonodromy]];
 
     (* Increase nmax by 10% until the precision of the result decreases; a bounded number of times, so
@@ -195,7 +173,7 @@ nearestRepresentative[\[Nu]_, \[Nu]0_] :=
   ], \[Nu]RCHMonodromy];
   (* Remove rather than Clear: a message issued during the evaluation (1/0 near a degeneracy) can keep a
      reference to a memoised table, which would then survive as a leaked symbol *)
-  Remove[a1, a2, Pochhammerp1m2, Pochhammerm1p2, a1sum, a2sum, Cos2\[Pi]\[Nu], extend];
+  Remove[a1, a2, a1sum, a2sum, Cos2\[Pi]\[Nu], extend];
   \[Nu]
 ];
 
