@@ -105,12 +105,14 @@ paddedComputation[f_, wp_, name_:"The result", extra_:0] :=
     target = wp; p = wp;
   ];
   p = p0 = Ceiling[p + extra];   (* an integer working precision; wp may be a real from Precision[...] *)
-  (* a precision-zero intermediate at too low a working precision is retried, not reported *)
-  res = Quiet[f[p], {Power::infy, Infinity::indet, Divide::infy}];
+  (* a precision-zero intermediate at too low a working precision is retried, not reported; likewise a
+     failure of the monodromy method at a precision the retries will raise (its convergence message is
+     for a final failure, which the caller reports) *)
+  res = Quiet[f[p], {Power::infy, Infinity::indet, Divide::infy, RenormalizedAngularMomentum::conv}];
   While[tries < 4 && (!numericQ[res] || (deficit = target - minprec[res]) > 1),
     If[!numericQ[res], retried = True];
     p = If[numericQ[res], p + Ceiling[deficit] + 3, 2 p];
-    res = Quiet[f[p], {Power::infy, Infinity::indet, Divide::infy}];
+    res = Quiet[f[p], {Power::infy, Infinity::indet, Divide::infy, RenormalizedAngularMomentum::conv}];
     tries++;
   ];
   $lastPaddingDigits = p - p0;
@@ -118,7 +120,12 @@ paddedComputation[f_, wp_, name_:"The result", extra_:0] :=
   If[!numericQ[res] || minprec[res] < target - 1,
     Message[TeukolskyRadial::prec, name, If[numericQ[res], minprec[res], res], target];
   ];
-  If[wp === MachinePrecision, N[res], SetPrecision[res, target]]
+  (* a result that reached the target is rounded down to it; one that fell short keeps its actual precision,
+     so that the shortfall just reported stays visible downstream rather than being dressed up as the target *)
+  Which[
+    wp === MachinePrecision, N[res],
+    numericQ[res] && minprec[res] >= target - 1, SetPrecision[res, target],
+    True, res]
 ];
 
 
@@ -886,6 +893,12 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
      amount growing like |omega|^5 on the imaginary axis; that was the "Up" solution evaluated on the wrong
      side of a branch cut (see hypergeometricU in the MST package), and the identity now holds there to
      the working precision, within the cancellation between its two terms (mstWronskianError). *)
+  (* a forced check needs the amplitudes B^inc and C^trans, which it cannot have when they are supplied or
+     disabled: that combination is refused rather than the check silently not running *)
+  If[OptionValue["WronskianCheck"] === True && !MatchQ[OptionValue["Amplitudes"], Automatic|True],
+    Message[TeukolskyRadial::opti, {"WronskianCheck" -> True, "Amplitudes" -> OptionValue["Amplitudes"]}];
+    Return[$Failed];
+  ];
   check = MatchQ[OptionValue["WronskianCheck"], True|Automatic] && TRF === TeukolskyRadialMST && MatchQ[OptionValue["Amplitudes"], Automatic|True];
   extra = Teukolsky`MST`MST`Private`modePadding[s, l, m, a, 2 \[Omega]];
   If[!check, Return[compute[extra, BCs]]];

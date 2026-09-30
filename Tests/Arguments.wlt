@@ -126,3 +126,11 @@ VerificationTest[
   {TeukolskyRadial::optx, TeukolskyRadial::sopt},
   TestID -> "WronskianCheck is validated and reported as unsupported for static modes"
 ]
+
+(* a forced Wronskian check needs the amplitudes *)
+VerificationTest[
+  TeukolskyRadial[-2, 2, 2, N[3/5, 32], N[1/2, 32], "Amplitudes" -> False, "WronskianCheck" -> True],
+  $Failed,
+  {TeukolskyRadial::opti},
+  TestID -> "A forced Wronskian check without amplitudes is refused"
+]

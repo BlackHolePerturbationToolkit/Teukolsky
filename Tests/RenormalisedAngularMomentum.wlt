@@ -64,3 +64,15 @@ VerificationTest[
   True,
   TestID -> "Equivalent representatives of nu give the same solutions"
 ]
+
+
+(****************************************************************)
+(* Failure is reported                                          *)
+(****************************************************************)
+(* at omega = 270 the monodromy recurrences overflow: $Failed, with the convergence message *)
+VerificationTest[
+  RenormalizedAngularMomentum[-2, 2, 2, N[3/5, 32], N[270, 32]],
+  $Failed,
+  {RenormalizedAngularMomentum::conv},
+  TestID -> "A failed monodromy evaluation returns $Failed with a message"
+]

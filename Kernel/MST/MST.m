@@ -1018,7 +1018,9 @@ refinedParameters[s_, l_, m_, q_, \[Epsilon]_, \[Lambda]_, \[Nu]_, pp_] :=
   If[Precision[\[Nu]] < pp,
     \[Nu]p = paddedNu[s, l, m, q, \[Epsilon], \[Lambda]p, \[Nu], pp];
   ];
-  res = SetPrecision[{\[Lambda]p, \[Nu]p}, pp];
+  (* rounded down to pp; a component whose refinement fell short keeps its precision, so that the evaluations
+     built on it see the shortfall (and retry or report it) instead of a value dressed up as pp digits *)
+  res = If[Precision[#] >= pp, SetPrecision[#, pp], #] & /@ {\[Lambda]p, \[Nu]p};
   If[Length[$refinedParameterCache] >= 50, $refinedParameterCache = <||>];
   $refinedParameterCache[key] = res
  ];
@@ -1027,7 +1029,9 @@ refinedParameters[s_, l_, m_, q_, \[Epsilon]_, \[Lambda]_, \[Nu]_, pp_] :=
    representative (among +-nu + k) of the given nu *)
 paddedNu[s_, l_, m_, q_, \[Epsilon]_, \[Lambda]_, \[Nu]_, pp_] :=
  Module[{p = pp, res, tries = 0, ramAt},
-  ramAt[p1_] := RenormalizedAngularMomentum[s, l, m, SetPrecision[q, p1], SetPrecision[\[Epsilon]/2, p1], SetPrecision[\[Lambda], p1]];
+  (* a failure at a precision the retries will raise is not reported; a final failure returns the given nu,
+     whose precision then shows the shortfall *)
+  ramAt[p1_] := Quiet[RenormalizedAngularMomentum[s, l, m, SetPrecision[q, p1], SetPrecision[\[Epsilon]/2, p1], SetPrecision[\[Lambda], p1]], RenormalizedAngularMomentum::conv];
   res = ramAt[p];
   While[tries < 4 && (!NumericQ[res] || Precision[res] < pp - 1),
     p = If[NumericQ[res], p + Ceiling[pp - Precision[res]] + 3, 2 p];

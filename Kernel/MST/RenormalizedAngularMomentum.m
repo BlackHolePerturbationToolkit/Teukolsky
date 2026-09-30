@@ -137,11 +137,11 @@ Cos2\[Pi]\[Nu]Series[a_, \[Omega]_, s_, l_, m_] :=
   \[Nu] = Catch[
   If[IntegerQ[Npmax],
     nmax = Max[Npmax, nmin];
-    If[!NumericQ[Cos2\[Pi]\[Nu][nmax]] || Precision[Cos2\[Pi]\[Nu][nmax]] == 0, Throw[$Failed, \[Nu]RCHMonodromy]];
+    If[!NumericQ[Cos2\[Pi]\[Nu][nmax]] || Precision[Cos2\[Pi]\[Nu][nmax]] == 0, Message[RenormalizedAngularMomentum::conv, \[Omega]]; Throw[$Failed, \[Nu]RCHMonodromy]];
   ,
     (* FIXME: we should be able to predict nmax based on the convergence for large nmax and the loss of precision in a1 and a2 *)
     nmax = Max[2 Ceiling[E^ProductLog[Precision[{a, \[Omega], \[Lambda]}] Log[100]]], nmin];
-    If[!NumericQ[Cos2\[Pi]\[Nu][nmax]] || Precision[Cos2\[Pi]\[Nu][nmax]] == 0, Throw[$Failed, \[Nu]RCHMonodromy]];
+    If[!NumericQ[Cos2\[Pi]\[Nu][nmax]] || Precision[Cos2\[Pi]\[Nu][nmax]] == 0, Message[RenormalizedAngularMomentum::conv, \[Omega]]; Throw[$Failed, \[Nu]RCHMonodromy]];
 
     (* Increase nmax by 10% until the precision of the result decreases; a bounded number of times, so
        that a non-convergent case fails instead of exhausting memory *)
@@ -149,7 +149,7 @@ Cos2\[Pi]\[Nu]Series[a_, \[Omega]_, s_, l_, m_] :=
     While[precision < (precision = \[Nu]precision[Cos2\[Pi]\[Nu][nmax], q, \[Epsilon], \[Kappa], \[Tau], s, \[Lambda], m]),
       nmax = Round[11/10 nmax];
       If[++iterations > 25, Message[RenormalizedAngularMomentum::conv, \[Omega]]; Throw[$Failed, \[Nu]RCHMonodromy]];
-      If[!NumericQ[Cos2\[Pi]\[Nu][nmax]] || Precision[Cos2\[Pi]\[Nu][nmax]] == 0, Throw[$Failed, \[Nu]RCHMonodromy]];
+      If[!NumericQ[Cos2\[Pi]\[Nu][nmax]] || Precision[Cos2\[Pi]\[Nu][nmax]] == 0, Message[RenormalizedAngularMomentum::conv, \[Omega]]; Throw[$Failed, \[Nu]RCHMonodromy]];
     ];
     nmax = Round[10/11 nmax];
   ];
