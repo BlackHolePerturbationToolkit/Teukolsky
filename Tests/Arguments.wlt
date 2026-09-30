@@ -78,3 +78,14 @@ VerificationTest[
   {TeukolskyRadialFunction, TeukolskyRadialFunction, True, True},
   TestID -> "A single boundary condition at machine precision, with and without amplitudes"
 ]
+
+
+(* A frequency far outside the range of the methods fails quickly (it used to run for minutes) *)
+VerificationTest[
+  Module[{t, res},
+    {t, res} = AbsoluteTiming[Quiet[TeukolskyRadial[-2, 2, 2, 0.6, 270.]]];
+    {res, t < 60}
+  ],
+  {$Failed, True},
+  TestID -> "An absurd frequency fails fast"
+]

@@ -86,6 +86,7 @@ rm[a_,M_] := M-Sqrt[M^2-a^2];
    machine-precision input the computation is done in arbitrary precision. A result still short of the
    input precision after the retries is reported. *)
 TeukolskyRadial::prec = "`1` could only be computed to a precision of `2` (`3` requested).";
+TeukolskyRadial::nufail = "The renormalized angular momentum could not be computed for s=`1`, l=`2`, m=`3`, a=`4`, \[Omega]=`5`.";
 
 $lastPaddingDigits = 0;        (* digits of padding the last paddedComputation added beyond its first pass *)
 $lastPaddingRetried = False;   (* whether it had to retry after a non-numeric result *)
@@ -804,6 +805,12 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
       \[Nu] = OptionValue["RenormalizedAngularMomentum"];,
     True,
       \[Nu] = paddedComputation[RenormalizedAngularMomentum[s, l, m, SetPrecision[a, #], SetPrecision[\[Omega], #], SetPrecision[\[Lambda], #], Method -> (OptionValue["RenormalizedAngularMomentum"] /. (Automatic|True) -> "Monodromy")] &, wp, "The renormalized angular momentum", extra];
+    ];
+    (* without nu neither the amplitudes nor the MST solutions can be computed: fail now, rather than let the
+       padded evaluations retry at ever higher precision (over five minutes at omega = 270 before this check) *)
+    If[!NumericQ[\[Nu]] && OptionValue["RenormalizedAngularMomentum"] =!= False,
+      Message[TeukolskyRadial::nufail, s, l, m, a, \[Omega]];
+      Return[$Failed, Module];
     ];
 
     (* Compute the asymptotic amplitudes *)
