@@ -37,3 +37,18 @@ Get["Teukolsky`TeukolskyMode`"];
 Get["Teukolsky`NumericalIntegration`"];
 Get["Teukolsky`ConvolveSource`"];
 Get["Teukolsky`PN`"];
+
+(* Forwarding aliases for the contexts the public symbols lived in before they were moved to Teukolsky`, so
+   that fully qualified references and expressions saved with the old heads (the Documentation notebooks hold
+   Teukolsky`TeukolskyRadial`TeukolskyRadialFunction and Teukolsky`TeukolskyMode`TeukolskyMode) keep
+   evaluating: an expression with an old head evaluates to the same expression with the new one. Those three
+   contexts export nothing any more and are taken off $ContextPath first, so that the aliases cannot shadow
+   the Teukolsky` symbols when a short name is typed; the symbols are created at evaluation time, since the
+   shadowing warning is issued when a symbol whose name exists in Teukolsky` is created. *)
+$ContextPath = DeleteCases[$ContextPath, "Teukolsky`TeukolskyRadial`" | "Teukolsky`TeukolskyMode`" | "Teukolsky`MST`RenormalizedAngularMomentum`"];
+Teukolsky`Private`alias[old_String, new_Symbol] := Quiet[With[{sym = Symbol[old]}, sym = new; Protect[sym]], General::shdw];
+Teukolsky`Private`alias["Teukolsky`TeukolskyRadial`TeukolskyRadial", Teukolsky`TeukolskyRadial];
+Teukolsky`Private`alias["Teukolsky`TeukolskyRadial`TeukolskyRadialFunction", Teukolsky`TeukolskyRadialFunction];
+Teukolsky`Private`alias["Teukolsky`TeukolskyMode`TeukolskyMode", Teukolsky`TeukolskyMode];
+Teukolsky`Private`alias["Teukolsky`TeukolskyMode`TeukolskyPointParticleMode", Teukolsky`TeukolskyPointParticleMode];
+Teukolsky`Private`alias["Teukolsky`MST`RenormalizedAngularMomentum`RenormalizedAngularMomentum", Teukolsky`RenormalizedAngularMomentum];
