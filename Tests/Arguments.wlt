@@ -100,3 +100,11 @@ VerificationTest[
   {TeukolskyRadial::ampfail},
   TestID -> "Amplitudes that overflow are reported and the integrated functions returned"
 ]
+
+(* an invalid "WronskianCheck" value is rejected rather than silently disabling the check *)
+VerificationTest[
+  TeukolskyRadial[-2, 2, 2, 0.6, 0.5, "WronskianCheck" -> "True"],
+  $Failed,
+  {TeukolskyRadial::optx},
+  TestID -> "Invalid WronskianCheck option fails with a message"
+]

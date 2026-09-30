@@ -457,12 +457,12 @@ Options[TeukolskyRadialMST] = {};
 
 
 (* Machine-precision Automatic method: the numerical-integration solutions with precision and accuracy
-   goals two digits below machine precision. Their boundary data are the precision-padded MST solutions
-   (near the horizon for "In", at the outermost requested radius for "Up"), so they are accurate to
-   ~1e-11 - 1e-15, and being interpolating or integrated solutions they are cheap to evaluate on many
-   radii, unlike the MST series which are summed at every point. The accuracy of the pair is estimated
-   from the Wronskian, which must equal 2 i omega B^inc C^trans (with the amplitudes computed at higher
-   precision) and be independent of r; a poor estimate is reported. *)
+   goals two digits below machine precision. Their boundary data are series solutions of the integrator's
+   equation, a power series about the horizon for "In" and the large-r asymptotic series for "Up" (see
+   NumericalIntegration.m), so they are accurate to ~1e-12 - 1e-15, and being interpolating or integrated
+   solutions they are cheap to evaluate on many radii, unlike the MST series which are summed at every
+   point. The accuracy of the pair is estimated from the Wronskian, which must equal 2 i omega B^inc C^trans
+   (with the amplitudes from the MST formulae) and be independent of r; a poor estimate is reported. *)
 TeukolskyRadial::acc = "The estimated relative accuracy of the radial functions is only `1`; use a higher WorkingPrecision for better accuracy.";
 
 radialAccuracyEstimate[R_Association, s_Integer, a_, \[Omega]_] :=
@@ -733,6 +733,10 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
   BCs = OptionValue["BoundaryConditions"];
   If[!MatchQ[BCs, "In"|"Up"|{("In"|"Up")..}], 
     Message[TeukolskyRadial::optx, "BoundaryConditions" -> BCs];
+    Return[$Failed];
+  ];
+  If[!MatchQ[OptionValue["WronskianCheck"], Automatic | True | False],
+    Message[TeukolskyRadial::optx, "WronskianCheck" -> OptionValue["WronskianCheck"]];
     Return[$Failed];
   ];
 
