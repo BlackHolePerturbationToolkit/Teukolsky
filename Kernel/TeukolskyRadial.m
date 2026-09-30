@@ -145,11 +145,20 @@ mstWronskianError[R_Association, s_Integer, a_, \[Omega]_, wp_] :=
    momentum refined to p digits (the series amplify an error in nu by roughly the number of digits they
    lose to cancellation, so nu must carry the padded precision, not merely be set to it). The refined
    values are recorded in $refinedEigenvalue and $refinedNu. *)
+(* At a degeneracy 2 I epsilon_+ = n (see epsilonPlusDegeneracy) the frequency is replaced, at the padded
+   precision p, by the one at which 2 I epsilon_+ = n exactly, (m a - I n kappa)/(2 (1 + kappa)): the given
+   omega satisfies the condition only to its own precision, and raised to p it would miss the MST package's
+   snapping tolerance 10^(3 - p), leaving the amplitude factors at a near-pole instead of their limits
+   (a machine-precision omega = m Omega_H, padded to 32 digits, is off by 1e-17). *)
+degenerateFrequency[m_, a_, n_] := With[{\[Kappa] = Sqrt[1 - a^2]}, (m a - I n \[Kappa])/(2 (1 + \[Kappa]))];
+$degeneracyOrder = None;
+
 mstAmplitudes[s_, l_, m_, a_, \[Omega]_, \[Lambda]_, \[Nu]_, p_, prec_, acc_] :=
- Module[{\[Lambda]p, \[Nu]p},
-  {\[Lambda]p, \[Nu]p} = Teukolsky`MST`MST`Private`refinedParameters[s, l, m, a, 2 \[Omega], \[Lambda], \[Nu], p];
+ Module[{\[Lambda]p, \[Nu]p, ap = SetPrecision[a, p], \[Omega]p},
+  \[Omega]p = If[$degeneracyOrder === None, SetPrecision[\[Omega], p], degenerateFrequency[m, ap, $degeneracyOrder]];
+  {\[Lambda]p, \[Nu]p} = Teukolsky`MST`MST`Private`refinedParameters[s, l, m, ap, 2 \[Omega]p, \[Lambda], \[Nu], p];
   {$refinedEigenvalue, $refinedNu} = {\[Lambda]p, \[Nu]p};
-  Teukolsky`MST`MST`Private`Amplitudes[s, l, m, SetPrecision[a, p], SetPrecision[2 \[Omega], p], \[Nu]p, \[Lambda]p, {p, Max[prec, p - 2], acc}]
+  Teukolsky`MST`MST`Private`Amplitudes[s, l, m, ap, 2 \[Omega]p, \[Nu]p, \[Lambda]p, {p, Max[prec, p - 2], acc}]
  ];
 
 
@@ -804,13 +813,18 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
          functions, which are evaluated at a similar padded precision *)
       {$refinedEigenvalue, $refinedNu} = {\[Lambda], \[Nu]};
       With[{n = epsilonPlusDegeneracy[s, m, a, \[Omega], wp]},
-        norms = Block[{$acceptIndeterminate = n =!= None},
+        norms = Block[{$acceptIndeterminate = n =!= None, $degeneracyOrder = n},
           paddedComputation[mstAmplitudes[s, l, m, a, \[Omega], \[Lambda], \[Nu], #, prec, acc] &, wp, "The asymptotic amplitudes", extra]];
         If[n =!= None, degeneracyMessages[n, \[Omega], norms]];
+        (* At a degeneracy the refined values belong to the exactly degenerate frequency of mstAmplitudes, not
+           to omega as given (1e-17 apart at machine precision), and the radial functions must refine their
+           own: the MST series amplify an inconsistency between nu and omega by the digits they lose to
+           cancellation (1e-7 in the functions at machine precision when nu was carried over). *)
+        If[n === None,
+          If[NumericQ[$refinedNu] && Precision[$refinedNu] > Precision[\[Nu]], \[Nu] = $refinedNu];
+          If[NumericQ[$refinedEigenvalue] && Precision[$refinedEigenvalue] > Precision[\[Lambda]], \[Lambda] = $refinedEigenvalue]];
       ];
-      {ampPadding, ampRetried} = {$lastPaddingDigits, $lastPaddingRetried};
-      If[NumericQ[$refinedNu] && Precision[$refinedNu] > Precision[\[Nu]], \[Nu] = $refinedNu];
-      If[NumericQ[$refinedEigenvalue] && Precision[$refinedEigenvalue] > Precision[\[Lambda]], \[Lambda] = $refinedEigenvalue];,
+      {ampPadding, ampRetried} = {$lastPaddingDigits, $lastPaddingRetried};,
     True,
       Message[TeukolskyRadial::optx, "Amplitudes" -> OptionValue["Amplitudes"]];
       Return[$Failed];
