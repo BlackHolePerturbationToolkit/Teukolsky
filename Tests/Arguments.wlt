@@ -108,3 +108,13 @@ VerificationTest[
   {TeukolskyRadial::optx},
   TestID -> "Invalid WronskianCheck option fails with a message"
 ]
+
+(* Unit-incidence normalisation is reserved for the "In" solution at a degeneracy: a zero transmission of the
+   "Up" solution, or of the "In" solution away from a degeneracy, is an overflow of the amplitude formulae *)
+VerificationTest[
+  Module[{key = Teukolsky`TeukolskyRadial`Private`normalisationKey, ns = <|"Incidence" -> 1., "Transmission" -> 0., "Reflection" -> 1.|>},
+    {key[ns, "In"], key[ns, "Up"], Block[{Teukolsky`TeukolskyRadial`Private`$degenerateIn = True}, {key[ns, "In"], key[ns, "Up"]}]}
+  ],
+  {"Transmission", "Transmission", {"Incidence", "Transmission"}},
+  TestID -> "Normalisation key: unit incidence only for In at a degeneracy"
+]

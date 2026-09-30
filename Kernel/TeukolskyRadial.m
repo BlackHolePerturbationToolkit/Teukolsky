@@ -191,7 +191,7 @@ degeneracyMessages[n_, \[Omega]_, amps_Association] :=
  Module[{divergent},
   divergent = Flatten[Table[If[amps[bc][key] === Indeterminate, {bc, key}, Nothing], {bc, {"In", "Up"}}, {key, {"Incidence", "Transmission", "Reflection"}}], 1];
   If[n === 0, Message[TeukolskyRadial::superradiant, divergent], Message[TeukolskyRadial::degenerate, n, \[Omega], divergent]];
-  If[normalisationKey[amps["In"]] === "Incidence", Message[TeukolskyRadial::innorm, \[Omega], n]];
+  If[Block[{$degenerateIn = True}, normalisationKey[amps["In"], "In"]] === "Incidence", Message[TeukolskyRadial::innorm, \[Omega], n]];
  ];
 
 (* Non-numeric entries accepted by paddedComputation: at a degeneracy the divergent amplitudes are
@@ -199,14 +199,18 @@ degeneracyMessages[n_, \[Omega]_, amps_Association] :=
 $acceptIndeterminate = False;
 
 (* The amplitude a solution is normalised to: unit transmission, except for an "In" solution whose
-   transmission amplitude vanishes (the degeneracies 2 I epsilon_+ = n >= 1 - s, see epsilonPlusDegeneracy),
-   which is normalised to unit incidence. *)
-normalisationKey[ns_Association] := If[NumericQ[ns["Transmission"]] && ns["Transmission"] == 0, "Incidence", "Transmission"];
+   transmission amplitude vanishes at a degeneracy 2 I epsilon_+ = n >= 1 - s (see epsilonPlusDegeneracy),
+   which is normalised to unit incidence. $degenerateIn, set by TeukolskyRadial while it builds the solutions
+   of a mode at such a degeneracy, restricts that to the case it is meant for: a zero transmission of the "Up"
+   solution, or of the "In" solution away from a degeneracy, is an overflow or underflow of the amplitude
+   formulae (TeukolskyRadial::ampfail), not a normalisation convention. *)
+$degenerateIn = False;
+normalisationKey[ns_Association, bc_] := If[bc === "In" && $degenerateIn && NumericQ[ns["Transmission"]] && ns["Transmission"] == 0, "Incidence", "Transmission"];
 
 (* The amplitudes relative to the normalising one; all Indeterminate when that one is not a nonzero number (the
    formulae overflowed or underflowed, see TeukolskyRadial::ampfail), rather than a division by zero *)
-normaliseAmplitudes[ns_Association] :=
- With[{k = normalisationKey[ns]}, If[NumericQ[ns[k]] && ns[k] != 0, ns/ns[k], Indeterminate & /@ ns]];
+normaliseAmplitudes[ns_Association, bc_] :=
+ With[{k = normalisationKey[ns, bc]}, If[NumericQ[ns[k]] && ns[k] != 0, ns/ns[k], Indeterminate & /@ ns]];
 
 
 
@@ -285,7 +289,7 @@ TeukolskyRadialNumericalIntegration[s_Integer, l_Integer, m_Integer, a_, \[Omega
     bcdir = bc /. {"In" -> -1, "Up" -> +1};
     sInt = If[bc === "Up" && flipUp, -s, s];
     (*  Rescale amplitudes to give unit transmission coefficient (unit incidence where the transmission vanishes). *)
-    amp = normaliseAmplitudes[ns];
+    amp = normaliseAmplitudes[ns, bc];
     radialFunction = If[sInt === s,
       Evaluate[#^-1 \[CapitalDelta][#,a]^-s Exp[bcdir I \[Omega] rs[#,a]] Exp[I m \[Phi]Reg[#,a]] solutionFunction[#]]&,
       (* Spin -s from the integrated spin +s: the Teukolsky-Starobinsky map beyond rc = r+ + 1, where the map's
@@ -401,7 +405,7 @@ TeukolskyRadialSasakiNakamura[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, \[
     If[sf === $Failed, Return[$Failed]];
     solutionFunction = sf[domain];
     (*  Rescale amplitudes to give unit transmission coefficient (unit incidence where the transmission vanishes). *)
-    amp = normaliseAmplitudes[ns];
+    amp = normaliseAmplitudes[ns, bc];
     TeukolskyRadialFunction[s, l, m, a, \[Omega],
      Association["s" -> s, "l" -> l, "m" -> m, "a" -> a, "\[Omega]" -> \[Omega], "Eigenvalue" -> \[Lambda], "RenormalizedAngularMomentum" -> \[Nu],
       "Method" -> {"SasakiNakamura", ndsolveopts},
@@ -496,7 +500,7 @@ TeukolskyRadialMST[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, \[Lambda]_, \
   (* Function to construct a TeukolskyRadialFunction *)
   TRF[bc_, ns_, sf_] := Module[{amp},
     (*  Rescale amplitudes to give unit transmission coefficient (unit incidence where the transmission vanishes). *)
-    amp = normaliseAmplitudes[ns];
+    amp = normaliseAmplitudes[ns, bc];
     TeukolskyRadialFunction[s, l, m, a, \[Omega],
      Association["s" -> s, "l" -> l, "m" -> m, "a" -> a, "\[Omega]" -> \[Omega], "Eigenvalue" -> \[Lambda], "RenormalizedAngularMomentum" -> \[Nu],
       "Method" -> {"MST"},
@@ -508,7 +512,7 @@ TeukolskyRadialMST[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, \[Lambda]_, \
 
   (* Solution functions for the specified boundary conditions *)
   solFuncs =
-    <|"In" :> Teukolsky`MST`MST`Private`MSTRadialIn[s,l,m,a,2\[Omega],\[Nu],\[Lambda],norms["In", normalisationKey[norms["In"]]], {wp, prec, acc}],
+    <|"In" :> Teukolsky`MST`MST`Private`MSTRadialIn[s,l,m,a,2\[Omega],\[Nu],\[Lambda],norms["In", normalisationKey[norms["In"], "In"]], {wp, prec, acc}],
       "Up" :> Teukolsky`MST`MST`Private`MSTRadialUp[s,l,m,a,2\[Omega],\[Nu],\[Lambda],norms["Up", "Transmission"], {wp, prec, acc}]|>;
   solFuncs = Lookup[solFuncs, BCs];
 
@@ -540,7 +544,7 @@ TeukolskyRadialHeunC[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, \[Lambda]_,
   (* Function to construct a TeukolskyRadialFunction *)
   TRF[bc_, ns_, sf_] := Module[{amp},
     (*  Rescale amplitudes to give unit transmission coefficient (unit incidence where the transmission vanishes). *)
-    amp = normaliseAmplitudes[ns];
+    amp = normaliseAmplitudes[ns, bc];
     If[sf === $Failed, $Failed,
       TeukolskyRadialFunction[s, l, m, a, \[Omega],
         Association["s" -> s, "l" -> l, "m" -> m, "a" -> a, "\[Omega]" -> \[Omega], "Eigenvalue" -> \[Lambda], "RenormalizedAngularMomentum" -> \[Nu],
@@ -845,7 +849,7 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
            (omega = 50 for l = 2, say), and without this message the only symptoms were a precision of
            Indeterminate for the MST "Up" solution and an accuracy estimate of Infinity *)
         If[n === None && AssociationQ[norms],
-          With[{bad = Flatten[Table[If[!NumericQ[Lookup[norms[bc], key, 0]] || (key === normalisationKey[norms[bc]] && norms[bc][key] == 0), {bc, key}, Nothing], {bc, {"In", "Up"}}, {key, {"Incidence", "Transmission", "Reflection"}}], 1]},
+          With[{bad = Flatten[Table[If[!NumericQ[Lookup[norms[bc], key, 0]] || (key === normalisationKey[norms[bc], bc] && norms[bc][key] == 0), {bc, key}, Nothing], {bc, {"In", "Up"}}, {key, {"Incidence", "Transmission", "Reflection"}}], 1]},
             If[bad =!= {}, Message[TeukolskyRadial::ampfail, \[Omega], bad]]]];
         (* At a degeneracy the refined values belong to the exactly degenerate frequency of mstAmplitudes, not
            to omega as given (1e-17 apart at machine precision), and the radial functions must refine their
@@ -861,7 +865,8 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
       Return[$Failed];
     ];
 
-    TRF[s, l, m, a, \[Omega], \[Lambda], \[Nu], bcs, norms, {wp, prec, acc}, Sequence@@subopts]
+    Block[{$degenerateIn = epsilonPlusDegeneracy[s, m, a, \[Omega], wp] =!= None},
+      TRF[s, l, m, a, \[Omega], \[Lambda], \[Nu], bcs, norms, {wp, prec, acc}, Sequence@@subopts]]
   ];
 
   (* Call the chosen implementation, checking the MST solutions through their Wronskian and, when the
