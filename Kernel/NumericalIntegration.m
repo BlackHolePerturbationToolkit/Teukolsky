@@ -254,8 +254,14 @@ hpsPolys[s_, \[Lambda]_, m_, a_, \[Omega]_, H_] := hpsPolynomials[[2]] /. Thread
    equation for d_j homogeneous of degree j (j - 1 + q11/q22), where -q11/q22 is the exponent of the other
    solution); $Failed when that coefficient vanishes (the resonant case of the superradiant bound frequency
    with s >= 1, where the MST solution is used instead) or the series does not converge. *)
+(* The precision the series are summed at: that of their inputs, with machine precision as $MachinePrecision
+   (they used to be summed with machine-number literals whatever the inputs, which capped an arbitrary-precision
+   integration started from them at about 15 digits) *)
+seriesPrecision[\[Lambda]_, a_, \[Omega]_] := With[{p = Precision[{\[Lambda], a, \[Omega]}]}, If[p === MachinePrecision, $MachinePrecision, p]];
+seriesNumber[x_, \[Lambda]_, a_, \[Omega]_] := If[Precision[{\[Lambda], a, \[Omega]}] === MachinePrecision, N[x], N[x, Precision[{\[Lambda], a, \[Omega]}]]];
+
 inBoundarySeries[s_, \[Lambda]_, m_, a_, \[Omega]_] :=
- Module[{\[Kappa], rp, x, xb, p, q, qq, d, d0, psi, dpsi, term, coef, rest, j, n},
+ Module[{\[Kappa], rp, x, xb, p, q, qq, d, d0, psi, dpsi, term, coef, rest, j, n, res = $Failed, tol = 10^-(Floor[seriesPrecision[\[Lambda], a, \[Omega]]] + 2)},
   \[Kappa] = Sqrt[1 - a^2]; rp = 1 + \[Kappa]; xb = Min[1/5, \[Kappa]];
   p = hpsPolys[s, \[Lambda], m, a, \[Omega], -1];
   q = Table[PadRight[CoefficientList[Expand[Sum[pi[[k + 1]] (rp + x)^k, {k, 0, 8}]], x], 9], {pi, p}];
@@ -264,13 +270,16 @@ inBoundarySeries[s_, \[Lambda]_, m_, a_, \[Omega]_] :=
   d = {d0}; psi = d0; dpsi = 0;
   Do[
     coef = qq[0, 0] + j qq[1, 1] + j (j - 1) qq[2, 2];
-    If[Abs[coef] < 10^-8 j^2 Abs[qq[2, 2]], Return[$Failed, Module]];
+    If[Abs[coef] < 10^-8 j^2 Abs[qq[2, 2]], Break[]];
     rest = Sum[d[[n + 1]] (qq[0, j - n] + n qq[1, j - n + 1] + n (n - 1) qq[2, j - n + 2]), {n, Max[0, j - 8], j - 1}];
     AppendTo[d, -rest/coef];
     term = d[[-1]] xb^j; psi += term; dpsi += j d[[-1]] xb^(j - 1);
-    If[j > 5 && Abs[term] < 10^-17 Abs[psi], Return[{psi, dpsi, rp + xb}, Module]],
+    If[j > 5 && Abs[term] < tol Abs[psi], res = {psi, dpsi, rp + xb}; Break[]],
     {j, 1, 800}];
-  $Failed
+  (* a local function with definitions is not removed by Module when it is referenced from another local
+     (here qq refers to q), and leaked on the first call *)
+  Clear[qq];
+  res
  ];
 
 (* "Up" boundary data {psi, psi', r} from the asymptotic series psi = Sum c_n r^-n (c_0 = 1), summed in the
@@ -278,11 +287,12 @@ inBoundarySeries[s_, \[Lambda]_, m_, a_, \[Omega]_] :=
    term is below 1e-15 relative (the radius is raised by factors of 5/4 until it is). The coefficient of
    r^(8-j) of the equation gives c_{j-1} from c_0..c_{j-2}. *)
 upSeriesAt[s_, \[Lambda]_, m_, a_, \[Omega]_, r_] :=
- Module[{p, pp, t, psi, dpsi, best, coef, rest, tj, j, n, small},
-  (* returns {psi, psi', relative size of the smallest term, the scaled coefficients t_n = c_n r^-n} *)
+ Module[{p, pp, t, psi, dpsi, best, coef, rest, tj, j, n, small, res, tol = 10^-(Floor[seriesPrecision[\[Lambda], a, \[Omega]]] + 2)},
+  (* returns {psi, psi', relative size of the smallest term, the scaled coefficients t_n = c_n r^-n}; the
+     arithmetic is that of the inputs (exact literals) *)
   p = hpsPolys[s, \[Lambda], m, a, \[Omega], 1];
   pp[i_, k_] := If[0 <= k <= 8, p[[i + 1, k + 1]], 0];
-  t = {1.}; psi = 1.; dpsi = 0.; best = Infinity; small = 0;
+  t = {1}; psi = 1; dpsi = 0; best = Infinity; small = 0;
   Do[
     coef = pp[0, 7] - (j - 1) pp[1, 8];
     rest = Sum[t[[n + 1]] r^(n - (j - 1)) (pp[0, 8 - j + n] - n pp[1, 8 - j + n + 1] + n (n + 1) pp[2, 8 - j + n + 2]), {n, Max[0, j - 10], j - 2}];
@@ -292,19 +302,22 @@ upSeriesAt[s_, \[Lambda]_, m_, a_, \[Omega]_, r_] :=
     If[Abs[tj] > best, Break[]];   (* past the smallest term: stop *)
     AppendTo[t, tj]; best = Abs[tj];
     psi += tj; dpsi += -(j - 1) tj/r;
-    small = If[Abs[tj] < 10^-17 Abs[psi], small + 1, 0];
+    small = If[Abs[tj] < tol Abs[psi], small + 1, 0];
     If[small >= 2, Break[]],
     {j, 2, 600}];
   (* a vanishing partial sum (1 - 4/r at r = 4 for a = 0, say) means the series has not converged there *)
-  {psi, dpsi, If[Abs[psi] > 10^-6 Max[Abs[t]], best/Abs[psi], Infinity], t}
+  res = {psi, dpsi, If[Abs[psi] > 10^-6 Max[Abs[t]], best/Abs[psi], Infinity], t};
+  Clear[pp];   (* see inBoundarySeries *)
+  res
  ];
 
-(* {psi, psi', r, t}: the series data at the smallest radius r >= rmin where the series converges to 1e-15 *)
+(* {psi, psi', r, t}: the series data at the smallest radius r >= rmin where the series converges to the
+   precision of the inputs (1e-15 at machine precision) *)
 upBoundarySeries[s_, \[Lambda]_, m_, a_, \[Omega]_, rmin_] :=
- Module[{r = N[Max[rmin, 2 rp[a, 1]]], res},
+ Module[{r = seriesNumber[Max[rmin, 2 rp[a, 1]], \[Lambda], a, \[Omega]], res, tol = 10^-Floor[seriesPrecision[\[Lambda], a, \[Omega]]]},
   While[r < 10.^7,
     res = upSeriesAt[s, \[Lambda], m, a, \[Omega], r];
-    If[res[[3]] <= 10.^-15, Return[{res[[1]], res[[2]], r, res[[4]]}, Module]];
+    If[res[[3]] <= tol, Return[{res[[1]], res[[2]], r, res[[4]]}, Module]];
     r *= 5/4];
   $Failed
  ];
@@ -313,11 +326,11 @@ upBoundarySeries[s_, \[Lambda]_, m_, a_, \[Omega]_, rmin_] :=
    R -> e^{-i omega r*}/r, summed like the "Up" series; the coefficient of r^(2s+8-j) gives e_{j-1}, the two
    top powers vanish identically for this exponent. Returns {psi, psi', relative size of the smallest term, t}. *)
 inSeriesAt[s_, \[Lambda]_, m_, a_, \[Omega]_, r_] :=
- Module[{p, pp, A, \[Rho] = 2 s, t, psi, dpsi, best, coef, rest, tj, j, n, small},
+ Module[{p, pp, A, \[Rho] = 2 s, t, psi, dpsi, best, coef, rest, tj, j, n, small, res, tol = 10^-(Floor[seriesPrecision[\[Lambda], a, \[Omega]]] + 2)},
   p = hpsPolys[s, \[Lambda], m, a, \[Omega], -1];
   pp[i_, k_] := If[0 <= k <= 8, p[[i + 1, k + 1]], 0];
   A[j_, n_] := pp[0, 8 - j + n] + (\[Rho] - n) pp[1, 8 - j + n + 1] + (\[Rho] - n) (\[Rho] - n - 1) pp[2, 8 - j + n + 2];
-  t = {1.}; psi = 1.; dpsi = \[Rho]/r; best = Infinity; small = 0;
+  t = {1}; psi = 1; dpsi = \[Rho]/r; best = Infinity; small = 0;
   Do[
     coef = A[j, j - 1];
     rest = Sum[t[[n + 1]] r^(n - (j - 1)) A[j, n], {n, Max[0, j - 10], j - 2}];
@@ -326,11 +339,13 @@ inSeriesAt[s_, \[Lambda]_, m_, a_, \[Omega]_, r_] :=
     If[Abs[tj] > best, Break[]];
     AppendTo[t, tj]; best = Abs[tj];
     psi += tj; dpsi += (\[Rho] - (j - 1)) tj/r;
-    small = If[Abs[tj] < 10^-17 Abs[psi], small + 1, 0];
+    small = If[Abs[tj] < tol Abs[psi], small + 1, 0];
     If[small >= 2, Break[]],
     {j, 2, 600}];
   (* dpsi accumulated (rho - n) t_n / r, so the derivative of r^rho Sum t_n is dpsi r^rho *)
-  {psi r^\[Rho], dpsi r^\[Rho], If[Abs[psi] > 10^-6 Max[Abs[t]], best/Abs[psi], Infinity], t}
+  res = {psi r^\[Rho], dpsi r^\[Rho], If[Abs[psi] > 10^-6 Max[Abs[t]], best/Abs[psi], Infinity], t};
+  Clear[pp, A];   (* see inBoundarySeries *)
+  res
  ];
 
 tortoise[r_, a_] := With[{\[Kappa] = Sqrt[1 - a^2]}, r + ((1 + \[Kappa]) Log[(r - 1 - \[Kappa])/2] - (1 - \[Kappa]) Log[(r - 1 + \[Kappa])/2])/\[Kappa]];
@@ -339,10 +354,10 @@ tortoise[r_, a_] := With[{\[Kappa] = Sqrt[1 - a^2]}, r + ((1 + \[Kappa]) Log[(r 
    converge to 1e-15: psi_in = Binc psi_ingoing + Bref e^{2 i omega r*} psi_up, with the amplitudes relative to
    unit transmission. Also returns the two scaled coefficient lists. *)
 inLargeRadiusData[s_, \[Lambda]_, m_, a_, \[Omega]_, Binc_, Bref_, rmin_] :=
- Module[{r = N[Max[rmin, 2 rp[a, 1]]], ing, up, ph, dph, psi, dpsi},
+ Module[{r = seriesNumber[Max[rmin, 2 rp[a, 1]], \[Lambda], a, \[Omega]], ing, up, ph, dph, psi, dpsi, tol = 10^-Floor[seriesPrecision[\[Lambda], a, \[Omega]]]},
   While[r < 10.^7,
     ing = inSeriesAt[s, \[Lambda], m, a, \[Omega], r]; up = upSeriesAt[s, \[Lambda], m, a, \[Omega], r];
-    If[ing[[3]] <= 10.^-15 && up[[3]] <= 10.^-15,
+    If[ing[[3]] <= tol && up[[3]] <= tol,
       ph = Exp[2 I \[Omega] tortoise[r, a]]; dph = 2 I \[Omega] (r^2 + a^2)/(r^2 - 2 r + a^2) ph;
       psi = Binc ing[[1]] + Bref ph up[[1]]; dpsi = Binc ing[[2]] + Bref (dph up[[1]] + ph up[[2]]);
       Return[{psi, dpsi, r, ing[[4]], up[[4]]}, Module]];

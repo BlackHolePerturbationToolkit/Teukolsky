@@ -110,3 +110,18 @@ VerificationTest[
   {True, True, True, True},
   TestID -> "In solution of spin -2 at a = 0, omega = 1, up to r = 100"
 ]
+
+(* The series boundary data are summed at the precision of their inputs, so they can start an
+   arbitrary-precision integration ("BoundaryMethod" -> "Series" with WorkingPrecision 30) *)
+VerificationTest[
+  Module[{q = N[3/5, 30], w = N[1/2, 30], R30, Rm, errs},
+    errs = Table[
+      R30 = TeukolskyRadial[s, 2, 2, q, w, Method -> {"NumericalIntegration", "BoundaryMethod" -> "Series"}];
+      Rm = TeukolskyRadial[s, 2, 2, q, w, Method -> "MST"];
+      {N[Max[Table[Abs[{R30["In"][N[r, 30]]/Rm["In"][N[r, 30]], R30["Up"][N[r, 30]]/Rm["Up"][N[r, 30]]} - 1], {r, {6, 20}}]]], Precision[R30["In"][N[6, 30]]]},
+      {s, {-2, 0}}];
+    {Max[errs[[All, 1]]] < 10^-26, Min[errs[[All, 2]]] > 27}
+  ],
+  {True, True},
+  TestID -> "Series boundary data at 30 digits"
+]
