@@ -785,10 +785,12 @@ mstUpRepresentation[s_, m_, q_, \[Epsilon]_, r_] :=
   If[Abs[x - n] <= 10^(3 - Floor[If[p === MachinePrecision, $MachinePrecision, p]]), "Coulomb", "Horizon"]
  ];
 
-$upHorizonCache = <||>;   (* bounded cache of {c1, c2}, keyed by the parameters *)
+$upHorizonCache = <||>;   (* bounded cache of {c1, c2}, keyed by the parameters and the goals *)
 
+(* the goals are part of the key: the coefficients come from the amplitude formulae, whose sums are truncated
+   according to them, so coefficients computed with looser goals must not be reused for stricter ones *)
 upHorizonCoefficients[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, goals_] :=
- Module[{key = {s, l, m, q, \[Epsilon], \[Nu], \[Lambda]}, res},
+ Module[{key = {s, l, m, q, \[Epsilon], \[Nu], \[Lambda], goals}, res},
   res = Lookup[$upHorizonCache, Key[key], None];
   If[res =!= None, Return[res]];
   res = upHorizonCoefficientsCompute[s, l, m, q, \[Epsilon], \[Nu], \[Lambda], goals];

@@ -53,3 +53,16 @@ VerificationTest[
   {"Coulomb", True},
   TestID -> "The Coulomb-type series is kept at the superradiant bound frequency"
 ]
+
+(* the cached horizon coefficients are keyed by the goals as well as the parameters *)
+VerificationTest[
+  Module[{coef = Teukolsky`MST`MST`Private`upHorizonCoefficients, R, q = N[3/5, 32], e = N[1, 32], nu, lam},
+    Teukolsky`MST`MST`Private`$upHorizonCache = <||>;
+    R = TeukolskyRadial[-2, 2, 2, q, N[1/2, 32], Method -> "MST"];
+    nu = R["Up"]["RenormalizedAngularMomentum"]; lam = R["Up"]["Eigenvalue"];
+    coef[-2, 2, 2, q, e, nu, lam, {32, 10, Infinity}]; coef[-2, 2, 2, q, e, nu, lam, {32, 30, Infinity}];
+    Length[Teukolsky`MST`MST`Private`$upHorizonCache]
+  ],
+  2,
+  TestID -> "Horizon coefficients computed with different goals are cached separately"
+]
