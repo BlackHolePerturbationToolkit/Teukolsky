@@ -7,22 +7,35 @@ withinRoundoff[a_, b_] :=
   Block[{Internal`$SameQTolerance = 4},
     SameQ[a,b]];
 
-swshdir = FileNameJoin[{FileNameDrop[ExpandFileName[First[$ScriptCommandLine]],-2], "SpinWeightedSpheroidalHarmonics"}];
-kerrgeodir = FileNameJoin[{FileNameDrop[ExpandFileName[First[$ScriptCommandLine]],-2], "KerrGeodesics"}];
+(* The paclet under test is the repository this script lives in; its dependencies are expected as
+   checkouts inside it (SpinWeightedSpheroidalHarmonics, KerrGeodesics), as the CI workflow arranges.
+   Only the repository itself is loaded: loading its parent directory, as this script used to, loads every
+   paclet found there, and a sibling checkout of Teukolsky with a higher version then shadows this one,
+   silently running its code and its tests instead. *)
+repo = FileNameDrop[ExpandFileName[First[$ScriptCommandLine]], -2];
+swshdir = FileNameJoin[{repo, "SpinWeightedSpheroidalHarmonics"}];
+kerrgeodir = FileNameJoin[{repo, "KerrGeodesics"}];
 
 If[$VersionNumber >= 12.1,
-  PacletDirectoryLoad[FileNameDrop[ExpandFileName[First[$ScriptCommandLine]],-3]];
+  PacletDirectoryLoad[repo];
   If[DirectoryQ[swshdir], PacletDirectoryLoad[swshdir]];
   If[DirectoryQ[kerrgeodir], PacletDirectoryLoad[kerrgeodir]];
-  testFiles = FileNames["*.wlt",
-    FileNameJoin[{PacletObject["Teukolsky"]["Location"], "Tests"}]];
+  location = PacletObject["Teukolsky"]["Location"];
   ,
-  PacletDirectoryAdd[FileNameDrop[ExpandFileName[First[$ScriptCommandLine]],-3]];
+  PacletDirectoryAdd[repo];
   If[DirectoryQ[swshdir], PacletDirectoryAdd[swshdir]];
   If[DirectoryQ[kerrgeodir], PacletDirectoryAdd[kerrgeodir]];
-  testFiles = FileNames["*.wlt",
-    FileNameJoin[{Lookup[PacletInformation["Teukolsky"], "Location"], "Tests"}]];
+  location = Lookup[PacletInformation["Teukolsky"], "Location"];
 ];
+
+(* A Teukolsky paclet of a higher version installed elsewhere would still take precedence: refuse to test
+   the wrong code *)
+If[FileNameJoin[FileNameSplit[ExpandFileName[location]]] =!= FileNameJoin[FileNameSplit[repo]],
+  Print["The Teukolsky paclet that would be loaded is at ", location, ", not this repository (", repo, "): a paclet of a higher version shadows it. Uninstall or disable it and run the tests again."];
+  Exit[1];
+];
+
+testFiles = FileNames["*.wlt", FileNameJoin[{repo, "Tests"}]];
 
 << Teukolsky`
 
