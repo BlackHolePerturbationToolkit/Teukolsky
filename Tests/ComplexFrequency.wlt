@@ -73,3 +73,23 @@ VerificationTest[
   {True, True, True},
   TestID -> "Wronskian check at complex omega passes without messages"
 ]
+
+(* The same symmetry at machine precision with the default method, where the amplitudes come from the MST
+   package and the functions from the numerical integration: the "In" reflection amplitude at negative real
+   frequency was wrong by an order-one factor (the powers and logarithms of epsilon in the amplitude formulae
+   on the wrong side of their cuts) until the MST package took the amplitudes at Re omega < 0 as the conjugates
+   of those at (-m, -Conjugate[omega]) *)
+mpSymmetryErr[s_, l_, m_, a_, om_] :=
+ Module[{R, Rc, keys = {"Incidence", "Transmission", "Reflection"}, amps, fs},
+  R = TeukolskyRadial[s, l, m, a, om];
+  Rc = TeukolskyRadial[s, l, -m, a, -om];
+  amps = Max[Table[Abs[Conjugate[R[bc]["Amplitudes"][k]]/Rc[bc]["Amplitudes"][k] - 1], {bc, {"In", "Up"}}, {k, keys}]];
+  fs = Max[Table[Abs[Conjugate[R[bc][r]]/Rc[bc][r] - 1], {bc, {"In", "Up"}}, {r, {6., 20.}}]];
+  {amps, fs}
+ ];
+
+VerificationTest[
+  Max[mpSymmetryErr[-2, 2, 2, 0.6, 0.3]] < 10^-12 && Max[mpSymmetryErr[0, 2, 1, 0.6, 0.5]] < 10^-12,
+  True,
+  TestID -> "Amplitudes and functions at negative real omega are the conjugates of those at (-m, omega), machine precision"
+]
