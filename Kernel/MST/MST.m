@@ -324,7 +324,9 @@ fn[q_, \[Epsilon]_, \[Kappa]_, \[Tau]_, \[Nu]_, \[Lambda]_, s_, m_, nf_] :=
 
 
 (* sum term[n] from n0 in direction dir until the sum stops changing *)
-sumUntil[term_, n0_, dir_] := Module[{res = 0, k = n0}, While[res != (res += term[k]), k += dir]; res];
+(* bounded: a non-convergent sum (garbage parameters at an absurd frequency) returns Indeterminate instead of
+   running forever; convergent sums need at most a few hundred terms *)
+sumUntil[term_, n0_, dir_] := Module[{res = 0, k = n0, t}, While[res != (res += (t = term[k])), If[!NumericQ[t] || Abs[k - n0] > 5000, Return[Indeterminate, Module]]; k += dir]; res];
 
 (* K_nu / Gamma(1 - s - 2 I epsilon_+), ST Eq. (165) with r = 0, CO (3.32): the connection coefficient of the
    regularised "In" series (see the note on the hypergeometric functions), finite at 2 I epsilon_+ = n >= 1 - s *)
