@@ -130,7 +130,10 @@ Cos2\[Pi]\[Nu]Series[a_, \[Omega]_, s_, l_, m_] :=
   extend[n_] := Do[a1[i]; a2[i], {i, 1, n}];
 
   (* Compute \[Nu]. The memoised tables are cleared on every path, including failure. *)
-  Cos2\[Pi]\[Nu][nmax_] := Cos2\[Pi]\[Nu][nmax] = (extend[nmax]; Cos[\[Pi](\[Mu]1C-\[Mu]2C)]+(2\[Pi]^2)/(a1sum[nmax] a2sum[nmax]) (-1)^(nmax-1) a1[nmax]a2[nmax]);
+  (* quiet: at a frequency where the recurrences overflow, a1sum a2sum is a zero of no precision and the
+     division issues Power::infy and Infinity::indet, whose held arguments kept references to the locals
+     mu1C and mu2C after the failure (leaked symbols); the failure itself is reported below *)
+  Cos2\[Pi]\[Nu][nmax_] := Cos2\[Pi]\[Nu][nmax] = Quiet[(extend[nmax]; Cos[\[Pi](\[Mu]1C-\[Mu]2C)]+(2\[Pi]^2)/(a1sum[nmax] a2sum[nmax]) (-1)^(nmax-1) a1[nmax]a2[nmax]), {Power::infy, Infinity::indet}];
   \[Nu] = Catch[
   If[IntegerQ[Npmax],
     nmax = Max[Npmax, nmin];
@@ -159,24 +162,24 @@ Cos2\[Pi]\[Nu]Series[a_, \[Omega]_, s_, l_, m_] :=
   ];
 
   (* The representative of nu (the class {+-nu + k}): the one continuous with nu = l + O(epsilon^2) at
-     small frequency, l - ArcCos[Cos[2 Pi nu]]/(2 Pi), for real and complex frequencies alike (the principal
-     value ArcCos[...]/(2 Pi), returned before for complex frequencies, is near 0 at small frequency, where
-     Pochhammer[2 nu + 2, n] in the K_nu sums of the amplitudes has an exact pole). *)
+     small frequency, l - ArcCos[Cos[2 Pi nu]]/(2 Pi), on every branch. For a real frequency the imaginary
+     part of the cosine is roundoff and is dropped; where the cosine lies outside [-1, 1] the representative
+     is complex, l - 1/2 + i y (cosine below -1) or l + i y (above 1), the equivalents of the 1/2 + i y and
+     i y returned before, so that nu is continuous across the points where it turns complex (the earlier
+     representatives jumped by the integer l - 1 or l there). At a complex frequency the principal value
+     ArcCos[...]/(2 Pi), returned before, is near 0 at small frequency, where Pochhammer[2 nu + 2, n] in the
+     K_nu sums of the amplitudes has an exact pole. *)
   Which[
     Im[\[Omega]] != 0,
       l - ArcCos[Cos2\[Pi]\[Nu][nmax]]/(2\[Pi]),
-    Re[Cos2\[Pi]\[Nu][nmax]]<-1, 
-      1/2-Im[ArcCos[Re[Cos2\[Pi]\[Nu][nmax]]]/(2\[Pi])]I,
-    -1<=Re[Cos2\[Pi]\[Nu][nmax]]<=1,
-      l-ArcCos[Re[Cos2\[Pi]\[Nu][nmax]]]/(2\[Pi]),
-    Re[Cos2\[Pi]\[Nu][nmax]]>1,
-      -I Im[ArcCos[Re[Cos2\[Pi]\[Nu][nmax]]]/(2\[Pi])],
+    NumericQ[Cos2\[Pi]\[Nu][nmax]],
+      l - ArcCos[Re[Cos2\[Pi]\[Nu][nmax]]]/(2\[Pi]),
     True,
       $Failed
   ], \[Nu]RCHMonodromy];
   (* Remove rather than Clear: a message issued during the evaluation (1/0 near a degeneracy) can keep a
      reference to a memoised table, which would then survive as a leaked symbol *)
-  Remove[a1, a2, a1sum, a2sum, Cos2\[Pi]\[Nu], extend];
+  Remove[a1, a2, a1sum, a2sum, Cos2\[Pi]\[Nu], extend, \[Mu]1C, \[Mu]2C];   (* mu1C and mu2C leaked after a failed evaluation *)
   \[Nu]
 ];
 
