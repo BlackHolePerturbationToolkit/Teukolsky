@@ -52,3 +52,29 @@ VerificationTest[
   True,
   TestID -> "R[r, {0, 1}] and R[r, list of orders] for a numerically integrated solution"
 ]
+
+(* Machine precision without the asymptotic amplitudes or nu: the integration from series boundary data needs
+   neither, the functions are the same, and no accuracy warning is issued (the estimate needs the amplitudes) *)
+VerificationTest[
+  Module[{Rd, Ra, Rn, r = 6.},
+    Rd = TeukolskyRadial[-2, 2, 2, 0.6, 0.5];
+    Ra = TeukolskyRadial[-2, 2, 2, 0.6, 0.5, "Amplitudes" -> False];
+    Rn = TeukolskyRadial[-2, 2, 2, 0.6, 0.5, "Amplitudes" -> False, "RenormalizedAngularMomentum" -> False];
+    {Max[Abs[{Ra["In"][r], Ra["Up"][r], Rn["In"][r], Rn["Up"][r]}/{Rd["In"][r], Rd["Up"][r], Rd["In"][r], Rd["Up"][r]} - 1]] < 10^-12,
+     Ra["In"]["Amplitudes"], Rn["In"]["RenormalizedAngularMomentum"]}
+  ],
+  {True, <|"Transmission" -> 1|>, Indeterminate},
+  TestID -> "Machine precision without amplitudes or nu gives the same functions and no messages"
+]
+
+(* A single boundary condition builds only that solution, and no accuracy warning is attempted *)
+VerificationTest[
+  Module[{Rd, Ri, Ru, r = 6.},
+    Rd = TeukolskyRadial[0, 2, 0, 0.6, 0.5];
+    Ri = TeukolskyRadial[0, 2, 0, 0.6, 0.5, "BoundaryConditions" -> "In"];
+    Ru = TeukolskyRadial[0, 2, 0, 0.6, 0.5, "BoundaryConditions" -> "Up", "Amplitudes" -> False];
+    {Head[Ri], Head[Ru], Abs[Ri[r]/Rd["In"][r] - 1] < 10^-12, Abs[Ru[r]/Rd["Up"][r] - 1] < 10^-12}
+  ],
+  {TeukolskyRadialFunction, TeukolskyRadialFunction, True, True},
+  TestID -> "A single boundary condition at machine precision, with and without amplitudes"
+]

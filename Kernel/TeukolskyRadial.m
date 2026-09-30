@@ -268,7 +268,7 @@ teukolskyStarobinskyFlip[s_Integer?Positive, \[Lambda]_, a_, m_, \[Omega]_, r_] 
 
 
 TeukolskyRadialNumericalIntegration[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, \[Lambda]_, \[Nu]_, BCs_, norms_, {wp_, prec_, acc_}, opts:OptionsPattern[]] :=
- Module[{TRF, amps, ndsolveopts, psiopts, solFuncs, domains, Uptmp, Intmp, bmethod, flipUp, bdata},
+ Module[{TRF, amps, ndsolveopts, psiopts, solFuncs, domains, Uptmp, Intmp, bmethod, flipUp, bdata, \[Nu]psi},
   (* Function to construct a single TeukolskyRadialFunction. For the "Up" solution of negative spin integrated at
      the flipped spin (see below), the radial function of spin s is the Teukolsky-Starobinsky map of the
      integrated one, divided by the constant (2 I omega)^(-2 s) that keeps unit transmission. *)
@@ -350,10 +350,14 @@ TeukolskyRadialNumericalIntegration[s_Integer, l_Integer, m_Integer, a_, \[Omega
   ndsolveopts = Sequence@@Join[FilterRules[{opts}, Options[NDSolve]], If[bdata =!= None, {"BoundaryData" -> bdata}, {}], If[OptionValue["BoundaryMethod"] =!= Automatic, {"BoundaryMethod" -> bmethod}, {}]];
   (* the boundary method actually used is passed to the integrators; the reported "Method" lists only the options given *)
   psiopts = Sequence[ndsolveopts, "BoundaryMethod" -> bmethod];
+  (* psi has the NumericFunction attribute, so a non-numeric nu ("RenormalizedAngularMomentum" -> False gives
+     Indeterminate) must be passed as a symbol or psi itself evaluates to Indeterminate; the integrators need
+     nu only for their MST fall-backs, which compute it themselves when it is not numeric *)
+  \[Nu]psi = If[NumericQ[\[Nu]], \[Nu], None];
   Uptmp = If[flipUp,
-    Teukolsky`NumericalIntegration`Private`psi[-s, \[Lambda] + 2 s, l, m, a, \[Omega], "Up", norms, \[Nu], WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> acc, psiopts],
-    Teukolsky`NumericalIntegration`Private`psi[s, \[Lambda], l, m, a, \[Omega], "Up", norms, \[Nu], WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> acc, psiopts]];
-  Intmp = Teukolsky`NumericalIntegration`Private`psi[s, \[Lambda], l, m, a, \[Omega], "In", norms, \[Nu], WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> acc, psiopts];
+    Teukolsky`NumericalIntegration`Private`psi[-s, \[Lambda] + 2 s, l, m, a, \[Omega], "Up", norms, \[Nu]psi, WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> acc, psiopts],
+    Teukolsky`NumericalIntegration`Private`psi[s, \[Lambda], l, m, a, \[Omega], "Up", norms, \[Nu]psi, WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> acc, psiopts]];
+  Intmp = Teukolsky`NumericalIntegration`Private`psi[s, \[Lambda], l, m, a, \[Omega], "In", norms, \[Nu]psi, WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> acc, psiopts];
   solFuncs =
    <|"Up" :> Uptmp,
      "In" :> Intmp
@@ -464,13 +468,17 @@ radialAccuracyEstimate[R_Association, s_Integer, a_, \[Omega]_] :=
   Max[Abs[w1/Wexact - 1], Abs[w2/Wexact - 1], Abs[w1/w2 - 1]]
  ];
 
+(* The accuracy estimate needs both solutions and the amplitudes B^inc and C^trans; it is made only when
+   they are all there (both solutions requested and the amplitudes computed), so that asking for one solution
+   costs one integration and disabling the amplitudes does not produce a meaningless warning. *)
 TeukolskyRadialAutomaticMachinePrecision[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, \[Lambda]_, \[Nu]_, BCs_, norms_, {wp_, prec_, acc_}, opts:OptionsPattern[]] :=
- Module[{both = {"In", "Up"}, R, e, select},
-  select[R_] := If[ListQ[BCs], KeyTake[R, BCs], R[BCs]];
-  R = TeukolskyRadialNumericalIntegration[s, l, m, a, \[Omega], \[Lambda], \[Nu], both, norms, {wp, $MachinePrecision - 2, $MachinePrecision - 2}, opts];
-  e = radialAccuracyEstimate[R, s, a, \[Omega]];
-  If[e > 10^-6, Message[TeukolskyRadial::acc, N[e, 2]]];
-  select[R]
+ Module[{R, e},
+  R = TeukolskyRadialNumericalIntegration[s, l, m, a, \[Omega], \[Lambda], \[Nu], BCs, norms, {wp, $MachinePrecision - 2, $MachinePrecision - 2}, opts];
+  If[ListQ[BCs] && ContainsAll[BCs, {"In", "Up"}] && AssociationQ[R] && NumericQ[Lookup[norms["In"], "Incidence", None]] && NumericQ[Lookup[norms["Up"], "Transmission", None]],
+    e = radialAccuracyEstimate[R, s, a, \[Omega]];
+    If[e > 10^-6, Message[TeukolskyRadial::acc, N[e, 2]]];
+  ];
+  R
  ];
 
 Options[TeukolskyRadialAutomaticMachinePrecision] = Options[TeukolskyRadialNumericalIntegration];

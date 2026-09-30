@@ -189,7 +189,7 @@ TeukolskyInBC[s_Integer, \[Lambda]_, l_Integer, m_Integer, a_, \[Omega]_, amps_,
         If[method === "Series",
           res = inBoundarySeries[s, \[Lambda], m, a, \[Omega]];
           If[res =!= $Failed, Return[res]]];
-        R = Teukolsky`TeukolskyRadial[s, l, m, a, \[Omega], "BoundaryConditions" -> "In", "Amplitudes" -> amps, "Eigenvalue" -> \[Lambda], "RenormalizedAngularMomentum" -> \[Nu], Method -> "MST", WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> Infinity];
+        R = Teukolsky`TeukolskyRadial[s, l, m, a, \[Omega], "BoundaryConditions" -> "In", "Amplitudes" -> amps, "Eigenvalue" -> \[Lambda], "RenormalizedAngularMomentum" -> If[NumericQ[\[Nu]], \[Nu], Automatic], Method -> "MST", WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> Infinity];
         r = inBoundaryRadius[a, rmin];
 		{Rr, dRr} = R[r, {0, 1}];
 		TeukolskyInBCFromValues[s, m, a, \[Omega], r, Rr, dRr]
@@ -209,7 +209,7 @@ TeukolskyUpBC[s_Integer, \[Lambda]_, l_Integer, m_Integer, a_, \[Omega]_, amps_,
 		  res = upBoundarySeries[s, \[Lambda], m, a, \[Omega], If[NumericQ[rmax] && rmax < Infinity, rmax, rp[a, 1] + 1]];
 		  If[res =!= $Failed, Return[res[[1 ;; 3]]]]];
 		r = upBoundaryRadius[a, rmax];
-        R = Teukolsky`TeukolskyRadial[s, l, m, a, \[Omega], "BoundaryConditions" -> "Up", "Amplitudes" -> amps, "Eigenvalue" -> \[Lambda], "RenormalizedAngularMomentum" -> \[Nu], Method -> "MST", WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> Infinity];
+        R = Teukolsky`TeukolskyRadial[s, l, m, a, \[Omega], "BoundaryConditions" -> "Up", "Amplitudes" -> amps, "Eigenvalue" -> \[Lambda], "RenormalizedAngularMomentum" -> If[NumericQ[\[Nu]], \[Nu], Automatic], Method -> "MST", WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> Infinity];
 		{Rr, dRr} = R[r, {0, 1}];
 		TeukolskyUpBCFromValues[s, m, a, \[Omega], r, Rr, dRr]
 	];
