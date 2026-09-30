@@ -151,7 +151,8 @@ Switch[MST`$MasterFunction,
    evaluates them stably for an exact integer c (and for a genuinely small offset carrying full precision)
    but returns Indeterminate for an offset that is zero to working precision, in particular for c + 1 in the
    derivative. *)
-cSnapped[c_] := With[{n = Round[Re[c]]}, If[n <= 0 && Abs[c - n] <= 10^(3 - Precision[c]), n, c]];
+(* the exponent is an integer so that the power is exact: a machine-number power underflows beyond 308 digits *)
+cSnapped[c_] := With[{n = Round[Re[c]], p = Precision[c]}, If[n <= 0 && Abs[c - n] <= 10^(3 - Floor[If[p === MachinePrecision, $MachinePrecision, p]]), n, c]];
 
 H2F1Exact[n_, s_, \[Nu]_, \[Tau]_, \[Epsilon]_, x_] :=
  Module[{a = aF[s, \[Nu], \[Tau], \[Epsilon]], b = bF[s, \[Nu], \[Tau], \[Epsilon]], c = cSnapped[cF[s, \[Nu], \[Tau], \[Epsilon]]]},
@@ -437,28 +438,32 @@ Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_,
 
 "Teukolsky",
 Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, {wp_, prec_, acc_}] :=
- Module[{\[Kappa], \[Tau], \[Epsilon]p, \[Omega], K\[Nu], K\[Nu]1, K\[Nu]2, Aminus, Aplus, D1, D12, D2, D22, InTrans, UpTrans, InInc, UpInc, InRef, UpRef, n, fSumUp, fSumDown, fSumD1Up, fSumD1Down, fSumD12Up, fSumD12Down, termf, termD1, termD12},
+ Module[{\[Kappa], \[Tau], \[Omega], x, xs, nDeg, sRef, sInc, K\[Nu], K\[Nu]1, K\[Nu]2, Aminus, Aplus, D1, D12, D2, D22, InTrans, UpTrans, InInc, UpInc, InRef, UpRef, n, fSumUp, fSumDown, fSumD1Up, fSumD1Down, fSumD12Up, fSumD12Down, termf, termD1, termD12},
  Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], fn},
   \[Kappa] = Sqrt[1 - q^2];
   \[Tau] = (\[Epsilon] - m q)/\[Kappa];
-  \[Epsilon]p = 1/2 (\[Tau] + \[Epsilon]);
   \[Omega] = \[Epsilon] / 2;
 
-  (* At the superradiant bound frequency omega = m Omega_H (\[Epsilon]p = 0, k = 0) the horizon basis
-     Exp[i k r_*], Delta^-s Exp[-i k r_*] is resonant: the two solutions coincide for s = 0 and their Frobenius
-     exponents at r_+ differ by the integer s otherwise, so the "Up" horizon coefficients below are singular
-     (1/Sin[2 Pi I \[Epsilon]p] factors). The "Up" solution and, for s <= 0, the "In" solution have finite limits when
-     normalised to unit transmission; only their coefficients along the horizon basis function of larger
-     exponent (both for s = 0) diverge like 1/k, because a finite solution expanded in a degenerating basis
-     does. For s >= 1 the unit-transmission "In" solution has no limit; the regularised "In" solution and its
-     amplitudes computed here are finite (the transmission vanishing), and TeukolskyRadial normalises it to
-     unit incidence. The limits are taken by the caller from neighbouring frequencies (see TeukolskyRadial);
-     here every amplitude is returned as Indeterminate, so that a radial function is never silently left
-     unnormalised. *)
-  If[\[Epsilon]p == 0,
-    Return[<| "In" -> <| "Incidence" -> Indeterminate, "Transmission" -> Indeterminate, "Reflection" -> Indeterminate|>,
-              "Up" -> <| "Incidence" -> Indeterminate, "Transmission" -> Indeterminate, "Reflection" -> Indeterminate|>|>];
-  ];
+  (* Degeneracies x = 2 I epsilon_+ = n, an integer: for real frequencies the superradiant bound frequency
+     omega = m Omega_H (n = 0, k = 0), on the imaginary axis every n. There the horizon basis Exp[i k r_*],
+     Delta^-s Exp[-i k r_*] is resonant (its Frobenius exponents at r_+ differ by the integer s + n; the two
+     solutions coincide for s = n = 0) and the MST formulae are singular in two explicit scalar factors: the
+     "In" amplitudes carry Gamma[1 - s - x], divided out below and in the "In" series (see the note on the
+     hypergeometric functions), so that they are finite, with a transmission amplitude that vanishes for
+     n >= 1 - s (the regularised "In" solution is then the horizon solution of larger exponent and is
+     normalised to unit incidence by the caller); the "Up" horizon coefficients carry
+     1/(Gamma[1 - s - x] Sin[Pi x]) (reflection) and 1/(Gamma[1 + s + x] Sin[Pi x]) (incidence). By
+     Gamma[x] Gamma[1 - x] = Pi/Sin[Pi x] these have the finite limits (-1)^s (s + n - 1)!/Pi and
+     (-1)^(s + 1) (-s - n - 1)!/Pi when the factorial's argument is non-negative, and are poles otherwise:
+     the coefficients of a finite solution along the basis function that has ceased to be independent,
+     returned as Indeterminate. x is snapped to n within the tolerance of cSnapped, so that a frequency
+     numerically at a degeneracy is treated exactly. *)
+  x = I (\[Epsilon] + \[Tau]);
+  nDeg = With[{n = Round[Re[x]], p = Precision[x]}, If[Abs[x - n] <= 10^(3 - Floor[If[p === MachinePrecision, $MachinePrecision, p]]), n, None]];
+  xs = If[nDeg === None, x, nDeg];
+  {sRef, sInc} = If[nDeg === None,
+    {1/(Gamma[1 - s - x] Sin[\[Pi] x]), 1/(Gamma[1 + s + x] Sin[\[Pi] x])},
+    {If[s + nDeg - 1 >= 0, (-1)^s (s + nDeg - 1)!/\[Pi], Indeterminate], If[-s - nDeg - 1 >= 0, (-1)^(s + 1) (-s - nDeg - 1)!/\[Pi], Indeterminate]}];
 
   (* All of the formulae are taken from Sasaki & Tagoshi, Living Rev. Relativity 6:6 (ST)
      and Casals & Ottewill, Phys. Rev. D 92, 124055 (CO) *)
@@ -499,8 +504,8 @@ Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_,
   While[fSumD12Down != (fSumD12Down += termD12[n]), n--];
   
   (* In transmission coefficient: Btrans in ST (167) and CO (3.12), divided by Gamma[c] like the "In" series
-     (see the note on the hypergeometric functions); it vanishes at 2 I \[Epsilon]p = n >= 1 - s *)
-  InTrans = prefacInTrans[s, \[Epsilon], \[Tau], \[Kappa]] (fSumUp+fSumDown) / Gamma[1 - s - 2 I \[Epsilon]p];
+     (see the note on the hypergeometric functions); it vanishes at 2 I \[Epsilon]_+ = n >= 1 - s *)
+  InTrans = prefacInTrans[s, \[Epsilon], \[Tau], \[Kappa]] (fSumUp+fSumDown) / Gamma[1 - s - xs];
 
   (* A-: ST (158), CO (3.19) *)
   Aminus = AminusCoefficient[s, m, q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda]];
@@ -508,7 +513,7 @@ Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_,
   (* Up Transmission coefficient: Ctrans in ST (170), CO (3.20) *)
   UpTrans = prefacUpTrans[s, \[Epsilon], \[Tau], \[Kappa]] Aminus;
 
-  (* K\[Nu]/Gamma[c]: ST (165), CO (3.32), for \[Nu] and for -\[Nu]-1, with the factor Gamma[c] = Gamma[1 - s - 2 I \[Epsilon]p]
+  (* K\[Nu]/Gamma[c]: ST (165), CO (3.32), for \[Nu] and for -\[Nu]-1, with the factor Gamma[c] = Gamma[1 - s - 2 I \[Epsilon]_+]
      removed. The "In" amplitudes built from them are then divided by Gamma[c] like the "In" series; the "Up"
      horizon coefficients, in which K\[Nu] appears in the denominator, are corrected below. *)
   K\[Nu]1 = KCoefficient[s, m, q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda]];
@@ -517,12 +522,12 @@ Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_,
   (* In reflection coefficient: Bref in ST (169), CO (3.37), divided by Gamma[c] *)
   InRef = UpTrans (K\[Nu]1 + I E^(I \[Pi] \[Nu]) K\[Nu]2);
 
-  (* D2 *)
-  D2 = -Exp[(I \[Kappa] (\[Epsilon]+\[Tau]) (1+\[Kappa]+2 Log[\[Kappa]]))/(2 (1+\[Kappa]))] (2\[Kappa])^(2 s) ( Sin[\[Pi] (\[Nu]-I \[Epsilon])] Sin[\[Pi] (\[Nu]-I \[Tau])])/(Sin[2 \[Pi] \[Nu]] Sin[\[Pi] I (\[Epsilon]+\[Tau])]) (fSumUp+fSumDown);
-  D22 = -Exp[(I \[Kappa] (\[Epsilon]+\[Tau]) (1+\[Kappa]+2 Log[\[Kappa]]))/(2 (1+\[Kappa]))] (2\[Kappa])^(2 s) ( Sin[\[Pi] ((-1-\[Nu])-I \[Epsilon])] Sin[\[Pi] ((-1-\[Nu])-I \[Tau])])/(Sin[2 \[Pi] (-1-\[Nu])] Sin[\[Pi] I (\[Epsilon]+\[Tau])]) (fSumUp+fSumDown);
+  (* D2 Sin[Pi x]: the common factor 1/Sin[Pi x] of D2 and D22 is in sRef *)
+  D2 = -Exp[(I \[Kappa] (\[Epsilon]+\[Tau]) (1+\[Kappa]+2 Log[\[Kappa]]))/(2 (1+\[Kappa]))] (2\[Kappa])^(2 s) ( Sin[\[Pi] (\[Nu]-I \[Epsilon])] Sin[\[Pi] (\[Nu]-I \[Tau])])/Sin[2 \[Pi] \[Nu]] (fSumUp+fSumDown);
+  D22 = -Exp[(I \[Kappa] (\[Epsilon]+\[Tau]) (1+\[Kappa]+2 Log[\[Kappa]]))/(2 (1+\[Kappa]))] (2\[Kappa])^(2 s) ( Sin[\[Pi] ((-1-\[Nu])-I \[Epsilon])] Sin[\[Pi] ((-1-\[Nu])-I \[Tau])])/Sin[2 \[Pi] (-1-\[Nu])] (fSumUp+fSumDown);
 
-  (* Up reflection coefficient; 1/K\[Nu] = (1/Gamma[c]) / (K\[Nu]/Gamma[c]) *)
-  UpRef = Exp[-\[Pi] \[Epsilon]-I \[Pi] s]/(Sin[2\[Pi] \[Nu]] Gamma[1 - s - 2 I \[Epsilon]p]) ((Exp[-I \[Pi] \[Nu]]Sin[\[Pi](\[Nu]-s+I \[Epsilon])])/K\[Nu]1 D2-I Sin[\[Pi](\[Nu]+s-I \[Epsilon])]/K\[Nu]2 D22);
+  (* Up reflection coefficient; 1/K\[Nu] = (1/Gamma[c]) / (K\[Nu]/Gamma[c]), and 1/(Gamma[c] Sin[Pi x]) = sRef *)
+  UpRef = Exp[-\[Pi] \[Epsilon]-I \[Pi] s]/Sin[2\[Pi] \[Nu]] sRef ((Exp[-I \[Pi] \[Nu]]Sin[\[Pi](\[Nu]-s+I \[Epsilon])])/K\[Nu]1 D2-I Sin[\[Pi](\[Nu]+s-I \[Epsilon])]/K\[Nu]2 D22);
 
   (* A+: ST (157), CO (3.38) and (3.41) *)
   Aplus = AplusCoefficient[s, m, q, \[Epsilon], \[Kappa], \[Tau], \[Nu], \[Lambda]];
@@ -530,12 +535,13 @@ Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_,
   (* In incidence coefficient: Binc from ST (168), CO (3.36) and (3.39), divided by Gamma[c] *)
   InInc = prefacInInc[s, \[Epsilon], \[Tau], \[Kappa], \[Nu], K\[Nu]1, K\[Nu]2] Aplus;
 
-  (* D1/Gamma[c]: the factor Gamma[1-s-I (\[Epsilon]+\[Tau])] of D1 cancels against the 1/K\[Nu] in the "Up" incidence *)
-  D1 = Exp[-((I \[Kappa] (\[Epsilon]+\[Tau]) (1+\[Kappa]+2 Log[\[Kappa]]))/(2 (1+\[Kappa])))] ( Sin[\[Pi] (\[Nu]+I \[Epsilon])] Sin[\[Pi] (\[Nu]+I \[Tau])])/(Sin[2 \[Pi] \[Nu]] Sin[\[Pi] I (\[Epsilon]+\[Tau])]  Gamma[1+s+I \[Epsilon]+I \[Tau]]) (fSumD1Up+fSumD1Down);
-  D12 = Exp[-((I \[Kappa] (\[Epsilon]+\[Tau]) (1+\[Kappa]+2 Log[\[Kappa]]))/(2 (1+\[Kappa])))] ( Sin[\[Pi] ((-1-\[Nu])+I \[Epsilon])] Sin[\[Pi] ((-1-\[Nu])+I \[Tau])])/(Sin[2 \[Pi] (-1-\[Nu])] Sin[\[Pi] I (\[Epsilon]+\[Tau])]  Gamma[1+s+I \[Epsilon]+I \[Tau]]) (fSumD12Up+fSumD12Down);
+  (* D1 Gamma[1 + s + x] Sin[Pi x]/Gamma[c]: the factor Gamma[c] = Gamma[1 - s - x] of D1 cancels against the
+     1/K\[Nu] in the "Up" incidence, and the common factor 1/(Gamma[1 + s + x] Sin[Pi x]) of D1 and D12 is in sInc *)
+  D1 = Exp[-((I \[Kappa] (\[Epsilon]+\[Tau]) (1+\[Kappa]+2 Log[\[Kappa]]))/(2 (1+\[Kappa])))] ( Sin[\[Pi] (\[Nu]+I \[Epsilon])] Sin[\[Pi] (\[Nu]+I \[Tau])])/Sin[2 \[Pi] \[Nu]] (fSumD1Up+fSumD1Down);
+  D12 = Exp[-((I \[Kappa] (\[Epsilon]+\[Tau]) (1+\[Kappa]+2 Log[\[Kappa]]))/(2 (1+\[Kappa])))] ( Sin[\[Pi] ((-1-\[Nu])+I \[Epsilon])] Sin[\[Pi] ((-1-\[Nu])+I \[Tau])])/Sin[2 \[Pi] (-1-\[Nu])] (fSumD12Up+fSumD12Down);
 
   (* Up incidence coefficient; (D1/Gamma[c]) / (K\[Nu]/Gamma[c]) = D1/K\[Nu] *)
-  UpInc = Exp[-\[Pi] \[Epsilon]-I \[Pi] s]/Sin[2\[Pi] \[Nu]] ((Exp[-I \[Pi] \[Nu]]Sin[\[Pi](\[Nu]-s+I \[Epsilon])])/K\[Nu]1 D1-I Sin[\[Pi](\[Nu]+s-I \[Epsilon])]/K\[Nu]2 D12);
+  UpInc = Exp[-\[Pi] \[Epsilon]-I \[Pi] s]/Sin[2\[Pi] \[Nu]] sInc ((Exp[-I \[Pi] \[Nu]]Sin[\[Pi](\[Nu]-s+I \[Epsilon])])/K\[Nu]1 D1-I Sin[\[Pi](\[Nu]+s-I \[Epsilon])]/K\[Nu]2 D12);
 
   (* Clear local symbols with DownValues to avoid memory leaks *)
   Clear[termf, termD1, termD12];
