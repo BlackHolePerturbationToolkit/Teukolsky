@@ -374,7 +374,10 @@ inLargeRadiusData[s_, \[Lambda]_, m_, a_, \[Omega]_, Binc_, Bref_, rmin_] :=
    without them ("Amplitudes" -> False) $Failed, and the outward integration is used throughout. *)
 inSeriesSolutionBuild[s_, \[Lambda]_, l_, m_, a_, \[Omega]_, amps_, \[Nu]_, ndsolveopts___] :=
  Module[{Binc, Bref, res, rb, tIng, tUp, lower, psiBC, dpsidrBC, rBC},
-  If[!(AssociationQ[amps] && AssociationQ[amps["In"]] && AllTrue[Lookup[amps["In"], {"Incidence", "Reflection", "Transmission"}, Indeterminate], NumericQ]), Return[$Failed]];
+  (* the representation is relative to unit transmission; where the transmission vanishes (a degeneracy
+     2 I epsilon_+ = n >= 1 - s, at which the "In" solution is normalised to unit incidence instead) it is not
+     available and the outward integration is used throughout *)
+  If[!(AssociationQ[amps] && AssociationQ[amps["In"]] && AllTrue[Lookup[amps["In"], {"Incidence", "Reflection", "Transmission"}, Indeterminate], NumericQ] && amps["In"]["Transmission"] != 0), Return[$Failed]];
   Binc = amps["In"]["Incidence"]/amps["In"]["Transmission"]; Bref = amps["In"]["Reflection"]/amps["In"]["Transmission"];
   res = inLargeRadiusData[s, \[Lambda], m, a, \[Omega], Binc, Bref, rp[a, 1] + 2];
   If[res === $Failed, Return[$Failed]];

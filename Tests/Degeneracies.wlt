@@ -58,3 +58,15 @@ VerificationTest[
   {True, True, Indeterminate},
   TestID -> "Amplitudes at 2 I epsilon_+ = 2, s = -2, are the limit of their neighbours"
 ]
+
+(* Numerical integration forced at a degeneracy with vanishing "In" transmission (s = -2, m = 0: 2 I epsilon_+ = 9/2 sigma
+   = 3 >= 1 - s at sigma = 2/3): the large-radius representation of the "In" solution, which is relative to unit
+   transmission, is not available and the outward integration is used, without a division by zero *)
+VerificationTest[
+  Module[{R},
+    R = Quiet[TeukolskyRadial[-2, 2, 0, 0.6, -2. I/3, Method -> "NumericalIntegration"], {TeukolskyRadial::degenerate, TeukolskyRadial::innorm}];
+    {NumericQ[R["In"][30.]], NumericQ[R["In"][6.]], R["In"]["Amplitudes"]["Transmission"] == 0}
+  ],
+  {True, True, True},
+  TestID -> "Forced numerical integration at a degeneracy with vanishing In transmission"
+]
