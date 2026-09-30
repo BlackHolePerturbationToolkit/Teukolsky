@@ -89,3 +89,14 @@ VerificationTest[
   {$Failed, True},
   TestID -> "An absurd frequency fails fast"
 ]
+
+(* Where the amplitude formulae overflow the integrated functions are still returned, with a message *)
+VerificationTest[
+  Module[{R},
+    R = TeukolskyRadial[-2, 2, 2, 0.6, 50.];
+    {NumericQ[R["In"][6.]], NumericQ[R["Up"][6.]], R["Up"]["Amplitudes"]["Transmission"]}
+  ],
+  {True, True, Indeterminate},
+  {TeukolskyRadial::ampfail},
+  TestID -> "Amplitudes that overflow are reported and the integrated functions returned"
+]

@@ -87,6 +87,7 @@ rm[a_,M_] := M-Sqrt[M^2-a^2];
    input precision after the retries is reported. *)
 TeukolskyRadial::prec = "`1` could only be computed to a precision of `2` (`3` requested).";
 TeukolskyRadial::nufail = "The renormalized angular momentum could not be computed for s=`1`, l=`2`, m=`3`, a=`4`, \[Omega]=`5`.";
+TeukolskyRadial::ampfail = "The asymptotic amplitudes `2` could not be computed at \[Omega] = `1`: the MST amplitude formulae overflow or underflow at large |\[Omega]|. Radial functions from numerical integration keep the unit-transmission normalisation of their boundary data; the amplitudes, and MST radial functions whose normalising amplitude is missing, are Indeterminate.";
 
 $lastPaddingDigits = 0;        (* digits of padding the last paddedComputation added beyond its first pass *)
 $lastPaddingRetried = False;   (* whether it had to retry after a non-numeric result *)
@@ -202,6 +203,11 @@ $acceptIndeterminate = False;
    which is normalised to unit incidence. *)
 normalisationKey[ns_Association] := If[NumericQ[ns["Transmission"]] && ns["Transmission"] == 0, "Incidence", "Transmission"];
 
+(* The amplitudes relative to the normalising one; all Indeterminate when that one is not a nonzero number (the
+   formulae overflowed or underflowed, see TeukolskyRadial::ampfail), rather than a division by zero *)
+normaliseAmplitudes[ns_Association] :=
+ With[{k = normalisationKey[ns]}, If[NumericQ[ns[k]] && ns[k] != 0, ns/ns[k], Indeterminate & /@ ns]];
+
 
 
 (* ::Subsection::Closed:: *)
@@ -279,7 +285,7 @@ TeukolskyRadialNumericalIntegration[s_Integer, l_Integer, m_Integer, a_, \[Omega
     bcdir = bc /. {"In" -> -1, "Up" -> +1};
     sInt = If[bc === "Up" && flipUp, -s, s];
     (*  Rescale amplitudes to give unit transmission coefficient (unit incidence where the transmission vanishes). *)
-    amp = ns/ns[[normalisationKey[ns]]];
+    amp = normaliseAmplitudes[ns];
     radialFunction = If[sInt === s,
       Evaluate[#^-1 \[CapitalDelta][#,a]^-s Exp[bcdir I \[Omega] rs[#,a]] Exp[I m \[Phi]Reg[#,a]] solutionFunction[#]]&,
       (* Spin -s from the integrated spin +s: the Teukolsky-Starobinsky map beyond rc = r+ + 1, where the map's
@@ -395,7 +401,7 @@ TeukolskyRadialSasakiNakamura[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, \[
     If[sf === $Failed, Return[$Failed]];
     solutionFunction = sf[domain];
     (*  Rescale amplitudes to give unit transmission coefficient (unit incidence where the transmission vanishes). *)
-    amp = ns/ns[[normalisationKey[ns]]];
+    amp = normaliseAmplitudes[ns];
     TeukolskyRadialFunction[s, l, m, a, \[Omega],
      Association["s" -> s, "l" -> l, "m" -> m, "a" -> a, "\[Omega]" -> \[Omega], "Eigenvalue" -> \[Lambda], "RenormalizedAngularMomentum" -> \[Nu],
       "Method" -> {"SasakiNakamura", ndsolveopts},
@@ -475,7 +481,7 @@ radialAccuracyEstimate[R_Association, s_Integer, a_, \[Omega]_] :=
 TeukolskyRadialAutomaticMachinePrecision[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, \[Lambda]_, \[Nu]_, BCs_, norms_, {wp_, prec_, acc_}, opts:OptionsPattern[]] :=
  Module[{R, e},
   R = TeukolskyRadialNumericalIntegration[s, l, m, a, \[Omega], \[Lambda], \[Nu], BCs, norms, {wp, $MachinePrecision - 2, $MachinePrecision - 2}, opts];
-  If[ListQ[BCs] && ContainsAll[BCs, {"In", "Up"}] && AssociationQ[R] && NumericQ[Lookup[norms["In"], "Incidence", None]] && NumericQ[Lookup[norms["Up"], "Transmission", None]],
+  If[ListQ[BCs] && ContainsAll[BCs, {"In", "Up"}] && AssociationQ[R] && NumericQ[Lookup[norms["In"], "Incidence", None]] && NumericQ[Lookup[norms["Up"], "Transmission", None]] && norms["Up"]["Transmission"] != 0,
     e = radialAccuracyEstimate[R, s, a, \[Omega]];
     If[e > 10^-6, Message[TeukolskyRadial::acc, N[e, 2]]];
   ];
@@ -490,7 +496,7 @@ TeukolskyRadialMST[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, \[Lambda]_, \
   (* Function to construct a TeukolskyRadialFunction *)
   TRF[bc_, ns_, sf_] := Module[{amp},
     (*  Rescale amplitudes to give unit transmission coefficient (unit incidence where the transmission vanishes). *)
-    amp = ns/ns[[normalisationKey[ns]]];
+    amp = normaliseAmplitudes[ns];
     TeukolskyRadialFunction[s, l, m, a, \[Omega],
      Association["s" -> s, "l" -> l, "m" -> m, "a" -> a, "\[Omega]" -> \[Omega], "Eigenvalue" -> \[Lambda], "RenormalizedAngularMomentum" -> \[Nu],
       "Method" -> {"MST"},
@@ -534,7 +540,7 @@ TeukolskyRadialHeunC[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, \[Lambda]_,
   (* Function to construct a TeukolskyRadialFunction *)
   TRF[bc_, ns_, sf_] := Module[{amp},
     (*  Rescale amplitudes to give unit transmission coefficient (unit incidence where the transmission vanishes). *)
-    amp = ns/ns[[normalisationKey[ns]]];
+    amp = normaliseAmplitudes[ns];
     If[sf === $Failed, $Failed,
       TeukolskyRadialFunction[s, l, m, a, \[Omega],
         Association["s" -> s, "l" -> l, "m" -> m, "a" -> a, "\[Omega]" -> \[Omega], "Eigenvalue" -> \[Lambda], "RenormalizedAngularMomentum" -> \[Nu],
@@ -831,6 +837,12 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
         norms = Block[{$acceptIndeterminate = n =!= None, $degeneracyOrder = n},
           paddedComputation[mstAmplitudes[s, l, m, a, \[Omega], \[Lambda], \[Nu], #, prec, acc] &, wp, "The asymptotic amplitudes", extra]];
         If[n =!= None, degeneracyMessages[n, \[Omega], norms]];
+        (* away from a degeneracy every amplitude should be a number; the formulae overflow at large |omega|
+           (omega = 50 for l = 2, say), and without this message the only symptoms were a precision of
+           Indeterminate for the MST "Up" solution and an accuracy estimate of Infinity *)
+        If[n === None && AssociationQ[norms],
+          With[{bad = Flatten[Table[If[!NumericQ[Lookup[norms[bc], key, 0]] || (key === normalisationKey[norms[bc]] && norms[bc][key] == 0), {bc, key}, Nothing], {bc, {"In", "Up"}}, {key, {"Incidence", "Transmission", "Reflection"}}], 1]},
+            If[bad =!= {}, Message[TeukolskyRadial::ampfail, \[Omega], bad]]]];
         (* At a degeneracy the refined values belong to the exactly degenerate frequency of mstAmplitudes, not
            to omega as given (1e-17 apart at machine precision), and the radial functions must refine their
            own: the MST series amplify an inconsistency between nu and omega by the digits they lose to
