@@ -875,7 +875,14 @@ mstRadialInLargeRadiusSeries[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \
 (*are re-summed with the inputs padded by the deficit; the result is returned at the precision of the input.*)
 
 
-$MSTRepresentationThreshold = 2;
+(* The Coulomb-type representation is used where the hypergeometric series would lose more than about
+   0.8 * threshold digits to cancellation. One pass of the Coulomb-type series costs two to four times one
+   pass of the hypergeometric series at the same working precision (its Tricomi functions against the
+   series' Gauss functions), independently of the radius, while the series' cost grows with the padding its
+   loss requires; measured at 32 digits for s = -2, 0, 2 and omega = 0.1 to 2, the two cost the same at
+   omega (r - r+) between 10 and 35, and below that the series is up to four times faster. The threshold
+   used to be 2, chosen for accuracy alone. *)
+$MSTRepresentationThreshold = 20;
 (* representation of the "In" solution beyond the threshold: "Coulomb" (ST Eq. (166), series of Coulomb wave
    functions) or "Hypergeometric" (ST Eq. (138), series of hypergeometric functions in 1/(1-x)) *)
 $MSTInLargeRadiusRepresentation = "Coulomb";
@@ -1007,20 +1014,46 @@ mstPaddedEvaluation[core_, {s_, l_, m_, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, nor
    cached, and compared with the roughly 0.8 omega (r - r+) digits that the series loses. *)
 $inRepresentationCache = <||>;
 
+(* Pre-padding from the loss of earlier evaluations. mstPaddedEvaluation starts at the working precision
+   and, once it has measured the loss, repeats the evaluation with the padding that loss requires, so an
+   evaluation costs two passes, the first of them wasted, whenever the loss exceeds a digit, which is
+   always. The loss is predictable: for the hypergeometric "In" series it is about 0.8 |epsilon| (r - r+)/2
+   plus a mode-dependent part, and for the Coulomb-type "In" representation and the "Up" series it does
+   not depend on the radius. The mode-dependent part measured at every evaluation is cached per mode and
+   core, and the next evaluation starts at the predicted padding, with the retry loop still there should
+   the prediction fall short. *)
+$lossCache = <||>;
+
+seriesLossEstimate[q_, \[Epsilon]_, r_] := 0.8 Abs[\[Epsilon]] (r - (1 + Sqrt[1 - q^2]))/2;
+
+prepaddedEvaluation[core_, params:{s_, l_, m_, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_}, goals:{wp_, prec_, acc_}, deriv_, r_] :=
+ Module[{key = {core, s, l, m, q, \[Epsilon], \[Nu], \[Lambda]}, rdep, base, p0, res},
+  rdep = If[core === mstRadialInSeriesCore, seriesLossEstimate[q, \[Epsilon], r], 0];
+  base = Lookup[$lossCache, Key[key], None];
+  (* four digits of margin: significance arithmetic overstates the precision of the summed series by a
+     digit or so, and the margin keeps the result beyond the requested precision as before *)
+  p0 = If[base === None, Automatic, If[wp === MachinePrecision, $MachinePrecision, wp] + base + rdep + 4];
+  res = mstPaddedEvaluation[core, params, goals, deriv, r, 4, p0];
+  If[NumericQ[$lastPaddingLoss],
+    If[Length[$lossCache] >= 50, $lossCache = <||>];
+    $lossCache[key] = Max[$lastPaddingLoss - rdep, 0]];
+  res
+ ];
+
 mstRadialInEvaluate[params:{s_, l_, m_, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_}, goals_, deriv_, r_] :=
  Module[{rep = mstInRepresentation[q, \[Epsilon], r], key = {s, l, m, q, \[Epsilon], \[Nu], \[Lambda]}, seriesLoss, cached, res},
-  If[rep === "Series", Return[mstPaddedEvaluation[mstRadialInSeriesCore, params, goals, deriv, r]]];
-  seriesLoss = 0.8 Abs[\[Epsilon]] (r - (1 + Sqrt[1 - q^2]))/2 + 8;
+  If[rep === "Series", Return[prepaddedEvaluation[mstRadialInSeriesCore, params, goals, deriv, r]]];
+  seriesLoss = seriesLossEstimate[q, \[Epsilon], r] + 8;
   cached = Lookup[$inRepresentationCache, Key[key], None];
-  If[cached =!= None && cached > seriesLoss, Return[mstPaddedEvaluation[mstRadialInSeriesCore, params, goals, deriv, r]]];
-  If[cached =!= None, Return[mstPaddedEvaluation[mstInCore[rep], params, goals, deriv, r]]];
+  If[cached =!= None && cached > seriesLoss, Return[prepaddedEvaluation[mstRadialInSeriesCore, params, goals, deriv, r]]];
+  If[cached =!= None, Return[prepaddedEvaluation[mstInCore[rep], params, goals, deriv, r]]];
   (* first evaluation of this mode: a single pass, to measure the loss *)
   res = mstPaddedEvaluation[mstInCore[rep], params, goals, deriv, r, 1];
   If[Length[$inRepresentationCache] >= 50, $inRepresentationCache = <||>];
   $inRepresentationCache[key] = $lastPaddingLoss;
-  If[$lastPaddingLoss > seriesLoss, Return[mstPaddedEvaluation[mstRadialInSeriesCore, params, goals, deriv, r]]];
+  If[$lastPaddingLoss > seriesLoss, Return[prepaddedEvaluation[mstRadialInSeriesCore, params, goals, deriv, r]]];
   If[!allNumericQ[res] || Precision[res] < If[goals[[1]] === MachinePrecision, $MachinePrecision, goals[[1]]] - 1,
-    res = mstPaddedEvaluation[mstInCore[rep], params, goals, deriv, r, 4, $lastPaddingPrecision + Ceiling[$lastPaddingLoss] + 3];
+    res = prepaddedEvaluation[mstInCore[rep], params, goals, deriv, r];
   ];
   res
  ];
@@ -1054,13 +1087,13 @@ MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_
  mstRadialInEvaluate[{s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm}, {wp, prec, acc}, All, r];
 
 MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}][r_?NumericQ] :=
- mstPaddedEvaluation[mstRadialUpSeriesCore, {s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm}, {wp, prec, acc}, 0, r];
+ prepaddedEvaluation[mstRadialUpSeriesCore, {s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm}, {wp, prec, acc}, 0, r];
 
 Derivative[1][MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}]][r_?NumericQ] :=
- mstPaddedEvaluation[mstRadialUpSeriesCore, {s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm}, {wp, prec, acc}, 1, r];
+ prepaddedEvaluation[mstRadialUpSeriesCore, {s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm}, {wp, prec, acc}, 1, r];
 
 MSTRadialUp[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_, {wp_, prec_, acc_}][r_?NumericQ, {0, 1}] :=
- mstPaddedEvaluation[mstRadialUpSeriesCore, {s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm}, {wp, prec, acc}, All, r];
+ prepaddedEvaluation[mstRadialUpSeriesCore, {s, l, m, q, \[Epsilon], \[Nu], \[Lambda], norm}, {wp, prec, acc}, All, r];
 
 
 (* ::Section::Closed:: *)
