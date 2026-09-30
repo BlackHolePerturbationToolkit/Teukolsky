@@ -118,3 +118,11 @@ VerificationTest[
   {"Transmission", "Transmission", {"Incidence", "Transmission"}},
   TestID -> "Normalisation key: unit incidence only for In at a degeneracy"
 ]
+
+(* the same validation in the static path *)
+VerificationTest[
+  {TeukolskyRadial[-2, 2, 2, 0.6, 0, "WronskianCheck" -> "True"], Head[TeukolskyRadial[-2, 2, 2, 0.6, 0, "WronskianCheck" -> True]]},
+  {$Failed, Association},
+  {TeukolskyRadial::optx, TeukolskyRadial::sopt},
+  TestID -> "WronskianCheck is validated and reported as unsupported for static modes"
+]

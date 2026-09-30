@@ -130,7 +130,7 @@ paddedComputation[f_, wp_, name_:"The result", extra_:0] :=
    check is skipped (0 returned) when the amplitudes are not numeric, e.g. at the superradiant bound
    frequency for s >= 1. *)
 mstWronskianError[R_Association, s_Integer, a_, \[Omega]_, wp_] :=
- Module[{r, W, Wexact},
+ Module[{r, W, scale, Wexact},
   r = 2 rp[a, 1];
   Wexact = 2 I \[Omega] R["In"]["Amplitudes"]["Incidence"] R["Up"]["Amplitudes"]["Transmission"];
   If[!NumericQ[Wexact] || Wexact == 0, Return[0]];
@@ -685,10 +685,15 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
   (* Eigenvalue *)
   \[Lambda] = SpinWeightedSpheroidalEigenvalue[s, l, m, a \[Omega]];
 
-  (* Some options are not supported for static modes *)
+  (* Some options are not supported for static modes; the Wronskian check is one of them (there are no MST
+     solutions to check), and an invalid value of it is rejected as in the non-static case *)
+  If[!MatchQ[OptionValue["WronskianCheck"], Automatic | True | False],
+    Message[TeukolskyRadial::optx, "WronskianCheck" -> OptionValue["WronskianCheck"]];
+    Return[$Failed];
+  ];
   Do[
     If[OptionValue[opt] =!= Automatic, Message[TeukolskyRadial::sopt, opt]];,
-    {opt, {"Eigenvalue", "RenormalizedAngularMomentum", Method, WorkingPrecision, PrecisionGoal, AccuracyGoal}}
+    {opt, {"Eigenvalue", "RenormalizedAngularMomentum", Method, WorkingPrecision, PrecisionGoal, AccuracyGoal, "WronskianCheck"}}
   ];
 
   (* Compute the asymptotic amplitudes *)
