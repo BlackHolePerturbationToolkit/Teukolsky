@@ -1,44 +1,47 @@
 (* Degeneracies of the MST method on the negative imaginary axis, omega = -I sigma (M = 1) *)
 
-(* 2 I epsilon = 4 sigma an integer: the monodromy method for nu degenerates; nu is evaluated from
-   neighbouring frequencies (it used to run until the kernel died) *)
+(* 2 I epsilon = 4 sigma an integer: Gamma[mu1 - mu2] in the monodromy formula has a pole (the method used to
+   run until the kernel died, then extrapolated from neighbouring frequencies); with Gamma[mu1 - mu2]
+   Pochhammer[mu1 - mu2, k] combined into Gamma[mu1 - mu2 + k] it is evaluated directly, to the precision
+   of any other frequency, and agrees with the neighbours' average to their O(h^2) *)
 VerificationTest[
   Module[{nu, nb},
-    nu = Quiet[RenormalizedAngularMomentum[0, 2, 0, SetPrecision[3/5, 40], SetPrecision[-I/4, 40]], RenormalizedAngularMomentum::degenerate];
+    nu = RenormalizedAngularMomentum[0, 2, 0, SetPrecision[3/5, 40], SetPrecision[-I/4, 40]];
     nb = (RenormalizedAngularMomentum[0, 2, 0, SetPrecision[3/5, 40], SetPrecision[-I/4 (1 + 10^-8), 40]] + RenormalizedAngularMomentum[0, 2, 0, SetPrecision[3/5, 40], SetPrecision[-I/4 (1 - 10^-8), 40]])/2;
-    Abs[nu/nb - 1] < 10^-12
+    {Abs[nu/nb - 1] < 10^-15, Precision[nu] > 28}
   ],
-  True,
+  {True, True},
   TestID -> "Renormalized angular momentum at a monodromy degeneracy"
 ]
 
 VerificationTest[
-  RenormalizedAngularMomentum[0, 2, 0, SetPrecision[3/5, 40], SetPrecision[-I/2, 40]],
-  _?NumericQ,
-  {RenormalizedAngularMomentum::degenerate},
-  SameTest -> MatchQ,
-  TestID -> "Monodromy degeneracy at sigma = 1/2 is reported"
+  Module[{nu40, nu60},
+    nu40 = RenormalizedAngularMomentum[-2, 2, 2, SetPrecision[3/5, 40], SetPrecision[-I/2, 40]];
+    nu60 = RenormalizedAngularMomentum[-2, 2, 2, SetPrecision[3/5, 60], SetPrecision[-I/2, 60]];
+    {Abs[nu40/nu60 - 1] < 10^-28, Precision[nu60] > 45}
+  ],
+  {True, True},
+  TestID -> "Monodromy degeneracy at sigma = 1/2, s = -2: full precision, no message"
 ]
 
 (* 2 I epsilon_+ an integer: for a = 3/5, m = 0 that is 4.5 sigma. With n = 2 I epsilon_+ >= 1 - s the
    transmission amplitude of the "In" solution vanishes and it is normalised to unit incidence: the limit of
    the unit-incidence "In" solution of the neighbours *)
-(* omega = -2 I is also a degeneracy of the monodromy method (2 I epsilon = 8), reported again when the padded
-   evaluations of the radial functions recompute nu, so its message is quietened throughout *)
+(* omega = -2 I is also a degeneracy of the monodromy method (2 I epsilon = 8), evaluated directly *)
 VerificationTest[
-  Quiet[Module[{R, Rp, r = N[6, 40]},
+  Module[{R, Rp, r = N[6, 40]},
     R = Quiet[TeukolskyRadial[0, 2, 0, SetPrecision[3/5, 40], SetPrecision[-2 I, 40]], {TeukolskyRadial::degenerate, TeukolskyRadial::innorm}];
     Rp = TeukolskyRadial[0, 2, 0, SetPrecision[3/5, 40], SetPrecision[-2 I (1 + 10^-8), 40]];
     {Abs[R["In"]["Amplitudes"]["Incidence"] - 1] < 10^-30, R["In"]["Amplitudes"]["Transmission"],
      Abs[R["In"][r]/(Rp["In"][r]/Rp["In"]["Amplitudes"]["Incidence"]) - 1] < 10^-6,
      Abs[R["In"]["Amplitudes"]["Reflection"]/(Rp["In"]["Amplitudes"]["Reflection"]/Rp["In"]["Amplitudes"]["Incidence"]) - 1] < 10^-6}
-  ], RenormalizedAngularMomentum::degenerate],
+  ],
   {True, 0, True, True},
   TestID -> "In solution normalised to unit incidence at 2 I epsilon_+ = 9, s = 0"
 ]
 
 VerificationTest[
-  Quiet[TeukolskyRadial[0, 2, 0, SetPrecision[3/5, 40], SetPrecision[-2 I, 40]], RenormalizedAngularMomentum::degenerate],
+  TeukolskyRadial[0, 2, 0, SetPrecision[3/5, 40], SetPrecision[-2 I, 40]],
   _Association,
   {TeukolskyRadial::degenerate, TeukolskyRadial::innorm},
   SameTest -> MatchQ,
