@@ -93,3 +93,14 @@ VerificationTest[
   True,
   TestID -> "Amplitudes and functions at negative real omega are the conjugates of those at (-m, omega), machine precision"
 ]
+
+(* The padding a failed Wronskian check sets for a mode must reach the series, which at Re omega < 0 are
+   evaluated at the conjugate partner (-m, -Conjugate[omega]): the padding is keyed by the partner *)
+VerificationTest[
+  Module[{q = N[3/5, 32], set = Teukolsky`MST`MST`Private`setModePadding, get = Teukolsky`MST`MST`Private`modePadding},
+    set[-2, 2, 2, q, N[-1, 32], 17];
+    {get[-2, 2, -2, q, N[1, 32]], get[-2, 2, 2, q, N[-1, 32]]}
+  ],
+  {17, 17},
+  TestID -> "Mode padding set at a negative frequency is read at the conjugate partner"
+]

@@ -27,3 +27,17 @@ VerificationTest[
   True,
   TestID -> "Wronskian check raises the working precision for l = 36, m = 2, omega = 3"
 ]
+
+(* The same mode at the negative frequency (m = -2, omega = -3): the MST series and amplitudes are evaluated at
+   the conjugate partner, and the padding raised by the Wronskian check has to reach them there. G is the
+   complex conjugate of the one above, so its real part is the same reference. *)
+VerificationTest[
+  Module[{aa = 6/10, r0 = 9 Sqrt[11]/5, R, r, G},
+    R = TeukolskyRadial[0, 36, -2, N[aa, 80], N[-3, 80]];
+    r = N[r0, 80];
+    G = -R["In"][r] R["Up"][r]/(2 I (-3) R["In"]["Amplitudes"]["Incidence"]);
+    Abs[Re[G]/0.0034919644133859045660219331138202791577813 - 1] < 10^-25
+  ],
+  True,
+  TestID -> "Wronskian check repairs the negative-frequency partner of the l = 36 mode"
+]
