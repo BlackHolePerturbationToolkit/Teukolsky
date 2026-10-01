@@ -330,7 +330,8 @@ TeukolskyRadialNumericalIntegration[s_Integer, l_Integer, m_Integer, a_, \[Omega
      Association["s" -> s, "l" -> l, "m" -> m, "a" -> a, "\[Omega]" -> \[Omega], "Eigenvalue" -> reportedValue[\[Lambda], wp], "RenormalizedAngularMomentum" -> reportedValue[\[Nu], wp],
       "Method" -> {"NumericalIntegration", ndsolveopts},
       "BoundaryConditions" -> bc, "Amplitudes" -> amp, "UnscaledAmplitudes" -> ns,
-      "Domain" -> If[domain === All, {rp[a, 1], \[Infinity]}, First[solutionFunction["Domain"]]],
+      (* the domain requested; the integrated range can be larger (it includes the radius of the boundary data) *)
+      "Domain" -> Which[domain === All, {rp[a, 1], \[Infinity]}, MatchQ[domain, {_?NumericQ, _?NumericQ}], domain, True, First[solutionFunction["Domain"]]],
       "RadialFunction" -> radialFunction
      ]
     ]
@@ -426,7 +427,8 @@ TeukolskyRadialSasakiNakamura[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, \[
      Association["s" -> s, "l" -> l, "m" -> m, "a" -> a, "\[Omega]" -> \[Omega], "Eigenvalue" -> reportedValue[\[Lambda], wp], "RenormalizedAngularMomentum" -> reportedValue[\[Nu], wp],
       "Method" -> {"SasakiNakamura", ndsolveopts},
       "BoundaryConditions" -> bc, "Amplitudes" -> amp, "UnscaledAmplitudes" -> ns,
-      "Domain" -> If[domain === All, {rp[a, 1], \[Infinity]}, First[solutionFunction["Domain"]]],
+      (* the domain requested; the integrated range can be larger (it includes the radius of the boundary data) *)
+      "Domain" -> Which[domain === All, {rp[a, 1], \[Infinity]}, MatchQ[domain, {_?NumericQ, _?NumericQ}], domain, True, First[solutionFunction["Domain"]]],
       "RadialFunction" -> solutionFunction
      ]
     ]
