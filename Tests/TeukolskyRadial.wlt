@@ -522,3 +522,41 @@ Module[{orbitG = KerrGeoOrbit[0.1, 10.0, 0.1, Cos[\[Pi]/4.]]},
     SameTest->withinRoundoff
   ];
 ]
+
+(****************************************************************)
+(* Review fixes                                                 *)
+(****************************************************************)
+VerificationTest[
+  With[{R = TeukolskyRadial[-2, 2, 2, 0.5, 0.3]}, Precision /@ {R["In"]["RenormalizedAngularMomentum"], R["In"]["Eigenvalue"], R["Up"]["RenormalizedAngularMomentum"]}],
+  {MachinePrecision, MachinePrecision, MachinePrecision},
+  TestID -> "Stored nu and eigenvalue are machine numbers at machine precision"
+]
+
+(* the eigenvalue solver did not converge at some padded precisions (messages for l >= 8) *)
+VerificationTest[
+  Do[TeukolskyRadial[-2, l, m, 0.7, 0.5], {l, {8, 10}}, {m, {-l, 0, l}}],
+  Null,
+  TestID -> "No eigenvalue messages for l = 8 and 10"
+]
+
+(* ... and returned a 16-digit value labelled as padded, which the MST series amplified to 1e-6.5 *)
+VerificationTest[
+  Module[{R = TeukolskyRadial[-2, 7, 6, 0.1, -1.0], R40 = TeukolskyRadial[-2, 7, 6, N[1/10, 40], N[-1, 40]]},
+    Max[Abs[R["In"][#]/R40["In"][SetPrecision[#, 40]] - 1] & /@ {6., 20.}, Abs[R["Up"][#]/R40["Up"][SetPrecision[#, 40]] - 1] & /@ {6., 20.}] < 10^-12
+  ],
+  True,
+  TestID -> "Eigenvalue solver failures at a padded precision are retried"
+]
+
+VerificationTest[
+  With[{R = TeukolskyRadial[-2, 2, 2, 0.6, 0.5, Method -> {"NumericalIntegration", "Domain" -> {"In" -> {3., 20.}, "Up" -> {5., 30.}}}]},
+    {R["In"]["Domain"], R["Up"]["Domain"], TeukolskyRadial[-2, 2, 2, 0.6, 0.5, Method -> "MST"]["In"]["Domain"][[2]]}],
+  {{3., 20.}, {5., 30.}, Infinity},
+  TestID -> "Domain property of the radial functions"
+]
+
+VerificationTest[
+  Module[{g0 = Names["Global`*"]}, Do[TeukolskyRadial[-2, 2, 2, 0.6, w]["In"][{4., 10.}], {w, 0.2, 0.8, 0.2}]; Complement[Names["Global`*"], g0]],
+  {},
+  TestID -> "Numerical integration creates no Global symbols"
+]

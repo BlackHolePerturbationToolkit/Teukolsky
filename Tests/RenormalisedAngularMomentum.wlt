@@ -76,3 +76,13 @@ VerificationTest[
   {RenormalizedAngularMomentum::conv},
   TestID -> "A failed monodromy evaluation returns $Failed with a message"
 ]
+
+(* the precision estimate of the monodromy method was ComplexInfinity (a continued fraction through a zero of no
+   precision) and nu came back as an unevaluated expression *)
+VerificationTest[
+  With[{a = N[1/10, 32], w = N[592/1000 - 915/1000 I, 32]},
+    RenormalizedAngularMomentum[0, 8, -5, a, w, SpinWeightedSpheroidalHarmonics`SpinWeightedSpheroidalEigenvalue[0, 8, -5, a w]]],
+  $Failed,
+  {RenormalizedAngularMomentum::conv},
+  TestID -> "A monodromy estimate without correct digits fails"
+]

@@ -28,6 +28,15 @@ VerificationTest[
   TestID -> "Wronskian check raises the working precision for l = 36, m = 2, omega = 3"
 ]
 
+(* at 24 digits the same mode needs little padding and was wrong by O(1) with no message; high-l modes are now
+   always checked, and what the retries cannot repair is flagged *)
+VerificationTest[
+  AssociationQ[TeukolskyRadial[0, 36, 2, N[3/5, 24], N[3, 24]]],
+  True,
+  {TeukolskyRadial::acc},
+  TestID -> "The l = 36 mode at 24 digits is flagged"
+]
+
 (* The same mode at the negative frequency (m = -2, omega = -3): the MST series and amplitudes are evaluated at
    the conjugate partner, and the padding raised by the Wronskian check has to reach them there. G is the
    complex conjugate of the one above, so its real part is the same reference. *)

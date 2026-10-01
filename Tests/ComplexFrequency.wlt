@@ -112,3 +112,41 @@ VerificationTest[
   {True, True, True},
   TestID -> "Coulomb-type In representation and Wronskian on the positive imaginary axis"
 ]
+
+(* The first evaluation of the Coulomb-type "In" representation of a mode is a single pass that measures the
+   loss; at machine precision its result was accepted on the precision of N[result], always MachinePrecision,
+   although the pass had kept less than a digit (1e-3 at r = 50 for this mode, right on the second call) *)
+VerificationTest[
+  Module[{R = TeukolskyRadial[1, 8, 6, 0.99, 0.0027 - 0.856 I], R40 = TeukolskyRadial[1, 8, 6, N[99/100, 40], N[27/10000 - 856/1000 I, 40]]},
+    Abs[R["In"][50.]/R40["In"][N[50, 40]] - 1] < 10^-12
+  ],
+  True,
+  TestID -> "First machine-precision Coulomb-type In evaluation at a complex frequency"
+]
+
+(* a monodromy estimate without correct digits on the way gave an unevaluated nu and N::precbd *)
+VerificationTest[
+  Module[{R = TeukolskyRadial[0, 8, -5, 0.1, 0.592 - 0.915 I], R40 = TeukolskyRadial[0, 8, -5, N[1/10, 40], N[592/1000 - 915/1000 I, 40]]},
+    Abs[R["In"][100.]/R40["In"][N[100, 40]] - 1] < 10^-12
+  ],
+  True,
+  TestID -> "Large-radius In at a complex frequency without precision messages"
+]
+
+(* nu near an integer at a small complex frequency: the downward MST coefficients can converge to the wrong
+   solution with a tracked precision that claims full accuracy (1e-3 here before), so the Wronskian check runs *)
+VerificationTest[
+  Module[{R = TeukolskyRadial[0, 8, 0, 0., -0.01 I], R40 = TeukolskyRadial[0, 8, 0, N[0, 40], N[-1/100 I, 40]]},
+    Max[Abs[R["In"][#]/R40["In"][SetPrecision[#, 40]] - 1] & /@ {4., 10., 30.}, Abs[R["Up"][#]/R40["Up"][SetPrecision[#, 40]] - 1] & /@ {4., 10., 30.}] < 10^-12
+  ],
+  True,
+  TestID -> "Near-integer nu at a small imaginary frequency"
+]
+
+(* where the retries at machine precision cannot repair such a mode, the result is flagged instead of silent *)
+VerificationTest[
+  AssociationQ[TeukolskyRadial[0, 12, 0, 0.5, 0.01 - 0.02 I]],
+  True,
+  {TeukolskyRadial::acc},
+  TestID -> "Near-integer nu beyond the machine-precision retries is flagged"
+]
