@@ -923,7 +923,15 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
   {ampPadding, ampRetried} = {0, False};
   res = compute[extra, {"In", "Up"}];
   If[res === $Failed, Return[$Failed]];
-  If[OptionValue["WronskianCheck"] === Automatic && !(ampPadding > 40 || ampRetried || extra > 0),
+  (* l >= 20: the high-l modes whose coefficient recurrence can converge to its wrong solution do not always
+     need much padding at moderate working precision (l = 36, m = 2, omega = 3 needs 11 digits at 24 and 40
+     digits and is then wrong by O(1) with full tracked precision), so they are always checked *)
+  (* Near-integer nu: the downward MST coefficients pass close to a pole there and can lose all their digits
+     (l = 8, omega = -0.01 I: nu = 8 - 4e-5, a_n Infinity below n = -10 at 40 digits), so that the summation
+     stops early and the result is wrong by 1e-3 with a tracked precision that claims full accuracy; such modes
+     are checked as well. At real frequencies nu is near l for every small omega and these modes come out right,
+     so the check (two summations of the series) is not added there. *)
+  If[OptionValue["WronskianCheck"] === Automatic && !(ampPadding > 40 || ampRetried || extra > 0 || l >= 20 || (Im[\[Omega]] != 0 && NumericQ[\[Nu]] && Abs[\[Nu] - Round[Re[\[Nu]]]] < 10^-2)),
     Return[If[ListQ[BCs], KeyTake[res, BCs], res[BCs]]]];
   wpn = If[wp === MachinePrecision, $MachinePrecision, wp];
   tol = 10^(4 - wpn);
