@@ -112,11 +112,21 @@ psi[s_, \[Lambda]_, l_, m_, a_, \[Omega]_, bc_, amps_, \[Nu]_, ndsolveopts___][A
 psi[s_, \[Lambda]_, l_, m_, a_, \[Omega]_, bc_, amps_, \[Nu]_, ndsolveopts___][None] := $Failed;
 
 
-Integrator[s_,\[Lambda]_,m_,a_,\[Omega]_,y1BC_,y2BC_,rBC_,rmin_?NumericQ,rmax_?NumericQ,H_?NumericQ,ndsolveopts___]:=Module[{Global`y1,Global`y2,Global`r,sol},
-	Quiet[NDSolveValue[
-		{Global`y1'[Global`r]==Global`y2[Global`r],(((a^2-2 Global`r+Global`r^2) (2 a^2-2 Global`r (1+s)-Global`r^2 \[Lambda])-2 a (1+H) m Global`r^2 (a^2+Global`r^2) \[Omega]+2 I Global`r^2 (-(1+H) (-a^2+Global`r^2)+(1-H) Global`r (a^2-2 Global`r+Global`r^2)) s \[Omega]+(1-H^2) Global`r^2 (a^2+Global`r^2)^2 \[Omega]^2-2 I a Global`r (a^2-2 Global`r+Global`r^2) (m+a H \[Omega])) Global`y1[Global`r])/Global`r^6+((2 (-a^2+Global`r^2) (a^2-2 Global`r+Global`r^2))/(Global`r^4 (a^2+Global`r^2))-(2 (a^2-2 Global`r+Global`r^2) (a^2 (a^2-2 Global`r+Global`r^2)+(a^2+Global`r^2) ((-1+Global`r) Global`r s-I Global`r (a m+H (a^2+Global`r^2) \[Omega]))))/(Global`r^5 (a^2+Global`r^2))) Global`y2[Global`r]+((a^2-2 Global`r+Global`r^2)^2 Derivative[1][Global`y2][Global`r])/Global`r^4==0,Global`y1[rBC]==y1BC,Global`y2[rBC]==y2BC},
-		Global`y1,
-		{Global`r, rmin, rmax},
+(* NDSolve leaves behind temporary copies of its dependent and independent variables (niY1$123 and so on,
+   in the Global` context when the variables were Global` symbols scoped by Module), one set per call; they are
+   removed once the solution, which does not refer to them, has been computed *)
+SetAttributes[withoutTemporaries, HoldAll];
+withoutTemporaries[expr_] := Module[{res = expr, tmp},
+  tmp = Names[Context[niY1] <> # <> "$*" & /@ {"niY1", "niY2", "niR"}];
+  If[tmp =!= {}, Quiet[Remove @@ tmp]];
+  res
+ ];
+
+Integrator[s_,\[Lambda]_,m_,a_,\[Omega]_,y1BC_,y2BC_,rBC_,rmin_?NumericQ,rmax_?NumericQ,H_?NumericQ,ndsolveopts___]:=Block[{niY1,niY2,niR,sol},
+	withoutTemporaries@Quiet[NDSolveValue[
+		{niY1'[niR]==niY2[niR],(((a^2-2 niR+niR^2) (2 a^2-2 niR (1+s)-niR^2 \[Lambda])-2 a (1+H) m niR^2 (a^2+niR^2) \[Omega]+2 I niR^2 (-(1+H) (-a^2+niR^2)+(1-H) niR (a^2-2 niR+niR^2)) s \[Omega]+(1-H^2) niR^2 (a^2+niR^2)^2 \[Omega]^2-2 I a niR (a^2-2 niR+niR^2) (m+a H \[Omega])) niY1[niR])/niR^6+((2 (-a^2+niR^2) (a^2-2 niR+niR^2))/(niR^4 (a^2+niR^2))-(2 (a^2-2 niR+niR^2) (a^2 (a^2-2 niR+niR^2)+(a^2+niR^2) ((-1+niR) niR s-I niR (a m+H (a^2+niR^2) \[Omega]))))/(niR^5 (a^2+niR^2))) niY2[niR]+((a^2-2 niR+niR^2)^2 Derivative[1][niY2][niR])/niR^4==0,niY1[rBC]==y1BC,niY2[rBC]==y2BC},
+		niY1,
+		{niR, rmin, rmax},
 		ndsolveopts,
 		Method->"StiffnessSwitching",
 		MaxSteps->Infinity,
@@ -125,11 +135,11 @@ Integrator[s_,\[Lambda]_,m_,a_,\[Omega]_,y1BC_,y2BC_,rBC_,rmin_?NumericQ,rmax_?N
 	];
 
 
-AllIntegrator[s_,\[Lambda]_,m_,a_,\[Omega]_,y1BC_,y2BC_,rBC_,H_?NumericQ,ndsolveopts___][rval:(_?NumericQ | {_?NumericQ..})] := Module[{Global`y1,Global`y2,Global`r,sol},
-	Quiet[NDSolveValue[
-		{Global`y1'[Global`r]==Global`y2[Global`r],(((a^2-2 Global`r+Global`r^2) (2 a^2-2 Global`r (1+s)-Global`r^2 \[Lambda])-2 a (1+H) m Global`r^2 (a^2+Global`r^2) \[Omega]+2 I Global`r^2 (-(1+H) (-a^2+Global`r^2)+(1-H) Global`r (a^2-2 Global`r+Global`r^2)) s \[Omega]+(1-H^2) Global`r^2 (a^2+Global`r^2)^2 \[Omega]^2-2 I a Global`r (a^2-2 Global`r+Global`r^2) (m+a H \[Omega])) Global`y1[Global`r])/Global`r^6+((2 (-a^2+Global`r^2) (a^2-2 Global`r+Global`r^2))/(Global`r^4 (a^2+Global`r^2))-(2 (a^2-2 Global`r+Global`r^2) (a^2 (a^2-2 Global`r+Global`r^2)+(a^2+Global`r^2) ((-1+Global`r) Global`r s-I Global`r (a m+H (a^2+Global`r^2) \[Omega]))))/(Global`r^5 (a^2+Global`r^2))) Global`y2[Global`r]+((a^2-2 Global`r+Global`r^2)^2 Derivative[1][Global`y2][Global`r])/Global`r^4==0,Global`y1[rBC]==y1BC,Global`y2[rBC]==y2BC},
-		Global`y1[rval],
-		{Global`r, Min[rBC,rval], Max[rBC,rval]},
+AllIntegrator[s_,\[Lambda]_,m_,a_,\[Omega]_,y1BC_,y2BC_,rBC_,H_?NumericQ,ndsolveopts___][rval:(_?NumericQ | {_?NumericQ..})] := Block[{niY1,niY2,niR,sol},
+	withoutTemporaries@Quiet[NDSolveValue[
+		{niY1'[niR]==niY2[niR],(((a^2-2 niR+niR^2) (2 a^2-2 niR (1+s)-niR^2 \[Lambda])-2 a (1+H) m niR^2 (a^2+niR^2) \[Omega]+2 I niR^2 (-(1+H) (-a^2+niR^2)+(1-H) niR (a^2-2 niR+niR^2)) s \[Omega]+(1-H^2) niR^2 (a^2+niR^2)^2 \[Omega]^2-2 I a niR (a^2-2 niR+niR^2) (m+a H \[Omega])) niY1[niR])/niR^6+((2 (-a^2+niR^2) (a^2-2 niR+niR^2))/(niR^4 (a^2+niR^2))-(2 (a^2-2 niR+niR^2) (a^2 (a^2-2 niR+niR^2)+(a^2+niR^2) ((-1+niR) niR s-I niR (a m+H (a^2+niR^2) \[Omega]))))/(niR^5 (a^2+niR^2))) niY2[niR]+((a^2-2 niR+niR^2)^2 Derivative[1][niY2][niR])/niR^4==0,niY1[rBC]==y1BC,niY2[rBC]==y2BC},
+		niY1[rval],
+		{niR, Min[rBC,rval], Max[rBC,rval]},
 		ndsolveopts,
 		Method->"StiffnessSwitching",
 		MaxSteps->Infinity,
@@ -167,11 +177,11 @@ Derivative[n_][AllIntegratorUp[s_, \[Lambda]_, l_, m_, a_, \[Omega]_, amps_, \[N
   Derivative[n][AllIntegrator[s, \[Lambda], m, a, \[Omega], psiBC, dpsidrBC, rBC, H, ndsolveOptions[ndsolveopts]]][rval]
  ];
 
-Derivative[n_][AllIntegrator[s_,\[Lambda]_,m_,a_,\[Omega]_,y1BC_,y2BC_,rBC_,H_?NumericQ,ndsolveopts___]][rval:(_?NumericQ | {_?NumericQ..})] := Module[{Global`y1,Global`y2,Global`r,sol},
-	Quiet[NDSolveValue[
-		{Global`y1'[Global`r]==Global`y2[Global`r],(((a^2-2 Global`r+Global`r^2) (2 a^2-2 Global`r (1+s)-Global`r^2 \[Lambda])-2 a (1+H) m Global`r^2 (a^2+Global`r^2) \[Omega]+2 I Global`r^2 (-(1+H) (-a^2+Global`r^2)+(1-H) Global`r (a^2-2 Global`r+Global`r^2)) s \[Omega]+(1-H^2) Global`r^2 (a^2+Global`r^2)^2 \[Omega]^2-2 I a Global`r (a^2-2 Global`r+Global`r^2) (m+a H \[Omega])) Global`y1[Global`r])/Global`r^6+((2 (-a^2+Global`r^2) (a^2-2 Global`r+Global`r^2))/(Global`r^4 (a^2+Global`r^2))-(2 (a^2-2 Global`r+Global`r^2) (a^2 (a^2-2 Global`r+Global`r^2)+(a^2+Global`r^2) ((-1+Global`r) Global`r s-I Global`r (a m+H (a^2+Global`r^2) \[Omega]))))/(Global`r^5 (a^2+Global`r^2))) Global`y2[Global`r]+((a^2-2 Global`r+Global`r^2)^2 Derivative[1][Global`y2][Global`r])/Global`r^4==0,Global`y1[rBC]==y1BC,Global`y2[rBC]==y2BC},
-		Derivative[n][Global`y1][rval],
-		{Global`r, Min[rBC,rval], Max[rBC,rval]},
+Derivative[n_][AllIntegrator[s_,\[Lambda]_,m_,a_,\[Omega]_,y1BC_,y2BC_,rBC_,H_?NumericQ,ndsolveopts___]][rval:(_?NumericQ | {_?NumericQ..})] := Block[{niY1,niY2,niR,sol},
+	withoutTemporaries@Quiet[NDSolveValue[
+		{niY1'[niR]==niY2[niR],(((a^2-2 niR+niR^2) (2 a^2-2 niR (1+s)-niR^2 \[Lambda])-2 a (1+H) m niR^2 (a^2+niR^2) \[Omega]+2 I niR^2 (-(1+H) (-a^2+niR^2)+(1-H) niR (a^2-2 niR+niR^2)) s \[Omega]+(1-H^2) niR^2 (a^2+niR^2)^2 \[Omega]^2-2 I a niR (a^2-2 niR+niR^2) (m+a H \[Omega])) niY1[niR])/niR^6+((2 (-a^2+niR^2) (a^2-2 niR+niR^2))/(niR^4 (a^2+niR^2))-(2 (a^2-2 niR+niR^2) (a^2 (a^2-2 niR+niR^2)+(a^2+niR^2) ((-1+niR) niR s-I niR (a m+H (a^2+niR^2) \[Omega]))))/(niR^5 (a^2+niR^2))) niY2[niR]+((a^2-2 niR+niR^2)^2 Derivative[1][niY2][niR])/niR^4==0,niY1[rBC]==y1BC,niY2[rBC]==y2BC},
+		Derivative[n][niY1][rval],
+		{niR, Min[rBC,rval], Max[rBC,rval]},
 		ndsolveopts,
 		Method->"StiffnessSwitching",
 		MaxSteps->Infinity,
