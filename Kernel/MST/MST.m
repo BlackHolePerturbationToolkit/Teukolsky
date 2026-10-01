@@ -1013,6 +1013,16 @@ mstInCore[rep_] := Switch[rep, "Coulomb", mstRadialInCoulomb, "Hypergeometric", 
    eigenvalue is used as given. *)
 $refinedParameterCache = <||>;
 
+eigenvalueAt[s_, l_, m_, q_, \[Epsilon]_, \[Lambda]_, pp_] :=
+ Module[{res = $Failed},
+  Do[
+    res = Quiet[Check[SpinWeightedSpheroidalEigenvalue[s, l, m, SetPrecision[q, p1] SetPrecision[\[Epsilon], p1]/2], $Failed,
+      {FindRoot::cvmit, SpinWeightedSpheroidalEigenvalue::findroot}], {General::munfl, FindRoot::cvmit, FindRoot::lstol, SpinWeightedSpheroidalEigenvalue::findroot}];
+    If[NumericQ[res], Return[SetPrecision[res, pp], Module]],
+    {p1, {pp, pp + 16, pp + 40}}];
+  \[Lambda]
+ ];
+
 refinedParameters[s_, l_, m_, q_, \[Epsilon]_, \[Lambda]_, \[Nu]_, pp_] :=
  Module[{key = {s, l, m, q, \[Epsilon], \[Lambda], \[Nu], pp}, \[Lambda]p = \[Lambda], \[Nu]p = \[Nu], res},
   If[Precision[\[Lambda]] >= pp && Precision[\[Nu]] >= pp, Return[SetPrecision[{\[Lambda], \[Nu]}, pp]]];
@@ -1021,7 +1031,12 @@ refinedParameters[s_, l_, m_, q_, \[Epsilon]_, \[Lambda]_, \[Nu]_, pp_] :=
   If[$masterFunction === "Teukolsky" && Precision[\[Lambda]] < pp,
     (* the eigenvalue code compares against a machine-number tolerance, which underflows at a few
        hundred digits with a harmless General::munfl *)
-    \[Lambda]p = Quiet[SpinWeightedSpheroidalEigenvalue[s, l, m, SetPrecision[q, pp] SetPrecision[\[Epsilon], pp]/2], General::munfl];
+    (* At some padded precisions the eigenvalue solver does not converge (FindRoot::cvmit, ::findroot) and
+       returns a value accurate only to machine precision but labelled with pp digits, which the precision
+       tracking downstream cannot see (s = -2, l = 7, m = 6, a omega = -0.1 came out at 1e-6.5). Such a value is
+       recomputed at a higher precision; if that fails too, the input eigenvalue is kept with its own precision,
+       so that the evaluation built on it sees the shortfall instead. The convergence notices are not shown. *)
+    \[Lambda]p = eigenvalueAt[s, l, m, q, \[Epsilon], \[Lambda], pp];
   ];
   If[Precision[\[Nu]] < pp,
     \[Nu]p = paddedNu[s, l, m, q, \[Epsilon], \[Lambda]p, \[Nu], pp];
