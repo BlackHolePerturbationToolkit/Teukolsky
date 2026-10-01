@@ -83,9 +83,11 @@ Cos2\[Pi]\[Nu]Series[a_, \[Omega]_, s_, l_, m_] :=
   \[Beta][n_, \[Nu]_?InexactNumberQ] := (2 n + 2 \[Nu] + 3) (2 n + 2 \[Nu] - 1) ((-\[Lambda] - s (s + 1) + (n + \[Nu]) (n + \[Nu] + 1) + \[Epsilon]^2 + \[Epsilon] (\[Epsilon] - m q)) ((n + \[Nu]) (n + \[Nu] + 1)) + (\[Epsilon] (\[Epsilon] - m q) (s^2 + \[Epsilon]^2)));
   R[n_, \[Nu]_] := Module[{i}, $cf[-\[Alpha]\[Gamma][i-1, \[Nu]], \[Beta][i, \[Nu]], {i, n}]];
   L[n_, \[Nu]_] := Module[{i}, $cf[-\[Alpha]\[Gamma][2n-i, \[Nu]], \[Beta][2n-i, \[Nu]], {i, n}]];
-  prec = With[{\[Nu] = ArcCos[Cos2\[Pi]\[Nu]]/(2\[Pi])}, -RealExponent[\[Beta][0, \[Nu]] + R[1, \[Nu]] + L[-1, \[Nu]]]];
+  prec = With[{\[Nu] = ArcCos[Cos2\[Pi]\[Nu]]/(2\[Pi])}, Quiet[-RealExponent[\[Beta][0, \[Nu]] + R[1, \[Nu]] + L[-1, \[Nu]]], {Power::infy, Infinity::indet}]];
   Clear[\[Alpha]\[Gamma], \[Beta], R, L];
-  prec
+  (* a continued fraction passing through a zero of no precision (a Cos[2 Pi nu] without correct digits)
+     gives ComplexInfinity or Indeterminate: no digit is correct *)
+  If[NumericQ[prec], prec, -Infinity]
 ];
 
 (* Estimate precision of \[Nu] based on the complex part of Cos[2 \[Pi] \[Nu]]. This is only valid
@@ -169,7 +171,11 @@ Cos2\[Pi]\[Nu]Series[a_, \[Omega]_, s_, l_, m_] :=
      Indeterminate that the precision checks above do not see *)
   If[!NumericQ[Cos2\[Pi]\[Nu][nmax]], Message[RenormalizedAngularMomentum::conv, \[Omega]]; Throw[$Failed, \[Nu]RCHMonodromy]];
   If[Precision[Cos2\[Pi]\[Nu][nmax]]=!=MachinePrecision,
-    Cos2\[Pi]\[Nu][nmax] = N[Cos2\[Pi]\[Nu][nmax], Max[\[Nu]precision[Cos2\[Pi]\[Nu][nmax], q, \[Epsilon], \[Kappa], \[Tau], s, \[Lambda], m],0]];
+    precision = \[Nu]precision[Cos2\[Pi]\[Nu][nmax], q, \[Epsilon], \[Kappa], \[Tau], s, \[Lambda], m];
+    (* no correct digit: fail, so that the caller retries at a higher precision, instead of returning a nu
+       of precision zero (at omega = 0.592 - 0.915 I, l = 8 and 32 digits an unevaluated expression) *)
+    If[!(precision > 0), Message[RenormalizedAngularMomentum::conv, \[Omega]]; Throw[$Failed, \[Nu]RCHMonodromy]];
+    Cos2\[Pi]\[Nu][nmax] = N[Cos2\[Pi]\[Nu][nmax], precision];
   ];
 
   (* The representative of nu (the class {+-nu + k}): the one continuous with nu = l + O(epsilon^2) at
