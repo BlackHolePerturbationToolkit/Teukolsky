@@ -41,8 +41,8 @@ fr[r_]=1-2/r;
 
 SetAttributes[psi, {NumericFunction}];
 
-psi[s_, \[Lambda]_, l_, m_, a_, \[Omega]_, "In", amps_, \[Nu]_, ndsolveopts___][rmax_?NumericQ] := psi[s, \[Lambda], m, a, \[Omega], "In", amps, \[Nu], ndsolveopts][{Automatic, rmax}];
-psi[s_, \[Lambda]_, l_, m_, a_, \[Omega]_, "Up", amps_, \[Nu]_, ndsolveopts___][rmin_?NumericQ] := psi[s, \[Lambda], m, a, \[Omega], "Up", amps, \[Nu], ndsolveopts][{rmin, Automatic}];
+psi[s_, \[Lambda]_, l_, m_, a_, \[Omega]_, "In", amps_, \[Nu]_, ndsolveopts___][rmax_?NumericQ] := psi[s, \[Lambda], l, m, a, \[Omega], "In", amps, \[Nu], ndsolveopts][{Automatic, rmax}];
+psi[s_, \[Lambda]_, l_, m_, a_, \[Omega]_, "Up", amps_, \[Nu]_, ndsolveopts___][rmin_?NumericQ] := psi[s, \[Lambda], l, m, a, \[Omega], "Up", amps, \[Nu], ndsolveopts][{rmin, Automatic}];
 
 (* Boundary data: by default the MST solution near the horizon ("In") or at large radius ("Up"), converted to
    the HPS variables (the MST series are summed with a relative goal only, since an absolute AccuracyGoal would
@@ -286,27 +286,45 @@ inBoundarySeries[s_, \[Lambda]_, m_, a_, \[Omega]_] :=
    scaled form t_n = c_n r^-n and truncated at its smallest term, at the smallest radius r >= rmin at which that
    term is below 1e-15 relative (the radius is raised by factors of 5/4 until it is). The coefficient of
    r^(8-j) of the equation gives c_{j-1} from c_0..c_{j-2}. *)
+(* Optimal truncation of an asymptotic series given its scaled terms t_n (t_0 = 1): the sum up to the smallest
+   term. The terms of these series need not decrease monotonically at first (the second term is small for m = 0
+   or small a, where the first coefficient nearly or exactly vanishes), so an increase is only taken as the onset
+   of the asymptotic divergence once it has persisted for three terms (seriesTerms); the list is then cut at the
+   smallest term. Returns {psi, psi', relative size of the smallest term, t} for psi = r^rho Sum t_n. Stopping at
+   the first increase, as before, cut the ingoing series after a small second term and pushed the join radius of
+   the negative-spin "In" solution far out (1e-10 instead of 1e-14 at r = 100 for s = -2, m = 0, omega = 1). *)
+seriesTerms[next_, tol_, jmax_] :=
+ Module[{t = {1}, psi = 1, best = Infinity, jbest = 0, prev = Infinity, rise = 0, small = 0, tj, j},
+  Do[
+    tj = next[j, t]; AppendTo[t, tj];
+    (* a coefficient that vanishes exactly (c_1 at a = 0, say) is neither the smallest term nor convergence *)
+    If[Abs[tj] == 0, Continue[]];
+    rise = If[Abs[tj] > prev, rise + 1, 0]; prev = Abs[tj];
+    If[Abs[tj] < best, best = Abs[tj]; jbest = j - 1];
+    If[rise >= 3, Break[]];
+    psi += tj;
+    small = If[Abs[tj] < tol Abs[psi], small + 1, 0];
+    If[small >= 2, jbest = j - 1; Break[]],
+    {j, 2, jmax}];
+  {Take[t, jbest + 1], best}
+ ];
+
+seriesResult[t_, best_, \[Rho]_, r_] :=
+ Module[{psi = Total[t], dpsi = Sum[(\[Rho] - n) t[[n + 1]], {n, 0, Length[t] - 1}]/r},
+  (* a vanishing partial sum (1 - 4/r at r = 4 for a = 0, say) means the series has not converged there *)
+  {psi r^\[Rho], dpsi r^\[Rho], If[Abs[psi] > 10^-6 Max[Abs[t]], best/Abs[psi], Infinity], t}
+ ];
+
 upSeriesAt[s_, \[Lambda]_, m_, a_, \[Omega]_, r_] :=
- Module[{p, pp, t, psi, dpsi, best, coef, rest, tj, j, n, small, res, tol = 10^-(Floor[seriesPrecision[\[Lambda], a, \[Omega]]] + 2)},
+ Module[{p, pp, t, best, res, tol = 10^-(Floor[seriesPrecision[\[Lambda], a, \[Omega]]] + 2)},
   (* returns {psi, psi', relative size of the smallest term, the scaled coefficients t_n = c_n r^-n}; the
      arithmetic is that of the inputs (exact literals) *)
   p = hpsPolys[s, \[Lambda], m, a, \[Omega], 1];
   pp[i_, k_] := If[0 <= k <= 8, p[[i + 1, k + 1]], 0];
-  t = {1}; psi = 1; dpsi = 0; best = Infinity; small = 0;
-  Do[
-    coef = pp[0, 7] - (j - 1) pp[1, 8];
-    rest = Sum[t[[n + 1]] r^(n - (j - 1)) (pp[0, 8 - j + n] - n pp[1, 8 - j + n + 1] + n (n + 1) pp[2, 8 - j + n + 2]), {n, Max[0, j - 10], j - 2}];
-    tj = -rest/coef;
-    (* a coefficient that vanishes exactly (c_1 at a = 0, say) is neither the smallest term nor convergence *)
-    If[Abs[tj] == 0, AppendTo[t, tj]; Continue[]];
-    If[Abs[tj] > best, Break[]];   (* past the smallest term: stop *)
-    AppendTo[t, tj]; best = Abs[tj];
-    psi += tj; dpsi += -(j - 1) tj/r;
-    small = If[Abs[tj] < tol Abs[psi], small + 1, 0];
-    If[small >= 2, Break[]],
-    {j, 2, 600}];
-  (* a vanishing partial sum (1 - 4/r at r = 4 for a = 0, say) means the series has not converged there *)
-  res = {psi, dpsi, If[Abs[psi] > 10^-6 Max[Abs[t]], best/Abs[psi], Infinity], t};
+  {t, best} = seriesTerms[
+    Function[{j, tt}, -Sum[tt[[n + 1]] r^(n - (j - 1)) (pp[0, 8 - j + n] - n pp[1, 8 - j + n + 1] + n (n + 1) pp[2, 8 - j + n + 2]), {n, Max[0, j - 10], j - 2}]/(pp[0, 7] - (j - 1) pp[1, 8])],
+    tol, 600];
+  res = seriesResult[t, best, 0, r];
   Clear[pp];   (* see inBoundarySeries *)
   res
  ];
@@ -326,24 +344,12 @@ upBoundarySeries[s_, \[Lambda]_, m_, a_, \[Omega]_, rmin_] :=
    R -> e^{-i omega r*}/r, summed like the "Up" series; the coefficient of r^(2s+8-j) gives e_{j-1}, the two
    top powers vanish identically for this exponent. Returns {psi, psi', relative size of the smallest term, t}. *)
 inSeriesAt[s_, \[Lambda]_, m_, a_, \[Omega]_, r_] :=
- Module[{p, pp, A, \[Rho] = 2 s, t, psi, dpsi, best, coef, rest, tj, j, n, small, res, tol = 10^-(Floor[seriesPrecision[\[Lambda], a, \[Omega]]] + 2)},
+ Module[{p, pp, A, \[Rho] = 2 s, t, best, res, tol = 10^-(Floor[seriesPrecision[\[Lambda], a, \[Omega]]] + 2)},
   p = hpsPolys[s, \[Lambda], m, a, \[Omega], -1];
   pp[i_, k_] := If[0 <= k <= 8, p[[i + 1, k + 1]], 0];
   A[j_, n_] := pp[0, 8 - j + n] + (\[Rho] - n) pp[1, 8 - j + n + 1] + (\[Rho] - n) (\[Rho] - n - 1) pp[2, 8 - j + n + 2];
-  t = {1}; psi = 1; dpsi = \[Rho]/r; best = Infinity; small = 0;
-  Do[
-    coef = A[j, j - 1];
-    rest = Sum[t[[n + 1]] r^(n - (j - 1)) A[j, n], {n, Max[0, j - 10], j - 2}];
-    tj = -rest/coef;
-    If[Abs[tj] == 0, AppendTo[t, tj]; Continue[]];
-    If[Abs[tj] > best, Break[]];
-    AppendTo[t, tj]; best = Abs[tj];
-    psi += tj; dpsi += (\[Rho] - (j - 1)) tj/r;
-    small = If[Abs[tj] < tol Abs[psi], small + 1, 0];
-    If[small >= 2, Break[]],
-    {j, 2, 600}];
-  (* dpsi accumulated (rho - n) t_n / r, so the derivative of r^rho Sum t_n is dpsi r^rho *)
-  res = {psi r^\[Rho], dpsi r^\[Rho], If[Abs[psi] > 10^-6 Max[Abs[t]], best/Abs[psi], Infinity], t};
+  {t, best} = seriesTerms[Function[{j, tt}, -Sum[tt[[n + 1]] r^(n - (j - 1)) A[j, n], {n, Max[0, j - 10], j - 2}]/A[j, j - 1]], tol, 600];
+  res = seriesResult[t, best, \[Rho], r];
   Clear[pp, A];   (* see inBoundarySeries *)
   res
  ];
