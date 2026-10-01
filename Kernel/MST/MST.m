@@ -217,7 +217,13 @@ dH2F1Down[n_, s_, \[Nu]_, \[Tau]_, \[Epsilon]_, x_] :=
    terms and loses up to fifteen digits at machine precision for |Im a| of a few. Frequencies with
    Re epsilon < 0 are handled by the conjugation symmetry (see MSTRadialIn), so the negative real axis
    is the only part of the cut that is reached. *)
-hypergeometricU[a_, b_, c_] /; Im[c] == 0 && Re[c] < 0 :=
+(* The side of the cut depends on the series: for the outgoing series R_- ("Up") the argument -2 I zhat is
+   negative real at epsilon = -I t, and the value continuous with Re epsilon > 0 is the limit from below; the
+   incoming series R_+ (the Coulomb-type "In" representation, mstRadialPlusSeries) reaches the same function
+   with the same epsilon and zhat but at epsilon = +I t, where the continuous value is the limit from above,
+   Mathematica's principal value. mstRadialPlusSeries therefore evaluates with $uLowerSide = False. *)
+$uLowerSide = True;
+hypergeometricU[a_, b_, c_] /; $uLowerSide && Im[c] == 0 && Re[c] < 0 :=
   With[{p = Precision[{a, b, c}]},
     Which[
       p === MachinePrecision, HypergeometricU[a, b, c - I 10^-26 Abs[c]],
@@ -842,7 +848,7 @@ mstRadialUpHorizon[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[L
    than a Module local, which a message issued during the evaluation could keep alive as a leaked symbol *)
 mstRadialPlusSeries[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, {wp_, prec_, acc_}, deriv_][r_?NumericQ] :=
  Module[{\[Kappa], \[Tau], rm, zhat, \[Eta], Q, dQ, G, term, res},
- Block[{HU, dHU},
+ Block[{HU, dHU, $uLowerSide = False},   (* principal side of the cut, see hypergeometricU *)
  Internal`InheritedBlock[{\[Alpha], \[Beta], \[Gamma], fn},
   \[Kappa] = Sqrt[1 - q^2];
   \[Tau] = (\[Epsilon] - m q)/\[Kappa];
