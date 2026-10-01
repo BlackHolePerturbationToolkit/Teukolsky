@@ -147,6 +147,13 @@ Cos2\[Pi]\[Nu]Series[a_, \[Omega]_, s_, l_, m_] :=
     nmax = Max[2 Ceiling[E^ProductLog[Precision[{a, \[Omega], \[Lambda]}] Log[100]]], nmin];
     If[!NumericQ[Cos2\[Pi]\[Nu][nmax]] || Precision[Cos2\[Pi]\[Nu][nmax]] == 0, Message[RenormalizedAngularMomentum::conv, \[Omega]]; Throw[$Failed, \[Nu]RCHMonodromy]];
 
+    (* A first estimate without a single correct digit (the residual of the continued-fraction equation
+       above 1) does not improve with nmax: the precision is too low for this frequency, and larger nmax
+       only makes each evaluation slower (at omega = 30 I and 64 digits the next one took minutes, and the
+       padded retries of TeukolskyRadial ended in a kernel crash). Fail at once, so that the caller can retry
+       at a higher precision. *)
+    If[\[Nu]precision[Cos2\[Pi]\[Nu][nmax], q, \[Epsilon], \[Kappa], \[Tau], s, \[Lambda], m] < 0, Message[RenormalizedAngularMomentum::conv, \[Omega]]; Throw[$Failed, \[Nu]RCHMonodromy]];
+
     (* Increase nmax by 10% until the precision of the result decreases; a bounded number of times, so
        that a non-convergent case fails instead of exhausting memory *)
     precision = -Infinity;
