@@ -543,8 +543,8 @@ input value of ",
   FormBox["a", TraditionalForm]],
   $CellContext`ExpressionUUID -> "3d61d170-04bb-4d33-9d06-f47cdcf8cdea",
   ExpressionUUID->"fca0b15e-e7ab-4cd4-a738-c63de22d42c3"],
- " and \[Omega], while PrecisionGoal and AccuracyGoal will be equal to \
-WorkingPrecision/2."
+ " and \[Omega], while PrecisionGoal will be equal to \
+WorkingPrecision - 2 and AccuracyGoal to Infinity."
 }], "Text",
  CellChangeTimes->{{3.897064965359149*^9, 3.897064971364737*^9}, 
    3.89706503581916*^9},
