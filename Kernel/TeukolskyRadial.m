@@ -373,7 +373,10 @@ TeukolskyRadialNumericalIntegration[s_Integer, l_Integer, m_Integer, a_, \[Omega
      nu only for their MST fall-backs, which compute it themselves when it is not numeric *)
   \[Nu]psi = If[NumericQ[\[Nu]], \[Nu], None];
   Uptmp = If[flipUp,
-    Teukolsky`NumericalIntegration`Private`psi[-s, \[Lambda] + 2 s, l, m, a, \[Omega], "Up", norms, \[Nu]psi, WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> acc, psiopts],
+    (* the amplitudes and nu are those of spin s; should the series fail (a series radius beyond its cap, at
+       very small omega) the MST fall-back of the boundary data must compute its own at spin -s, or the
+       integrated solution would be normalised by the transmission amplitude of the other spin *)
+    Teukolsky`NumericalIntegration`Private`psi[-s, \[Lambda] + 2 s, l, m, a, \[Omega], "Up", Automatic, None, WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> acc, psiopts],
     Teukolsky`NumericalIntegration`Private`psi[s, \[Lambda], l, m, a, \[Omega], "Up", norms, \[Nu]psi, WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> acc, psiopts]];
   Intmp = Teukolsky`NumericalIntegration`Private`psi[s, \[Lambda], l, m, a, \[Omega], "In", norms, \[Nu]psi, WorkingPrecision -> wp, PrecisionGoal -> prec, AccuracyGoal -> acc, psiopts];
   solFuncs =
@@ -491,7 +494,9 @@ radialAccuracyEstimate[R_Association, s_Integer, a_, \[Omega]_] :=
    costs one integration and disabling the amplitudes does not produce a meaningless warning. *)
 TeukolskyRadialAutomaticMachinePrecision[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, \[Lambda]_, \[Nu]_, BCs_, norms_, {wp_, prec_, acc_}, opts:OptionsPattern[]] :=
  Module[{R, e},
-  R = TeukolskyRadialNumericalIntegration[s, l, m, a, \[Omega], \[Lambda], \[Nu], BCs, norms, {wp, $MachinePrecision - 2, $MachinePrecision - 2}, opts];
+  (* the user's goals; by default PrecisionGoal is already WorkingPrecision - 2, and the absolute AccuracyGoal,
+     Infinity for the MST series, is set to the same for the integration *)
+  R = TeukolskyRadialNumericalIntegration[s, l, m, a, \[Omega], \[Lambda], \[Nu], BCs, norms, {wp, prec, If[acc === Infinity, $MachinePrecision - 2, acc]}, opts];
   If[ListQ[BCs] && ContainsAll[BCs, {"In", "Up"}] && AssociationQ[R] && NumericQ[Lookup[norms["In"], "Incidence", None]] && NumericQ[Lookup[norms["Up"], "Transmission", None]] && norms["Up"]["Transmission"] != 0,
     e = radialAccuracyEstimate[R, s, a, \[Omega]];
     If[e > 10^-6, Message[TeukolskyRadial::acc, N[e, 2]]];
@@ -895,6 +900,11 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
      the working precision, within the cancellation between its two terms (mstWronskianError). *)
   (* a forced check needs the amplitudes B^inc and C^trans, which it cannot have when they are supplied or
      disabled: that combination is refused rather than the check silently not running *)
+  (* the check is of the MST solutions; the machine-precision default makes its own accuracy estimate *)
+  If[OptionValue["WronskianCheck"] === True && !MemberQ[{TeukolskyRadialMST, TeukolskyRadialAutomaticMachinePrecision}, TRF],
+    Message[TeukolskyRadial::opti, {"WronskianCheck" -> True, Method -> OptionValue[Method]}];
+    Return[$Failed];
+  ];
   If[OptionValue["WronskianCheck"] === True && !MatchQ[OptionValue["Amplitudes"], Automatic|True],
     Message[TeukolskyRadial::opti, {"WronskianCheck" -> True, "Amplitudes" -> OptionValue["Amplitudes"]}];
     Return[$Failed];
