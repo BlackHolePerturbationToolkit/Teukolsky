@@ -1170,7 +1170,9 @@ mstRadialInEvaluate[params:{s_, l_, m_, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, nor
   If[Length[$inRepresentationCache] >= 50, $inRepresentationCache = <||>];
   $inRepresentationCache[key] = $lastPaddingLoss;
   If[$lastPaddingLoss > seriesLoss, Return[prepaddedEvaluation[mstRadialInSeriesCore, params, goals, deriv, r]]];
-  If[!allNumericQ[res] || Precision[res] < If[goals[[1]] === MachinePrecision, $MachinePrecision, goals[[1]]] - 1,
+  (* the precision reached is judged from the tracked loss, not from res: at machine precision
+     mstPaddedEvaluation returns N[res], whose MachinePrecision says nothing about the digits it carries *)
+  If[!allNumericQ[res] || $lastPaddingPrecision - $lastPaddingLoss < If[goals[[1]] === MachinePrecision, $MachinePrecision, goals[[1]]] - 1,
     res = prepaddedEvaluation[mstInCore[rep], params, goals, deriv, r];
   ];
   res
