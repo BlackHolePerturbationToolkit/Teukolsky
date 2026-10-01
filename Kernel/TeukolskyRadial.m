@@ -212,6 +212,12 @@ $acceptIndeterminate = False;
    solution, or of the "In" solution away from a degeneracy, is an overflow or underflow of the amplitude
    formulae (TeukolskyRadial::ampfail), not a normalisation convention. *)
 $degenerateIn = False;
+(* The eigenvalue and nu as stored in a radial function: at machine precision the values refined to the padded
+   precision of the MST evaluations are kept internally, and the properties report machine numbers, as the
+   working precision asks for *)
+reportedValue[x_, MachinePrecision] := If[NumericQ[x], N[x], x];
+reportedValue[x_, _] := x;
+
 normalisationKey[ns_Association, bc_] := If[bc === "In" && $degenerateIn && NumericQ[ns["Transmission"]] && ns["Transmission"] == 0, "Incidence", "Transmission"];
 
 (* The amplitudes relative to the normalising one; all Indeterminate when that one is not a nonzero number (the
@@ -321,7 +327,7 @@ TeukolskyRadialNumericalIntegration[s_Integer, l_Integer, m_Integer, a_, \[Omega
         fMinus = Evaluate[#^-1 \[CapitalDelta][#,a]^-s Exp[bcdir I \[Omega] rs[#,a]] Exp[I m \[Phi]Reg[#,a]] lower[#]]&;
         flippedFunction[fPlus, fMinus, rc]]];
     TeukolskyRadialFunction[s, l, m, a, \[Omega],
-     Association["s" -> s, "l" -> l, "m" -> m, "a" -> a, "\[Omega]" -> \[Omega], "Eigenvalue" -> \[Lambda], "RenormalizedAngularMomentum" -> \[Nu],
+     Association["s" -> s, "l" -> l, "m" -> m, "a" -> a, "\[Omega]" -> \[Omega], "Eigenvalue" -> reportedValue[\[Lambda], wp], "RenormalizedAngularMomentum" -> reportedValue[\[Nu], wp],
       "Method" -> {"NumericalIntegration", ndsolveopts},
       "BoundaryConditions" -> bc, "Amplitudes" -> amp, "UnscaledAmplitudes" -> ns,
       "Domain" -> If[domain === All, {rp[a, 1], \[Infinity]}, First[solutionFunction["Domain"]]],
@@ -417,7 +423,7 @@ TeukolskyRadialSasakiNakamura[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, \[
     (*  Rescale amplitudes to give unit transmission coefficient (unit incidence where the transmission vanishes). *)
     amp = normaliseAmplitudes[ns, bc];
     TeukolskyRadialFunction[s, l, m, a, \[Omega],
-     Association["s" -> s, "l" -> l, "m" -> m, "a" -> a, "\[Omega]" -> \[Omega], "Eigenvalue" -> \[Lambda], "RenormalizedAngularMomentum" -> \[Nu],
+     Association["s" -> s, "l" -> l, "m" -> m, "a" -> a, "\[Omega]" -> \[Omega], "Eigenvalue" -> reportedValue[\[Lambda], wp], "RenormalizedAngularMomentum" -> reportedValue[\[Nu], wp],
       "Method" -> {"SasakiNakamura", ndsolveopts},
       "BoundaryConditions" -> bc, "Amplitudes" -> amp, "UnscaledAmplitudes" -> ns,
       "Domain" -> If[domain === All, {rp[a, 1], \[Infinity]}, First[solutionFunction["Domain"]]],
@@ -514,7 +520,7 @@ TeukolskyRadialMST[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, \[Lambda]_, \
     (*  Rescale amplitudes to give unit transmission coefficient (unit incidence where the transmission vanishes). *)
     amp = normaliseAmplitudes[ns, bc];
     TeukolskyRadialFunction[s, l, m, a, \[Omega],
-     Association["s" -> s, "l" -> l, "m" -> m, "a" -> a, "\[Omega]" -> \[Omega], "Eigenvalue" -> \[Lambda], "RenormalizedAngularMomentum" -> \[Nu],
+     Association["s" -> s, "l" -> l, "m" -> m, "a" -> a, "\[Omega]" -> \[Omega], "Eigenvalue" -> reportedValue[\[Lambda], wp], "RenormalizedAngularMomentum" -> reportedValue[\[Nu], wp],
       "Method" -> {"MST"},
       "BoundaryConditions" -> bc, "Amplitudes" -> amp, "UnscaledAmplitudes" -> ns,
       "Domain" -> {rp[a, 1], \[Infinity]}, "RadialFunction" -> sf
@@ -559,7 +565,7 @@ TeukolskyRadialHeunC[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, \[Lambda]_,
     amp = normaliseAmplitudes[ns, bc];
     If[sf === $Failed, $Failed,
       TeukolskyRadialFunction[s, l, m, a, \[Omega],
-        Association["s" -> s, "l" -> l, "m" -> m, "a" -> a, "\[Omega]" -> \[Omega], "Eigenvalue" -> \[Lambda], "RenormalizedAngularMomentum" -> \[Nu],
+        Association["s" -> s, "l" -> l, "m" -> m, "a" -> a, "\[Omega]" -> \[Omega], "Eigenvalue" -> reportedValue[\[Lambda], wp], "RenormalizedAngularMomentum" -> reportedValue[\[Nu], wp],
           "Method" -> {"HeunC"},
           "BoundaryConditions" -> bc, "Amplitudes" -> amp, "UnscaledAmplitudes" -> ns,
           "Domain" -> {rp[a, 1], \[Infinity]}, "RadialFunction" -> sf
