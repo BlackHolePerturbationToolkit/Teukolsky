@@ -114,10 +114,15 @@ psi[s_, \[Lambda]_, l_, m_, a_, \[Omega]_, bc_, amps_, \[Nu]_, ndsolveopts___][N
 
 (* NDSolve leaves behind temporary copies of its dependent and independent variables (niY1$123 and so on,
    in the Global` context when the variables were Global` symbols scoped by Module), one set per call; they are
-   removed once the solution, which does not refer to them, has been computed *)
+   removed once the solution, which does not refer to them, has been computed. Their numbers lie between the
+   values of $ModuleNumber before and after the call, so the candidates are checked with NameQ: searching with
+   Names scans the whole symbol table and cost 20 ms per call, ten times the evaluation it followed. *)
 SetAttributes[withoutTemporaries, HoldAll];
-withoutTemporaries[expr_] := Module[{res = expr, tmp},
-  tmp = Names[Context[niY1] <> # <> "$*" & /@ {"niY1", "niY2", "niR"}];
+withoutTemporaries[expr_] := Module[{n0 = $ModuleNumber, res, ctx = Context[niY1], tmp},
+  res = expr;
+  (* a few hundred numbers per call; beyond 10^5 the check would cost more than the symbols, which are kept *)
+  tmp = If[$ModuleNumber - n0 > 10^5, {},
+    Select[Flatten[Table[ctx <> v <> "$" <> ToString[k], {v, {"niY1", "niY2", "niR"}}, {k, n0, $ModuleNumber}]], NameQ]];
   If[tmp =!= {}, Quiet[Remove @@ tmp]];
   res
  ];
