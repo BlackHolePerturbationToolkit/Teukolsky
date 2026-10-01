@@ -1015,7 +1015,7 @@ refinedParameters[s_, l_, m_, q_, \[Epsilon]_, \[Lambda]_, \[Nu]_, pp_] :=
   If[$masterFunction === "Teukolsky" && Precision[\[Lambda]] < pp,
     (* the eigenvalue code compares against a machine-number tolerance, which underflows at a few
        hundred digits with a harmless General::munfl *)
-    \[Lambda]p = Quiet[SpinWeightedSpheroidalEigenvalue[s, l, m, SetPrecision[q \[Epsilon]/2, pp]], General::munfl];
+    \[Lambda]p = Quiet[SpinWeightedSpheroidalEigenvalue[s, l, m, SetPrecision[q, pp] SetPrecision[\[Epsilon], pp]/2], General::munfl];
   ];
   If[Precision[\[Nu]] < pp,
     \[Nu]p = paddedNu[s, l, m, q, \[Epsilon], \[Lambda]p, \[Nu], pp];
@@ -1030,10 +1030,16 @@ refinedParameters[s_, l_, m_, q_, \[Epsilon]_, \[Lambda]_, \[Nu]_, pp_] :=
 (* nu to pp digits, from the renormalized angular momentum computed with padded inputs, on the
    representative (among +-nu + k) of the given nu *)
 paddedNu[s_, l_, m_, q_, \[Epsilon]_, \[Lambda]_, \[Nu]_, pp_] :=
- Module[{p = pp, res, tries = 0, ramAt},
+ Module[{p = pp, res, tries = 0, ramAt, lamAt},
   (* a failure at a precision the retries will raise is not reported; a final failure returns the given nu,
      whose precision then shows the shortfall *)
-  ramAt[p1_] := Quiet[RenormalizedAngularMomentum[s, l, m, SetPrecision[q, p1], SetPrecision[\[Epsilon]/2, p1], SetPrecision[\[Lambda], p1]], RenormalizedAngularMomentum::conv];
+  (* the eigenvalue is recomputed at p1 rather than having its precision raised, which would leave it accurate
+     only to the precision it was computed at, a deficit that nu amplifies (ten digits at omega = 5 for l = 4);
+     where the eigenvalue solver fails at such a precision (hundreds of digits at l = 36) the raised value is
+     used, as before *)
+  lamAt[p1_] := If[$masterFunction =!= "Teukolsky" || Precision[\[Lambda]] >= p1, SetPrecision[\[Lambda], p1],
+    Quiet[Check[SpinWeightedSpheroidalEigenvalue[s, l, m, SetPrecision[q, p1] SetPrecision[\[Epsilon], p1]/2], SetPrecision[\[Lambda], p1], {FindRoot::cvmit, SpinWeightedSpheroidalEigenvalue::findroot}]]];
+  ramAt[p1_] := Quiet[RenormalizedAngularMomentum[s, l, m, SetPrecision[q, p1], SetPrecision[\[Epsilon], p1]/2, lamAt[p1]], RenormalizedAngularMomentum::conv];
   res = ramAt[p];
   While[tries < 4 && (!NumericQ[res] || Precision[res] < pp - 1),
     p = If[NumericQ[res], p + Ceiling[pp - Precision[res]] + 3, 2 p];
