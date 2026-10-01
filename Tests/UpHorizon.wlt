@@ -9,6 +9,10 @@ horizonVsCoulomb[s_, l_, m_, a_, om_, dr_] :=
   r = N[1 + Sqrt[1 - a^2] + dr, wp];
   {vh, dvh} = {R["Up"][r], R["Up"]'[r]};
   {vc, dvc} = Block[{Teukolsky`MST`MST`Private`$MSTUpHorizonThreshold = 0}, {R["Up"][r], R["Up"]'[r]}];
+  (* the comparison is only meaningful if the two evaluations used different representations *)
+  If[Teukolsky`MST`MST`Private`mstUpRepresentation[s, m, N[a, wp], 2 N[om, wp], r] =!= "Horizon" ||
+     Block[{Teukolsky`MST`MST`Private`$MSTUpHorizonThreshold = 0}, Teukolsky`MST`MST`Private`mstUpRepresentation[s, m, N[a, wp], 2 N[om, wp], r]] =!= "Coulomb",
+    Return[Infinity, Module]];
   N[Max[Abs[{vh/vc - 1, dvh/dvc - 1}]]]
  ];
 

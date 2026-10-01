@@ -104,3 +104,11 @@ VerificationTest[
   {17, 17},
   TestID -> "Mode padding set at a negative frequency is read at the conjugate partner"
 ]
+
+(* on the positive imaginary axis the incoming Coulomb-type series is evaluated on the principal side of the
+   cut of its Tricomi functions (the Up series on the other side at the negative imaginary axis) *)
+VerificationTest[
+  {Max[coulombErr[0, 2, 0, 3/5, 7 I/10, {30, 60}]] < 10^-28, Max[coulombErr[-2, 2, 2, 3/5, 7 I/10, {30, 60}]] < 10^-28, wronskianErr[0, 2, 0, 3/5, 7 I/10, {5/2, 10, 60}] < 10^-28},
+  {True, True, True},
+  TestID -> "Coulomb-type In representation and Wronskian on the positive imaginary axis"
+]

@@ -41,3 +41,17 @@ VerificationTest[
   True,
   TestID -> "Wronskian check repairs the negative-frequency partner of the l = 36 mode"
 ]
+
+(* The eigenvalue refined at the padded precision must belong to the same spheroidicity as the padded series:
+   a omega formed in machine arithmetic before padding differs at 1e-16, which this mode amplifies to 3e-11 in
+   the MST "Up" solution at the padded precisions where that shows (s = 2, l = 4, m = 2, omega = 5) *)
+VerificationTest[
+  Module[{R, R60, xs = {3.6, 4., 5.}},
+    R = TeukolskyRadial[2, 4, 2, 0.6, 5., Method -> "MST"];
+    R60 = TeukolskyRadial[2, 4, 2, SetPrecision[0.6, 60], SetPrecision[5., 60], Method -> "MST"];
+    R["Up"] /@ xs;   (* first pass, which fills the padding caches *)
+    Max[Abs[(R["Up"] /@ xs)/(R60["Up"][SetPrecision[#, 60]] & /@ xs) - 1]] < 10^-13
+  ],
+  True,
+  TestID -> "Machine-precision MST Up is consistent with the refined eigenvalue"
+]

@@ -134,3 +134,11 @@ VerificationTest[
   {TeukolskyRadial::opti},
   TestID -> "A forced Wronskian check without amplitudes is refused"
 ]
+
+(* the Wronskian check is of MST solutions: forcing it with another method is refused *)
+VerificationTest[
+  TeukolskyRadial[-2, 2, 2, 0.6, 0.5, Method -> "NumericalIntegration", "WronskianCheck" -> True],
+  $Failed,
+  {TeukolskyRadial::opti},
+  TestID -> "A forced Wronskian check with numerical integration is refused"
+]

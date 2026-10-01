@@ -125,3 +125,39 @@ VerificationTest[
   {True, True},
   TestID -> "Series boundary data at 30 digits"
 ]
+
+(* the large-r series are truncated at their smallest term even when the first terms do not decrease (for m = 0
+   the second term of the ingoing series is small): the negative-spin "In" solution keeps its accuracy at large r *)
+VerificationTest[
+  Module[{R, R32, errs},
+    errs = Function[{a, w},
+      R = TeukolskyRadial[-2, 2, 0, a, w]; R32 = TeukolskyRadial[-2, 2, 0, SetPrecision[a, 32], SetPrecision[w, 32], Method -> "MST"];
+      Max[Table[Abs[R["In"][r]/R32["In"][SetPrecision[r, 32]] - 1], {r, {50., 100., 300.}}]]] @@@ {{0.6, 1.}, {0.1, 2.}};
+    Max[errs] < 10^-12
+  ],
+  True,
+  TestID -> "Negative-spin In at large radius for m = 0"
+]
+
+(* where the large-r series cannot reach its tolerance below the radius cap (omega = 1e-7) the flipped-spin "Up"
+   solution falls back to MST boundary data with the amplitudes of its own spin *)
+VerificationTest[
+  Module[{R, R32},
+    R = TeukolskyRadial[-2, 2, 2, 0.6, 1.*^-7, "BoundaryConditions" -> "Up"];
+    R32 = TeukolskyRadial[-2, 2, 2, N[3/5, 32], SetPrecision[1.*^-7, 32], "BoundaryConditions" -> "Up", Method -> "MST"];
+    Max[Abs[{R[10.]/R32[N[10, 32]], R[100.]/R32[N[100, 32]]} - 1]] < 10^-10
+  ],
+  True,
+  TestID -> "Flipped-spin Up falls back with its own amplitudes at very small omega"
+]
+
+(* a single number as "Domain" (the outer radius for "In", the inner one for "Up") *)
+VerificationTest[
+  Module[{R, Rr},
+    R = TeukolskyRadial[-2, 2, 2, 0.5, 0.3, Method -> {"NumericalIntegration", "Domain" -> {"In" -> 5., "Up" -> 5.}}];
+    Rr = TeukolskyRadial[-2, 2, 2, N[1/2, 32], N[3/10, 32], Method -> "MST"];
+    {Last[R["In"]["Domain"]], First[R["Up"]["Domain"]], Abs[R["In"][4.]/Rr["In"][N[4, 32]] - 1] < 10^-12, Abs[R["Up"][6.]/Rr["Up"][N[6, 32]] - 1] < 10^-12}
+  ],
+  {5., 5., True, True},
+  TestID -> "A single number as Domain"
+]
