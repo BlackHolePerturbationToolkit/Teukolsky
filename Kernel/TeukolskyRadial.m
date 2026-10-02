@@ -152,8 +152,12 @@ paddedComputation[f_, wp_, name_:"The result", extra_:0] :=
    check is skipped (0 returned) when the amplitudes are not numeric, e.g. at the superradiant bound
    frequency for s >= 1. *)
 mstWronskianError[R_Association, s_Integer, a_, \[Omega]_, wp_] :=
- Module[{r, W, scale, Wexact},
+ Module[{r, W, scale, Wexact, lo, hi},
   r = 2 rp[a, 1];
+  (* numerically integrated solutions are only checked inside both their domains *)
+  lo = Max[First /@ {R["In"]["Domain"], R["Up"]["Domain"]}]; hi = Min[Last /@ {R["In"]["Domain"], R["Up"]["Domain"]}];
+  If[!(lo <= r <= hi), If[lo < hi && hi < Infinity, r = (lo + hi)/2, If[lo < hi, r = Max[r, 2 lo], Return[0]]]];
+  r = If[wp === MachinePrecision, N[r], SetPrecision[r, wp]];
   Wexact = 2 I \[Omega] R["In"]["Amplitudes"]["Incidence"] R["Up"]["Amplitudes"]["Transmission"];
   If[!NumericQ[Wexact] || Wexact == 0, Return[0]];
   {W, scale} = Quiet[Module[{i, di, u, du}, {i, di} = R["In"][r, {0, 1}]; {u, du} = R["Up"][r, {0, 1}]; (r^2 - 2 r + a^2)^(s + 1) {i du - di u, Abs[i du] + Abs[di u]}]];
@@ -161,7 +165,10 @@ mstWronskianError[R_Association, s_Integer, a_, \[Omega]_, wp_] :=
   (* relative to the larger of the exact Wronskian and the size of its two terms: at a complex frequency
      the terms are of order Exp[2 |Im omega| r*] times W and the identity can only hold to that
      cancellation, which is not an error of the solutions *)
-  Abs[W - Wexact]/Max[Abs[Wexact], scale]
+  (* an error computed in significance arithmetic can be a zero of low accuracy (0``2.5), which compares as
+     equal to any tolerance; its accuracy is the error bound *)
+  With[{e = Abs[W - Wexact]/Max[Abs[Wexact], scale]},
+    If[Precision[e] === MachinePrecision || !NumericQ[e], e, N[Max[Abs[e], 10^-Accuracy[e]]]]]
  ];
 
 
@@ -938,8 +945,10 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
      the working precision, within the cancellation between its two terms (mstWronskianError). *)
   (* a forced check needs the amplitudes B^inc and C^trans, which it cannot have when they are supplied or
      disabled: that combination is refused rather than the check silently not running *)
-  (* the check is of the MST solutions; the machine-precision default makes its own accuracy estimate *)
-  If[OptionValue["WronskianCheck"] === True && !MemberQ[{TeukolskyRadialMST, TeukolskyRadialAutomaticMachinePrecision}, TRF],
+  (* the check applies to the MST and numerically integrated solutions; the machine-precision default
+     integrates numerically and checks the Wronskian of its solutions itself whenever both solutions and the
+     amplitudes are computed (TeukolskyRadial::acc), so True is not refused there either *)
+  If[OptionValue["WronskianCheck"] === True && !MemberQ[{TeukolskyRadialMST, TeukolskyRadialNumericalIntegration, TeukolskyRadialAutomaticMachinePrecision}, TRF],
     Message[TeukolskyRadial::opti, {"WronskianCheck" -> True, Method -> OptionValue[Method]}];
     Return[$Failed];
   ];
@@ -947,26 +956,44 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
     Message[TeukolskyRadial::opti, {"WronskianCheck" -> True, "Amplitudes" -> OptionValue["Amplitudes"]}];
     Return[$Failed];
   ];
-  check = MatchQ[OptionValue["WronskianCheck"], True|Automatic] && TRF === TeukolskyRadialMST && MatchQ[OptionValue["Amplitudes"], Automatic|True];
+  (* The numerically integrated solutions are checked as well: above machine precision their boundary data are
+     MST solutions, evaluated with the amplitudes, eigenvalue and nu supplied, so the check of TeukolskyRadial
+     never ran on them (at complex frequencies with nu near an integer they were wrong by O(1) and more with full
+     tracked precision); at machine precision and complex frequency the integration itself is ill-conditioned
+     (errors growing like Exp[2 |Im omega| r*]), which the check reports. *)
+  check = MatchQ[OptionValue["WronskianCheck"], True|Automatic] && MemberQ[{TeukolskyRadialMST, TeukolskyRadialNumericalIntegration}, TRF] && MatchQ[OptionValue["Amplitudes"], Automatic|True];
   extra = Teukolsky`MST`MST`Private`modePadding[s, l, m, a, 2 \[Omega]];
   If[!check, Return[compute[extra, BCs]]];
   {ampPadding, ampRetried} = {0, False};
   res = compute[extra, {"In", "Up"}];
   If[res === $Failed, Return[$Failed]];
-  (* l >= 20: the high-l modes whose coefficient recurrence can converge to its wrong solution do not always
-     need much padding at moderate working precision (l = 36, m = 2, omega = 3 needs 11 digits at 24 and 40
-     digits and is then wrong by O(1) with full tracked precision), so they are always checked *)
+  (* High l at large frequency: the coefficient recurrence can converge to its wrong solution without needing
+     much padding at moderate working precision (l = 36, m = 2, omega = 3 needs 11 digits at 24 and 40 digits and
+     is then wrong by O(1) with full tracked precision). In a scan of l = 8 to 80 at 24 and 40 digits such
+     failures appeared from l = 17 and omega = 7/4 on, and none at omega <= 3/2 (l = 14 to 80) or l < 17, so
+     modes with l >= 15 and |omega| >= 3/2 are checked. They used to be checked for every l >= 20, which made
+     the low-frequency high-l modes of a self-force sum (l = 20 to 25, omega < 0.5, 50 digits) five to ten
+     times slower. *)
   (* Near-integer nu: the downward MST coefficients pass close to a pole there and can lose all their digits
      (l = 8, omega = -0.01 I: nu = 8 - 4e-5, a_n Infinity below n = -10 at 40 digits), so that the summation
      stops early and the result is wrong by 1e-3 with a tracked precision that claims full accuracy; such modes
      are checked as well. At real frequencies nu is near l for every small omega and these modes come out right,
      so the check (two summations of the series) is not added there. *)
-  If[OptionValue["WronskianCheck"] === Automatic && !(ampPadding > 40 || ampRetried || extra > 0 || l >= 20 || (Im[\[Omega]] != 0 && NumericQ[\[Nu]] && Abs[\[Nu] - Round[Re[\[Nu]]]] < 10^-2)),
+  (* nu within 0.05 of an integer: a case 0.013 away (s = -1, l = 10, omega = 1/20 + I/5) was wrong as well *)
+  If[OptionValue["WronskianCheck"] === Automatic && !(ampPadding > 40 || ampRetried || extra > 0 || (l >= 15 && Abs[\[Omega]] >= 3/2) ||
+      (Im[\[Omega]] != 0 && NumericQ[\[Nu]] && Abs[\[Nu] - Round[Re[\[Nu]]]] < 5/100) || (TRF === TeukolskyRadialNumericalIntegration && Im[\[Omega]] != 0)),
     Return[If[ListQ[BCs], KeyTake[res, BCs], res[BCs]]]];
   wpn = If[wp === MachinePrecision, $MachinePrecision, wp];
-  tol = 10^(4 - wpn);
+  (* the identity is computed from four values and two amplitudes and loses a few digits to their cancellation
+     and rounding: at 50 digits a correct l = 20 mode showed 1e-44, which a fixed 10^(4 - wp) took for a failure
+     and recomputed with 50 more digits (five times the cost of the mode). The failures the check exists for are
+     of order 1e-3 to 1 *)
+  tol = 10^(Clip[wpn/4, {4, 8}] - wpn);
+  (* numerical integration at machine precision is accurate to about 1e-12 at real frequencies, and its errors
+     do not respond to padding: it is checked against 1e-10 (or the goals asked for), without retries *)
+  If[TRF === TeukolskyRadialNumericalIntegration && wp === MachinePrecision, tol = Max[10^-10, 10^(2 - Min[prec, If[acc === Infinity, $MachinePrecision - 2, acc]])]];
   e = mstWronskianError[res, s, a, \[Omega], wp];
-  k = If[epsilonPlusDegeneracy[s, m, a, \[Omega], wp] === None, 0, 2];
+  k = If[epsilonPlusDegeneracy[s, m, a, \[Omega], wp] === None && !(TRF === TeukolskyRadialNumericalIntegration && wp === MachinePrecision), 0, 2];
   While[e > tol && k < 2,
     k++;
     Teukolsky`MST`MST`Private`setModePadding[s, l, m, a, 2 \[Omega], extra + wpn (2^k - 1)];
