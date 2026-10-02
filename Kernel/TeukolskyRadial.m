@@ -94,10 +94,23 @@ $lastPaddingDigits = 0;        (* digits of padding the last paddedComputation a
 $lastPaddingRetried = False;   (* whether it had to retry after a non-numeric result *)
 
 paddedComputation[f_, wp_, name_:"The result", extra_:0] :=
- Module[{target, p, p0, res, deficit, tries = 0, minprec, numericQ, retried = False},
-  minprec[x_] := Module[{nums},
-    nums[y_] := If[AssociationQ[y], Flatten[nums /@ Values[y]], If[ListQ[y], Flatten[nums /@ y], {y}]];
-    Min[Precision /@ Select[nums[x], NumericQ[#] && # != 0 &]]];
+ Module[{target, p, p0, res, deficit, tries = 0, minprec, grpPrec, numericQ, retried = False},
+  (* The precision of the result: the smallest precision of its numbers. An inexact zero has no precision of
+     its own; it counts with the digits its accuracy gives relative to the largest number of the same group
+     (the amplitudes of one solution), and a group of nothing but zeros has none. The amplitudes at omega = 50
+     cancel to 0``-136 at 32 digits, which was taken as an exact 0 (and reported as an overflow) although
+     padding gives them to full precision. Exact zeros are exact. *)
+  minprec[x_] := Module[{grp},
+    grp[y_] := Which[
+      AssociationQ[y] || ListQ[y], With[{v = If[AssociationQ[y], Values[y], y]},
+        If[NoneTrue[v, AssociationQ[#] || ListQ[#] &], grpPrec[Select[v, NumericQ]], Min[Infinity, grp /@ v]]],
+      NumericQ[y], grpPrec[{y}],
+      True, Infinity];
+    grp[x]];
+  grpPrec[v_List] := Module[{inexact = Select[v, NumericQ[#] && Precision[#] < Infinity &], nz, scale},
+    nz = Select[inexact, # != 0 &];
+    scale = If[nz === {}, 0, Max[Abs[N[nz]]]];
+    Min[Infinity, Precision /@ nz, If[scale > 0, Accuracy[#] + Log10[scale], 0] & /@ Select[inexact, # == 0 &]]];
   numericQ[x_] := Module[{nums},
     nums[y_] := If[AssociationQ[y], Flatten[nums /@ Values[y]], If[ListQ[y], Flatten[nums /@ y], {y}]];
     AllTrue[nums[x], NumericQ[#] || ($acceptIndeterminate && # === Indeterminate) &]];
@@ -125,7 +138,8 @@ paddedComputation[f_, wp_, name_:"The result", extra_:0] :=
      so that the shortfall just reported stays visible downstream rather than being dressed up as the target *)
   Which[
     wp === MachinePrecision, N[res],
-    numericQ[res] && minprec[res] >= target - 1, SetPrecision[res, target],
+    (* zeros keep their accuracy: SetPrecision would make them exact *)
+    numericQ[res] && minprec[res] >= target - 1, With[{tg = target}, res /. z_?InexactNumberQ :> If[z == 0, z, SetPrecision[z, tg]]],
     True, res]
 ];
 
