@@ -1107,6 +1107,15 @@ setModePadding[s_, l_, m_, q_, \[Epsilon]_, extra_] := (If[Length[$modePadding] 
 
 allNumericQ[x_] := VectorQ[Flatten[{x}], NumericQ];   (* a number, or a list of numbers ({value, derivative}) *)
 
+(* |r R'/R| estimated from the behaviour of the solutions: r (|s| + |epsilon_+| + 1)/(r - r+) from the horizon
+   exponents Delta^-s (r - r+)^(+-i epsilon_+), |omega| r + |2 s + 1| from r^(-1-2s) Exp[i omega r*] at large r, and
+   l + |s| + 1 in between *)
+conditionEstimate[s_, l_, m_, q_, \[Epsilon]_, r_] :=
+ Module[{\[Kappa] = Sqrt[1 - q^2], rp, \[Tau], \[Epsilon]p},
+  rp = 1 + \[Kappa]; \[Tau] = (\[Epsilon] - m q)/\[Kappa]; \[Epsilon]p = (\[Epsilon] + \[Tau])/2;
+  N[Abs[r] (Abs[s] + Abs[\[Epsilon]p] + 1)/Max[N[Abs[r - rp]], $MinMachineNumber] + Abs[\[Epsilon]/2] Abs[r] + Abs[2 s + 1] + l + Abs[s] + 1]
+ ];
+
 mstPaddedEvaluation[core_, {s_, l_, m_, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_}, {wp_, prec_, acc_}, deriv_, r_, maxTries_:4, p0_:Automatic] :=
  Module[{target, p, res, deficit, tries = 0, eval, numericQ},
   numericQ[x_] := allNumericQ[x] && !AllTrue[Flatten[{x}], # == 0 &];
@@ -1117,10 +1126,14 @@ mstPaddedEvaluation[core_, {s_, l_, m_, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, nor
   p += modePadding[s, l, m, q, \[Epsilon]];
   If[NumericQ[p0], p = Max[p, p0]];
   p = Ceiling[p];   (* an integer, so that 10^-prec below stays exact (10^-318. would underflow) *)
-  eval[pp_] := Module[{params = SetPrecision[{q, \[Epsilon], norm}, pp], \[Lambda]p, \[Nu]p, rr = SetPrecision[r, pp], f, precgoal},
+  (* The normalisation is kept out of the padding: it is an overall divisor, applied once the series have
+     converged, so that its own precision carries through to the result. Padded along with q and epsilon,
+     a normalisation known to fewer digits (amplitudes supplied at machine precision, or amplitudes that fell
+     short of the working precision) was taken as exact, and the result claimed digits it did not have. *)
+  eval[pp_] := Module[{params = SetPrecision[{q, \[Epsilon]}, pp], \[Lambda]p, \[Nu]p, rr = SetPrecision[r, pp], f, precgoal},
     {\[Lambda]p, \[Nu]p} = refinedParameters[s, l, m, q, \[Epsilon], \[Lambda], \[Nu], pp];
     precgoal = If[pp > target, pp - 2, prec];
-    f = core[s, l, m, params[[1]], params[[2]], \[Nu]p, \[Lambda]p, params[[3]], {pp, precgoal, acc}, deriv];
+    f = core[s, l, m, params[[1]], params[[2]], \[Nu]p, \[Lambda]p, 1, {pp, precgoal, acc}, deriv];
     (* a precision-zero intermediate at too low a working precision is retried below, not reported *)
     Quiet[f[rr], {Power::infy, Infinity::indet, Divide::infy}]
   ];
@@ -1135,6 +1148,16 @@ mstPaddedEvaluation[core_, {s_, l_, m_, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, nor
   If[maxTries > 1 && (!allNumericQ[res] || (numericQ[res] && Precision[res] < target - 1)),
     With[{sym = $radialFunctionSymbol}, Message[sym::prec, If[MemberQ[{mstRadialUpSeriesCore, mstRadialUpHorizon}, core], "Up", "In"], r, If[allNumericQ[res], Precision[res], res], target]];
   ];
+  If[allNumericQ[res], res = res/norm];
+  (* The series are summed at a radius whose precision is raised with the rest, so r is taken as exact; an
+     inexact r carries an uncertainty that R amplifies by its logarithmic derivative |r R'/R|, which near the
+     horizon grows like r (|s| + |epsilon_+| + 1)/(r - r+) (master's significance arithmetic showed 11 digits for
+     32-digit input 1e-20 from r+, where this claimed 32). The precision of the result is capped by an estimate
+     of that amplification: the exponent at the horizon, the outgoing wave Exp[i omega r] at large r and the
+     r^l behaviour in between. *)
+  If[allNumericQ[res] && wp =!= MachinePrecision && NumericQ[Precision[r]] && Precision[r] < Infinity,
+    With[{cap = Precision[r] - Log10[1 + conditionEstimate[s, l, m, q, \[Epsilon], r]]},
+      If[Precision[res] > cap, res = SetPrecision[res, Max[cap, 0]]]]];
   Which[
     !allNumericQ[res], res,
     wp === MachinePrecision, N[res],
