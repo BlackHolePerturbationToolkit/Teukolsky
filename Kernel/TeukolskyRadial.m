@@ -819,10 +819,9 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
   Module[{unknown = Complement[subopts, FilterRules[subopts, Options[TRF]]]},
     If[unknown =!= {},
       With[{misplaced = Select[unknown, MemberQ[Keys[Options[TeukolskyRadial]], First[#]] &]},
-        If[misplaced =!= {},
-          Message[TeukolskyRadial::topopt, Keys[misplaced], First[OptionValue[Method]]],
-          Message[TeukolskyRadial::optx, Method -> OptionValue[Method]]
-        ]
+        If[misplaced =!= {}, Message[TeukolskyRadial::topopt, Keys[misplaced], First[OptionValue[Method]]]];
+        (* sub-options that are neither supported nor misplaced are still reported *)
+        If[Complement[unknown, misplaced] =!= {}, Message[TeukolskyRadial::optx, Method -> OptionValue[Method]]]
       ]
     ];
     subopts = FilterRules[subopts, Options[TRF]];
