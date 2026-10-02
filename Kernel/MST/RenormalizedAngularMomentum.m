@@ -96,7 +96,7 @@ Cos2\[Pi]\[Nu]Series[a_, \[Omega]_, s_, l_, m_] :=
 
 (* Find \[Nu] using monodromy of confluent Heun equation *)
 \[Nu]RCHMonodromy[a_, \[Omega]_, \[Lambda]_, s_, l_, m_, Npmax_] :=
- Module[{q, \[Epsilon], \[Kappa], \[Tau], \[Gamma]CH, \[Delta]CH, \[Epsilon]CH, \[Alpha]CH\[Epsilon]CH, qCH, \[Mu]1C, \[Mu]2C, a1, a2, a1sum, a2sum, Cos2\[Pi]\[Nu], extend, nmax, nmin, precision, \[Nu], iterations = 0},
+ Module[{q, \[Epsilon], \[Kappa], \[Tau], \[Gamma]CH, \[Delta]CH, \[Epsilon]CH, \[Alpha]CH\[Epsilon]CH, qCH, \[Mu]1C, \[Mu]2C, a1, a2, a1sum, a2sum, g1, g2, k0, Cos2\[Pi]\[Nu], extend, nmax, nmin, precision, \[Nu], iterations = 0},
   q = a;
   \[Epsilon] = 2 \[Omega];
   \[Kappa] = Sqrt[1-q^2];
@@ -127,13 +127,22 @@ Cos2\[Pi]\[Nu]Series[a_, \[Omega]_, s_, l_, m_] :=
      Gamma[mu1 - mu2] or Gamma[mu2 - mu1] has a pole and the Pochhammer symbol the cancelling zero, so the
      combined form is finite there, provided n - j + |mu1 - mu2| > 0 for every term (nmax > 2 |mu1 - mu2|,
      enforced below), and nu is evaluated directly instead of from neighbouring frequencies. *)
-  a1sum[n_] := Sum[a1[j] Gamma[\[Mu]1C-\[Mu]2C+n-j], {j, 0, Ceiling[n/2]}];
-  a2sum[n_] := Sum[(-1)^j a2[j] Gamma[\[Mu]2C-\[Mu]1C+n-j], {j, 0, Ceiling[n/2]}];
+  (* The Gamma functions are memoised and built by the recurrence Gamma[x + 1] = x Gamma[x] from an anchor k0
+     beyond the poles (k0 > |mu1 - mu2|; every k used is at least Floor[nmax/2] > k0 since nmax >= nmin), one
+     multiplication per new term as with master's Pochhammer symbols: evaluating Gamma for every term of every
+     sum made the monodromy method 2.4 to 3.6 times slower *)
   nmin = 2 Ceiling[Abs[\[Mu]1C-\[Mu]2C]] + 4;
+  k0 = Ceiling[Abs[\[Mu]1C-\[Mu]2C]] + 1;
+  g1[k0] = Gamma[\[Mu]1C-\[Mu]2C+k0];
+  g1[k_] := g1[k] = (\[Mu]1C-\[Mu]2C+k-1) g1[k-1];
+  g2[k0] = Gamma[\[Mu]2C-\[Mu]1C+k0];
+  g2[k_] := g2[k] = (\[Mu]2C-\[Mu]1C+k-1) g2[k-1];
+  a1sum[n_] := Sum[a1[j] g1[n-j], {j, 0, Ceiling[n/2]}];
+  a2sum[n_] := Sum[(-1)^j a2[j] g2[n-j], {j, 0, Ceiling[n/2]}];
 
   (* Fill the memoised tables up to n in increasing order, so that the recursion depth stays at one
      whatever nmax is (evaluating a1[nmax] directly recursed nmax deep and exceeded $RecursionLimit) *)
-  extend[n_] := Do[a1[i]; a2[i], {i, 1, n}];
+  extend[n_] := (Do[a1[i]; a2[i], {i, 1, n}]; Do[g1[k]; g2[k], {k, k0 + 1, n}]);
 
   (* Compute \[Nu]. The memoised tables are cleared on every path, including failure. *)
   (* quiet: at a frequency where the recurrences overflow, a1sum a2sum is a zero of no precision and the
@@ -196,7 +205,7 @@ Cos2\[Pi]\[Nu]Series[a_, \[Omega]_, s_, l_, m_] :=
   ], \[Nu]RCHMonodromy];
   (* Remove rather than Clear: a message issued during the evaluation (1/0 near a degeneracy) can keep a
      reference to a memoised table, which would then survive as a leaked symbol *)
-  Remove[a1, a2, a1sum, a2sum, Cos2\[Pi]\[Nu], extend, \[Mu]1C, \[Mu]2C];   (* mu1C and mu2C leaked after a failed evaluation *)
+  Remove[a1, a2, a1sum, a2sum, g1, g2, Cos2\[Pi]\[Nu], extend, \[Mu]1C, \[Mu]2C];   (* mu1C and mu2C leaked after a failed evaluation *)
   \[Nu]
 ];
 
