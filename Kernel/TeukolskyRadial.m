@@ -350,6 +350,10 @@ TeukolskyRadialNumericalIntegration[s_Integer, l_Integer, m_Integer, a_, \[Omega
     Return[$Failed];
   ];
   bdata = OptionValue["BoundaryData"];
+  If[!(bdata === None || MatchQ[bdata, _Association?(AllTrue[Keys[#], MemberQ[{"In", "Up"}, #] &] && AllTrue[Values[#], MatchQ[{_?NumericQ, _?NumericQ, _?NumericQ}]] &)]),
+    Message[TeukolskyRadial::optx, "BoundaryData" -> bdata];
+    Return[$Failed];
+  ];
   flipUp = bmethod === "Series" && s < 0 && !(AssociationQ[bdata] && KeyExistsQ[bdata, "Up"]);
 
   (* Domain over which the numerical solution can be evaluated *)
