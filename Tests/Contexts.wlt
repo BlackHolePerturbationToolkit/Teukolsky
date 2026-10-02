@@ -46,3 +46,18 @@ VerificationTest[
   {{}, "Teukolsky`PN`"},
   TestID -> "The old contexts are off the context path, the PN context remains"
 ]
+
+(* a reload works without messages (the old-context aliases are removed first) *)
+VerificationTest[
+  (Get["Teukolsky`"]; NumericQ[TeukolskyRadial[-2, 2, 2, 0.5, 0.3]["In"][10.]]),
+  True,
+  TestID -> "The package can be reloaded"
+]
+
+(* the MST messages are attached to the radial-function symbol of the master package, looked up when first
+   needed (for ReggeWheeler it lives in a sub-context, and creating it at load time gave a shadowing copy) *)
+VerificationTest[
+  {Teukolsky`MST`MST`Private`radialFunctionSymbol[] === TeukolskyRadialFunction, StringQ[MessageName[TeukolskyRadialFunction, "prec"]]},
+  {True, True},
+  TestID -> "MST messages belong to TeukolskyRadialFunction"
+]

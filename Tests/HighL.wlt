@@ -64,3 +64,11 @@ VerificationTest[
   True,
   TestID -> "Machine-precision MST Up is consistent with the refined eigenvalue"
 ]
+
+(* low-frequency high-l modes (a self-force sum) are not checked: no padding is set for them *)
+VerificationTest[
+  (TeukolskyRadial[0, 20, 20, N[0, 50], N[20/14^(3/2), 50]];
+   KeyExistsQ[Teukolsky`MST`MST`Private`$modePadding, Teukolsky`MST`MST`Private`paddingKey[0, 20, 20, N[0, 50], 2 N[20/14^(3/2), 50]]]),
+  False,
+  TestID -> "Low-frequency high-l modes are not recomputed"
+]

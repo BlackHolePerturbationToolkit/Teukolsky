@@ -150,3 +150,29 @@ VerificationTest[
   {TeukolskyRadial::acc},
   TestID -> "Near-integer nu beyond the machine-precision retries is flagged"
 ]
+
+(* numerically integrated solutions are checked too: above machine precision their MST boundary data near an
+   integer nu were wrong by many orders of magnitude, and at machine precision the integration is ill-conditioned *)
+VerificationTest[
+  Module[{R = TeukolskyRadial[-1, 10, 6, N[7/10, 24], N[1/20 + I/5, 24], Method -> "NumericalIntegration"], Rm = TeukolskyRadial[-1, 10, 6, N[7/10, 40], N[1/20 + I/5, 40], Method -> "MST"]},
+    Abs[R["Up"][N[3, 24]]/Rm["Up"][N[3, 40]] - 1] < 10^-18],
+  True,
+  TestID -> "Numerical integration at a complex frequency above machine precision"
+]
+
+VerificationTest[
+  AssociationQ[TeukolskyRadial[-1, 10, 6, 0.7, 0.05 - 0.2 I, Method -> "NumericalIntegration"]],
+  True,
+  {TeukolskyRadial::acc},
+  TestID -> "Numerical integration at a complex frequency and machine precision is flagged"
+]
+
+(* the continued fraction of the precision estimate is bounded: at 24 digits the monodromy method ran until the
+   kernel died; it now fails and the padded retry of TeukolskyRadial succeeds *)
+VerificationTest[
+  Module[{a = N[7/10, 24], w = N[-2614114/1178583 - 195604 I/1089161, 24]},
+    {Quiet[RenormalizedAngularMomentum[1, 8, 1, a, w, SpinWeightedSpheroidalHarmonics`SpinWeightedSpheroidalEigenvalue[1, 8, 1, a w]], RenormalizedAngularMomentum::conv],
+     AssociationQ[TimeConstrained[TeukolskyRadial[1, 8, 1, a, w], 60]]}],
+  {$Failed, True},
+  TestID -> "A monodromy estimate of no precision fails instead of hanging"
+]

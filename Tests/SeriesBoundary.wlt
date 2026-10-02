@@ -47,6 +47,8 @@ VerificationTest[
     {Abs[R["In"][6.]/Rref["In"][N[6, 32]] - 1] < 10^-12, Abs[R["Up"][30.]/Rref["Up"][N[30, 32]] - 1] < 10^-10, Abs[R["Up"][4.]/Rref["Up"][N[4, 32]] - 1] < 10^-4}
   ],
   {True, True, True},
+  (* the loss is reported by the Wronskian check *)
+  {TeukolskyRadial::acc},
   TestID -> "Series boundary data at a complex frequency, explicit numerical integration"
 ]
 

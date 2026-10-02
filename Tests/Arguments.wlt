@@ -90,15 +90,16 @@ VerificationTest[
   TestID -> "An absurd frequency fails fast"
 ]
 
-(* Where the amplitude formulae overflow the integrated functions are still returned, with a message *)
+(* At omega = 50 the amplitude formulae cancel to zeros of no precision at 32 digits; they used to be taken for
+   exact zeros (and reported as an overflow), and are now padded until they carry the working precision *)
 VerificationTest[
-  Module[{R},
+  Module[{R, b},
     R = TeukolskyRadial[-2, 2, 2, 0.6, 50.];
-    {NumericQ[R["In"][6.]], NumericQ[R["Up"][6.]], R["Up"]["Amplitudes"]["Transmission"]}
+    b = R["In"]["Amplitudes"]["Incidence"];
+    {NumericQ[R["In"][6.]], NumericQ[R["Up"][6.]], NumericQ[b] && b != 0}
   ],
-  {True, True, Indeterminate},
-  {TeukolskyRadial::ampfail},
-  TestID -> "Amplitudes that overflow are reported and the integrated functions returned"
+  {True, True, True},
+  TestID -> "Amplitudes that cancel to zero at large frequency are padded"
 ]
 
 (* an invalid "WronskianCheck" value is rejected rather than silently disabling the check *)
@@ -135,10 +136,11 @@ VerificationTest[
   TestID -> "A forced Wronskian check without amplitudes is refused"
 ]
 
-(* the Wronskian check is of MST solutions: forcing it with another method is refused *)
+(* the Wronskian check also applies to numerically integrated solutions, inside their domains; the HeunC
+   method has no check and refuses it *)
 VerificationTest[
-  TeukolskyRadial[-2, 2, 2, 0.6, 0.5, Method -> "NumericalIntegration", "WronskianCheck" -> True],
-  $Failed,
-  {TeukolskyRadial::opti},
-  TestID -> "A forced Wronskian check with numerical integration is refused"
+  {Head[TeukolskyRadial[-2, 2, 2, 0.6, 0.5, Method -> "NumericalIntegration", "WronskianCheck" -> True]],
+   Head[TeukolskyRadial[-2, 2, 2, N[3/5, 24], N[1/2, 24], Method -> {"NumericalIntegration", "Domain" -> {"In" -> {3, 8}, "Up" -> {5, 12}}}, "WronskianCheck" -> True]]},
+  {Association, Association},
+  TestID -> "A forced Wronskian check with numerical integration runs"
 ]

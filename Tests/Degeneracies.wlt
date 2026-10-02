@@ -68,5 +68,7 @@ VerificationTest[
     {NumericQ[R["In"][30.]], NumericQ[R["In"][6.]], R["In"]["Amplitudes"]["Transmission"] == 0}
   ],
   {True, True, True},
+  (* integration at machine precision on the imaginary axis is ill-conditioned, which the Wronskian check reports *)
+  {TeukolskyRadial::acc},
   TestID -> "Forced numerical integration at a degeneracy with vanishing In transmission"
 ]
