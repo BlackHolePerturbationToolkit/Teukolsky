@@ -47,6 +47,7 @@ TeukolskyRadial::precw = "The precision of `1`=`2` is less than WorkingPrecision
 TeukolskyRadial::optx = "Unknown options in `1`";
 TeukolskyRadial::params = "Invalid parameters s=`1`, l=`2`, m=`3`";
 TeukolskyRadial::cmplx = "Only real values of a are allowed, but a=`1` specified.";
+TeukolskyRadial::spin = "The spin a=`1` must satisfy |a| < 1.";
 TeukolskyRadial::dm = "Option `1` is not valid with BoundaryConditions \[RightArrow] `2`.";
 TeukolskyRadial::sopt = "Option `1` not supported for static (\[Omega]=0) modes.";
 TeukolskyRadial::hc = "Method HeunC is only supported with Mathematica version 12.1 and later.";
@@ -687,6 +688,11 @@ TeukolskyRadial[s_?NumericQ, l_?NumericQ, m_?NumericQ, a_, \[Omega]_, OptionsPat
 
 TeukolskyRadial[s_, l_, m_, a_Complex, \[Omega]_, OptionsPattern[]] :=
  (Message[TeukolskyRadial::cmplx, a]; $Failed);
+
+(* |a| >= 1 is not a black hole (no horizon at a > 1, degenerate horizons at a = 1, where kappa = 0): the methods
+   took Sqrt[1 - a^2] and hung (Min::nord without end at a = 1.2) or hit $RecursionLimit (a = 1) *)
+TeukolskyRadial[s_, l_, m_, a_?NumericQ, \[Omega]_, OptionsPattern[]] /; Im[a] == 0 && Abs[a] >= 1 :=
+ (Message[TeukolskyRadial::spin, a]; $Failed);
 
 
 (* ::Subsubsection::Closed:: *)
