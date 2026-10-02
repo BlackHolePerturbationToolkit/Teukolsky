@@ -35,7 +35,10 @@ CF[a_, b_, {n_, n0_}] := Module[{A, B, ak, bk, res = Indeterminate, j = n0},
   B[n0 - 1] = 1;
   A[k_] := A[k] = bk[k] A[k - 1] + ak[k] A[k - 2];
   B[k_] := B[k] = bk[k] B[k - 1] + ak[k] B[k - 2];
-  While[res =!= (res = A[j]/B[j]), j++];
+  (* bounded: convergent fractions need tens to a few hundred terms (1000 is ample); on terms without correct digits (a
+     Cos[2 Pi nu] of no precision in the estimate of the monodromy method, at 24 digits for s = 1, l = 8,
+     omega = -2.218 - 0.180 I) the convergents never repeat and the loop ran until the kernel died *)
+  While[res =!= (res = A[j]/B[j]), If[j - n0 > 1000, res = Indeterminate; Break[]]; j++];
   Clear[A, B, ak, bk];
   res
 ];
