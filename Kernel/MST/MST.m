@@ -452,7 +452,7 @@ Amplitudes[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_,
   UpInc = UpTrans/InTrans InInc;
   If[Im[\[Epsilon]] == 0,
     UpRef = -Conjugate[InRef/InTrans] UpTrans;,
-    With[{sym = $radialFunctionSymbol}, Message[sym::upref, \[Epsilon]/2]];
+    With[{sym = radialFunctionSymbol[]}, Message[sym::upref, \[Epsilon]/2]];
     UpRef = Indeterminate;
   ];
 
@@ -993,12 +993,25 @@ $MSTRepresentationThreshold = 20;
    functions) or "Hypergeometric" (ST Eq. (138), series of hypergeometric functions in 1/(1-x)) *)
 $MSTInLargeRadiusRepresentation = "Coulomb";
 $masterFunction = MST`$MasterFunction;   (* captured at load time; MST`$MasterFunction is only set while the package loads *)
-$radialFunctionSymbol = Symbol[MST`$MasterFunction <> "`" <> MST`$MasterFunction <> "RadialFunction"];   (* carries the messages *)
-
-With[{sym = $radialFunctionSymbol},
-  sym::prec = "The MST series for the `1` radial function at r = `2` could only be evaluated to a precision of `3` (`4` requested).";
-  sym::upref = "The \"Up\" reflection amplitude is only available for real frequencies (\[Omega] = `1` given) and is Indeterminate.";
-];
+(* The radial-function symbol of the master package carries the messages. It is looked up when the first
+   message is issued rather than created here: the master package may define it in a sub-context, after this
+   file has loaded (ReggeWheeler`ReggeWheelerRadial`ReggeWheelerRadialFunction), and creating
+   ReggeWheeler`ReggeWheelerRadialFunction at load time gave a second, shadowing symbol on which the messages
+   could not be switched off. The top-level symbol is preferred where it exists (Teukolsky`TeukolskyRadialFunction;
+   the old Teukolsky`TeukolskyRadial` name is only an alias of it). *)
+radialFunctionSymbol[] := radialFunctionSymbol[] =
+ Module[{name = $masterFunction <> "RadialFunction", found},
+  found = Names[$masterFunction <> "`" <> name];
+  If[found === {}, found = Names[$masterFunction <> "`*`" <> name]];
+  (* With, not a Module variable: MessageName holds its first argument *)
+  With[{sym = If[found === {}, Symbol[$masterFunction <> "`" <> name], Symbol[First[found]]]},
+    (* the master package protects its symbols once loaded *)
+    With[{protected = MemberQ[Attributes[sym], Protected]}, If[protected, Unprotect[sym]];
+      sym::prec = "The MST series for the `1` radial function at r = `2` could only be evaluated to a precision of `3` (`4` requested).";
+      sym::upref = "The \"Up\" reflection amplitude is only available for real frequencies (\[Omega] = `1` given) and is Indeterminate.";
+      If[protected, Protect[sym]]];
+    sym]
+ ];
 
 (* The Coulomb-type representation is valid at complex frequencies too, now that its series are taken
    on the right side of their branch cuts (see hypergeometricU and the conjugation rules of MSTRadialIn). *)
@@ -1146,7 +1159,7 @@ mstPaddedEvaluation[core_, {s_, l_, m_, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, nor
   $lastPaddingPrecision = p;
   $lastPaddingLoss = If[numericQ[res], p - Precision[res], Infinity];
   If[maxTries > 1 && (!allNumericQ[res] || (numericQ[res] && Precision[res] < target - 1)),
-    With[{sym = $radialFunctionSymbol}, Message[sym::prec, If[MemberQ[{mstRadialUpSeriesCore, mstRadialUpHorizon}, core], "Up", "In"], r, If[allNumericQ[res], Precision[res], res], target]];
+    With[{sym = radialFunctionSymbol[]}, Message[sym::prec, If[MemberQ[{mstRadialUpSeriesCore, mstRadialUpHorizon}, core], "Up", "In"], r, If[allNumericQ[res], Precision[res], res], target]];
   ];
   If[allNumericQ[res], res = res/norm];
   (* The series are summed at a radius whose precision is raised with the rest, so r is taken as exact; an
