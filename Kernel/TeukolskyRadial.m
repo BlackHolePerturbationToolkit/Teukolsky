@@ -828,6 +828,10 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
     subopts = FilterRules[subopts, Options[TRF]];
   ];
 
+  (* Supplied eigenvalue and nu are used as given by the MST series, never recomputed at their padded precision *)
+  Teukolsky`MST`MST`Private`registerSupplied[If[NumericQ[OptionValue["Eigenvalue"]], OptionValue["Eigenvalue"], None],
+    If[NumericQ[OptionValue["RenormalizedAngularMomentum"]], OptionValue["RenormalizedAngularMomentum"], None]];
+
   (* Eigenvalue *)
   Which[
   OptionValue["Eigenvalue"] === False,
@@ -886,9 +890,10 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
            to omega as given (1e-17 apart at machine precision), and the radial functions must refine their
            own: the MST series amplify an inconsistency between nu and omega by the digits they lose to
            cancellation (1e-7 in the functions at machine precision when nu was carried over). *)
+        (* refined values replace the given ones only where they agree (a supplied value of another problem is kept) *)
         If[n === None,
-          If[NumericQ[$refinedNu] && Precision[$refinedNu] > Precision[\[Nu]], \[Nu] = $refinedNu];
-          If[NumericQ[$refinedEigenvalue] && Precision[$refinedEigenvalue] > Precision[\[Lambda]], \[Lambda] = $refinedEigenvalue]];
+          If[NumericQ[$refinedNu] && Precision[$refinedNu] > Precision[\[Nu]] && Teukolsky`MST`MST`Private`consistentQ[$refinedNu, \[Nu]], \[Nu] = $refinedNu];
+          If[NumericQ[$refinedEigenvalue] && Precision[$refinedEigenvalue] > Precision[\[Lambda]] && Teukolsky`MST`MST`Private`consistentQ[$refinedEigenvalue, \[Lambda]], \[Lambda] = $refinedEigenvalue]];
       ];
       {ampPadding, ampRetried} = {$lastPaddingDigits, $lastPaddingRetried};,
     True,
