@@ -1198,14 +1198,14 @@ $lossCache = <||>;
 
 seriesLossEstimate[q_, \[Epsilon]_, r_] := 0.8 Abs[\[Epsilon]] (r - (1 + Sqrt[1 - q^2]))/2;
 
-prepaddedEvaluation[core_, params:{s_, l_, m_, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_}, goals:{wp_, prec_, acc_}, deriv_, r_] :=
+prepaddedEvaluation[core_, params:{s_, l_, m_, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_}, goals:{wp_, prec_, acc_}, deriv_, r_, maxTries_:4] :=
  Module[{key = {core, s, l, m, q, \[Epsilon], \[Nu], \[Lambda]}, rdep, base, p0, res},
   rdep = If[MemberQ[{mstRadialInSeriesCore, mstRadialUpHorizon}, core], seriesLossEstimate[q, \[Epsilon], r], 0];
   base = Lookup[$lossCache, Key[key], None];
   (* four digits of margin: significance arithmetic overstates the precision of the summed series by a
      digit or so, and the margin keeps the result beyond the requested precision as before *)
   p0 = If[base === None, Automatic, If[wp === MachinePrecision, $MachinePrecision, wp] + base + rdep + 4];
-  res = mstPaddedEvaluation[core, params, goals, deriv, r, 4, p0];
+  res = mstPaddedEvaluation[core, params, goals, deriv, r, maxTries, p0];
   If[NumericQ[$lastPaddingLoss],
     If[Length[$lossCache] >= 50, $lossCache = <||>];
     $lossCache[key] = Max[$lastPaddingLoss - rdep, 0]];
@@ -1264,8 +1264,14 @@ MSTRadialIn[s_Integer, l_Integer, m_Integer, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_
    elsewhere and wherever the horizon representation is not available *)
 mstRadialUpEvaluate[params:{s_, l_, m_, q_, \[Epsilon]_, \[Nu]_, \[Lambda]_, norm_}, goals_, deriv_, r_] :=
  Module[{res},
+  (* the horizon representation is first tried with a single retry: where it gives no number at all (its
+     connection coefficients fail, e.g. at omega = 50, where they overflow) the full ladder of doublings
+     cost minutes and ended in a TeukolskyRadialFunction::prec of Indeterminate precision before the
+     Coulomb-type series was tried; a number short of the precision gets the full retries *)
   If[mstUpRepresentation[s, m, q, \[Epsilon], r] === "Horizon",
-    res = prepaddedEvaluation[mstRadialUpHorizon, params, goals, deriv, r];
+    res = prepaddedEvaluation[mstRadialUpHorizon, params, goals, deriv, r, 1];
+    If[allNumericQ[res] && $lastPaddingPrecision - $lastPaddingLoss < If[goals[[1]] === MachinePrecision, $MachinePrecision, goals[[1]]] - 1,
+      res = prepaddedEvaluation[mstRadialUpHorizon, params, goals, deriv, r]];
     If[allNumericQ[res], Return[res]]];
   prepaddedEvaluation[mstRadialUpSeriesCore, params, goals, deriv, r]
  ];
