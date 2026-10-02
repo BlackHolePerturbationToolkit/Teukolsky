@@ -1,5 +1,14 @@
 (* ::Package:: *)
 
+(* On a reload the forwarding aliases of the old contexts (defined at the end of this file) already exist,
+   Protected and with the new symbols as values; the sub-packages, which begin in those contexts, would then
+   resolve their own names to the aliases and fail to redefine them (Set::write and stale definitions).
+   They are removed before anything is loaded and created again at the end. *)
+With[{old = Select[{"Teukolsky`TeukolskyRadial`TeukolskyRadial", "Teukolsky`TeukolskyRadial`TeukolskyRadialFunction",
+     "Teukolsky`TeukolskyMode`TeukolskyMode", "Teukolsky`TeukolskyMode`TeukolskyPointParticleMode",
+     "Teukolsky`MST`RenormalizedAngularMomentum`RenormalizedAngularMomentum"}, NameQ]},
+  If[old =!= {}, Unprotect @@ old; ClearAll @@ old; Remove @@ old]];
+
 BeginPackage["Teukolsky`"];
 
 (* Public symbols are declared here, in the Teukolsky` context, so that packages depending on this one
