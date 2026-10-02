@@ -1039,8 +1039,28 @@ eigenvalueAt[s_, l_, m_, q_, \[Epsilon]_, \[Lambda]_, pp_] :=
   \[Lambda]
  ];
 
+(* Values the user supplied (TeukolskyRadial's "Eigenvalue" and "RenormalizedAngularMomentum" options) may
+   belong to a different problem than the one the eigenvalue solver and the monodromy method solve: such a
+   value is only raised to the padded precision, never replaced (an eigenvalue of 3.5 was silently replaced by
+   the computed 3.006). One that agrees with the computed value to its own precision is refined like a computed
+   one, so that, e.g., an equivalent representative of nu keeps the full padded precision. The master package
+   registers them here, with their complex conjugates (the conjugate partner at Re epsilon < 0). *)
+$suppliedEigenvalues = <||>;
+$suppliedNus = <||>;
+registerSupplied[\[Lambda]_, \[Nu]_] := (
+  If[Length[$suppliedEigenvalues] >= 100, $suppliedEigenvalues = <||>];
+  If[Length[$suppliedNus] >= 100, $suppliedNus = <||>];
+  If[NumericQ[\[Lambda]], $suppliedEigenvalues[\[Lambda]] = True; $suppliedEigenvalues[Conjugate[\[Lambda]]] = True];
+  If[NumericQ[\[Nu]], $suppliedNus[\[Nu]] = True; $suppliedNus[Conjugate[\[Nu]]] = True]);
+suppliedEigenvalueQ[\[Lambda]_] := KeyExistsQ[$suppliedEigenvalues, \[Lambda]];
+suppliedNuQ[\[Nu]_] := KeyExistsQ[$suppliedNus, \[Nu]];
+
+(* x agrees with y to the precision of y *)
+consistentQ[x_, y_] := NumericQ[x] && NumericQ[y] &&
+  Abs[x - y] <= 10^(2 - If[Precision[y] === MachinePrecision, $MachinePrecision, Precision[y]]) Max[1, Abs[y]];
+
 refinedParameters[s_, l_, m_, q_, \[Epsilon]_, \[Lambda]_, \[Nu]_, pp_] :=
- Module[{key = {s, l, m, q, \[Epsilon], \[Lambda], \[Nu], pp}, \[Lambda]p = \[Lambda], \[Nu]p = \[Nu], res},
+ Module[{key = {s, l, m, q, \[Epsilon], \[Lambda], \[Nu], pp}, \[Lambda]p = \[Lambda], \[Nu]p = \[Nu], res, \[Lambda]fixed = False},
   If[Precision[\[Lambda]] >= pp && Precision[\[Nu]] >= pp, Return[SetPrecision[{\[Lambda], \[Nu]}, pp]]];
   res = Lookup[$refinedParameterCache, Key[key], None];
   If[res =!= None, Return[res]];
@@ -1053,9 +1073,15 @@ refinedParameters[s_, l_, m_, q_, \[Epsilon]_, \[Lambda]_, \[Nu]_, pp_] :=
        recomputed at a higher precision; if that fails too, the input eigenvalue is kept with its own precision,
        so that the evaluation built on it sees the shortfall instead. The convergence notices are not shown. *)
     \[Lambda]p = eigenvalueAt[s, l, m, q, \[Epsilon], \[Lambda], pp];
+    (* a supplied value is refined only when it agrees with the computed one to its own precision (the same
+       eigenvalue known to fewer digits); otherwise it belongs to another problem and is used as given *)
+    If[suppliedEigenvalueQ[\[Lambda]] && !consistentQ[\[Lambda]p, \[Lambda]], \[Lambda]p = SetPrecision[\[Lambda], pp]; \[Lambda]fixed = True];
   ];
   If[Precision[\[Nu]] < pp,
-    \[Nu]p = paddedNu[s, l, m, q, \[Epsilon], \[Lambda]p, \[Nu], pp];
+    (* a supplied eigenvalue used as given is passed as given, so that paddedNu recognises it and raises its
+       precision instead of recomputing the eigenvalue *)
+    \[Nu]p = paddedNu[s, l, m, q, \[Epsilon], If[\[Lambda]fixed, \[Lambda], \[Lambda]p], \[Nu], pp];
+    If[suppliedNuQ[\[Nu]] && !consistentQ[\[Nu]p, \[Nu]], \[Nu]p = SetPrecision[\[Nu], pp]];
   ];
   (* rounded down to pp; a component whose refinement fell short keeps its precision, so that the evaluations
      built on it see the shortfall (and retry or report it) instead of a value dressed up as pp digits *)
@@ -1074,7 +1100,7 @@ paddedNu[s_, l_, m_, q_, \[Epsilon]_, \[Lambda]_, \[Nu]_, pp_] :=
      only to the precision it was computed at, a deficit that nu amplifies (ten digits at omega = 5 for l = 4);
      where the eigenvalue solver fails at such a precision (hundreds of digits at l = 36) the raised value is
      used, as before *)
-  lamAt[p1_] := If[$masterFunction =!= "Teukolsky" || Precision[\[Lambda]] >= p1, SetPrecision[\[Lambda], p1],
+  lamAt[p1_] := If[$masterFunction =!= "Teukolsky" || Precision[\[Lambda]] >= p1 || suppliedEigenvalueQ[\[Lambda]], SetPrecision[\[Lambda], p1],
     Quiet[Check[SpinWeightedSpheroidalEigenvalue[s, l, m, SetPrecision[q, p1] SetPrecision[\[Epsilon], p1]/2], SetPrecision[\[Lambda], p1], {FindRoot::cvmit, SpinWeightedSpheroidalEigenvalue::findroot}]]];
   ramAt[p1_] := Quiet[RenormalizedAngularMomentum[s, l, m, SetPrecision[q, p1], SetPrecision[\[Epsilon], p1]/2, lamAt[p1]], RenormalizedAngularMomentum::conv];
   res = ramAt[p];
