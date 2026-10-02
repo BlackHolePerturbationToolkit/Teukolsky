@@ -508,7 +508,9 @@ TeukolskyRadialAutomaticMachinePrecision[s_Integer, l_Integer, m_Integer, a_, \[
   R = TeukolskyRadialNumericalIntegration[s, l, m, a, \[Omega], \[Lambda], \[Nu], BCs, norms, {wp, prec, If[acc === Infinity, $MachinePrecision - 2, acc]}, opts];
   If[ListQ[BCs] && ContainsAll[BCs, {"In", "Up"}] && AssociationQ[R] && NumericQ[Lookup[norms["In"], "Incidence", None]] && NumericQ[Lookup[norms["Up"], "Transmission", None]] && norms["Up"]["Transmission"] != 0,
     e = radialAccuracyEstimate[R, s, a, \[Omega]];
-    If[e > 10^-6, Message[TeukolskyRadial::acc, N[e, 2]]];
+    (* warned about only when the estimate falls short of what the goals asked for: with PrecisionGoal -> 6
+       the expected 1e-5 was reported as a failure *)
+    If[e > Max[10^-6, 10^(2 - Min[prec, If[acc === Infinity, $MachinePrecision - 2, acc]])], Message[TeukolskyRadial::acc, N[e, 2]]];
   ];
   R
  ];
