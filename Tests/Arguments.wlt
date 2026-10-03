@@ -144,3 +144,19 @@ VerificationTest[
   {Association, Association},
   TestID -> "A forced Wronskian check with numerical integration runs"
 ]
+
+(* a forced check with the machine-precision default runs its Wronskian estimate also when one solution is
+   requested (it needs both, and was silently skipped); Automatic leaves a single solution unchecked *)
+VerificationTest[
+  Module[{count, n = 0, R1, R2},
+    (* With, so that DownValues, which holds its argument, sees the function itself *)
+    With[{f = Teukolsky`TeukolskyRadial`Private`radialAccuracyEstimate}, Internal`InheritedBlock[{f},
+      Unprotect[f];
+      DownValues[f] = Prepend[DownValues[f], HoldPattern[f[___]] :> Null /; (n++; False)];
+      R1 = TeukolskyRadial[-2, 2, 2, 0.6, 0.3, "BoundaryConditions" -> "In", "WronskianCheck" -> True];
+      count = n;
+      R2 = TeukolskyRadial[-2, 2, 2, 0.6, 0.3, "BoundaryConditions" -> "In"]]];
+    {Head[R1], count, n - count, R1[6.] == R2[6.]}],
+  {TeukolskyRadialFunction, 1, 0, True},
+  TestID -> "A forced Wronskian check with a single solution at machine precision runs"
+]

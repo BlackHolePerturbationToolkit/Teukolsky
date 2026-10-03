@@ -340,7 +340,8 @@ amplitudes, l >= 15 with |omega| >= 3/2, nu near an integer or numerical \
 integration at a complex frequency), True always and False never. It applies \
 to the MST and NumericalIntegration methods; the machine-precision default for \
 real frequencies makes its own Wronskian-based estimate whenever both \
-solutions and the amplitudes are computed.\
+solutions and the amplitudes are computed; with True and a single \
+\"BoundaryConditions\" it computes the other solution for the estimate.\
 \>", "TableText",ExpressionUUID->"7c2e1b63-4d8f-4a90-8b32-6e5d1f4a0c29"]}
   }]], "3ColumnTableMod",
  CellChangeTimes->{{3.896986569845785*^9, 3.896986569845801*^9}, {

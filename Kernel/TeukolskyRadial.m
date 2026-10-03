@@ -947,7 +947,8 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
      disabled: that combination is refused rather than the check silently not running *)
   (* the check applies to the MST and numerically integrated solutions; the machine-precision default
      integrates numerically and checks the Wronskian of its solutions itself whenever both solutions and the
-     amplitudes are computed (TeukolskyRadial::acc), so True is not refused there either *)
+     amplitudes are computed (TeukolskyRadial::acc), so True is not refused there either, and with a single
+     boundary condition both solutions are built for it (see below) *)
   If[OptionValue["WronskianCheck"] === True && !MemberQ[{TeukolskyRadialMST, TeukolskyRadialNumericalIntegration, TeukolskyRadialAutomaticMachinePrecision}, TRF],
     Message[TeukolskyRadial::opti, {"WronskianCheck" -> True, Method -> OptionValue[Method]}];
     Return[$Failed];
@@ -963,6 +964,14 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
      (errors growing like Exp[2 |Im omega| r*]), which the check reports. *)
   check = MatchQ[OptionValue["WronskianCheck"], True|Automatic] && MemberQ[{TeukolskyRadialMST, TeukolskyRadialNumericalIntegration}, TRF] && MatchQ[OptionValue["Amplitudes"], Automatic|True];
   extra = Teukolsky`MST`MST`Private`modePadding[s, l, m, a, 2 \[Omega]];
+  (* A forced check with the machine-precision default: its Wronskian estimate needs both solutions, and with a
+     single boundary condition it was silently skipped. Both are built for the estimate and the requested one is
+     returned. *)
+  If[OptionValue["WronskianCheck"] === True && TRF === TeukolskyRadialAutomaticMachinePrecision && !(ListQ[BCs] && ContainsAll[BCs, {"In", "Up"}]),
+    res = compute[extra, {"In", "Up"}];
+    If[res === $Failed, Return[$Failed]];
+    Return[If[ListQ[BCs], KeyTake[res, BCs], res[BCs]]];
+  ];
   If[!check, Return[compute[extra, BCs]]];
   {ampPadding, ampRetried} = {0, False};
   res = compute[extra, {"In", "Up"}];
