@@ -12,7 +12,7 @@
 (*BeginPackage*)
 
 
-BeginPackage["Teukolsky`SasakiNakamura`"];
+BeginPackage["Teukolsky`SasakiNakamura`", {"Teukolsky`"}];
 
 
 (* ::Subsection::Closed:: *)

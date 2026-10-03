@@ -522,3 +522,97 @@ Module[{orbitG = KerrGeoOrbit[0.1, 10.0, 0.1, Cos[\[Pi]/4.]]},
     SameTest->withinRoundoff
   ];
 ]
+
+(****************************************************************)
+(* Review fixes                                                 *)
+(****************************************************************)
+VerificationTest[
+  With[{R = TeukolskyRadial[-2, 2, 2, 0.5, 0.3]}, Precision /@ {R["In"]["RenormalizedAngularMomentum"], R["In"]["Eigenvalue"], R["Up"]["RenormalizedAngularMomentum"]}],
+  {MachinePrecision, MachinePrecision, MachinePrecision},
+  TestID -> "Stored nu and eigenvalue are machine numbers at machine precision"
+]
+
+(* the eigenvalue solver did not converge at some padded precisions (messages for l >= 8) *)
+VerificationTest[
+  Do[TeukolskyRadial[-2, l, m, 0.7, 0.5], {l, {8, 10}}, {m, {-l, 0, l}}],
+  Null,
+  TestID -> "No eigenvalue messages for l = 8 and 10"
+]
+
+(* ... and returned a 16-digit value labelled as padded, which the MST series amplified to 1e-6.5 *)
+VerificationTest[
+  Module[{R = TeukolskyRadial[-2, 7, 6, 0.1, -1.0], R40 = TeukolskyRadial[-2, 7, 6, N[1/10, 40], N[-1, 40]]},
+    Max[Abs[R["In"][#]/R40["In"][SetPrecision[#, 40]] - 1] & /@ {6., 20.}, Abs[R["Up"][#]/R40["Up"][SetPrecision[#, 40]] - 1] & /@ {6., 20.}] < 10^-12
+  ],
+  True,
+  TestID -> "Eigenvalue solver failures at a padded precision are retried"
+]
+
+VerificationTest[
+  With[{R = TeukolskyRadial[-2, 2, 2, 0.6, 0.5, Method -> {"NumericalIntegration", "Domain" -> {"In" -> {3., 20.}, "Up" -> {5., 30.}}}]},
+    {R["In"]["Domain"], R["Up"]["Domain"], TeukolskyRadial[-2, 2, 2, 0.6, 0.5, Method -> "MST"]["In"]["Domain"][[2]]}],
+  {{3., 20.}, {5., 30.}, Infinity},
+  TestID -> "Domain property of the radial functions"
+]
+
+VerificationTest[
+  Module[{g0 = Names["Global`*"]}, Do[TeukolskyRadial[-2, 2, 2, 0.6, w]["In"][{4., 10.}], {w, 0.2, 0.8, 0.2}]; Complement[Names["Global`*"], g0]],
+  {},
+  TestID -> "Numerical integration creates no Global symbols"
+]
+
+(* the normalisation is not padded: amplitudes supplied at machine precision limit a 32-digit solution to machine
+   precision, instead of it claiming 32 digits with 16 correct *)
+VerificationTest[
+  Module[{a = N[3/5, 32], w = N[1/2, 32], R0, amp, R1},
+    R0 = TeukolskyRadial[-2, 2, 2, a, w, Method -> "MST"];
+    amp = Map[SetPrecision[#, MachinePrecision] &, <|"In" -> R0["In"]["UnscaledAmplitudes"], "Up" -> R0["Up"]["UnscaledAmplitudes"]|>, {2}];
+    R1 = TeukolskyRadial[-2, 2, 2, a, w, Method -> "MST", "Amplitudes" -> amp];
+    {Precision[R1["In"][N[6, 32]]], Precision[R1["Up"][N[6, 32]]], Abs[R1["In"][N[6, 32]]/R0["In"][N[6, 32]] - 1] < 10^-14}],
+  {MachinePrecision, MachinePrecision, True},
+  TestID -> "Supplied low-precision amplitudes limit the precision of MST solutions"
+]
+
+(* supplied values are used as given, also by the padded MST amplitudes and series *)
+VerificationTest[
+  Module[{R = TeukolskyRadial[-2, 2, 2, 0.5, 0.3, "Eigenvalue" -> 3.5], R32 = TeukolskyRadial[-2, 2, 2, N[1/2, 32], N[3/10, 32], "Eigenvalue" -> N[7/2, 32], Method -> "MST"]},
+    {R["In"]["Eigenvalue"], Abs[R["In"]["Amplitudes"]["Incidence"]/R32["In"]["Amplitudes"]["Incidence"] - 1] < 10^-13,
+     Abs[R["Up"]["Amplitudes"]["Reflection"]/R32["Up"]["Amplitudes"]["Reflection"] - 1] < 10^-13, Abs[R["In"][10.]/R32["In"][N[10, 32]] - 1] < 10^-12}],
+  {3.5, True, True, True},
+  TestID -> "A supplied eigenvalue is used as given"
+]
+
+VerificationTest[
+  TeukolskyRadial[-2, 2, 2, 0.5, 0.3, "RenormalizedAngularMomentum" -> 1.8]["In"]["RenormalizedAngularMomentum"],
+  1.8,
+  {TeukolskyRadial::acc},
+  TestID -> "A supplied nu is used as given"
+]
+
+VerificationTest[
+  {TeukolskyRadial[-2, 2, 2, 1.2, 0.3], TeukolskyRadial[-2, 2, 2, 1, 0.3, WorkingPrecision -> 32]},
+  {$Failed, $Failed},
+  {TeukolskyRadial::spin, TeukolskyRadial::spin},
+  TestID -> "Spins with |a| >= 1 are rejected"
+]
+
+VerificationTest[
+  Head[TeukolskyRadial[-2, 2, 2, 0.5, 0.3, PrecisionGoal -> 6]],
+  Association,
+  TestID -> "Lowered goals at machine precision give no accuracy warning"
+]
+
+VerificationTest[
+  {Head[TeukolskyRadial[-2, 2, 2, 0.5, 0.3, Method -> {"NumericalIntegration", "Eigenvalue" -> 2., "Foo" -> 1}]],
+   TeukolskyRadial[-2, 2, 2, 0.5, 0.3, Method -> {"NumericalIntegration", "BoundaryData" -> 3}]},
+  {Association, $Failed},
+  {TeukolskyRadial::topopt, TeukolskyRadial::optx, TeukolskyRadial::optx},
+  TestID -> "Unknown sub-options are reported alongside misplaced ones, and BoundaryData is validated"
+]
+
+(* the tracked precision of an MST solution includes the uncertainty of an inexact radius next to the horizon *)
+VerificationTest[
+  Module[{R = TeukolskyRadial[-2, 2, 2, 0.5`32, 0.3`32], rp = 1 + Sqrt[1 - 0.5`32^2]}, Precision[R["In"][rp + 10^-20]] < 16],
+  True,
+  TestID -> "Precision near the horizon reflects the precision of r"
+]
