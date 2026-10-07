@@ -60,10 +60,3 @@ jobs:
           path: TestReport.xml
           reporter: jest-junit
           fail-on-error: false
-      - name: Extract branch name
-        shell: bash
-        run: echo "branch=$(echo ${GITHUB_REF#refs/heads/})" >>$GITHUB_OUTPUT
-        id: extract_branch
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: gh-pages
-          directory: gh-pages
