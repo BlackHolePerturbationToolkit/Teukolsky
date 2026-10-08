@@ -1045,13 +1045,19 @@ eigenvalueAt[s_, l_, m_, q_, \[Epsilon]_, \[Lambda]_, pp_] :=
    the computed 3.006). One that agrees with the computed value to its own precision is refined like a computed
    one, so that, e.g., an equivalent representative of nu keeps the full padded precision. The master package
    registers them here, with their complex conjugates (the conjugate partner at Re epsilon < 0). *)
+(* The registries are kept for the session and never emptied: the radial functions are evaluated lazily and
+   refer to them at every evaluation, so an entry dropped to bound the table (they used to be emptied at 100
+   entries) let a function built with a supplied value switch to the computed one. To keep them small, only
+   values supplied from outside the package are registered: the package's own calls with values it computed
+   (the boundary data of the numerical integration, the orbit-range integration of TeukolskyPointParticleMode)
+   set $registerSupplied to False. *)
 $suppliedEigenvalues = <||>;
 $suppliedNus = <||>;
-registerSupplied[\[Lambda]_, \[Nu]_] := (
-  If[Length[$suppliedEigenvalues] >= 100, $suppliedEigenvalues = <||>];
-  If[Length[$suppliedNus] >= 100, $suppliedNus = <||>];
+$registerSupplied = True;
+registerSupplied[\[Lambda]_, \[Nu]_] /; TrueQ[$registerSupplied] := (
   If[NumericQ[\[Lambda]], $suppliedEigenvalues[\[Lambda]] = True; $suppliedEigenvalues[Conjugate[\[Lambda]]] = True];
   If[NumericQ[\[Nu]], $suppliedNus[\[Nu]] = True; $suppliedNus[Conjugate[\[Nu]]] = True]);
+registerSupplied[_, _] := Null;
 suppliedEigenvalueQ[\[Lambda]_] := KeyExistsQ[$suppliedEigenvalues, \[Lambda]];
 suppliedNuQ[\[Nu]_] := KeyExistsQ[$suppliedNus, \[Nu]];
 
