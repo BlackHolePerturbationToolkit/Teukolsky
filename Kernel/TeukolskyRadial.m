@@ -48,6 +48,7 @@ TeukolskyRadial::optx = "Unknown options in `1`";
 TeukolskyRadial::params = "Invalid parameters s=`1`, l=`2`, m=`3`";
 TeukolskyRadial::cmplx = "Only real values of a are allowed, but a=`1` specified.";
 TeukolskyRadial::spin = "The spin a=`1` must satisfy |a| < 1.";
+TeukolskyRadial::wcdom = "\"WronskianCheck\" -> True needs a radius common to the domains of the \"In\" and \"Up\" solutions, but they are `1` and `2`.";
 TeukolskyRadial::dm = "Option `1` is not valid with BoundaryConditions \[RightArrow] `2`.";
 TeukolskyRadial::sopt = "Option `1` not supported for static (\[Omega]=0) modes.";
 TeukolskyRadial::hc = "Method HeunC is only supported with Mathematica version 12.1 and later.";
@@ -168,7 +169,8 @@ mstWronskianError[R_Association, s_Integer, a_, \[Omega]_, wp_] :=
   r = 2 rp[a, 1];
   (* numerically integrated solutions are only checked inside both their domains *)
   lo = Max[First /@ {R["In"]["Domain"], R["Up"]["Domain"]}]; hi = Min[Last /@ {R["In"]["Domain"], R["Up"]["Domain"]}];
-  If[!(lo <= r <= hi), If[lo < hi && hi < Infinity, r = (lo + hi)/2, If[lo < hi, r = Max[r, 2 lo], Return[0]]]];
+  (* domains without a common radius: the check cannot be made, which is not an error of 0 *)
+  If[!(lo <= r <= hi), If[lo < hi && hi < Infinity, r = (lo + hi)/2, If[lo < hi, r = Max[r, 2 lo], Return[Missing["NoCommonRadius"]]]]];
   r = If[wp === MachinePrecision, N[r], SetPrecision[r, wp]];
   Wexact = 2 I \[Omega] R["In"]["Amplitudes"]["Incidence"] R["Up"]["Amplitudes"]["Transmission"];
   If[!NumericQ[Wexact] || Wexact == 0, Return[0]];
@@ -1017,6 +1019,10 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
      do not respond to padding: it is checked against 1e-10 (or the goals asked for), without retries *)
   If[TRF === TeukolskyRadialNumericalIntegration && wp === MachinePrecision, tol = Max[10^-10, 10^(2 - Min[prec, If[acc === Infinity, $MachinePrecision - 2, acc]])]];
   e = mstWronskianError[res, s, a, \[Omega], wp];
+  (* integration domains without a common radius: a forced check is refused, an automatic one is skipped *)
+  If[MissingQ[e],
+    If[OptionValue["WronskianCheck"] === True, Message[TeukolskyRadial::wcdom, res["In"]["Domain"], res["Up"]["Domain"]]; Return[$Failed]];
+    Return[If[ListQ[BCs], KeyTake[res, BCs], res[BCs]]]];
   k = If[epsilonPlusDegeneracy[s, m, a, \[Omega], wp] === None && !(TRF === TeukolskyRadialNumericalIntegration && wp === MachinePrecision), 0, 2];
   While[e > tol && k < 2,
     k++;
