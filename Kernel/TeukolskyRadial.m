@@ -151,6 +151,18 @@ paddedComputation[f_, wp_, name_:"The result", extra_:0] :=
    working precision, with nothing in the tracked precision to show it, and this check catches it. The
    check is skipped (0 returned) when the amplitudes are not numeric, e.g. at the superradiant bound
    frequency for s >= 1. *)
+(* Method sub-options for building both solutions where one was requested (for the Wronskian check): a "Domain"
+   given for the requested solution alone, as a single domain or as a rule for it, is used for both, so that the
+   requested solution is the one asked for and the companion shares its domain. Building the pair with a single
+   domain failed with TeukolskyRadial::dm, which the default check did for "BoundaryConditions" -> "In" with
+   "Domain" -> {3., 8.}. *)
+pairDomainOptions[subopts_List, BCs_] := Module[{d = Lookup[subopts, "Domain", All], bc, dom},
+  If[(ListQ[BCs] && ContainsAll[BCs, {"In", "Up"}]) || d === All, Return[subopts]];
+  bc = First[Flatten[{BCs}]];
+  dom = If[MatchQ[d, (List | Association)[Rule["In" | "Up", _] ..]], Lookup[d, bc, All], d];
+  Append[DeleteCases[subopts, Rule["Domain", _]], "Domain" -> {"In" -> dom, "Up" -> dom}]
+ ];
+
 mstWronskianError[R_Association, s_Integer, a_, \[Omega]_, wp_] :=
  Module[{r, W, scale, Wexact, lo, hi},
   r = 2 rp[a, 1];
@@ -968,11 +980,14 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
      single boundary condition it was silently skipped. Both are built for the estimate and the requested one is
      returned. *)
   If[OptionValue["WronskianCheck"] === True && TRF === TeukolskyRadialAutomaticMachinePrecision && !(ListQ[BCs] && ContainsAll[BCs, {"In", "Up"}]),
+    subopts = pairDomainOptions[subopts, BCs];
     res = compute[extra, {"In", "Up"}];
     If[res === $Failed, Return[$Failed]];
     Return[If[ListQ[BCs], KeyTake[res, BCs], res[BCs]]];
   ];
   If[!check, Return[compute[extra, BCs]]];
+  (* the check needs both solutions: a domain given for the requested one alone is used for its companion too *)
+  subopts = pairDomainOptions[subopts, BCs];
   {ampPadding, ampRetried} = {0, False};
   res = compute[extra, {"In", "Up"}];
   If[res === $Failed, Return[$Failed]];
