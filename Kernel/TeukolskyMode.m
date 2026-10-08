@@ -131,7 +131,8 @@ TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer
          The global solutions are only used when their domains cover the range of the orbit. *)
       Module[{wp = Precision[{a, \[Omega]}], covers},
         covers[bc_] := Module[{dom = R[bc]["Domain"]}, dom === All || (ListQ[dom] && dom[[1]] <= rmin && rmax <= dom[[2]])];
-        If[covers["In"] && covers["Up"],
+        (* the eigenvalue and nu are those of the global solutions, registered there if they were supplied *)
+        Block[{Teukolsky`MST`MST`Private`$registerSupplied = False}, If[covers["In"] && covers["Up"],
           R = TeukolskyRadial[s, l, m, a, \[Omega], Method->{"NumericalIntegration","Domain"-> {"In"->{rmin,rmax}, "Up"->{rmin,rmax}},
               "BoundaryData" -> <|"In" -> Append[R["In"][rmin, {0, 1}], rmin], "Up" -> Append[R["Up"][rmax, {0, 1}], rmax]|>},
             PrecisionGoal -> wp - 2, AccuracyGoal -> wp - 2,
@@ -140,7 +141,7 @@ TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer
           R = TeukolskyRadial[s, l, m, a, \[Omega], Method->{"NumericalIntegration","Domain"-> {"In"->{rmin,rmax}, "Up"->{rmin,rmax}}},
             "Amplitudes" -> <|"In"-> R["In"]["UnscaledAmplitudes"], "Up"-> R["Up"]["UnscaledAmplitudes"]|>,
             "RenormalizedAngularMomentum"-> R["In"]["RenormalizedAngularMomentum"], "Eigenvalue" -> R["In"]["Eigenvalue"]];
-        ];
+        ]];
       ];
     ];
   ,
