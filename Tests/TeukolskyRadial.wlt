@@ -616,3 +616,18 @@ VerificationTest[
   True,
   TestID -> "Precision near the horizon reflects the precision of r"
 ]
+
+(* the registry of supplied values is kept: a radial function built with a supplied eigenvalue keeps it however
+   many values are registered later, and the package's own calls register nothing *)
+VerificationTest[
+  Module[{R = Quiet[TeukolskyRadial[-2, 2, 2, N[1/2, 32], N[3/10, 32], "Eigenvalue" -> N[7/2, 32], Method -> "MST"]], v0, v1, nreg},
+    v0 = R["In"][N[10, 32]];
+    Do[Teukolsky`MST`MST`Private`registerSupplied[N[k/7, 20], N[k/9, 20]], {k, 300}];
+    Teukolsky`MST`MST`Private`$refinedParameterCache = <||>; Teukolsky`MST`MST`Private`$lossCache = <||>;
+    v1 = R["In"][N[10, 32]];
+    nreg = Length[Teukolsky`MST`MST`Private`$suppliedEigenvalues];
+    TeukolskyPointParticleMode[-2, 2, 2, 1, 0, KerrGeoOrbit[0.6`24, 10`24, 0.3`24, 1]];
+    {v0 == v1, Length[Teukolsky`MST`MST`Private`$suppliedEigenvalues] == nreg}],
+  {True, True},
+  TestID -> "Supplied values stay registered and internal calls register none"
+]

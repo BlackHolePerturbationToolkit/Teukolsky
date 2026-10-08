@@ -160,3 +160,24 @@ VerificationTest[
   {TeukolskyRadialFunction, 1, 0, True},
   TestID -> "A forced Wronskian check with a single solution at machine precision runs"
 ]
+
+(* the Wronskian check builds both solutions; a domain given for the requested one alone is used for both, so a
+   single solution with a single domain (rejected with ::dm by the check) works and is unchanged *)
+VerificationTest[
+  Module[{R = TeukolskyRadial[-2, 2, 2, 0.6, 0.5, "BoundaryConditions" -> "In", Method -> {"NumericalIntegration", "Domain" -> {3., 8.}}],
+     Rp = TeukolskyRadial[-2, 2, 2, 0.6, 0.5, Method -> {"NumericalIntegration", "Domain" -> {"In" -> {3., 8.}, "Up" -> {3., 8.}}}],
+     R24 = TeukolskyRadial[-2, 2, 2, N[3/5, 24], N[1/2, 24], "BoundaryConditions" -> {"Up"}, Method -> {"NumericalIntegration", "Domain" -> {"Up" -> {4, 9}}}]},
+    {Head[R], R["Domain"], R[5.] == Rp["In"][5.], Keys[R24], R24["Up"]["Domain"]}],
+  {TeukolskyRadialFunction, {3., 8.}, True, {"Up"}, {4, 9}},
+  TestID -> "A single solution with a single domain under the Wronskian check"
+]
+
+(* domains without a common radius: a forced check is refused rather than passing as an error of 0, an
+   automatic one is skipped *)
+VerificationTest[
+  {TeukolskyRadial[-2, 2, 2, N[3/5, 24], N[1/2, 24], Method -> {"NumericalIntegration", "Domain" -> {"In" -> {3, 4}, "Up" -> {5, 6}}}, "WronskianCheck" -> True],
+   Head[TeukolskyRadial[-2, 2, 2, N[3/5, 24], N[1/2, 24], Method -> {"NumericalIntegration", "Domain" -> {"In" -> {3, 4}, "Up" -> {5, 6}}}]]},
+  {$Failed, Association},
+  {TeukolskyRadial::wcdom},
+  TestID -> "A forced Wronskian check with disjoint domains is refused"
+]
