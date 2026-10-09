@@ -169,8 +169,9 @@ mstWronskianError[R_Association, s_Integer, a_, \[Omega]_, wp_] :=
   r = 2 rp[a, 1];
   (* numerically integrated solutions are only checked inside both their domains *)
   lo = Max[First /@ {R["In"]["Domain"], R["Up"]["Domain"]}]; hi = Min[Last /@ {R["In"]["Domain"], R["Up"]["Domain"]}];
-  (* domains without a common radius: the check cannot be made, which is not an error of 0 *)
-  If[!(lo <= r <= hi), If[lo < hi && hi < Infinity, r = (lo + hi)/2, If[lo < hi, r = Max[r, 2 lo], Return[Missing["NoCommonRadius"]]]]];
+  (* domains without a common radius: the check cannot be made, which is not an error of 0; domains that only
+     share an endpoint, such as {3, 4} and {4, 5}, are checked there *)
+  If[!(lo <= r <= hi), If[lo <= hi && hi < Infinity, r = (lo + hi)/2, If[lo < hi, r = Max[r, 2 lo], Return[Missing["NoCommonRadius"]]]]];
   r = If[wp === MachinePrecision, N[r], SetPrecision[r, wp]];
   Wexact = 2 I \[Omega] R["In"]["Amplitudes"]["Incidence"] R["Up"]["Amplitudes"]["Transmission"];
   If[!NumericQ[Wexact] || Wexact == 0, Return[0]];
