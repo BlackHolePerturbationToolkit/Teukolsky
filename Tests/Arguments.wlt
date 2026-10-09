@@ -7,9 +7,11 @@ VerificationTest[
 ]
 
 VerificationTest[
-  R = TeukolskyRadial[0, 2, 2, 6/10, 1/2, WorkingPrecision -> 30];
-  Rn = TeukolskyRadial[0, 2, 2, N[6/10, 30], N[1/2, 30]];
-  Abs[R["In"][N[10, 30]]/Rn["In"][N[10, 30]] - 1] < 10^-25 && Precision[R["In"][N[10, 30]]] >= 28,
+  Module[{R, Rn},
+    R = TeukolskyRadial[0, 2, 2, 6/10, 1/2, WorkingPrecision -> 30];
+    Rn = TeukolskyRadial[0, 2, 2, N[6/10, 30], N[1/2, 30]];
+    Abs[R["In"][N[10, 30]]/Rn["In"][N[10, 30]] - 1] < 10^-25 && Precision[R["In"][N[10, 30]]] >= 28
+  ],
   True,
   TestID -> "Exact arguments are evaluated at the given WorkingPrecision"
 ]
@@ -22,8 +24,10 @@ VerificationTest[
 
 (* Derivatives through R[r, n] *)
 VerificationTest[
-  R = TeukolskyRadial[-2, 2, 2, 0.6, 0.3]["In"];
-  Max[Abs[{R[10., 0] - R[10.], R[10., 1] - R'[10.], R[10., 2] - R''[10.]}]] == 0,
+  Module[{R},
+    R = TeukolskyRadial[-2, 2, 2, 0.6, 0.3]["In"];
+    Max[Abs[{R[10., 0] - R[10.], R[10., 1] - R'[10.], R[10., 2] - R''[10.]}]] == 0
+  ],
   True,
   TestID -> "R[r, n] gives the n-th derivative"
 ]
