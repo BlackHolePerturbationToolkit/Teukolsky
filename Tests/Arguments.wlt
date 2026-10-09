@@ -234,3 +234,27 @@ VerificationTest[
   {1, True, True},
   TestID -> "Lists of radii are integrated together for the flipped-spin Up solution"
 ]
+
+(* a forced check keeps a domain mapping that gives both solutions, and leaves one without the requested
+   solution to the usual validation *)
+VerificationTest[
+  Module[{seen = {}, R, f = Teukolsky`TeukolskyRadial`Private`TeukolskyRadialNumericalIntegration},
+    With[{f = f}, Internal`InheritedBlock[{f},
+      DownValues[f] = Prepend[DownValues[f], HoldPattern[f[args__]] :> Null /; (AppendTo[seen, Lookup[{args}[[11 ;;]], "Domain", None]]; False)];
+      R = TeukolskyRadial[-2, 2, 2, 1/2, 3/10, Method -> {"NumericalIntegration", "Domain" -> {"In" -> {3, 8}, "Up" -> {5, 12}}}, "BoundaryConditions" -> "In", WorkingPrecision -> 24, "WronskianCheck" -> True]]];
+    {seen, R["Domain"],
+     TeukolskyRadial[-2, 2, 2, 1/2, 3/10, Method -> {"NumericalIntegration", "Domain" -> {"Up" -> {5, 12}}}, "BoundaryConditions" -> "In", WorkingPrecision -> 24, "WronskianCheck" -> True]}],
+  {{{"In" -> {3, 8}, "Up" -> {5, 12}}}, {3, 8}, $Failed},
+  {TeukolskyRadial::dm},
+  TestID -> "A forced Wronskian check keeps a domain mapping for both solutions"
+]
+
+(* "WronskianCheck" -> False also disables the accuracy estimate of the machine-precision default *)
+VerificationTest[
+  Module[{n = 0, f = Teukolsky`TeukolskyRadial`Private`radialAccuracyEstimate},
+    With[{f = f}, Internal`InheritedBlock[{f},
+      DownValues[f] = Prepend[DownValues[f], HoldPattern[f[___]] :> Null /; (n++; False)];
+      Table[n = 0; TeukolskyRadial[-2, 2, 2, 0.5, 0.3, "WronskianCheck" -> wc]; n, {wc, {Automatic, False}}]]]],
+  {1, 0},
+  TestID -> "WronskianCheck -> False disables the machine-precision accuracy estimate"
+]
