@@ -160,7 +160,13 @@ paddedComputation[f_, wp_, name_:"The result", extra_:0] :=
 pairDomainOptions[subopts_List, BCs_] := Module[{d = Lookup[subopts, "Domain", All], bc, dom},
   If[(ListQ[BCs] && ContainsAll[BCs, {"In", "Up"}]) || d === All, Return[subopts]];
   bc = First[Flatten[{BCs}]];
-  dom = If[MatchQ[d, (List | Association)[Rule["In" | "Up", _] ..]], Lookup[d, bc, All], d];
+  (* a mapping is only completed when it gives the requested solution alone: one that gives both domains is
+     kept (the companion is built on its own domain), and one without the requested solution is left to the
+     usual validation *)
+  If[MatchQ[d, (List | Association)[Rule["In" | "Up", _] ..]],
+    If[Keys[Association[d]] =!= {bc}, Return[subopts]];
+    dom = Association[d][bc],
+    dom = d];
   Append[DeleteCases[subopts, Rule["Domain", _]], "Domain" -> {"In" -> dom, "Up" -> dom}]
  ];
 
