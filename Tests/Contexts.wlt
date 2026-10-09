@@ -31,13 +31,15 @@ VerificationTest[
 ]
 
 VerificationTest[
-  Module[{R, old},
+  Module[{R, str, old},
     R = TeukolskyRadial[0, 2, 2, 0.6, 0.5]["In"];
-    (* the saved form of a radial function with the old head *)
-    old = ToExpression[StringReplace[ToString[R, InputForm], "Teukolsky`TeukolskyRadialFunction[" -> "Teukolsky`TeukolskyRadial`TeukolskyRadialFunction["]];
-    {Head[old] === TeukolskyRadialFunction, old[6.] == R[6.]}
+    (* the saved form of a radial function with the old head; with Teukolsky` on the context path InputForm
+       prints the short name, which the replacement would miss, so the head is printed fully qualified *)
+    str = StringReplace[Block[{$ContextPath = {"System`"}}, ToString[R, InputForm]], "Teukolsky`TeukolskyRadialFunction[" -> "Teukolsky`TeukolskyRadial`TeukolskyRadialFunction["];
+    old = ToExpression[str];
+    {StringStartsQ[str, "Teukolsky`TeukolskyRadial`TeukolskyRadialFunction["], Head[old] === TeukolskyRadialFunction, old[6.] == R[6.]}
   ],
-  {True, True},
+  {True, True, True},
   TestID -> "A radial function saved with the old head evaluates"
 ]
 
