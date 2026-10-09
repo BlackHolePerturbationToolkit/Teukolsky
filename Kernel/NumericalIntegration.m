@@ -78,11 +78,19 @@ rp[a_, M_] := M + Sqrt[M^2 - a^2];
 ndsolveOptions[ndsolveopts___] := Sequence @@ DeleteCases[{ndsolveopts}, Rule["BoundaryData" | "BoundaryMethod", _]];
 
 psi[s_, \[Lambda]_, l_, m_, a_, \[Omega]_, bc_, amps_, \[Nu]_, ndsolveopts___][{rmin_, rmax_}] :=
- Module[{psiBC, dpsidrBC, rBC, rMin, rMax, H},
-    {psiBC, dpsidrBC, rBC} = boundaryData[s, \[Lambda], l, m, a, \[Omega], bc, amps, \[Nu], {rmin, rmax}, ndsolveopts];
+ Module[{psiBC, dpsidrBC, rBC, rMin, rMax, H, rminBC = rmin, rmaxBC = rmax},
+    (* a domain given by one radius alone extends from it to the boundary radius, which must then lie on the other
+       side of it: the default radius (r = 1000 for MST "Up" data, the smallest radius at which the large-r series
+       converges, r+ + 1/5 for "In" data) gave a domain of zero length otherwise, e.g. "Domain" -> 2000 for "Up",
+       500 with series data, or 2.1 for "In" at a = 0. An "In" domain inside r+ + 1/5 starts halfway to r+. *)
+    If[bc === "Up" && rmax === Automatic && NumericQ[rmin],
+      rmaxBC = If[Lookup[{ndsolveopts}, "BoundaryMethod", "MST"] === "Series", 2 rmin, Max[1000, 2 rmin]]];
+    If[bc === "In" && rmin === Automatic && NumericQ[rmax] && rmax <= rp[a, 1] + 1/5,
+      rminBC = rp[a, 1] + (rmax - rp[a, 1])/2];
+    {psiBC, dpsidrBC, rBC} = boundaryData[s, \[Lambda], l, m, a, \[Omega], bc, amps, \[Nu], {rminBC, rmaxBC}, ndsolveopts];
     (* series boundary data sit at r+ + 1/5 ("In") or at the radius where the large-r series converges ("Up"),
        which may lie outside the requested domain: the integration then covers both *)
-    If[bc === "In" && rmin === Automatic, rMin = rBC, rMin = Min[rmin, rBC]];
+    If[bc === "In" && rminBC === Automatic, rMin = rBC, rMin = Min[rminBC, rBC]];
     If[bc === "Up" && rmax === Automatic, rMax = rBC, rMax = Max[rmax, rBC]];
     If[bc === "In", H = -1];
     If[bc === "Up", H = +1];
