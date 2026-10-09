@@ -1026,8 +1026,12 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
      of order 1e-3 to 1 *)
   tol = 10^(Clip[wpn/4, {4, 8}] - wpn);
   (* numerical integration at machine precision is accurate to about 1e-12 at real frequencies, and its errors
-     do not respond to padding: it is checked against 1e-10 (or the goals asked for), without retries *)
-  If[TRF === TeukolskyRadialNumericalIntegration && wp === MachinePrecision, tol = Max[10^-10, 10^(2 - Min[prec, If[acc === Infinity, $MachinePrecision - 2, acc]])]];
+     do not respond to padding: it is checked against 1e-10 (or the goals asked for), without retries. At any
+     precision the integration aims at the goals asked for, so it is not held to more than they give: with
+     WorkingPrecision -> 32 and PrecisionGoal -> 6 the check demanded 1e-24, retried with padding (which does
+     not raise the integration goals) and reported TeukolskyRadial::acc for solutions that met the goals. *)
+  If[TRF === TeukolskyRadialNumericalIntegration,
+    tol = Max[If[wp === MachinePrecision, 10^-10, tol], 10^(2 - Min[prec, If[acc === Infinity, wpn - 2, acc]])]];
   e = mstWronskianError[res, s, a, \[Omega], wp];
   (* integration domains without a common radius: a forced check is refused, an automatic one is skipped *)
   If[MissingQ[e],
