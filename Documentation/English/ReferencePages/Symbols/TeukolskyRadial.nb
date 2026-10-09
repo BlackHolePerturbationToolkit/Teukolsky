@@ -230,8 +230,10 @@ numerical integration and HeunC.\
  CellID->1046863662,ExpressionUUID->"ae5be391-9a42-4b52-b643-f74556bc803b"],
 
 Cell["\<\
-By default, numerical integration is used with boundary conditions and \
-asymptotic amplitudes computed using the MST method.\
+By default, at machine precision and real frequency, the equation is integrated \
+numerically from series boundary data, with the asymptotic amplitudes computed \
+using the MST method; with a higher WorkingPrecision, or at a complex frequency, \
+the MST series are used.\
 \>", "Notes",
  CellChangeTimes->{{3.897526502172883*^9, 3.89752656559377*^9}, {
   3.897529637555244*^9, 3.897529646205744*^9}},
@@ -270,7 +272,11 @@ possibilities are \"In\" or \"Up\".\
     RowBox[{"\"\<Amplitudes\>\"", "\[Rule]", "A"}], 
     ButtonBox["Automatic",
      BaseStyle->"Link"], Cell["\<\
-Do not compute the amplitudes and instead use the ones passed in.\
+Do not compute the amplitudes and instead use the ones passed in, as an \
+association <|\"In\" -> ..., \"Up\" -> ...|> in the convention of \
+\"UnscaledAmplitudes\" (the MST \"In\" amplitudes divided by \
+Gamma(1 - s - 2 I epsilon_+)). With False the amplitudes are not computed and \
+the solutions keep the normalisation of the method.\
 \>", "TableText",ExpressionUUID->"c0eb65ea-bb5c-4932-8e1d-1a83036fe282"]},
    {Cell["   ", "ModInfo",ExpressionUUID->
      "e58bce9b-0999-4a9e-9562-6c4a647df95d"], 
@@ -309,7 +315,7 @@ precision of ",
      BaseStyle->"Link"], Cell["\<\
 PrecisionGoal is an option for various numerical operations which specifies \
 how many effective digits of precision should be sought in the final result. \
-By default, PrecisionGoal is set to WorkingPrecision/2.\
+By default, PrecisionGoal is set to WorkingPrecision - 2.\
 \>", "TableText",ExpressionUUID->"d9b6c033-9f9c-4a01-b937-c0c4a12fbaa6"]},
    {Cell["   ", "ModInfo",ExpressionUUID->
      "50c955d6-224a-41ac-be13-02f1de8badbf"], 
@@ -319,8 +325,24 @@ By default, PrecisionGoal is set to WorkingPrecision/2.\
      BaseStyle->"Link"], Cell["\<\
 AccuracyGoal is an option for various numerical operations which specifies \
 how many effective digits of accuracy should be sought in the final result.  \
-By default, AccuracyGoal is set to WorkingPrecision/2.\
-\>", "TableText",ExpressionUUID->"18faad7f-83ac-4da9-bffa-e577c38caccd"]}
+By default, AccuracyGoal is Infinity (only the relative PrecisionGoal applies); the numerical integration at machine precision uses an absolute goal of WorkingPrecision - 2.\
+\>", "TableText",ExpressionUUID->"18faad7f-83ac-4da9-bffa-e577c38caccd"]},
+   {Cell["   ", "ModInfo",ExpressionUUID->
+     "6b1f0a52-3c8e-4d7a-9e21-5a4c0d3e7f18"], 
+    RowBox[{"\"\<WronskianCheck\>\"", "\[Rule]", "w"}], 
+    ButtonBox["Automatic",
+     BaseStyle->"Link"], Cell["\<\
+Check the solutions through their Wronskian, which must equal 2 I omega \
+B^inc C^trans, and recompute them at a higher working precision when the check \
+fails (TeukolskyRadial::acc reports what the retries could not repair). \
+Automatic runs the check for the modes at risk (large padding of the \
+amplitudes, l >= 15 with |omega| >= 3/2, nu near an integer or numerical \
+integration at a complex frequency), True always and False never. It applies \
+to the MST and NumericalIntegration methods; the machine-precision default for \
+real frequencies makes its own Wronskian-based estimate whenever both \
+solutions and the amplitudes are computed; with True and a single \
+\"BoundaryConditions\" it computes the other solution for the estimate.\
+\>", "TableText",ExpressionUUID->"7c2e1b63-4d8f-4a90-8b32-6e5d1f4a0c29"]}
   }]], "3ColumnTableMod",
  CellChangeTimes->{{3.896986569845785*^9, 3.896986569845801*^9}, {
   3.896986606902898*^9, 3.896986785488896*^9}, {3.897046488776388*^9, 
@@ -342,7 +364,10 @@ example Method\[Rule]{\"NumericalIntegration\",\"Domain\"\[Rule]{\"In\"\[Rule]\
 
 Cell["\<\
 The possible suboptions that the \"NumericalIntegration\" method accepts are: \
-\"Domain\" -> domain.\
+\"Domain\" -> domain; \"BoundaryMethod\" -> \"Series\" or \"MST\", the \
+boundary data of the integration (Automatic: series at machine precision, MST \
+otherwise); \"BoundaryData\" -> <|bc -> {R, R', r}|>, boundary data supplied \
+directly.\
 \>", "Notes",
  CellChangeTimes->{{3.89361722765359*^9, 3.893617235363677*^9}, {
    3.893784345796798*^9, 3.893784366565734*^9}, {3.893784448381419*^9, 

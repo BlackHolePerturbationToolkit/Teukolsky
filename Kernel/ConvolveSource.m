@@ -12,7 +12,7 @@
 (*BeginPackage*)
 
 
-BeginPackage["Teukolsky`ConvolveSource`", {"KerrGeodesics`", "KerrGeodesics`OrbitalFrequencies`"}];
+BeginPackage["Teukolsky`ConvolveSource`", {"Teukolsky`", "KerrGeodesics`", "KerrGeodesics`OrbitalFrequencies`"}];
 
 
 (* ::Subsection::Closed:: *)

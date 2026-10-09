@@ -1,6 +1,20 @@
 (* ::Package:: *)
 
+(* On a reload the forwarding aliases of the old contexts (defined at the end of this file) already exist,
+   Protected and with the new symbols as values; the sub-packages, which begin in those contexts, would then
+   resolve their own names to the aliases and fail to redefine them (Set::write and stale definitions).
+   They are removed before anything is loaded and created again at the end. *)
+With[{old = Select[{"Teukolsky`TeukolskyRadial`TeukolskyRadial", "Teukolsky`TeukolskyRadial`TeukolskyRadialFunction",
+     "Teukolsky`TeukolskyMode`TeukolskyMode", "Teukolsky`TeukolskyMode`TeukolskyPointParticleMode",
+     "Teukolsky`MST`RenormalizedAngularMomentum`RenormalizedAngularMomentum"}, NameQ]},
+  If[old =!= {}, Unprotect @@ old; ClearAll @@ old; Remove @@ old]];
+
 BeginPackage["Teukolsky`"];
+
+(* Public symbols are declared here, in the Teukolsky` context, so that packages depending on this one
+   (BeginPackage["X`", {"Teukolsky`"}]) see them; their usage messages and definitions are attached
+   by the sub-packages loaded below, each of which has Teukolsky` in its list of needed contexts. *)
+{TeukolskyRadial, TeukolskyRadialFunction, TeukolskyMode, TeukolskyPointParticleMode, RenormalizedAngularMomentum};
 
 Begin["`Private`"];
 
@@ -32,3 +46,18 @@ Get["Teukolsky`TeukolskyMode`"];
 Get["Teukolsky`NumericalIntegration`"];
 Get["Teukolsky`ConvolveSource`"];
 Get["Teukolsky`PN`"];
+
+(* Forwarding aliases for the contexts the public symbols lived in before they were moved to Teukolsky`, so
+   that fully qualified references and expressions saved with the old heads (the Documentation notebooks hold
+   Teukolsky`TeukolskyRadial`TeukolskyRadialFunction and Teukolsky`TeukolskyMode`TeukolskyMode) keep
+   evaluating: an expression with an old head evaluates to the same expression with the new one. Those three
+   contexts export nothing any more and are taken off $ContextPath first, so that the aliases cannot shadow
+   the Teukolsky` symbols when a short name is typed; the symbols are created at evaluation time, since the
+   shadowing warning is issued when a symbol whose name exists in Teukolsky` is created. *)
+$ContextPath = DeleteCases[$ContextPath, "Teukolsky`TeukolskyRadial`" | "Teukolsky`TeukolskyMode`" | "Teukolsky`MST`RenormalizedAngularMomentum`"];
+Teukolsky`Private`alias[old_String, new_Symbol] := Quiet[With[{sym = Symbol[old]}, sym = new; Protect[sym]], General::shdw];
+Teukolsky`Private`alias["Teukolsky`TeukolskyRadial`TeukolskyRadial", Teukolsky`TeukolskyRadial];
+Teukolsky`Private`alias["Teukolsky`TeukolskyRadial`TeukolskyRadialFunction", Teukolsky`TeukolskyRadialFunction];
+Teukolsky`Private`alias["Teukolsky`TeukolskyMode`TeukolskyMode", Teukolsky`TeukolskyMode];
+Teukolsky`Private`alias["Teukolsky`TeukolskyMode`TeukolskyPointParticleMode", Teukolsky`TeukolskyPointParticleMode];
+Teukolsky`Private`alias["Teukolsky`MST`RenormalizedAngularMomentum`RenormalizedAngularMomentum", Teukolsky`RenormalizedAngularMomentum];

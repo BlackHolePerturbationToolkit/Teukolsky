@@ -1,0 +1,264 @@
+(* Exact arguments *)
+VerificationTest[
+  TeukolskyRadial[0, 2, 2, 6/10, 1/2],
+  $Failed,
+  {TeukolskyRadial::exact},
+  TestID -> "Exact arguments without a WorkingPrecision fail with a message"
+]
+
+VerificationTest[
+  Module[{R, Rn},
+    R = TeukolskyRadial[0, 2, 2, 6/10, 1/2, WorkingPrecision -> 30];
+    Rn = TeukolskyRadial[0, 2, 2, N[6/10, 30], N[1/2, 30]];
+    Abs[R["In"][N[10, 30]]/Rn["In"][N[10, 30]] - 1] < 10^-25 && Precision[R["In"][N[10, 30]]] >= 28
+  ],
+  True,
+  TestID -> "Exact arguments are evaluated at the given WorkingPrecision"
+]
+
+VerificationTest[
+  Precision[N[RenormalizedAngularMomentum[0, 2, 2, 6/10, 1/10], 30]],
+  30.,
+  TestID -> "N applied to RenormalizedAngularMomentum with exact arguments"
+]
+
+(* Derivatives through R[r, n] *)
+VerificationTest[
+  Module[{R},
+    R = TeukolskyRadial[-2, 2, 2, 0.6, 0.3]["In"];
+    Max[Abs[{R[10., 0] - R[10.], R[10., 1] - R'[10.], R[10., 2] - R''[10.]}]] == 0
+  ],
+  True,
+  TestID -> "R[r, n] gives the n-th derivative"
+]
+
+(* Options of TeukolskyRadial given inside Method *)
+VerificationTest[
+  TeukolskyRadial[-2, 2, 2, 0.6, 0.3, Method -> {"MST", "RenormalizedAngularMomentum" -> 1.8}]["In"]["Method"],
+  {"MST"},
+  {TeukolskyRadial::topopt},
+  TestID -> "Options of TeukolskyRadial inside Method are reported as misplaced"
+]
+
+(* Value and derivative from one summation *)
+VerificationTest[
+  Module[{R = TeukolskyRadial[-2, 2, 2, N[6/10, 32], N[3/10, 32], Method -> "MST"], r = N[20, 32]},
+    Max[Abs[Join[R["In"][r, {0, 1}]/{R["In"][r], R["In"]'[r]}, R["Up"][r, {0, 1}]/{R["Up"][r], R["Up"]'[r]}] - 1]] < 10^-29
+  ],
+  True,
+  TestID -> "R[r, {0, 1}] agrees with the separate MST evaluations"
+]
+
+VerificationTest[
+  Module[{R = TeukolskyRadial[-2, 2, 2, 0.6, 0.3]["In"]},
+    R[10., {0, 1}] == {R[10.], R'[10.]} && R[10., {0, 1, 2}] == {R[10.], R'[10.], R''[10.]}
+  ],
+  True,
+  TestID -> "R[r, {0, 1}] and R[r, list of orders] for a numerically integrated solution"
+]
+
+(* Machine precision without the asymptotic amplitudes or nu: the integration from series boundary data needs
+   neither, the functions are the same, and no accuracy warning is issued (the estimate needs the amplitudes) *)
+VerificationTest[
+  Module[{Rd, Ra, Rn, r = 6.},
+    Rd = TeukolskyRadial[-2, 2, 2, 0.6, 0.5];
+    Ra = TeukolskyRadial[-2, 2, 2, 0.6, 0.5, "Amplitudes" -> False];
+    Rn = TeukolskyRadial[-2, 2, 2, 0.6, 0.5, "Amplitudes" -> False, "RenormalizedAngularMomentum" -> False];
+    {Max[Abs[{Ra["In"][r], Ra["Up"][r], Rn["In"][r], Rn["Up"][r]}/{Rd["In"][r], Rd["Up"][r], Rd["In"][r], Rd["Up"][r]} - 1]] < 10^-12,
+     Ra["In"]["Amplitudes"], Rn["In"]["RenormalizedAngularMomentum"]}
+  ],
+  {True, <|"Transmission" -> 1|>, Indeterminate},
+  TestID -> "Machine precision without amplitudes or nu gives the same functions and no messages"
+]
+
+(* A single boundary condition builds only that solution, and no accuracy warning is attempted *)
+VerificationTest[
+  Module[{Rd, Ri, Ru, r = 6.},
+    Rd = TeukolskyRadial[0, 2, 0, 0.6, 0.5];
+    Ri = TeukolskyRadial[0, 2, 0, 0.6, 0.5, "BoundaryConditions" -> "In"];
+    Ru = TeukolskyRadial[0, 2, 0, 0.6, 0.5, "BoundaryConditions" -> "Up", "Amplitudes" -> False];
+    {Head[Ri], Head[Ru], Abs[Ri[r]/Rd["In"][r] - 1] < 10^-12, Abs[Ru[r]/Rd["Up"][r] - 1] < 10^-12}
+  ],
+  {TeukolskyRadialFunction, TeukolskyRadialFunction, True, True},
+  TestID -> "A single boundary condition at machine precision, with and without amplitudes"
+]
+
+
+(* A frequency far outside the range of the methods fails quickly (it used to run for minutes) *)
+VerificationTest[
+  Module[{t, res},
+    {t, res} = AbsoluteTiming[Quiet[TeukolskyRadial[-2, 2, 2, 0.6, 270.]]];
+    {res, t < 60}
+  ],
+  {$Failed, True},
+  TestID -> "An absurd frequency fails fast"
+]
+
+(* At omega = 50 the amplitude formulae cancel to zeros of no precision at 32 digits; they used to be taken for
+   exact zeros (and reported as an overflow), and are now padded until they carry the working precision *)
+VerificationTest[
+  Module[{R, b},
+    R = TeukolskyRadial[-2, 2, 2, 0.6, 50.];
+    b = R["In"]["Amplitudes"]["Incidence"];
+    {NumericQ[R["In"][6.]], NumericQ[R["Up"][6.]], NumericQ[b] && b != 0}
+  ],
+  {True, True, True},
+  TestID -> "Amplitudes that cancel to zero at large frequency are padded"
+]
+
+(* an invalid "WronskianCheck" value is rejected rather than silently disabling the check *)
+VerificationTest[
+  TeukolskyRadial[-2, 2, 2, 0.6, 0.5, "WronskianCheck" -> "True"],
+  $Failed,
+  {TeukolskyRadial::optx},
+  TestID -> "Invalid WronskianCheck option fails with a message"
+]
+
+(* Unit-incidence normalisation is reserved for the "In" solution at a degeneracy: a zero transmission of the
+   "Up" solution, or of the "In" solution away from a degeneracy, is an overflow of the amplitude formulae *)
+VerificationTest[
+  Module[{key = Teukolsky`TeukolskyRadial`Private`normalisationKey, ns = <|"Incidence" -> 1., "Transmission" -> 0., "Reflection" -> 1.|>},
+    {key[ns, "In"], key[ns, "Up"], Block[{Teukolsky`TeukolskyRadial`Private`$degenerateIn = True}, {key[ns, "In"], key[ns, "Up"]}]}
+  ],
+  {"Transmission", "Transmission", {"Incidence", "Transmission"}},
+  TestID -> "Normalisation key: unit incidence only for In at a degeneracy"
+]
+
+(* the same validation in the static path *)
+VerificationTest[
+  {TeukolskyRadial[-2, 2, 2, 0.6, 0, "WronskianCheck" -> "True"], Head[TeukolskyRadial[-2, 2, 2, 0.6, 0, "WronskianCheck" -> True]]},
+  {$Failed, Association},
+  {TeukolskyRadial::optx, TeukolskyRadial::sopt},
+  TestID -> "WronskianCheck is validated and reported as unsupported for static modes"
+]
+
+(* a forced Wronskian check needs the amplitudes *)
+VerificationTest[
+  TeukolskyRadial[-2, 2, 2, N[3/5, 32], N[1/2, 32], "Amplitudes" -> False, "WronskianCheck" -> True],
+  $Failed,
+  {TeukolskyRadial::opti},
+  TestID -> "A forced Wronskian check without amplitudes is refused"
+]
+
+(* the Wronskian check also applies to numerically integrated solutions, inside their domains; the HeunC
+   method has no check and refuses it *)
+VerificationTest[
+  {Head[TeukolskyRadial[-2, 2, 2, 0.6, 0.5, Method -> "NumericalIntegration", "WronskianCheck" -> True]],
+   Head[TeukolskyRadial[-2, 2, 2, N[3/5, 24], N[1/2, 24], Method -> {"NumericalIntegration", "Domain" -> {"In" -> {3, 8}, "Up" -> {5, 12}}}, "WronskianCheck" -> True]]},
+  {Association, Association},
+  TestID -> "A forced Wronskian check with numerical integration runs"
+]
+
+(* a forced check with the machine-precision default runs its Wronskian estimate also when one solution is
+   requested (it needs both, and was silently skipped); Automatic leaves a single solution unchecked *)
+VerificationTest[
+  Module[{count, n = 0, R1, R2},
+    (* With, so that DownValues, which holds its argument, sees the function itself *)
+    With[{f = Teukolsky`TeukolskyRadial`Private`radialAccuracyEstimate}, Internal`InheritedBlock[{f},
+      Unprotect[f];
+      DownValues[f] = Prepend[DownValues[f], HoldPattern[f[___]] :> Null /; (n++; False)];
+      R1 = TeukolskyRadial[-2, 2, 2, 0.6, 0.3, "BoundaryConditions" -> "In", "WronskianCheck" -> True];
+      count = n;
+      R2 = TeukolskyRadial[-2, 2, 2, 0.6, 0.3, "BoundaryConditions" -> "In"]]];
+    {Head[R1], count, n - count, R1[6.] == R2[6.]}],
+  {TeukolskyRadialFunction, 1, 0, True},
+  TestID -> "A forced Wronskian check with a single solution at machine precision runs"
+]
+
+(* the Wronskian check builds both solutions; a domain given for the requested one alone is used for both, so a
+   single solution with a single domain (rejected with ::dm by the check) works and is unchanged *)
+VerificationTest[
+  Module[{R = TeukolskyRadial[-2, 2, 2, 0.6, 0.5, "BoundaryConditions" -> "In", Method -> {"NumericalIntegration", "Domain" -> {3., 8.}}],
+     Rp = TeukolskyRadial[-2, 2, 2, 0.6, 0.5, Method -> {"NumericalIntegration", "Domain" -> {"In" -> {3., 8.}, "Up" -> {3., 8.}}}],
+     R24 = TeukolskyRadial[-2, 2, 2, N[3/5, 24], N[1/2, 24], "BoundaryConditions" -> {"Up"}, Method -> {"NumericalIntegration", "Domain" -> {"Up" -> {4, 9}}}]},
+    {Head[R], R["Domain"], R[5.] == Rp["In"][5.], Keys[R24], R24["Up"]["Domain"]}],
+  {TeukolskyRadialFunction, {3., 8.}, True, {"Up"}, {4, 9}},
+  TestID -> "A single solution with a single domain under the Wronskian check"
+]
+
+(* domains without a common radius: a forced check is refused rather than passing as an error of 0, an
+   automatic one is skipped *)
+VerificationTest[
+  {TeukolskyRadial[-2, 2, 2, N[3/5, 24], N[1/2, 24], Method -> {"NumericalIntegration", "Domain" -> {"In" -> {3, 4}, "Up" -> {5, 6}}}, "WronskianCheck" -> True],
+   Head[TeukolskyRadial[-2, 2, 2, N[3/5, 24], N[1/2, 24], Method -> {"NumericalIntegration", "Domain" -> {"In" -> {3, 4}, "Up" -> {5, 6}}}]]},
+  {$Failed, Association},
+  {TeukolskyRadial::wcdom},
+  TestID -> "A forced Wronskian check with disjoint domains is refused"
+]
+
+(* domains that share only an endpoint are checked there *)
+VerificationTest[
+  Keys[TeukolskyRadial[-2, 2, 2, 0.5, 0.1, Method -> {"NumericalIntegration", "Domain" -> {"In" -> {3, 4}, "Up" -> {4, 5}}}, "WronskianCheck" -> True]],
+  {"In", "Up"},
+  TestID -> "A forced Wronskian check with domains sharing an endpoint runs"
+]
+
+(* a domain given by one radius extends from it to the boundary data, which lie on its other side: "Up" beyond
+   the default boundary radius (r = 1000 for MST data, about 260 for series data here) and "In" inside r+ + 1/5
+   had domains of zero length *)
+VerificationTest[
+  Module[{Rm = TeukolskyRadial[-2, 2, 2, 0.5, 0.1], RmIn = TeukolskyRadial[0, 2, 2, 0., 0.1, "BoundaryConditions" -> "In"], up, in},
+    up = Table[TeukolskyRadial[-2, 2, 2, 0.5, 0.1, "BoundaryConditions" -> "Up", Method -> {"NumericalIntegration", "Domain" -> d, "BoundaryMethod" -> bm}],
+      {d, {500, 2000}}, {bm, {"MST", "Series"}}];
+    in = Table[TeukolskyRadial[0, 2, 2, 0., 0.1, "BoundaryConditions" -> "In", Method -> {"NumericalIntegration", "Domain" -> 2.1, "BoundaryMethod" -> bm}], {bm, {"MST", "Series"}}];
+    {Map[First[#["Domain"]] &, up, {2}],
+     Max[Table[Abs[up[[i, j]][x]/Rm["Up"][x] - 1], {i, 2}, {j, 2}, {x, {{500., 700.}, {2000., 2500.}}[[i]]}]] < 10^-10,
+     #["Domain"] & /@ in, Max[Abs[(#[2.08] & /@ in)/RmIn[2.08] - 1]] < 10^-12}],
+  {{{500., 500.}, {2000., 2000.}}, True, {{2.05, 2.2}, {2.05, 2.2}}, True},
+  TestID -> "A domain given by one radius covers it"
+]
+
+(* a single solution without a risk indicator is built alone, not with the companion the check would need *)
+VerificationTest[
+  With[{f = Teukolsky`TeukolskyRadial`Private`TeukolskyRadialNumericalIntegration},
+    Module[{seen = {}, R},
+      Internal`InheritedBlock[{f},
+        DownValues[f] = Prepend[DownValues[f], HoldPattern[f[args__]] :> Null /; (AppendTo[seen, {args}[[8]]]; False)];
+        R = TeukolskyRadial[-2, 2, 2, 0.5, 0.1, "BoundaryConditions" -> "In", Method -> "NumericalIntegration"]];
+      {seen, Head[R]}]],
+  {{"In"}, TeukolskyRadialFunction},
+  TestID -> "A single solution is built alone when the Wronskian check is skipped"
+]
+
+(* the check of numerically integrated solutions asks for no more than the goals the integration was given *)
+VerificationTest[
+  Keys[TeukolskyRadial[-2, 2, 2, 1/2, 1/10, Method -> "NumericalIntegration", WorkingPrecision -> 32, PrecisionGoal -> 6, "WronskianCheck" -> True]],
+  {"In", "Up"},
+  TestID -> "The Wronskian check of numerical integration follows the requested goals at arbitrary precision"
+]
+
+(* lists of radii below r+ + 1 go to the integration on demand of the flipped-spin "Up" solution together *)
+VerificationTest[
+  Module[{R = TeukolskyRadial[-2, 2, 2, 0.5, 0.1, "BoundaryConditions" -> "Up", Method -> "NumericalIntegration"], rs = Append[Table[1.9 + 0.1 k, {k, 0, 9}], 50.], n = 0, v, d},
+    Internal`InheritedBlock[{NDSolveValue},
+      Unprotect[NDSolveValue]; PrependTo[DownValues[NDSolveValue], HoldPattern[NDSolveValue[___]] :> Null /; (n++; False)];
+      v = R[rs]];
+    d = R'[rs];
+    {n, Max[Abs[v/(R /@ rs) - 1]] < 10^-12, Max[Abs[d/(R' /@ rs) - 1]] < 10^-11}],
+  {1, True, True},
+  TestID -> "Lists of radii are integrated together for the flipped-spin Up solution"
+]
+
+(* a forced check keeps a domain mapping that gives both solutions, and leaves one without the requested
+   solution to the usual validation *)
+VerificationTest[
+  Module[{seen = {}, R, f = Teukolsky`TeukolskyRadial`Private`TeukolskyRadialNumericalIntegration},
+    With[{f = f}, Internal`InheritedBlock[{f},
+      DownValues[f] = Prepend[DownValues[f], HoldPattern[f[args__]] :> Null /; (AppendTo[seen, Lookup[{args}[[11 ;;]], "Domain", None]]; False)];
+      R = TeukolskyRadial[-2, 2, 2, 1/2, 3/10, Method -> {"NumericalIntegration", "Domain" -> {"In" -> {3, 8}, "Up" -> {5, 12}}}, "BoundaryConditions" -> "In", WorkingPrecision -> 24, "WronskianCheck" -> True]]];
+    {seen, R["Domain"],
+     TeukolskyRadial[-2, 2, 2, 1/2, 3/10, Method -> {"NumericalIntegration", "Domain" -> {"Up" -> {5, 12}}}, "BoundaryConditions" -> "In", WorkingPrecision -> 24, "WronskianCheck" -> True]}],
+  {{{"In" -> {3, 8}, "Up" -> {5, 12}}}, {3, 8}, $Failed},
+  {TeukolskyRadial::dm},
+  TestID -> "A forced Wronskian check keeps a domain mapping for both solutions"
+]
+
+(* "WronskianCheck" -> False also disables the accuracy estimate of the machine-precision default *)
+VerificationTest[
+  Module[{n = 0, f = Teukolsky`TeukolskyRadial`Private`radialAccuracyEstimate},
+    With[{f = f}, Internal`InheritedBlock[{f},
+      DownValues[f] = Prepend[DownValues[f], HoldPattern[f[___]] :> Null /; (n++; False)];
+      Table[n = 0; TeukolskyRadial[-2, 2, 2, 0.5, 0.3, "WronskianCheck" -> wc]; n, {wc, {Automatic, False}}]]]],
+  {1, 0},
+  TestID -> "WronskianCheck -> False disables the machine-precision accuracy estimate"
+]

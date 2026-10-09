@@ -1,19 +1,25 @@
 (* ::Package:: *)
 
 BeginPackage[MST`$MasterFunction<>"`MST`RenormalizedAngularMomentum`",
-  {"SpinWeightedSpheroidalHarmonics`"}
+  {MST`$MasterFunction<>"`", "SpinWeightedSpheroidalHarmonics`"}
 ];
 
 ClearAttributes[RenormalizedAngularMomentum, {Protected, ReadProtected}];
 
 RenormalizedAngularMomentum::usage =
  "RenormalizedAngularMomentum[s, l, m, a, \[Omega], \[Lambda]] gives the renormalized angular momentum \[Nu].\n" <>
- "RenormalizedAngularMomentum[s, l, m, a, \[Omega]] gives the renormalized angular momentum \[Nu].";
+ "RenormalizedAngularMomentum[s, l, m, a, \[Omega]] gives the renormalized angular momentum \[Nu].\n" <>
+ "Of the equivalent values \[PlusMinus]\[Nu] + k, the one returned is continuous with \[Nu] = l at \[Omega] = 0 (l - ArcCos[Cos[2\[Pi]\[Nu]]]/(2\[Pi])), for real and complex \[Omega].";
 
 (* Messages *)
 RenormalizedAngularMomentum::precision = "Method \"Monodromy\" currently only works reliably with arbitrary precision input parameters.";
+RenormalizedAngularMomentum::conv = "The monodromy method did not converge for \[Omega] = `1`.";
 
 Begin["`Private`"];
+
+(* the continued fraction of the MST package of this master function (Teukolsky or ReggeWheeler), captured
+   while the package loads, when MST`$MasterFunction is set *)
+$cf = Symbol[MST`$MasterFunction <> "`MST`MST`Private`CF"];
 
 (**********************************************************)
 (* Internal functions                                     *)
@@ -75,11 +81,13 @@ Cos2\[Pi]\[Nu]Series[a_, \[Omega]_, s_, l_, m_] :=
  Module[{\[Alpha]\[Gamma], \[Beta], R, L, \[Nu]0, prec},
   \[Alpha]\[Gamma][n_, \[Nu]_?InexactNumberQ] := \[Epsilon]^2 \[Kappa]^2 (n + \[Nu]) (2 + n + \[Nu]) ((1 + n + \[Nu] - s)^2 + \[Epsilon]^2) ((1 + n + \[Nu] + s)^2 + \[Epsilon]^2) (-1 + 2 n + 2 \[Nu]) (5 + 2 n + 2 \[Nu]) ((1 + n + \[Nu])^2 + \[Tau]^2);
   \[Beta][n_, \[Nu]_?InexactNumberQ] := (2 n + 2 \[Nu] + 3) (2 n + 2 \[Nu] - 1) ((-\[Lambda] - s (s + 1) + (n + \[Nu]) (n + \[Nu] + 1) + \[Epsilon]^2 + \[Epsilon] (\[Epsilon] - m q)) ((n + \[Nu]) (n + \[Nu] + 1)) + (\[Epsilon] (\[Epsilon] - m q) (s^2 + \[Epsilon]^2)));
-  R[n_, \[Nu]_] := Module[{i}, Teukolsky`MST`MST`Private`CF[-\[Alpha]\[Gamma][i-1, \[Nu]], \[Beta][i, \[Nu]], {i, n}]];
-  L[n_, \[Nu]_] := Module[{i}, Teukolsky`MST`MST`Private`CF[-\[Alpha]\[Gamma][2n-i, \[Nu]], \[Beta][2n-i, \[Nu]], {i, n}]];
-  prec = With[{\[Nu] = ArcCos[Cos2\[Pi]\[Nu]]/(2\[Pi])}, -RealExponent[\[Beta][0, \[Nu]] + R[1, \[Nu]] + L[-1, \[Nu]]]];
+  R[n_, \[Nu]_] := Module[{i}, $cf[-\[Alpha]\[Gamma][i-1, \[Nu]], \[Beta][i, \[Nu]], {i, n}]];
+  L[n_, \[Nu]_] := Module[{i}, $cf[-\[Alpha]\[Gamma][2n-i, \[Nu]], \[Beta][2n-i, \[Nu]], {i, n}]];
+  prec = With[{\[Nu] = ArcCos[Cos2\[Pi]\[Nu]]/(2\[Pi])}, Quiet[-RealExponent[\[Beta][0, \[Nu]] + R[1, \[Nu]] + L[-1, \[Nu]]], {Power::infy, Infinity::indet}]];
   Clear[\[Alpha]\[Gamma], \[Beta], R, L];
-  prec
+  (* a continued fraction passing through a zero of no precision (a Cos[2 Pi nu] without correct digits)
+     gives ComplexInfinity or Indeterminate: no digit is correct *)
+  If[NumericQ[prec], prec, -Infinity]
 ];
 
 (* Estimate precision of \[Nu] based on the complex part of Cos[2 \[Pi] \[Nu]]. This is only valid
@@ -88,7 +96,7 @@ Cos2\[Pi]\[Nu]Series[a_, \[Omega]_, s_, l_, m_] :=
 
 (* Find \[Nu] using monodromy of confluent Heun equation *)
 \[Nu]RCHMonodromy[a_, \[Omega]_, \[Lambda]_, s_, l_, m_, Npmax_] :=
- Module[{q, \[Epsilon], \[Kappa], \[Tau], \[Gamma]CH, \[Delta]CH, \[Epsilon]CH, \[Alpha]CH\[Epsilon]CH, qCH, \[Mu]1C, \[Mu]2C, a1, a2, a1sum, a2sum, Pochhammerp1m2, Pochhammerm1p2, Cos2\[Pi]\[Nu], nmax, precision, \[Nu]},
+ Module[{q, \[Epsilon], \[Kappa], \[Tau], \[Gamma]CH, \[Delta]CH, \[Epsilon]CH, \[Alpha]CH\[Epsilon]CH, qCH, \[Mu]1C, \[Mu]2C, a1, a2, a1sum, a2sum, g1, g2, k0, Cos2\[Pi]\[Nu], extend, nmax, nmin, precision, \[Nu], iterations = 0},
   q = a;
   \[Epsilon] = 2 \[Omega];
   \[Kappa] = Sqrt[1-q^2];
@@ -113,50 +121,91 @@ Cos2\[Pi]\[Nu]Series[a_, \[Omega]_, s_, l_, m_] :=
   a2[0] = 1;
   a2[n_] := a2[n] = -((((\[Alpha]CH\[Epsilon]CH+(-2+n)) (\[Alpha]CH\[Epsilon]CH+(-1+n-\[Gamma]CH))\[Epsilon]CH) a2[n-2])/n)+((\[Alpha]CH\[Epsilon]CH^2+(n^2-qCH+\[Gamma]CH+\[Delta]CH-n (1+\[Gamma]CH+\[Delta]CH-\[Epsilon]CH)-\[Epsilon]CH)+\[Alpha]CH\[Epsilon]CH(-1+2 n-\[Gamma]CH-\[Delta]CH+\[Epsilon]CH)) a2[n-1])/n;
 
-  Pochhammerp1m2[0] = 1;
-  Pochhammerp1m2[i_] := Pochhammerp1m2[i] = (-\[Mu]2C+\[Mu]1C+i-1)Pochhammerp1m2[i-1];
-  Pochhammerm1p2[0] = 1;
-  Pochhammerm1p2[i_] := Pochhammerm1p2[i] = (\[Mu]2C-\[Mu]1C+i-1)Pochhammerm1p2[i-1];
+  (* The sums are Gamma[mu1 - mu2] Sum[a1[j] Pochhammer[mu1 - mu2, n - j]] and its mirror image, written
+     with Gamma[mu1 - mu2] Pochhammer[mu1 - mu2, k] = Gamma[mu1 - mu2 + k]: at the degeneracies
+     2 I epsilon = integer (omega = -I n/(4M)) the difference mu1 - mu2 = 2 I epsilon - 2 s is an integer,
+     Gamma[mu1 - mu2] or Gamma[mu2 - mu1] has a pole and the Pochhammer symbol the cancelling zero, so the
+     combined form is finite there, provided n - j + |mu1 - mu2| > 0 for every term (nmax > 2 |mu1 - mu2|,
+     enforced below), and nu is evaluated directly instead of from neighbouring frequencies. *)
+  (* The Gamma functions are memoised and built by the recurrence Gamma[x + 1] = x Gamma[x] from an anchor k0
+     beyond the poles (k0 > |mu1 - mu2|; every k used is at least Floor[nmax/2] > k0 since nmax >= nmin), one
+     multiplication per new term as with master's Pochhammer symbols: evaluating Gamma for every term of every
+     sum made the monodromy method 2.4 to 3.6 times slower *)
+  nmin = 2 Ceiling[Abs[\[Mu]1C-\[Mu]2C]] + 4;
+  k0 = Ceiling[Abs[\[Mu]1C-\[Mu]2C]] + 1;
+  g1[k0] = Gamma[\[Mu]1C-\[Mu]2C+k0];
+  g1[k_] := g1[k] = (\[Mu]1C-\[Mu]2C+k-1) g1[k-1];
+  g2[k0] = Gamma[\[Mu]2C-\[Mu]1C+k0];
+  g2[k_] := g2[k] = (\[Mu]2C-\[Mu]1C+k-1) g2[k-1];
+  a1sum[n_] := Sum[a1[j] g1[n-j], {j, 0, Ceiling[n/2]}];
+  a2sum[n_] := Sum[(-1)^j a2[j] g2[n-j], {j, 0, Ceiling[n/2]}];
 
-  a1sum[n_] := Gamma[-\[Mu]2C+\[Mu]1C] Sum[a1[j]Pochhammerp1m2[n-j], {j, 0, Ceiling[n/2]}]; 
-  a2sum[n_] := Gamma[\[Mu]2C-\[Mu]1C] Sum[(-1)^j a2[j]Pochhammerm1p2[n-j], {j, 0, Ceiling[n/2]}];
+  (* Fill the memoised tables up to n in increasing order, so that the recursion depth stays at one
+     whatever nmax is (evaluating a1[nmax] directly recursed nmax deep and exceeded $RecursionLimit) *)
+  extend[n_] := (Do[a1[i]; a2[i], {i, 1, n}]; Do[g1[k]; g2[k], {k, k0 + 1, n}]);
 
-  (* Compute \[Nu]. *)
-  Cos2\[Pi]\[Nu][nmax_] := Cos2\[Pi]\[Nu][nmax] = Cos[\[Pi](\[Mu]1C-\[Mu]2C)]+(2\[Pi]^2)/(a1sum[nmax] a2sum[nmax]) (-1)^(nmax-1) a1[nmax]a2[nmax];
+  (* Compute \[Nu]. The memoised tables are cleared on every path, including failure. *)
+  (* quiet: at a frequency where the recurrences overflow, a1sum a2sum is a zero of no precision and the
+     division issues Power::infy and Infinity::indet, whose held arguments kept references to the locals
+     mu1C and mu2C after the failure (leaked symbols); the failure itself is reported below *)
+  Cos2\[Pi]\[Nu][nmax_] := Cos2\[Pi]\[Nu][nmax] = Quiet[(extend[nmax]; Cos[\[Pi](\[Mu]1C-\[Mu]2C)]+(2\[Pi]^2)/(a1sum[nmax] a2sum[nmax]) (-1)^(nmax-1) a1[nmax]a2[nmax]), {Power::infy, Infinity::indet}];
+  \[Nu] = Catch[
   If[IntegerQ[Npmax],
-    nmax = Npmax;
-    If[Precision[Cos2\[Pi]\[Nu][nmax]] == 0, Return[$Failed]];
+    nmax = Max[Npmax, nmin];
+    If[!NumericQ[Cos2\[Pi]\[Nu][nmax]] || Precision[Cos2\[Pi]\[Nu][nmax]] == 0, Message[RenormalizedAngularMomentum::conv, \[Omega]]; Throw[$Failed, \[Nu]RCHMonodromy]];
   ,
     (* FIXME: we should be able to predict nmax based on the convergence for large nmax and the loss of precision in a1 and a2 *)
-    nmax = 2 Ceiling[E^ProductLog[Precision[{a, \[Omega], \[Lambda]}] Log[100]]];
-    If[Precision[Cos2\[Pi]\[Nu][nmax]] == 0, Return[$Failed]];
+    nmax = Max[2 Ceiling[E^ProductLog[Precision[{a, \[Omega], \[Lambda]}] Log[100]]], nmin];
+    If[!NumericQ[Cos2\[Pi]\[Nu][nmax]] || Precision[Cos2\[Pi]\[Nu][nmax]] == 0, Message[RenormalizedAngularMomentum::conv, \[Omega]]; Throw[$Failed, \[Nu]RCHMonodromy]];
 
-    (* Increase nmax by 10% until the precision of the result decreases *)
+    (* A first estimate without a single correct digit (the residual of the continued-fraction equation
+       above 1) does not improve with nmax: the precision is too low for this frequency, and larger nmax
+       only makes each evaluation slower (at omega = 30 I and 64 digits the next one took minutes, and the
+       padded retries of TeukolskyRadial ended in a kernel crash). Fail at once, so that the caller can retry
+       at a higher precision. *)
+    If[\[Nu]precision[Cos2\[Pi]\[Nu][nmax], q, \[Epsilon], \[Kappa], \[Tau], s, \[Lambda], m] < 0, Message[RenormalizedAngularMomentum::conv, \[Omega]]; Throw[$Failed, \[Nu]RCHMonodromy]];
+
+    (* Increase nmax by 10% until the precision of the result decreases; a bounded number of times, so
+       that a non-convergent case fails instead of exhausting memory *)
     precision = -Infinity;
     While[precision < (precision = \[Nu]precision[Cos2\[Pi]\[Nu][nmax], q, \[Epsilon], \[Kappa], \[Tau], s, \[Lambda], m]),
       nmax = Round[11/10 nmax];
-      If[Precision[Cos2\[Pi]\[Nu][nmax]] == 0, Return[$Failed]];
+      If[++iterations > 25, Message[RenormalizedAngularMomentum::conv, \[Omega]]; Throw[$Failed, \[Nu]RCHMonodromy]];
+      If[!NumericQ[Cos2\[Pi]\[Nu][nmax]] || Precision[Cos2\[Pi]\[Nu][nmax]] == 0, Message[RenormalizedAngularMomentum::conv, \[Omega]]; Throw[$Failed, \[Nu]RCHMonodromy]];
     ];
     nmax = Round[10/11 nmax];
   ];
     
+  (* the recurrences overflow at very large |epsilon| (a1[n] of order 10^15000 at omega = 270), leaving an
+     Indeterminate that the precision checks above do not see *)
+  If[!NumericQ[Cos2\[Pi]\[Nu][nmax]], Message[RenormalizedAngularMomentum::conv, \[Omega]]; Throw[$Failed, \[Nu]RCHMonodromy]];
   If[Precision[Cos2\[Pi]\[Nu][nmax]]=!=MachinePrecision,
-    Cos2\[Pi]\[Nu][nmax] = N[Cos2\[Pi]\[Nu][nmax], Max[\[Nu]precision[Cos2\[Pi]\[Nu][nmax], q, \[Epsilon], \[Kappa], \[Tau], s, \[Lambda], m],0]];
+    precision = \[Nu]precision[Cos2\[Pi]\[Nu][nmax], q, \[Epsilon], \[Kappa], \[Tau], s, \[Lambda], m];
+    (* no correct digit: fail, so that the caller retries at a higher precision, instead of returning a nu
+       of precision zero (at omega = 0.592 - 0.915 I, l = 8 and 32 digits an unevaluated expression) *)
+    If[!(precision > 0), Message[RenormalizedAngularMomentum::conv, \[Omega]]; Throw[$Failed, \[Nu]RCHMonodromy]];
+    Cos2\[Pi]\[Nu][nmax] = N[Cos2\[Pi]\[Nu][nmax], precision];
   ];
 
-  \[Nu] = Which[
+  (* The representative of nu (the class {+-nu + k}): the one continuous with nu = l + O(epsilon^2) at
+     small frequency, l - ArcCos[Cos[2 Pi nu]]/(2 Pi), on every branch. For a real frequency the imaginary
+     part of the cosine is roundoff and is dropped; where the cosine lies outside [-1, 1] the representative
+     is complex, l - 1/2 + i y (cosine below -1) or l + i y (above 1), the equivalents of the 1/2 + i y and
+     i y returned before, so that nu is continuous across the points where it turns complex (the earlier
+     representatives jumped by the integer l - 1 or l there). At a complex frequency the principal value
+     ArcCos[...]/(2 Pi), returned before, is near 0 at small frequency, where Pochhammer[2 nu + 2, n] in the
+     K_nu sums of the amplitudes has an exact pole. *)
+  Which[
     Im[\[Omega]] != 0,
-      ArcCos[Cos2\[Pi]\[Nu][nmax]]/(2\[Pi]),
-    Re[Cos2\[Pi]\[Nu][nmax]]<-1, 
-      1/2-Im[ArcCos[Re[Cos2\[Pi]\[Nu][nmax]]]/(2\[Pi])]I,
-    -1<=Re[Cos2\[Pi]\[Nu][nmax]]<=1,
-      l-ArcCos[Re[Cos2\[Pi]\[Nu][nmax]]]/(2\[Pi]),
-    Re[Cos2\[Pi]\[Nu][nmax]]>1,
-      -I Im[ArcCos[Re[Cos2\[Pi]\[Nu][nmax]]]/(2\[Pi])],
+      l - ArcCos[Cos2\[Pi]\[Nu][nmax]]/(2\[Pi]),
+    NumericQ[Cos2\[Pi]\[Nu][nmax]],
+      l - ArcCos[Re[Cos2\[Pi]\[Nu][nmax]]]/(2\[Pi]),
     True,
       $Failed
-  ];
-  Clear[a1, a2, Pochhammerp1m2, Pochhammerm1p2, a1sum, a2sum, Cos2\[Pi]\[Nu]];
+  ], \[Nu]RCHMonodromy];
+  (* Remove rather than Clear: a message issued during the evaluation (1/0 near a degeneracy) can keep a
+     reference to a memoised table, which would then survive as a leaked symbol *)
+  Remove[a1, a2, a1sum, a2sum, g1, g2, Cos2\[Pi]\[Nu], extend, \[Mu]1C, \[Mu]2C];   (* mu1C and mu2C leaked after a failed evaluation *)
   \[Nu]
 ];
 
@@ -215,8 +264,10 @@ RenormalizedAngularMomentum[s_Integer, l_Integer, m_Integer, a_?NumericQ, \[Omeg
 RenormalizedAngularMomentum[s_Integer, l_Integer, m_Integer, a_?NumericQ, \[Omega]_?NumericQ, opts:OptionsPattern[RenormalizedAngularMomentum]] :=
   RenormalizedAngularMomentum[s, l, m, a, \[Omega], SpinWeightedSpheroidalEigenvalue[s, l, m, a \[Omega]], opts];
 
-RenormalizedAngularMomentum /: N[RenormalizedAngularMomentum[s_Integer, l_Integer, m_Integer, a_?NumericQ, \[Omega]_?NumericQ, \[Lambda]_?NumericQ], Nopts:OptionsPattern[N]] :=
-  RenormalizedAngularMomentum[s, l, m, N[a, Nopts], N[\[Omega], Nopts], N[\[Lambda], Nopts]];
+(* With exact arguments the five-argument form rewrites itself in terms of the (unevaluated, exact)
+   spheroidal eigenvalue, so N must accept a non-numeric eigenvalue and apply itself to it. *)
+N[RenormalizedAngularMomentum[s_Integer, l_Integer, m_Integer, a_?NumericQ, \[Omega]_?NumericQ, \[Lambda]_, opts:OptionsPattern[RenormalizedAngularMomentum]], p_:MachinePrecision] ^:=
+  RenormalizedAngularMomentum[s, l, m, N[a, p], N[\[Omega], p], N[\[Lambda], p], opts];
 
 SetAttributes[RenormalizedAngularMomentum, {Protected, ReadProtected}];
 

@@ -13,7 +13,8 @@
 
 
 BeginPackage["Teukolsky`TeukolskyMode`",
-	{"Teukolsky`TeukolskyRadial`",
+	{"Teukolsky`",
+	 "Teukolsky`TeukolskyRadial`",
 	 "Teukolsky`ConvolveSource`",
 	 "KerrGeodesics`",
 	 "KerrGeodesics`KerrGeoOrbit`",
@@ -112,7 +113,7 @@ TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer
 
   domain = OptionValue["Domain"];
   If[MatchQ[domain, {_?NumericQ, _?NumericQ}],
-    If[\[Omega] == 0, Message[TeukolskyPointParticleMode::sout, "Domain"]; Return[$Failed]];
+    If[\[Omega] == 0, Message[TeukolskyPointParticleMode::sopt, "Domain"]; Return[$Failed]];
     R = Ruser = TeukolskyRadial[s, l, m, a, \[Omega], Method ->
       {"NumericalIntegration", "Domain"-> {"In" -> domain, "Up" -> domain}}];
   ,
@@ -124,9 +125,24 @@ TeukolskyPointParticleMode[s_Integer, l_Integer, m_Integer, n_Integer, k_Integer
     rmax = p/(1-e);
     Module[{eps=2/10^Floor[Precision[{p,e}]]}, rmin = (1-eps)rmin; rmax = (1+eps)rmax];
     If[\[Omega] != 0,
-      R = TeukolskyRadial[s, l, m, a, \[Omega], Method->{"NumericalIntegration","Domain"-> {"In"->{rmin,rmax}, "Up"->{rmin,rmax}}},
-        "Amplitudes" -> <|"In"-> R["In"]["UnscaledAmplitudes"], "Up"-> R["Up"]["UnscaledAmplitudes"]|>,
-        "RenormalizedAngularMomentum"-> R["In"]["RenormalizedAngularMomentum"], "Eigenvalue" -> R["In"]["Eigenvalue"]];
+      (* Interpolating solutions over the radial range of the orbit.  The integration starts from the
+         values of the global solutions at the edges of the range, with precision and accuracy goals two
+         digits below the working precision, so that the accuracy of the global solutions is retained.
+         The global solutions are only used when their domains cover the range of the orbit. *)
+      Module[{wp = Precision[{a, \[Omega]}], covers},
+        covers[bc_] := Module[{dom = R[bc]["Domain"]}, dom === All || (ListQ[dom] && dom[[1]] <= rmin && rmax <= dom[[2]])];
+        (* the eigenvalue and nu are those of the global solutions, registered there if they were supplied *)
+        Block[{Teukolsky`MST`MST`Private`$registerSupplied = False}, If[covers["In"] && covers["Up"],
+          R = TeukolskyRadial[s, l, m, a, \[Omega], Method->{"NumericalIntegration","Domain"-> {"In"->{rmin,rmax}, "Up"->{rmin,rmax}},
+              "BoundaryData" -> <|"In" -> Append[R["In"][rmin, {0, 1}], rmin], "Up" -> Append[R["Up"][rmax, {0, 1}], rmax]|>},
+            PrecisionGoal -> wp - 2, AccuracyGoal -> wp - 2,
+            "Amplitudes" -> <|"In"-> R["In"]["UnscaledAmplitudes"], "Up"-> R["Up"]["UnscaledAmplitudes"]|>,
+            "RenormalizedAngularMomentum"-> R["In"]["RenormalizedAngularMomentum"], "Eigenvalue" -> R["In"]["Eigenvalue"]];,
+          R = TeukolskyRadial[s, l, m, a, \[Omega], Method->{"NumericalIntegration","Domain"-> {"In"->{rmin,rmax}, "Up"->{rmin,rmax}}},
+            "Amplitudes" -> <|"In"-> R["In"]["UnscaledAmplitudes"], "Up"-> R["Up"]["UnscaledAmplitudes"]|>,
+            "RenormalizedAngularMomentum"-> R["In"]["RenormalizedAngularMomentum"], "Eigenvalue" -> R["In"]["Eigenvalue"]];
+        ]];
+      ];
     ];
   ,
     rmin = rmax = p;
