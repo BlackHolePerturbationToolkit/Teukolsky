@@ -181,3 +181,56 @@ VerificationTest[
   {TeukolskyRadial::wcdom},
   TestID -> "A forced Wronskian check with disjoint domains is refused"
 ]
+
+(* domains that share only an endpoint are checked there *)
+VerificationTest[
+  Keys[TeukolskyRadial[-2, 2, 2, 0.5, 0.1, Method -> {"NumericalIntegration", "Domain" -> {"In" -> {3, 4}, "Up" -> {4, 5}}}, "WronskianCheck" -> True]],
+  {"In", "Up"},
+  TestID -> "A forced Wronskian check with domains sharing an endpoint runs"
+]
+
+(* a domain given by one radius extends from it to the boundary data, which lie on its other side: "Up" beyond
+   the default boundary radius (r = 1000 for MST data, about 260 for series data here) and "In" inside r+ + 1/5
+   had domains of zero length *)
+VerificationTest[
+  Module[{Rm = TeukolskyRadial[-2, 2, 2, 0.5, 0.1], RmIn = TeukolskyRadial[0, 2, 2, 0., 0.1, "BoundaryConditions" -> "In"], up, in},
+    up = Table[TeukolskyRadial[-2, 2, 2, 0.5, 0.1, "BoundaryConditions" -> "Up", Method -> {"NumericalIntegration", "Domain" -> d, "BoundaryMethod" -> bm}],
+      {d, {500, 2000}}, {bm, {"MST", "Series"}}];
+    in = Table[TeukolskyRadial[0, 2, 2, 0., 0.1, "BoundaryConditions" -> "In", Method -> {"NumericalIntegration", "Domain" -> 2.1, "BoundaryMethod" -> bm}], {bm, {"MST", "Series"}}];
+    {Map[First[#["Domain"]] &, up, {2}],
+     Max[Table[Abs[up[[i, j]][x]/Rm["Up"][x] - 1], {i, 2}, {j, 2}, {x, {{500., 700.}, {2000., 2500.}}[[i]]}]] < 10^-10,
+     #["Domain"] & /@ in, Max[Abs[(#[2.08] & /@ in)/RmIn[2.08] - 1]] < 10^-12}],
+  {{{500., 500.}, {2000., 2000.}}, True, {{2.05, 2.2}, {2.05, 2.2}}, True},
+  TestID -> "A domain given by one radius covers it"
+]
+
+(* a single solution without a risk indicator is built alone, not with the companion the check would need *)
+VerificationTest[
+  With[{f = Teukolsky`TeukolskyRadial`Private`TeukolskyRadialNumericalIntegration},
+    Module[{seen = {}, R},
+      Internal`InheritedBlock[{f},
+        DownValues[f] = Prepend[DownValues[f], HoldPattern[f[args__]] :> Null /; (AppendTo[seen, {args}[[8]]]; False)];
+        R = TeukolskyRadial[-2, 2, 2, 0.5, 0.1, "BoundaryConditions" -> "In", Method -> "NumericalIntegration"]];
+      {seen, Head[R]}]],
+  {{"In"}, TeukolskyRadialFunction},
+  TestID -> "A single solution is built alone when the Wronskian check is skipped"
+]
+
+(* the check of numerically integrated solutions asks for no more than the goals the integration was given *)
+VerificationTest[
+  Keys[TeukolskyRadial[-2, 2, 2, 1/2, 1/10, Method -> "NumericalIntegration", WorkingPrecision -> 32, PrecisionGoal -> 6, "WronskianCheck" -> True]],
+  {"In", "Up"},
+  TestID -> "The Wronskian check of numerical integration follows the requested goals at arbitrary precision"
+]
+
+(* lists of radii below r+ + 1 go to the integration on demand of the flipped-spin "Up" solution together *)
+VerificationTest[
+  Module[{R = TeukolskyRadial[-2, 2, 2, 0.5, 0.1, "BoundaryConditions" -> "Up", Method -> "NumericalIntegration"], rs = Append[Table[1.9 + 0.1 k, {k, 0, 9}], 50.], n = 0, v, d},
+    Internal`InheritedBlock[{NDSolveValue},
+      Unprotect[NDSolveValue]; PrependTo[DownValues[NDSolveValue], HoldPattern[NDSolveValue[___]] :> Null /; (n++; False)];
+      v = R[rs]];
+    d = R'[rs];
+    {n, Max[Abs[v/(R /@ rs) - 1]] < 10^-12, Max[Abs[d/(R' /@ rs) - 1]] < 10^-11}],
+  {1, True, True},
+  TestID -> "Lists of radii are integrated together for the flipped-spin Up solution"
+]
