@@ -319,9 +319,11 @@ Derivative[1][tsMappedFunction[f_, g_, df_, dg_, C_, Rp_, sp_, \[Lambda]p_, a_, 
 (* A radial function assembled from two pieces: fp (the Teukolsky-Starobinsky map of the flipped-spin
    integration) for r >= rc and fm (the integration at the original spin below rc) for r < rc *)
 flippedFunction[fp_, fm_, rc_][r_?NumericQ] := If[r >= rc, fp[r], fm[r]];
-flippedFunction[fp_, fm_, rc_][r:{__?NumericQ}] := Map[flippedFunction[fp, fm, rc], r];
+(* on a list of radii those below rc go to fm together, so that an integration on demand (AllIntegrator) covers
+   them in a single call instead of one per radius *)
+flippedFunction[fp_, fm_, rc_][r:{__?NumericQ}] := Teukolsky`NumericalIntegration`Private`splitEvaluate[flippedFunction[fp, fm, rc], fm, rc, r];
 Derivative[1][flippedFunction[fp_, fm_, rc_]][r_?NumericQ] := If[r >= rc, fp'[r], fm'[r]];
-Derivative[1][flippedFunction[fp_, fm_, rc_]][r:{__?NumericQ}] := Map[Derivative[1][flippedFunction[fp, fm, rc]], r];
+Derivative[1][flippedFunction[fp_, fm_, rc_]][r:{__?NumericQ}] := Teukolsky`NumericalIntegration`Private`splitEvaluate[Derivative[1][flippedFunction[fp, fm, rc]], fm', rc, r];
 
 (* {f, g} for the given parameters, as expressions in the symbol r *)
 teukolskyStarobinskyFlip[s_Integer?Positive, \[Lambda]_, a_, m_, \[Omega]_, r_] :=
