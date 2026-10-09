@@ -248,6 +248,10 @@ degeneracyMessages[n_, \[Omega]_, amps_Association] :=
    Indeterminate by design and must not trigger its retries *)
 $acceptIndeterminate = False;
 
+(* The "WronskianCheck" option of the TeukolskyRadial call, set while it builds the solutions: False also
+   disables the accuracy estimate of the machine-precision default (TeukolskyRadialAutomaticMachinePrecision) *)
+$wronskianCheck = Automatic;
+
 (* The amplitude a solution is normalised to: unit transmission, except for an "In" solution whose
    transmission amplitude vanishes at a degeneracy 2 I epsilon_+ = n >= 1 - s (see epsilonPlusDegeneracy),
    which is normalised to unit incidence. $degenerateIn, set by TeukolskyRadial while it builds the solutions
@@ -548,13 +552,14 @@ radialAccuracyEstimate[R_Association, s_Integer, a_, \[Omega]_] :=
 
 (* The accuracy estimate needs both solutions and the amplitudes B^inc and C^trans; it is made only when
    they are all there (both solutions requested and the amplitudes computed), so that asking for one solution
-   costs one integration and disabling the amplitudes does not produce a meaningless warning. *)
+   costs one integration and disabling the amplitudes does not produce a meaningless warning. With
+   "WronskianCheck" -> False it is not made at all. *)
 TeukolskyRadialAutomaticMachinePrecision[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, \[Lambda]_, \[Nu]_, BCs_, norms_, {wp_, prec_, acc_}, opts:OptionsPattern[]] :=
  Module[{R, e},
   (* the user's goals; by default PrecisionGoal is already WorkingPrecision - 2, and the absolute AccuracyGoal,
      Infinity for the MST series, is set to the same for the integration *)
   R = TeukolskyRadialNumericalIntegration[s, l, m, a, \[Omega], \[Lambda], \[Nu], BCs, norms, {wp, prec, If[acc === Infinity, $MachinePrecision - 2, acc]}, opts];
-  If[ListQ[BCs] && ContainsAll[BCs, {"In", "Up"}] && AssociationQ[R] && NumericQ[Lookup[norms["In"], "Incidence", None]] && NumericQ[Lookup[norms["Up"], "Transmission", None]] && norms["Up"]["Transmission"] != 0,
+  If[$wronskianCheck =!= False && ListQ[BCs] && ContainsAll[BCs, {"In", "Up"}] && AssociationQ[R] && NumericQ[Lookup[norms["In"], "Incidence", None]] && NumericQ[Lookup[norms["Up"], "Transmission", None]] && norms["Up"]["Transmission"] != 0,
     e = radialAccuracyEstimate[R, s, a, \[Omega]];
     (* warned about only when the estimate falls short of what the goals asked for: with PrecisionGoal -> 6
        the expected 1e-5 was reported as a failure *)
@@ -954,7 +959,7 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
 
     Null
   ];
-  computeFunctions[bcs_] := Block[{$degenerateIn = epsilonPlusDegeneracy[s, m, a, \[Omega], wp] =!= None},
+  computeFunctions[bcs_] := Block[{$degenerateIn = epsilonPlusDegeneracy[s, m, a, \[Omega], wp] =!= None, $wronskianCheck = OptionValue["WronskianCheck"]},
     TRF[s, l, m, a, \[Omega], \[Lambda], \[Nu], bcs, norms, {wp, prec, acc}, Sequence@@subopts]];
   compute[extra_, bcs_] := If[computeParameters[extra] === $Failed, $Failed, computeFunctions[bcs]];
 
