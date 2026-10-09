@@ -801,7 +801,7 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
 
 
 TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPattern[]] /; AllTrue[{a, \[Omega]}, NumericQ] && (InexactNumberQ[a] || InexactNumberQ[\[Omega]]) :=
- Module[{TRF, subopts, BCs, norms, \[Nu], \[Lambda], wp, prec, acc, compute, check, extra, wpn, tol, res, e, k, ampPadding, ampRetried},
+ Module[{TRF, subopts, BCs, norms, \[Nu], \[Lambda], wp, prec, acc, compute, computeParameters, computeFunctions, check, extra, wpn, tol, res, e, k, ampPadding, ampRetried},
   (* Extract suboptions from Method to be passed on. *)
   If[ListQ[OptionValue[Method]],
     subopts = Rest[OptionValue[Method]];,
@@ -887,8 +887,10 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
 
   (* The renormalized angular momentum, the asymptotic amplitudes and the radial functions, computed with
      extra working precision beyond the padding of the individual evaluations when the Wronskian check
-     below has found that necessary for this mode (see mstWronskianError). *)
-  compute[extra_, bcs_] := Module[{},
+     below has found that necessary for this mode (see mstWronskianError). The parameters (nu and the
+     amplitudes) are computed first, so that the risk indicators of the check are known before the radial
+     functions are built. *)
+  computeParameters[extra_] := Module[{},
   (* Renormalized angular momentum *)
     Which[
     OptionValue["RenormalizedAngularMomentum"] === False,
@@ -944,9 +946,11 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
       Return[$Failed];
     ];
 
-    Block[{$degenerateIn = epsilonPlusDegeneracy[s, m, a, \[Omega], wp] =!= None},
-      TRF[s, l, m, a, \[Omega], \[Lambda], \[Nu], bcs, norms, {wp, prec, acc}, Sequence@@subopts]]
+    Null
   ];
+  computeFunctions[bcs_] := Block[{$degenerateIn = epsilonPlusDegeneracy[s, m, a, \[Omega], wp] =!= None},
+    TRF[s, l, m, a, \[Omega], \[Lambda], \[Nu], bcs, norms, {wp, prec, acc}, Sequence@@subopts]];
+  compute[extra_, bcs_] := If[computeParameters[extra] === $Failed, $Failed, computeFunctions[bcs]];
 
   (* Call the chosen implementation, checking the MST solutions through their Wronskian and, when the
      check fails, recomputing everything with the working precision raised by wp and then 3 wp. With
@@ -991,11 +995,8 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
     Return[If[ListQ[BCs], KeyTake[res, BCs], res[BCs]]];
   ];
   If[!check, Return[compute[extra, BCs]]];
-  (* the check needs both solutions: a domain given for the requested one alone is used for its companion too *)
-  subopts = pairDomainOptions[subopts, BCs];
   {ampPadding, ampRetried} = {0, False};
-  res = compute[extra, {"In", "Up"}];
-  If[res === $Failed, Return[$Failed]];
+  If[computeParameters[extra] === $Failed, Return[$Failed]];
   (* High l at large frequency: the coefficient recurrence can converge to its wrong solution without needing
      much padding at moderate working precision (l = 36, m = 2, omega = 3 needs 11 digits at 24 and 40 digits and
      is then wrong by O(1) with full tracked precision). In a scan of l = 8 to 80 at 24 and 40 digits such
@@ -1009,9 +1010,15 @@ TeukolskyRadial[s_Integer, l_Integer, m_Integer, a_, \[Omega]_, opts:OptionsPatt
      are checked as well. At real frequencies nu is near l for every small omega and these modes come out right,
      so the check (two summations of the series) is not added there. *)
   (* nu within 0.05 of an integer: a case 0.013 away (s = -1, l = 10, omega = 1/20 + I/5) was wrong as well *)
+  (* without a risk indicator only the requested solutions are built (the companion of a single one cost its
+     boundary data and integration for nothing) *)
   If[OptionValue["WronskianCheck"] === Automatic && !(ampPadding > 40 || ampRetried || extra > 0 || (l >= 15 && Abs[\[Omega]] >= 3/2) ||
       (Im[\[Omega]] != 0 && NumericQ[\[Nu]] && Abs[\[Nu] - Round[Re[\[Nu]]]] < 5/100) || (TRF === TeukolskyRadialNumericalIntegration && Im[\[Omega]] != 0)),
-    Return[If[ListQ[BCs], KeyTake[res, BCs], res[BCs]]]];
+    Return[computeFunctions[BCs]]];
+  (* the check needs both solutions: a domain given for the requested one alone is used for its companion too *)
+  subopts = pairDomainOptions[subopts, BCs];
+  res = computeFunctions[{"In", "Up"}];
+  If[res === $Failed, Return[$Failed]];
   wpn = If[wp === MachinePrecision, $MachinePrecision, wp];
   (* the identity is computed from four values and two amplitudes and loses a few digits to their cancellation
      and rounding: at 50 digits a correct l = 20 mode showed 1e-44, which a fixed 10^(4 - wp) took for a failure
